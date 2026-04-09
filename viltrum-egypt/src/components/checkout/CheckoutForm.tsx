@@ -26,13 +26,13 @@ export default function CheckoutForm({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!name.trim()) newErrors.name = "Name is required";
-    if (!phone.trim()) newErrors.phone = "Phone is required";
+    if (!name.trim()) newErrors.name = "LEGAL NAME IS REQUIRED";
+    if (!phone.trim()) newErrors.phone = "CONTACT NUMBER IS REQUIRED";
     else if (!/^01[0125]\d{8}$/.test(phone.replace(/\s/g, "")))
-      newErrors.phone = "Enter a valid Egyptian phone number";
-    if (!address.trim()) newErrors.address = "Address is required";
+      newErrors.phone = "INVALID EGYPTIAN PROTOCOL";
+    if (!address.trim()) newErrors.address = "DETAILED ADDRESS IS REQUIRED";
     else if (address.trim().length < 10)
-      newErrors.address = "Please provide a detailed address";
+      newErrors.address = "PROVIDE MORE PRECISION IN ADDRESS";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -45,121 +45,117 @@ export default function CheckoutForm({
   };
 
   return (
-    <form onChange={handleSubmit} className="space-y-12">
-      {/* Name */}
-      <div className="space-y-4">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-          Full Name
-        </label>
-        <input
-          id="checkout-name"
-          type="text"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            // Auto submit on change to sync with parent
-            onSubmit({ name: e.target.value, phone, address, paymentMethod });
-          }}
-          placeholder="e.g. AMMAR MOKHTAR"
-          className="viltrum-input"
-        />
-        {errors.name && (
-          <p className="text-[10px] text-red-600 font-bold uppercase tracking-widest">{errors.name}</p>
-        )}
-      </div>
+    <form onChange={handleSubmit} className="space-y-20">
+      <div className="space-y-16">
+        {/* Name */}
+        <div className="space-y-6">
+          <label className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-900 block border-l-2 border-zinc-900 pl-4">
+            Full Legal Name
+          </label>
+          <input
+            id="checkout-name"
+            type="text"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value.toUpperCase());
+              onSubmit({ name: e.target.value.toUpperCase(), phone, address, paymentMethod });
+            }}
+            placeholder="E.G. AMMAR MOKHTAR"
+            className="viltrum-input !text-lg !py-6"
+          />
+          {errors.name && (
+            <p className="text-[10px] text-red-600 font-black uppercase tracking-widest">{errors.name}</p>
+          )}
+        </div>
 
-      {/* Phone */}
-      <div className="space-y-4">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-          Phone Number
-        </label>
-        <input
-          id="checkout-phone"
-          type="tel"
-          value={phone}
-          onChange={(e) => {
-            setPhone(e.target.value);
-            onSubmit({ name, phone: e.target.value, address, paymentMethod });
-          }}
-          placeholder="01XXXXXXXXX"
-          className="viltrum-input"
-        />
-        {errors.phone && (
-          <p className="text-[10px] text-red-600 font-bold uppercase tracking-widest">{errors.phone}</p>
-        )}
-      </div>
+        {/* Phone */}
+        <div className="space-y-6">
+          <label className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-900 block border-l-2 border-zinc-900 pl-4">
+            Contact Number
+          </label>
+          <input
+            id="checkout-phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value);
+              onSubmit({ name, phone: e.target.value, address, paymentMethod });
+            }}
+            placeholder="01XXXXXXXXX"
+            className="viltrum-input !text-lg !py-6"
+          />
+          {errors.phone && (
+            <p className="text-[10px] text-red-600 font-black uppercase tracking-widest">{errors.phone}</p>
+          )}
+        </div>
 
-      {/* Address */}
-      <div className="space-y-4">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-          Detailed Address
-        </label>
-        <textarea
-          id="checkout-address"
-          value={address}
-          onChange={(e) => {
-            setAddress(e.target.value);
-            onSubmit({ name, phone, address: e.target.value, paymentMethod });
-          }}
-          placeholder="City, Area, Street, Building, Floor..."
-          rows={3}
-          className="viltrum-input !py-4 resize-none"
-        />
-        {errors.address && (
-          <p className="text-[10px] text-red-600 font-bold uppercase tracking-widest">{errors.address}</p>
-        )}
+        {/* Address */}
+        <div className="space-y-6">
+          <label className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-900 block border-l-2 border-zinc-900 pl-4">
+            Shipping Destination
+          </label>
+          <textarea
+            id="checkout-address"
+            value={address}
+            onChange={(e) => {
+              setAddress(e.target.value);
+              onSubmit({ name, phone, address: e.target.value, paymentMethod });
+            }}
+            placeholder="CITY, AREA, STREET, BUILDING..."
+            rows={4}
+            className="viltrum-input !text-lg !py-6 resize-none"
+          />
+          {errors.address && (
+            <p className="text-[10px] text-red-600 font-black uppercase tracking-widest">{errors.address}</p>
+          )}
+        </div>
       </div>
 
       {/* Payment Method Toggle */}
-      <div className="space-y-6 pt-6 border-t border-zinc-100">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-          Payment Method
+      <div className="space-y-10 pt-16 border-t border-zinc-100">
+        <label className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-900 block border-l-2 border-zinc-900 pl-4">
+          Transfer Method
         </label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <button
             type="button"
             onClick={() => onPaymentMethodChange("vodafone_cash")}
-            className={`flex flex-col items-center justify-center py-6 px-4 border transition-all duration-300 ${
+            className={`flex flex-col items-center justify-center py-10 px-6 border transition-all duration-500 rounded-none ${
               paymentMethod === "vodafone_cash"
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-100 bg-zinc-50 text-zinc-400 hover:border-zinc-200"
+                ? "border-zinc-900 bg-zinc-900 text-white shadow-xl shadow-zinc-900/10"
+                : "border-zinc-100 bg-white text-zinc-400 hover:border-zinc-300"
             }`}
           >
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+            <span className="text-xs font-black uppercase tracking-[0.3em]">
               Vodafone Cash
             </span>
           </button>
           <button
             type="button"
             onClick={() => onPaymentMethodChange("instapay")}
-            className={`flex flex-col items-center justify-center py-6 px-4 border transition-all duration-300 ${
+            className={`flex flex-col items-center justify-center py-10 px-6 border transition-all duration-500 rounded-none ${
               paymentMethod === "instapay"
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-100 bg-zinc-50 text-zinc-400 hover:border-zinc-200"
+                ? "border-zinc-900 bg-zinc-900 text-white shadow-xl shadow-zinc-900/10"
+                : "border-zinc-100 bg-white text-zinc-400 hover:border-zinc-300"
             }`}
           >
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+            <span className="text-xs font-black uppercase tracking-[0.3em]">
               InstaPay
             </span>
           </button>
         </div>
 
         {/* Payment Instructions */}
-        <div className="p-6 bg-zinc-50 border border-zinc-100">
-          <div className="flex items-start gap-4">
-            <CreditCard size={18} className="text-zinc-900 mt-1" />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-2">Instruction</p>
-              <p className="text-sm text-zinc-900 leading-relaxed font-bold">
-                {paymentMethod === "vodafone_cash" ? (
-                  <>
-                    Send to <span className="underline decoration-2 underline-offset-4">01031429229</span> via Vodafone Cash, kemudian upload screenshot bukti pembayaran.
-                  </>
-                ) : (
-                  <>
-                    Send to <span className="underline decoration-2 underline-offset-4">01031429229</span> via InstaPay, kemudian upload screenshot bukti pembayaran.
-                  </>
-                )}
+        <div className="p-10 bg-zinc-900 text-white border border-zinc-900">
+          <div className="flex items-start gap-6">
+            <CreditCard size={24} className="text-zinc-400 mt-1" />
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-400">Transfer Securely To:</p>
+              <p className="text-2xl font-display font-bold tracking-widest">
+                01031429229
+              </p>
+              <p className="text-[10px] font-bold text-zinc-500 leading-relaxed uppercase tracking-widest pt-2">
+                AFTER TRANSFER, TAKE A CLEAR SCREENSHOT AND UPLOAD IT IN THE SECTION BELOW TO VALIDATE YOUR DROP.
               </p>
             </div>
           </div>
