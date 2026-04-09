@@ -13,8 +13,8 @@ import CartDrawer from "@/components/cart/CartDrawer";
 const DEMO_PRODUCTS: Product[] = [
   {
     id: "demo-1",
-    title: "Viltrumite White Compression",
-    description: "Premium white compression shirt with reinforced shoulder panels and moisture-wicking technology.",
+    title: "Core White Compression",
+    description: "Clean-cut white compression top with a body-contouring fit and premium stretch recovery.",
     price: 450,
     image_url: "/products/Screenshot 2026-04-09 135734.png",
     sizes: ["S", "M", "L", "XL", "XXL"],
@@ -24,8 +24,8 @@ const DEMO_PRODUCTS: Product[] = [
   },
   {
     id: "demo-2",
-    title: "Viltrumite Black Compression",
-    description: "Stealth black compression shirt with mesh ventilation panels and ergonomic muscle mapping.",
+    title: "Stealth Black Compression",
+    description: "Matte black compression piece with sharp contrast lines and a stronger athletic silhouette.",
     price: 450,
     image_url: "/products/Screenshot 2026-04-09 140204.png",
     sizes: ["S", "M", "L", "XL", "XXL"],
@@ -35,8 +35,8 @@ const DEMO_PRODUCTS: Product[] = [
   },
   {
     id: "demo-3",
-    title: "Viltrumite White Pro",
-    description: "Professional-grade white compression with back support technology and athletic fit.",
+    title: "White Pro Form",
+    description: "Refined performance layer designed for locked-in sessions and a polished gym look.",
     price: 500,
     image_url: "/products/Screenshot 2026-04-09 135833.png",
     sizes: ["S", "M", "L", "XL", "XXL"],
@@ -46,8 +46,8 @@ const DEMO_PRODUCTS: Product[] = [
   },
   {
     id: "demo-4",
-    title: "Viltrumite Black Elite",
-    description: "Elite black compression with reinforced back panel and maximum support structure.",
+    title: "Black Elite Form",
+    description: "Premium black essential with a supportive fit, clean structure, and elevated visual finish.",
     price: 500,
     image_url: "/products/Screenshot 2026-04-09 140240.png",
     sizes: ["S", "M", "L", "XL", "XXL"],
@@ -57,8 +57,8 @@ const DEMO_PRODUCTS: Product[] = [
   },
   {
     id: "demo-5",
-    title: "Viltrumite Training Tee",
-    description: "Versatile training compression with side-logo branding and flexible body-mapped panels.",
+    title: "Training Essential Tee",
+    description: "Versatile performance tee made to feel sharp, breathable, and ready for everyday training.",
     price: 400,
     image_url: "/products/Screenshot 2026-04-09 140043.png",
     sizes: ["S", "M", "L", "XL", "XXL"],

@@ -98,7 +98,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
           <div className="w-24 h-24 rounded-full bg-viltrum-red/8 flex items-center justify-center mx-auto mb-8 red-glow">
             <span className="text-viltrum-red text-4xl font-display font-black">V</span>
           </div>
-          <h2 className="text-3xl font-display font-black text-viltrum-white mb-4 tracking-tight">
+          <h2 className="mb-4 font-display text-[3rem] leading-none tracking-[0.08em] text-viltrum-white">
             Collection Coming Soon
           </h2>
           <p className="text-viltrum-mist/40 max-w-md mx-auto text-sm leading-relaxed">
@@ -125,19 +125,19 @@ export default function ProductGrid({ products }: ProductGridProps) {
 
         {/* Section Heading */}
         <div ref={headingRef} className="text-center mb-24 md:mb-32 space-y-6">
-          <span className="inline-flex items-center gap-2 px-6 py-2 rounded-full border border-viltrum-mist/10 bg-white/5 text-viltrum-white text-xs tracking-[0.4em] font-medium uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-viltrum-white/60" />
-            The Collection
+          <span className="section-eyebrow">
+            <span className="section-eyebrow-dot" />
+            Signature Selection
           </span>
 
-          <h2 className="font-display text-5xl md:text-6xl lg:text-7xl font-black text-viltrum-white tracking-tighter leading-[0.95]">
-            BUILT FOR{" "}
-            <span className="text-gradient-blood">WARRIORS</span>
+          <h2 className="section-title text-[4rem] text-viltrum-white md:text-[5.2rem] lg:text-[6.6rem]">
+            Made For <span className="text-gradient-blood">Presence</span>
           </h2>
 
-          <p className="text-viltrum-mist max-w-lg mx-auto text-base leading-relaxed mt-8">
-            Each piece is precision-engineered for peak performance, 
-            unmatched comfort, and a look that commands respect.
+          <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-viltrum-silver/80 md:text-lg">
+            A tighter edit of premium essentials designed to hold shape,
+            elevate silhouette, and make every training look feel more
+            intentional.
           </p>
         </div>
 

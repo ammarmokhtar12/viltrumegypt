@@ -74,11 +74,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       ref={cardRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="group rounded-2xl overflow-hidden transition-all duration-300"
-      style={{
-        background: "rgba(18, 18, 18, 0.95)",
-        border: "1px solid rgba(240, 240, 240, 0.06)",
-      }}
+      className="glass-card group overflow-hidden rounded-[28px] transition-all duration-300"
     >
       {/* Product Image — 4:5 Aspect Ratio */}
       <div className="relative overflow-hidden bg-viltrum-gray" style={{ aspectRatio: "4/5" }}>
@@ -103,9 +99,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-60" />
 
-        {/* Price tag floating on image */}
+        <div className="absolute left-4 top-4 z-10">
+          <span className="rounded-full border border-white/10 bg-black/45 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-viltrum-white backdrop-blur-md">
+            Premium Drop
+          </span>
+        </div>
+
         <div className="absolute bottom-4 left-4 z-10">
-          <span className="text-2xl font-black text-white drop-shadow-lg font-display">
+          <span className="font-display text-[2.2rem] leading-none text-white drop-shadow-lg">
             {formatPrice(product.price)}
           </span>
         </div>
@@ -115,11 +116,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="p-8 space-y-6">
         {/* Title */}
         <div>
-          <h3 className="text-lg font-bold text-viltrum-white tracking-wide leading-tight font-display">
+          <h3 className="font-display text-[2rem] leading-none tracking-[0.08em] text-viltrum-white">
             {product.title}
           </h3>
           {product.description && (
-            <p className="text-[13px] text-viltrum-mist/50 mt-2 line-clamp-2 leading-relaxed">
+            <p className="mt-3 line-clamp-2 text-[14px] leading-relaxed text-viltrum-mist/70">
               {product.description}
             </p>
           )}
@@ -128,17 +129,17 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Size Selector (Hidden until hover) */}
         <div className="grid transition-all duration-[400ms] grid-rows-[0fr] opacity-0 group-hover:grid-rows-[1fr] group-hover:opacity-100 overflow-hidden">
           <div className="space-y-3 min-h-0">
-            <span className="block text-[10px] tracking-[0.2em] text-viltrum-mist/40 uppercase font-semibold">
-              Select Size
+            <span className="block text-[10px] tracking-[0.24em] text-viltrum-mist/45 uppercase font-semibold">
+              Choose Size
             </span>
             <div className="flex gap-2 flex-wrap pb-1">
               {availableSizes.map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`armor-ghost-btn px-4 py-2 rounded-lg text-xs font-semibold ${
+                  className={`armor-ghost-btn px-4 py-2 text-xs font-semibold ${
                     selectedSize === size
-                      ? "!border-viltrum-white/50 !text-viltrum-white !bg-white/5 !shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                      ? "!border-viltrum-white/40 !text-viltrum-white !bg-white/10 !shadow-[0_0_15px_rgba(255,255,255,0.08)]"
                       : ""
                   }`}
                 >
@@ -155,11 +156,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           id={`add-to-cart-${product.id}`}
           onClick={handleAddToCart}
           disabled={!selectedSize || added}
-          className={`armor-btn w-full py-4 px-6 rounded-xl font-bold text-[13px] tracking-[0.15em] uppercase flex items-center justify-center gap-2.5 ${
+          className={`armor-btn flex w-full items-center justify-center gap-2.5 px-6 py-4 text-[13px] font-extrabold tracking-[0.15em] uppercase ${
             added
               ? "!bg-green-600/90 !text-white !border-green-500 !shadow-[0_0_20px_rgba(34,197,94,0.2)]"
               : !selectedSize
-              ? "!bg-viltrum-gray-light/60 !text-viltrum-mist/25 !border-transparent cursor-not-allowed !shadow-none"
+              ? "!bg-viltrum-gray-light/60 !text-viltrum-mist/25 !border-transparent !cursor-not-allowed !shadow-none"
               : ""
           }`}
         >
@@ -171,7 +172,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           ) : (
             <>
               <ShoppingBag size={15} />
-              {selectedSize ? "Add to Cart" : "Select Size"}
+              {selectedSize ? "Add To Cart" : "Select A Size"}
             </>
           )}
         </button>

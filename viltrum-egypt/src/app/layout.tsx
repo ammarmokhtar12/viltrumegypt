@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Bebas_Neue, Manrope } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const manrope = Manrope({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-manrope",
   display: "swap",
 });
 
-const outfit = Outfit({
+const bebasNeue = Bebas_Neue({
+  weight: "400",
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-bebas",
   display: "swap",
 });
 
@@ -39,8 +40,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable}`} data-scroll-behavior="smooth">
-      <body className="font-sans antialiased bg-[#0A0A0A] text-viltrum-white">{children}</body>
+    <html
+      lang="en"
+      className={`${manrope.variable} ${bebasNeue.variable}`}
+      data-scroll-behavior="smooth"
+    >
+      <body className="font-sans antialiased bg-[#050505] text-viltrum-white">
+        {children}
+      </body>
     </html>
   );
 }
