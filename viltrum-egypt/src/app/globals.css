@@ -7,8 +7,8 @@
   --color-secondary: #71717a; /* Zinc 500 */
   --color-border-light: #e4e4e7; /* Zinc 200 */
   --color-accent: #dc2626; /* Red 600 - used very sparingly */
-  --font-sans: var(--font-manrope), system-ui, sans-serif;
-  --font-display: var(--font-bebas), Impact, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-outfit), Impact, sans-serif;
 }
 
 :root {
@@ -75,7 +75,7 @@ body {
   font-weight: 600;
   font-size: 0.875rem;
   letter-spacing: 0.05em;
-  border-radius: 0; /* Sharp edges for high-end feel */
+  border-radius: 9999px; /* Pill shape for premium feel */
   transition: background-color 0.2s ease;
 }
 

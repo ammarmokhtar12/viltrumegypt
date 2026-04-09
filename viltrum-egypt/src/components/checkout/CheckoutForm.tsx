@@ -12,12 +12,14 @@ interface CheckoutFormProps {
   }) => void;
   paymentMethod: "vodafone_cash" | "instapay";
   onPaymentMethodChange: (method: "vodafone_cash" | "instapay") => void;
+  usePillStyle?: boolean;
 }
 
 export default function CheckoutForm({
   onSubmit,
   paymentMethod,
   onPaymentMethodChange,
+  usePillStyle = false,
 }: CheckoutFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -46,32 +48,33 @@ export default function CheckoutForm({
   };
 
   return (
-    <form className="space-y-10">
-      <div className="space-y-8">
+    <form className="space-y-6">
+      <div className="space-y-6">
         {/* Name */}
-        <div className="space-y-3">
-          <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 pl-4">
             Full Name
           </label>
           <input
             type="text"
             value={name}
             onChange={(e) => {
-              setName(e.target.value.toUpperCase());
-              handleChange('name', e.target.value);
+              const val = e.target.value.toUpperCase();
+              setName(val);
+              handleChange('name', val);
             }}
-            placeholder="John Doe"
+            placeholder="E.G. JOHN DOE"
             className="w-full h-14 rounded-full bg-zinc-50/50 border border-zinc-100 px-8 text-xs font-bold tracking-widest focus:border-zinc-900 focus:bg-white transition-all duration-300 outline-none placeholder:text-zinc-200"
           />
           {errors.name && (
-            <p className="text-[8px] text-red-500 font-bold tracking-widest pl-4">{errors.name}</p>
+            <p className="text-[8px] text-red-500 font-bold tracking-widest pl-4 uppercase">{errors.name}</p>
           )}
         </div>
 
         {/* Phone */}
-        <div className="space-y-3">
-          <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">
-            Contact Number
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 pl-4">
+            Phone Number
           </label>
           <input
             type="tel"
@@ -80,18 +83,18 @@ export default function CheckoutForm({
               setPhone(e.target.value);
               handleChange('phone', e.target.value);
             }}
-            placeholder="012XXXXXXXX"
+            placeholder="01XXXXXXXXX"
             className="w-full h-14 rounded-full bg-zinc-50/50 border border-zinc-100 px-8 text-xs font-bold tracking-widest focus:border-zinc-900 focus:bg-white transition-all duration-300 outline-none placeholder:text-zinc-200"
           />
           {errors.phone && (
-            <p className="text-[8px] text-red-500 font-bold tracking-widest pl-4">{errors.phone}</p>
+            <p className="text-[8px] text-red-500 font-bold tracking-widest pl-4 uppercase">{errors.phone}</p>
           )}
         </div>
 
         {/* Address */}
-        <div className="space-y-3">
-          <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">
-            Shipping Address
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 pl-4">
+            Delivery Location
           </label>
           <input
             type="text"
@@ -100,19 +103,19 @@ export default function CheckoutForm({
               setAddress(e.target.value);
               handleChange('address', e.target.value);
             }}
-            placeholder="City, Street, Building..."
+            placeholder="AREA, STREET, BUILDING..."
             className="w-full h-14 rounded-full bg-zinc-50/50 border border-zinc-100 px-8 text-xs font-bold tracking-widest focus:border-zinc-900 focus:bg-white transition-all duration-300 outline-none placeholder:text-zinc-200"
           />
           {errors.address && (
-            <p className="text-[8px] text-red-500 font-bold tracking-widest pl-4">{errors.address}</p>
+            <p className="text-[8px] text-red-500 font-bold tracking-widest pl-4 uppercase">{errors.address}</p>
           )}
         </div>
       </div>
 
-      {/* Payment Method */}
-      <div className="space-y-8 pt-6">
-        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">
-          Transfer Protocol
+      {/* Payment Method Selection */}
+      <div className="space-y-6 pt-6">
+        <label className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-400 pl-4 text-center block">
+          Select Gateway
         </label>
         <div className="flex gap-4">
           <button
@@ -121,13 +124,13 @@ export default function CheckoutForm({
               onPaymentMethodChange("vodafone_cash");
               onSubmit({ name, phone, address, paymentMethod: "vodafone_cash" });
             }}
-            className={`flex-1 h-14 rounded-full text-[9px] font-black uppercase tracking-[0.3em] transition-all duration-500 border ${
+            className={`flex-1 h-14 rounded-full text-[9px] font-black uppercase tracking-[0.4em] transition-all duration-500 border ${
               paymentMethod === "vodafone_cash"
-                ? "bg-zinc-900 border-zinc-900 text-white shadow-lg shadow-zinc-900/20"
+                ? "bg-zinc-900 border-zinc-900 text-white shadow-xl shadow-zinc-900/20"
                 : "bg-white border-zinc-100 text-zinc-400 hover:border-zinc-300"
             }`}
           >
-            Vodafone Cash
+            V-Cash
           </button>
           <button
             type="button"
@@ -135,9 +138,9 @@ export default function CheckoutForm({
               onPaymentMethodChange("instapay");
               onSubmit({ name, phone, address, paymentMethod: "instapay" });
             }}
-            className={`flex-1 h-14 rounded-full text-[9px] font-black uppercase tracking-[0.3em] transition-all duration-500 border ${
+            className={`flex-1 h-14 rounded-full text-[9px] font-black uppercase tracking-[0.4em] transition-all duration-500 border ${
               paymentMethod === "instapay"
-                ? "bg-zinc-900 border-zinc-900 text-white shadow-lg shadow-zinc-900/20"
+                ? "bg-zinc-900 border-zinc-900 text-white shadow-xl shadow-zinc-900/20"
                 : "bg-white border-zinc-100 text-zinc-400 hover:border-zinc-300"
             }`}
           >
@@ -145,18 +148,18 @@ export default function CheckoutForm({
           </button>
         </div>
 
-        {/* Instruction Card */}
+        {/* Transfer Destination Card */}
         <div className="p-8 rounded-[2rem] bg-zinc-50 border border-zinc-100 space-y-4">
-           <div className="flex items-center justify-between">
-              <span className="text-[8px] font-black tracking-[0.4em] text-zinc-300">RECEIVER</span>
-              <CreditCard size={14} className="text-zinc-300" />
+           <div className="flex items-center justify-between opacity-30">
+              <span className="text-[8px] font-black tracking-[0.4em]">RECEIVER PROTOCOL</span>
+              <CreditCard size={14} />
            </div>
-           <p className="text-2xl font-display font-bold text-zinc-900 tracking-widest">
-             01031429229
-           </p>
-           <p className="text-[8px] text-zinc-400 font-bold leading-relaxed tracking-widest">
-             TRANSFER THE EXACT TOTAL AMOUNT TO THE NUMBER ABOVE AND PROVIDE THE VALIDATION SCREENSHOT BELOW.
-           </p>
+           <div>
+             <span className="text-[9px] font-black text-zinc-400 block mb-1">GLOBAL NUMBER</span>
+             <p className="text-3xl font-display font-medium text-zinc-900 tracking-widest">
+               01031429229
+             </p>
+           </div>
         </div>
       </div>
     </form>

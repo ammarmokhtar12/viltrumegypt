@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Manrope } from "next/font/google";
+import { Outfit, Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
-const manrope = Manrope({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-manrope",
+  variable: "--font-inter",
   display: "swap",
 });
 
-const bebasNeue = Bebas_Neue({
-  weight: "400",
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-bebas",
+  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -43,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${manrope.variable} ${bebasNeue.variable}`}
+      className={`${inter.variable} ${outfit.variable}`}
       data-scroll-behavior="smooth"
     >
       <body className="font-sans antialiased bg-background text-foreground">

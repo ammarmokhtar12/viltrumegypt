@@ -11,6 +11,7 @@ export default function HeroSection() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const brandScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -21,6 +22,12 @@ export default function HeroSection() {
         { opacity: 0, scale: 1.05 },
         { opacity: 0.9, scale: 1, duration: 2.5 }
       )
+        .fromTo(
+          brandScrollRef.current,
+          { opacity: 0, scale: 0.8 },
+          { opacity: 1, scale: 1, duration: 2, ease: "expo.out" },
+          "-=2"
+        )
         .fromTo(
           badgeRef.current,
           { opacity: 0, y: 30 },
@@ -68,7 +75,17 @@ export default function HeroSection() {
           className="h-full w-full object-cover opacity-0 opacity-90"
           style={{ mixBlendMode: 'multiply' }}
         />
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-white/40" />
+        
+        {/* Brand Overlay Text */}
+        <div 
+          ref={brandScrollRef}
+          className="absolute inset-0 flex items-center justify-center opacity-0 select-none"
+        >
+          <span className="text-[22vw] font-display font-black text-zinc-900/[0.03] uppercase tracking-tighter whitespace-nowrap">
+            Viltrum Egypt
+          </span>
+        </div>
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center px-4 pb-16 pt-28 text-center sm:px-6 lg:px-8">
