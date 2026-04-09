@@ -23,17 +23,19 @@
 :root {
   --background: #F9FAFB;
   --foreground: #111827;
-  --card-bg: rgba(255, 255, 255, 0.8);
-  --border-color: rgba(17, 24, 39, 0.1);
-  --glow-color: rgba(139, 0, 0, 0.2);
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --input-bg: rgba(0, 0, 0, 0.03);
+  --border-color: rgba(17, 24, 39, 0.08);
+  --glow-color: rgba(139, 0, 0, 0.15);
 }
 
 .dark {
   --background: #020617;
   --foreground: #f5f1ea;
-  --card-bg: rgba(10, 10, 10, 0.8);
-  --border-color: rgba(245, 241, 234, 0.1);
-  --glow-color: rgba(0, 229, 255, 0.3);
+  --card-bg: rgba(10, 10, 12, 0.65);
+  --input-bg: rgba(255, 255, 255, 0.03);
+  --border-color: rgba(245, 241, 234, 0.08);
+  --glow-color: rgba(0, 229, 255, 0.25);
 }
 
 /* ===== BASE RESET ===== */
@@ -50,137 +52,57 @@ html {
 
 body {
   background: var(--background);
-  background-image: radial-gradient(circle at top, var(--glow-color), transparent 30%);
+  background-image: radial-gradient(circle at top, var(--glow-color), transparent 35%);
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   line-height: 1.6;
-  letter-spacing: -0.01em;
 }
 
-/* ===== CUSTOM SCROLLBAR ===== */
-::-webkit-scrollbar {
-  width: 5px;
-}
-::-webkit-scrollbar-track {
-  background: #0A0A0A;
-}
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #B20000 0%, #800000 100%);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #E60000;
-}
-
-/* ===== KEYFRAMES ===== */
-@keyframes redGlow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(178, 0, 0, 0.25),
-                0 0 40px rgba(178, 0, 0, 0.08);
-  }
-  50% {
-    box-shadow: 0 0 35px rgba(178, 0, 0, 0.45),
-                0 0 70px rgba(178, 0, 0, 0.18);
-  }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes pulseRed {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes subtleGlow {
-  0%, 100% {
-    box-shadow: 0 0 0 rgba(178, 0, 0, 0);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(178, 0, 0, 0.15);
-  }
-}
-
-@keyframes borderPulse {
-  0%, 100% { border-color: rgba(178, 0, 0, 0.1); }
-  50% { border-color: rgba(178, 0, 0, 0.35); }
-}
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-
-/* ===== UTILITY CLASSES ===== */
-.red-glow {
-  animation: redGlow 3s ease-in-out infinite;
-}
-
-.red-glow-hover {
-  transition: box-shadow 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-.red-glow-hover:hover {
-  box-shadow: 0 0 40px rgba(178, 0, 0, 0.35),
-              0 0 80px rgba(178, 0, 0, 0.12),
-              inset 0 0 20px rgba(178, 0, 0, 0.05);
-}
-
-.float-animation {
-  animation: float 4s ease-in-out infinite;
-}
-
-/* ===== GLASSMORPHISM (MINIMAL 4PX BLUR) ===== */
-.glass {
-  background: var(--card-bg);
-  backdrop-filter: blur(14px) saturate(130%);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.1);
-}
-
+/* ===== UI COMPONENTS ===== */
 .glass-card {
   background: var(--card-bg);
-  backdrop-filter: blur(12px) saturate(130%);
-  -webkit-backdrop-filter: blur(12px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid var(--border-color);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-top-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 10px 40px -10px rgba(0, 0, 0, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .glass-card:hover {
-  background:
-    linear-gradient(180deg, rgba(30, 26, 24, 0.98) 0%, rgba(16, 15, 15, 0.99) 100%);
-  border-color: rgba(184, 15, 10, 0.28);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.58),
-              0 0 40px rgba(184, 15, 10, 0.12);
+  transform: translateY(-5px);
+  border-color: rgba(139, 0, 0, 0.2);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 20px rgba(139, 0, 0, 0.1);
 }
 
-.glass-card-static {
-  background: rgba(18, 16, 16, 0.88);
-  backdrop-filter: blur(10px) saturate(120%);
-  -webkit-backdrop-filter: blur(10px) saturate(120%);
-  border: 1px solid rgba(245, 241, 234, 0.08);
+.viltrum-input {
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.viltrum-input:focus {
+  outline: none;
+  background: var(--card-bg);
+  border-color: var(--viltrum-red);
+  box-shadow: 0 0 0 4px rgba(139, 0, 0, 0.1);
+}
+
+.viltrum-input::placeholder {
+  color: var(--foreground);
+  opacity: 0.3;
 }
 
 /* ===== HEROIC ARMOR BUTTONS ===== */

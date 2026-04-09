@@ -45,11 +45,10 @@ export default function CheckoutForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-10">
       {/* Name */}
-      <div className="space-y-3">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/70">
-          <User size={14} />
+      <div className="space-y-4">
+        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40 ml-1">
           Full Name <span className="text-viltrum-red">*</span>
         </label>
         <input
@@ -57,18 +56,17 @@ export default function CheckoutForm({
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Enter your full name"
-          className="w-full px-4 py-3 bg-[#0A0A0A] border border-viltrum-white/10 rounded-xl text-foreground placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors"
+          placeholder="e.g. John Doe"
+          className="viltrum-input"
         />
         {errors.name && (
-          <p className="text-xs text-red-400">{errors.name}</p>
+          <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1">{errors.name}</p>
         )}
       </div>
 
       {/* Phone */}
-      <div className="space-y-3">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/70">
-          <Phone size={14} />
+      <div className="space-y-4">
+        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40 ml-1">
           Phone Number <span className="text-viltrum-red">*</span>
         </label>
         <input
@@ -77,17 +75,16 @@ export default function CheckoutForm({
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="01XXXXXXXXX"
-          className="w-full px-4 py-3 bg-[#0A0A0A] border border-viltrum-white/10 rounded-xl text-foreground placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors"
+          className="viltrum-input"
         />
         {errors.phone && (
-          <p className="text-xs text-red-400">{errors.phone}</p>
+          <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1">{errors.phone}</p>
         )}
       </div>
 
       {/* Address */}
-      <div className="space-y-3">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/70">
-          <MapPin size={14} />
+      <div className="space-y-4">
+        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40 ml-1">
           Detailed Address <span className="text-viltrum-red">*</span>
         </label>
         <textarea
@@ -96,59 +93,70 @@ export default function CheckoutForm({
           onChange={(e) => setAddress(e.target.value)}
           placeholder="City, Area, Street, Building, Floor..."
           rows={3}
-          className="w-full px-4 py-3 bg-[#0A0A0A] border border-viltrum-white/10 rounded-xl text-foreground placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors resize-none"
+          className="viltrum-input !py-4 resize-none"
         />
         {errors.address && (
-          <p className="text-xs text-red-400">{errors.address}</p>
+          <p className="text-[10px] text-red-500 font-bold uppercase tracking-wider ml-1">{errors.address}</p>
         )}
       </div>
 
       {/* Payment Method Toggle */}
-      <div className="space-y-4">
-        <label className="flex items-center gap-2 text-sm font-medium text-foreground/70">
-          <CreditCard size={14} />
+      <div className="space-y-6 pt-4">
+        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground/40 ml-1">
           Payment Method
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <button
             type="button"
             onClick={() => onPaymentMethodChange("vodafone_cash")}
-            className={`py-3 px-4 rounded-xl border text-sm font-bold tracking-wide transition-all duration-300 ${
+            className={`flex flex-col items-center justify-center py-6 px-4 rounded-2xl border-2 transition-all duration-500 group ${
               paymentMethod === "vodafone_cash"
-                ? "border-viltrum-red bg-viltrum-red/15 text-viltrum-red"
-                : "border-viltrum-white/10 text-foreground/40 hover:border-viltrum-white/20"
+                ? "border-viltrum-red bg-viltrum-red/5 text-foreground shadow-[0_0_20px_rgba(139,0,0,0.1)]"
+                : "border-border-color bg-foreground/[0.02] text-foreground/30 hover:border-border-color/30"
             }`}
           >
-            Vodafone Cash
+            <span className={`text-xs font-black uppercase tracking-[0.2em] ${paymentMethod === "vodafone_cash" ? "text-viltrum-red" : ""}`}>
+              Vodafone Cash
+            </span>
           </button>
           <button
             type="button"
             onClick={() => onPaymentMethodChange("instapay")}
-            className={`py-3 px-4 rounded-xl border text-sm font-bold tracking-wide transition-all duration-300 ${
+            className={`flex flex-col items-center justify-center py-6 px-4 rounded-2xl border-2 transition-all duration-500 group ${
               paymentMethod === "instapay"
-                ? "border-viltrum-red bg-viltrum-red/15 text-viltrum-red"
-                : "border-viltrum-white/10 text-foreground/40 hover:border-viltrum-white/20"
+                ? "border-viltrum-red bg-viltrum-red/5 text-foreground shadow-[0_0_20px_rgba(139,0,0,0.1)]"
+                : "border-border-color bg-foreground/[0.02] text-foreground/30 hover:border-border-color/30"
             }`}
           >
-            InstaPay
+            <span className={`text-xs font-black uppercase tracking-[0.2em] ${paymentMethod === "instapay" ? "text-viltrum-red" : ""}`}>
+              InstaPay
+            </span>
           </button>
         </div>
 
         {/* Payment Instructions */}
-        <div className="p-4 rounded-xl bg-viltrum-red/5 border border-viltrum-red/10">
-          <p className="text-xs text-foreground/50 leading-relaxed">
-            {paymentMethod === "vodafone_cash" ? (
-              <>
-                Send payment to <span className="text-viltrum-red font-bold">01031429229</span> via Vodafone Cash,
-                then upload the screenshot below.
-              </>
-            ) : (
-              <>
-                Send payment via InstaPay to <span className="text-viltrum-red font-bold">01031429229</span>,
-                then upload the screenshot below.
-              </>
-            )}
-          </p>
+        <div className="p-6 rounded-2xl bg-foreground/[0.02] border border-border-color/50">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-full bg-viltrum-red/10 flex items-center justify-center shrink-0">
+              <CreditCard size={18} className="text-viltrum-red" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1">Instruction</p>
+              <p className="text-sm text-foreground/70 leading-relaxed font-medium">
+                {paymentMethod === "vodafone_cash" ? (
+                  <>
+                    Send payment to <span className="text-viltrum-red font-bold">01031429229</span> via Vodafone Cash,
+                    then upload the screenshot below.
+                  </>
+                ) : (
+                  <>
+                    Send payment via InstaPay to <span className="text-viltrum-red font-bold">01031429229</span>,
+                    then upload the screenshot below.
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </form>

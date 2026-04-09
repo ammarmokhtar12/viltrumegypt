@@ -57,21 +57,23 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-viltrum-white/5">
-            <div className="flex items-center gap-3">
-              <ShoppingBag size={20} className="text-viltrum-red" />
-              <h2 className="text-lg font-bold tracking-widest text-foreground">
-                CART
+          <div className="flex items-center justify-between p-8 border-b border-border-color">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <ShoppingBag size={24} className="text-viltrum-red" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-viltrum-red text-[10px] font-black text-white shadow-[0_4px_12px_rgba(139,0,0,0.4)]">
+                    {cartCount}
+                  </span>
+                )}
+              </div>
+              <h2 className="text-xl font-bold tracking-[0.2em] text-foreground uppercase">
+                Cart
               </h2>
-              {cartCount > 0 && (
-                <span className="px-2 py-0.5 text-xs font-bold bg-viltrum-red/20 text-viltrum-red rounded-full">
-                  {cartCount}
-                </span>
-              )}
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-foreground/50 hover:text-foreground transition-colors"
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-foreground/[0.03] text-foreground/40 hover:text-foreground transition-all duration-300 border border-border-color"
               aria-label="Close cart"
             >
               <X size={20} />
@@ -79,24 +81,26 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           </div>
 
           {/* Items */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-3">
+          <div className="flex-1 overflow-y-auto p-8 space-y-4">
             {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-                <div className="w-20 h-20 rounded-full bg-viltrum-gray flex items-center justify-center">
+              <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
+                <div className="w-24 h-24 rounded-3xl bg-foreground/[0.03] border border-border-color flex items-center justify-center">
                   <ShoppingBag
-                    size={32}
-                    className="text-foreground/20"
+                    size={40}
+                    className="text-foreground/10"
                   />
                 </div>
-                <p className="text-foreground/40 text-sm">
-                  Your cart is empty
-                </p>
-                <button
-                  onClick={onClose}
-                  className="text-sm text-viltrum-red hover:text-viltrum-red-light transition-colors"
-                >
-                  Continue Shopping
-                </button>
+                <div className="space-y-2">
+                  <p className="text-foreground/40 text-xs font-black uppercase tracking-widest">
+                    Empty Inventory
+                  </p>
+                  <button
+                    onClick={onClose}
+                    className="text-sm text-viltrum-red font-bold uppercase tracking-widest hover:text-viltrum-red-light transition-colors"
+                  >
+                    Return to Drops
+                  </button>
+                </div>
               </div>
             ) : (
               cartItems.map((item) => (
@@ -110,22 +114,22 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <div className="p-5 border-t border-viltrum-white/5 space-y-4">
+            <div className="p-8 border-t border-border-color space-y-8 bg-foreground/[0.01]">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground/50 tracking-widest uppercase">
-                  Total
+                <span className="text-xs text-foreground/40 font-black tracking-widest uppercase">
+                  Total Value
                 </span>
-                <span className="text-2xl font-black text-viltrum-red">
+                <span className="text-3xl font-black text-viltrum-red">
                   {formatPrice(cartTotal)}
                 </span>
               </div>
               <Link
                 href="/checkout"
                 onClick={onClose}
-                className="w-full py-4 bg-viltrum-red text-white font-bold text-sm tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 hover:bg-viltrum-red-light transition-colors duration-300 active:scale-95"
+                className="armor-btn w-full !h-16 text-sm"
               >
-                Checkout
-                <ArrowRight size={16} />
+                Go To Checkout
+                <ArrowRight size={18} className="ml-2" />
               </Link>
             </div>
           )}
