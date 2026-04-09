@@ -49,10 +49,12 @@ export default function AdminLayout({
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0A0A0A" }}>
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-2 border-viltrum-red border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs tracking-[0.2em] text-foreground/60/30 uppercase">Authenticating</span>
+          <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
+          <span className="text-[11px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">
+            Authenticating
+          </span>
         </div>
       </div>
     );
@@ -76,28 +78,26 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: "#0A0A0A" }}>
+    <div className="min-h-screen bg-zinc-50">
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 px-4 py-3.5 flex items-center justify-between"
-        style={{ background: "rgba(10, 10, 10, 0.98)", borderBottom: "1px solid rgba(240, 240, 240, 0.05)" }}
-      >
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 px-4 py-3.5 flex items-center justify-between bg-white border-b border-zinc-100">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-lg text-foreground/60/60 hover:text-foreground hover:bg-viltrum-white/5 transition-all"
+          className="p-2 text-zinc-500 hover:text-zinc-900 transition-colors"
         >
           {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-viltrum-red to-viltrum-red-dark flex items-center justify-center">
-            <span className="text-white text-[10px] font-display font-black">V</span>
+          <div className="w-7 h-7 bg-zinc-900 text-white flex items-center justify-center rounded-sm">
+            <span className="text-[10px] font-display font-bold">V</span>
           </div>
-          <span className="font-display font-bold text-sm tracking-[0.25em] text-foreground">
+          <span className="font-display text-sm tracking-[0.2em] text-zinc-900">
             ADMIN
           </span>
         </div>
         <button
           onClick={handleLogout}
-          className="p-2 rounded-lg text-foreground/60/40 hover:text-viltrum-red transition-colors"
+          className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors"
         >
           <LogOut size={18} />
         </button>
@@ -105,34 +105,30 @@ export default function AdminLayout({
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-[260px] z-40 transform transition-transform duration-500 ease-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 h-full w-[260px] z-40 bg-white border-r border-zinc-100 transform transition-transform duration-500 ease-out lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
-        style={{
-          background: "rgba(14, 14, 14, 0.98)",
-          borderRight: "1px solid rgba(240, 240, 240, 0.04)",
-        }}
       >
         {/* Sidebar Brand */}
-        <div className="p-6 pb-5"
-          style={{ borderBottom: "1px solid rgba(240, 240, 240, 0.04)" }}
-        >
+        <div className="p-6 pb-5 border-b border-zinc-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-viltrum-red to-viltrum-red-dark flex items-center justify-center shadow-[0_0_20px_rgba(178,0,0,0.2)]">
-              <span className="text-white font-display font-black text-sm">V</span>
+            <div className="w-10 h-10 bg-zinc-900 text-white flex items-center justify-center rounded-sm">
+              <span className="font-display font-bold text-sm">V</span>
             </div>
             <div>
-              <h2 className="font-display font-bold text-sm tracking-[0.2em] text-foreground">
+              <h2 className="font-display text-sm tracking-[0.2em] text-zinc-900">
                 VILTRUM
               </h2>
-              <p className="text-[10px] text-foreground/60/30 tracking-wide">Dashboard</p>
+              <p className="text-[10px] text-zinc-400 tracking-wide">
+                Dashboard
+              </p>
             </div>
           </div>
         </div>
 
         {/* Nav Items */}
         <nav className="p-4 space-y-1">
-          <p className="text-[10px] tracking-[0.2em] text-foreground/60/25 uppercase font-semibold px-3 mb-3">
+          <p className="text-[10px] tracking-[0.25em] text-zinc-300 uppercase font-semibold px-3 mb-3">
             Management
           </p>
           {navItems.map((item) => (
@@ -140,35 +136,35 @@ export default function AdminLayout({
               key={item.href}
               href={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center justify-between px-4 py-3 rounded-xl text-[13px] font-medium transition-all duration-300 group ${
+              className={`flex items-center justify-between px-4 py-3 text-[13px] font-medium transition-all duration-300 group rounded-sm ${
                 item.active
-                  ? "bg-viltrum-red/10 text-viltrum-red border border-viltrum-red/15"
-                  : "text-foreground/60/50 hover:bg-viltrum-white/4 hover:text-foreground border border-transparent"
+                  ? "bg-zinc-900 text-white"
+                  : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
               }`}
             >
               <div className="flex items-center gap-3">
                 <item.icon size={17} />
                 {item.label}
               </div>
-              {item.active && <ChevronRight size={14} className="opacity-50" />}
+              {item.active && (
+                <ChevronRight size={14} className="opacity-50" />
+              )}
             </Link>
           ))}
         </nav>
 
         {/* Bottom Actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 space-y-1"
-          style={{ borderTop: "1px solid rgba(240, 240, 240, 0.04)" }}
-        >
+        <div className="absolute bottom-0 left-0 right-0 p-4 space-y-1 border-t border-zinc-100">
           <Link
             href="/"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium text-foreground/60/35 hover:text-foreground hover:bg-viltrum-white/4 transition-all duration-300"
+            className="flex items-center gap-3 px-4 py-3 text-[13px] font-medium text-zinc-400 hover:text-zinc-900 hover:bg-zinc-50 transition-all duration-300 rounded-sm"
           >
             <LayoutDashboard size={17} />
             View Store
           </Link>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium text-foreground/60/35 hover:text-viltrum-red hover:bg-viltrum-red/5 transition-all duration-300 w-full"
+            className="flex items-center gap-3 px-4 py-3 text-[13px] font-medium text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-all duration-300 w-full rounded-sm"
           >
             <LogOut size={17} />
             Logout
@@ -179,7 +175,7 @@ export default function AdminLayout({
       {/* Mobile Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/80 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}

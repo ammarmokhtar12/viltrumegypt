@@ -21,11 +21,11 @@ export default function PaymentUpload({
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      setError("FILE PROTOCOL REJECTED: IMAGE REQUIRED");
+      setError("Please upload an image file");
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError("FILE SIZE EXCEEDED: 5MB LIMIT");
+      setError("File size must be under 5MB");
       return;
     }
 
@@ -56,7 +56,7 @@ export default function PaymentUpload({
       onUploadComplete(publicUrl);
     } catch (err) {
       console.error("Upload error:", err);
-      setError("UPLOAD INTERRUPTED. RETRY INITIATED.");
+      setError("Upload failed. Please try again.");
       setPreview(null);
     } finally {
       setUploading(false);
@@ -81,43 +81,43 @@ export default function PaymentUpload({
   };
 
   return (
-    <div className="space-y-10 uppercase">
+    <div className="space-y-4">
       {preview ? (
-        <div className="relative rounded-[2.5rem] overflow-hidden border border-zinc-100 bg-white p-4 shadow-xl shadow-zinc-900/5">
+        <div className="relative bg-zinc-50 border border-zinc-100 p-3 overflow-hidden">
           <img
             src={preview}
             alt="Payment proof"
-            className="w-full h-64 object-contain mix-blend-multiply"
+            className="w-full h-48 object-contain"
           />
-          
+
           {uploaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/5 backdrop-blur-[4px]">
-              <div className="flex flex-col items-center gap-4 bg-white px-8 py-6 rounded-3xl shadow-2xl border border-zinc-50">
-                <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                  <CheckCircle size={24} />
+            <div className="absolute inset-0 flex items-center justify-center bg-white/80">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                  <CheckCircle size={20} />
                 </div>
-                <div className="text-center">
-                   <p className="font-black text-[9px] tracking-[0.3em] text-zinc-900">VALIDATED</p>
-                </div>
+                <p className="text-[11px] font-semibold text-zinc-900 uppercase tracking-[0.2em]">
+                  Uploaded
+                </p>
               </div>
             </div>
           )}
-          
+
           {!uploaded && !uploading && (
             <button
               onClick={clearPreview}
-              className="absolute top-6 right-6 p-3 rounded-full bg-zinc-900 text-white hover:bg-zinc-700 transition-all duration-300"
+              className="absolute top-5 right-5 p-2 bg-zinc-900 text-white rounded-sm hover:bg-zinc-700 transition-colors"
             >
-              <X size={16} />
+              <X size={14} />
             </button>
           )}
-          
+
           {uploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/95 backdrop-blur-sm">
-              <div className="text-center space-y-4">
-                <div className="w-10 h-10 border-4 border-zinc-100 border-t-[#00bfa5] rounded-full animate-spin mx-auto" />
-                <span className="text-[9px] font-black tracking-[0.4em] text-zinc-900">
-                  DEPOSITING...
+            <div className="absolute inset-0 flex items-center justify-center bg-white/90">
+              <div className="text-center space-y-3">
+                <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin mx-auto" />
+                <span className="text-[11px] font-semibold text-zinc-900 uppercase tracking-[0.2em]">
+                  Uploading...
                 </span>
               </div>
             </div>
@@ -132,25 +132,23 @@ export default function PaymentUpload({
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`cursor-pointer rounded-[2.5rem] border-2 border-dashed p-16 text-center transition-all duration-700 group h-64 flex flex-col items-center justify-center ${
+          className={`cursor-pointer border border-dashed p-12 text-center transition-all duration-300 group ${
             dragOver
-              ? "border-emerald-500 bg-emerald-50/50"
-              : "border-zinc-100 bg-zinc-50/30 hover:border-zinc-300 hover:bg-zinc-50/80"
+              ? "border-zinc-900 bg-zinc-50"
+              : "border-zinc-200 bg-white hover:border-zinc-400 hover:bg-zinc-50"
           }`}
         >
-          <div className="flex flex-col items-center space-y-6">
-            <div className="w-16 h-16 rounded-full bg-white border border-zinc-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-700 shadow-sm">
-              <Smartphone
-                size={24}
-                className={dragOver ? "text-emerald-500" : "text-zinc-300 group-hover:text-zinc-900 transition-colors duration-500"}
-              />
-            </div>
-            <div className="space-y-2">
-               <p className="text-[10px] font-black text-zinc-900 tracking-[0.3em]">
-                ADD PAYMENT RECEIPT
+          <div className="flex flex-col items-center space-y-4">
+            <Upload
+              size={24}
+              className="text-zinc-300 group-hover:text-zinc-500 transition-colors duration-300"
+            />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-zinc-600">
+                Click or drag to upload
               </p>
-              <p className="text-[8px] text-zinc-300 font-bold tracking-[0.4em]">
-                DRAG & DROP OR TAP
+              <p className="text-[11px] text-zinc-300 font-semibold">
+                JPG, PNG — Max 5MB
               </p>
             </div>
           </div>
@@ -166,9 +164,7 @@ export default function PaymentUpload({
       />
 
       {error && (
-        <div className="p-6 rounded-full bg-red-50 border border-red-100 text-center">
-          <p className="text-[9px] text-red-600 font-black tracking-[0.2em]">{error}</p>
-        </div>
+        <p className="text-[11px] text-red-500 font-medium">{error}</p>
       )}
     </div>
   );

@@ -36,26 +36,26 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4 noise-bg">
-      <div className="relative z-10 w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-viltrum-red flex items-center justify-center mx-auto mb-4 red-glow">
-            <span className="text-white font-black text-2xl">V</span>
+    <div className="min-h-screen bg-zinc-50 flex items-center justify-center px-6">
+      <div className="w-full max-w-sm">
+        {/* Brand */}
+        <div className="text-center mb-10">
+          <div className="w-14 h-14 bg-zinc-900 text-white flex items-center justify-center mx-auto mb-5 rounded-sm">
+            <span className="font-display text-xl font-bold">V</span>
           </div>
-          <h1 className="text-2xl font-black tracking-[0.3em] text-foreground">
-            ADMIN
+          <h1 className="font-display text-2xl tracking-wider text-zinc-900">
+            Admin
           </h1>
-          <p className="text-sm text-foreground/30 mt-2">
-            Viltrum Egypt Dashboard
-          </p>
+          <p className="text-sm text-zinc-400 mt-1">Viltrum Egypt Dashboard</p>
         </div>
 
         {/* Login Card */}
-        <div className="glass-card rounded-2xl p-8 space-y-6">
-          <div className="flex items-center gap-2 text-foreground/50">
-            <Lock size={16} />
-            <span className="text-sm tracking-widest uppercase">Secure Access</span>
+        <div className="bg-white border border-zinc-100 p-8 space-y-6">
+          <div className="flex items-center gap-2 text-zinc-400">
+            <Lock size={14} />
+            <span className="text-[11px] tracking-[0.3em] uppercase font-semibold">
+              Secure Access
+            </span>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -66,20 +66,20 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter admin password"
-                className="w-full px-4 py-3 pr-12 bg-viltrum-gray border border-viltrum-white/10 rounded-xl text-foreground placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors"
+                className="viltrum-input pr-12"
                 autoFocus
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/50"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-600 transition-colors"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 text-red-400 text-sm">
+              <div className="flex items-center gap-2 text-red-500 text-sm">
                 <AlertTriangle size={14} />
                 {error}
               </div>
@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading || !password}
-              className="w-full py-3 bg-viltrum-red text-white font-bold text-sm tracking-widest uppercase rounded-xl hover:bg-viltrum-red-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-14 bg-zinc-900 text-white font-semibold text-sm tracking-[0.15em] uppercase hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Authenticating..." : "Access Dashboard"}
             </button>
