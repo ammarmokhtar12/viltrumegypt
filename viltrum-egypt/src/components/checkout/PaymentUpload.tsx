@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, Image as ImageIcon, CheckCircle } from "lucide-react";
+import { Upload, X, CheckCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 interface PaymentUploadProps {
@@ -32,7 +32,6 @@ export default function PaymentUpload({
     setError(null);
     setUploading(true);
 
-    // Show preview
     const reader = new FileReader();
     reader.onload = (e) => setPreview(e.target?.result as string);
     reader.readAsDataURL(file);
@@ -82,23 +81,22 @@ export default function PaymentUpload({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 uppercase">
       {preview ? (
-        <div className="relative rounded-2xl overflow-hidden border border-border-color bg-foreground/[0.02] group">
+        <div className="relative border border-zinc-100 bg-zinc-50 group">
           <img
             src={preview}
             alt="Payment proof"
-            className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-80 object-contain p-4 mix-blend-multiply"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
           
           {uploaded && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex flex-col items-center gap-3 text-white">
-                <div className="w-16 h-16 rounded-full bg-green-500/20 backdrop-blur-md flex items-center justify-center border border-green-500/40">
-                  <CheckCircle size={32} className="text-green-400" />
+            <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/5 backdrop-blur-[2px]">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg">
+                  <CheckCircle size={24} />
                 </div>
-                <span className="font-black uppercase tracking-[0.2em] text-xs">Payment Verified</span>
+                <span className="font-bold text-[10px] tracking-widest text-zinc-900">Proof Uploaded</span>
               </div>
             </div>
           )}
@@ -106,18 +104,18 @@ export default function PaymentUpload({
           {!uploaded && !uploading && (
             <button
               onClick={clearPreview}
-              className="absolute top-4 right-4 p-2 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-viltrum-red transition-all duration-300 border border-white/10"
+              className="absolute top-4 right-4 p-2 bg-white border border-zinc-100 text-zinc-400 hover:text-zinc-900 transition-all duration-300"
             >
               <X size={16} />
             </button>
           )}
           
           {uploading && (
-            <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-black/40">
+            <div className="absolute inset-0 flex items-center justify-center bg-white/80">
               <div className="text-center">
-                <div className="w-12 h-12 border-4 border-viltrum-red border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">
-                  Uploading Security Tape...
+                <div className="w-8 h-8 border-2 border-zinc-200 border-t-zinc-900 rounded-full animate-spin mx-auto mb-4" />
+                <span className="text-[10px] font-bold tracking-widest text-zinc-400">
+                  Uploading...
                 </span>
               </div>
             </div>
@@ -132,29 +130,26 @@ export default function PaymentUpload({
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`cursor-pointer border-2 border-dashed rounded-3xl p-16 text-center transition-all duration-700 group relative overflow-hidden ${
+          className={`cursor-pointer border-2 border-dashed p-16 text-center transition-all duration-300 ${
             dragOver
-              ? "border-viltrum-red bg-viltrum-red/5"
-              : "border-border-color bg-foreground/[0.01] hover:bg-foreground/[0.03] hover:border-viltrum-red/30"
+              ? "border-zinc-900 bg-zinc-50"
+              : "border-zinc-100 bg-zinc-50 hover:border-zinc-300"
           }`}
         >
-          <div className="flex flex-col items-center relative z-10">
-            <div className="w-16 h-16 rounded-2xl bg-foreground/[0.03] border border-border-color flex items-center justify-center mb-6 transition-transform duration-500 group-hover:-translate-y-2">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 bg-white border border-zinc-100 flex items-center justify-center mb-6">
               <Upload
-                size={28}
-                className={`transition-colors duration-300 ${
-                  dragOver ? "text-viltrum-red" : "text-foreground/20"
-                }`}
+                size={20}
+                className={dragOver ? "text-zinc-900" : "text-zinc-300"}
               />
             </div>
-            <p className="text-sm font-bold text-foreground/60 uppercase tracking-widest mb-2">
-              Drop proof of payment here
+            <p className="text-[10px] font-bold text-zinc-900 tracking-widest mb-2">
+              Upload payment screenshot
             </p>
-            <p className="text-[10px] text-foreground/30 font-bold uppercase tracking-[0.2em]">
-              JPG, PNG, PDF (max 5mb)
+            <p className="text-[9px] text-zinc-400 font-bold tracking-widest">
+              JPG, PNG (max 5mb)
             </p>
           </div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(139,0,0,0.03),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
         </div>
       )}
 
@@ -167,8 +162,8 @@ export default function PaymentUpload({
       />
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-center">
-          <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest">{error}</p>
+        <div className="p-4 bg-red-50 text-center">
+          <p className="text-[10px] text-red-600 font-bold tracking-widest">{error}</p>
         </div>
       )}
     </div>

@@ -7,32 +7,22 @@ export default function Footer() {
   return (
     <footer
       id="about"
-      className="relative border-t border-viltrum-red/10"
-      style={{
-        background:
-          "radial-gradient(ellipse at top center, rgba(184,15,10,0.12) 0%, rgba(8,8,8,0) 45%), linear-gradient(180deg, #111010 0%, #050505 100%)",
-      }}
+      className="bg-white border-t border-zinc-100"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-24 md:py-32">
-        {/* CSS Grid Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8">
           
           {/* Brand Column */}
-          <div className="md:col-span-5 space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-[18px] border border-white/10 bg-[linear-gradient(135deg,#191414_0%,#0c0c0c_100%)] shadow-[0_12px_28px_rgba(0,0,0,0.36)]">
-                <span className="text-gradient-blood font-display text-4xl leading-none">V</span>
-              </div>
-              <div>
-                <span className="block font-display text-[2.4rem] leading-none tracking-[0.16em] text-foreground">
-                  VILTRUM
-                </span>
-                <span className="text-[11px] uppercase tracking-[0.28em] text-foreground/60">
-                  Egypt Performance
-                </span>
-              </div>
+          <div className="md:col-span-6 space-y-8">
+            <div className="flex flex-col">
+              <span className="font-display text-4xl leading-none tracking-[0.15em] text-zinc-900 transition-colors duration-300">
+                VILTRUM
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-zinc-400 font-bold mt-2">
+                Egypt Performance
+              </span>
             </div>
-            <p className="max-w-md text-[15px] leading-relaxed text-viltrum-silver/78">
+            <p className="max-w-md text-sm leading-relaxed text-zinc-500">
               We build performancewear for people who care about how they move,
               how they train, and how they show up. Every piece is designed to
               feel premium from the first look to the final rep.
@@ -40,20 +30,20 @@ export default function Footer() {
           </div>
 
           {/* Quick Links Column */}
-          <div className="md:col-span-3 md:col-start-7 space-y-6">
-            <h3 className="text-[11px] font-bold tracking-[0.3em] text-viltrum-red uppercase">
+          <div className="md:col-span-3 space-y-8">
+            <h3 className="text-[10px] font-bold tracking-[0.2em] text-zinc-900 uppercase">
               Navigate
             </h3>
             <div className="flex flex-col space-y-4">
               <a
                 href="#products"
-                className="w-fit text-[14px] text-foreground/60/75 hover:text-foreground transition-colors duration-300"
+                className="w-fit text-sm text-zinc-500 hover:text-zinc-900 transition-colors duration-300 font-medium"
               >
                 Shop Collection
               </a>
               <a
                 href="#about"
-                className="w-fit text-[14px] text-foreground/60/75 hover:text-foreground transition-colors duration-300"
+                className="w-fit text-sm text-zinc-500 hover:text-zinc-900 transition-colors duration-300 font-medium"
               >
                 Brand Story
               </a>
@@ -61,67 +51,58 @@ export default function Footer() {
                 href={`https://wa.me/201031429229`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-fit text-[14px] text-foreground/60/75 hover:text-foreground transition-colors duration-300"
+                className="w-fit text-sm text-zinc-500 hover:text-zinc-900 transition-colors duration-300 font-medium"
               >
-                Customer Support
+                Support
               </a>
             </div>
           </div>
 
           {/* Connect Column */}
-          <div className="md:col-span-3 space-y-6">
-            <h3 className="text-[11px] font-bold tracking-[0.3em] text-viltrum-red uppercase">
-              Connect
+          <div className="md:col-span-3 space-y-8">
+            <h3 className="text-[10px] font-bold tracking-[0.2em] text-zinc-900 uppercase">
+               सोशल Connect
             </h3>
-            <p className="max-w-xs text-[14px] leading-relaxed text-foreground/60/80">
-              Reach out for sizing help, order follow-up, or direct purchase
-              guidance.
-            </p>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <a
                 href="https://wa.me/201031429229"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="social-glow flex h-11 w-11 items-center justify-center text-foreground/60/50 bg-[#0A0A0A]"
+                className="flex h-10 w-10 items-center justify-center text-zinc-400 bg-zinc-50 rounded-sm hover:bg-zinc-100 hover:text-zinc-900 transition-all duration-300"
                 aria-label="WhatsApp"
               >
-                <MessageCircle size={16} />
+                <MessageCircle size={18} />
               </a>
               <a
                 href="#"
-                className="social-glow flex h-11 w-11 items-center justify-center text-foreground/60/50 bg-[#0A0A0A]"
+                className="flex h-10 w-10 items-center justify-center text-zinc-400 bg-zinc-50 rounded-sm hover:bg-zinc-100 hover:text-zinc-900 transition-all duration-300"
                 aria-label="Instagram"
               >
-                <Camera size={16} />
+                <Camera size={18} />
               </a>
               <a
                 href="#"
-                className="social-glow flex h-11 w-11 items-center justify-center text-foreground/60/50 bg-[#0A0A0A]"
+                className="flex h-10 w-10 items-center justify-center text-zinc-400 bg-zinc-50 rounded-sm hover:bg-zinc-100 hover:text-zinc-900 transition-all duration-300"
                 aria-label="Email"
               >
-                <Mail size={16} />
+                <Mail size={18} />
               </a>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-32 pt-10 border-t border-viltrum-white/[0.04] flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[11px] text-foreground/60/30 tracking-[0.18em] uppercase">
+        <div className="mt-32 pt-12 border-t border-zinc-100 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-[10px] text-zinc-400 tracking-[0.1em] uppercase font-bold">
             © {new Date().getFullYear()} VILTRUM EGYPT. ALL RIGHTS RESERVED.
           </p>
-          <p className="text-[10px] font-bold text-foreground/60/20 tracking-[0.28em] uppercase">
-            Precision wear for serious training.
-          </p>
-        </div>
-
-        {/* Hidden Admin Dot (#2A2A2A) */}
-        <div className="mt-12 flex justify-center">
-          <Link
-            href="/admin"
-            className="w-[3px] h-[3px] rounded-full bg-[#2A2A2A] hover:bg-viltrum-red transition-colors duration-500 block"
-            aria-label="Admin Access"
-          />
+          <div className="flex items-center gap-4">
+            <Link
+              href="/admin"
+              className="w-1.5 h-1.5 rounded-full bg-zinc-100 hover:bg-zinc-200 transition-colors duration-300"
+              aria-label="Admin"
+            />
+          </div>
         </div>
       </div>
     </footer>

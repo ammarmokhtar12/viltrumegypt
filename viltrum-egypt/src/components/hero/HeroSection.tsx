@@ -19,7 +19,7 @@ export default function HeroSection() {
       tl.fromTo(
         videoRef.current,
         { opacity: 0, scale: 1.05 },
-        { opacity: 0.65, scale: 1, duration: 2.5 }
+        { opacity: 0.9, scale: 1, duration: 2.5 }
       )
         .fromTo(
           badgeRef.current,
@@ -29,7 +29,7 @@ export default function HeroSection() {
         )
         .fromTo(
           titleRef.current,
-          { opacity: 0, y: 40, scale: 0.95 },
+          { opacity: 0, y: 40, scale: 0.98 },
           { opacity: 1, y: 0, scale: 1, duration: 1.5 },
           "-=1.2"
         )
@@ -54,10 +54,8 @@ export default function HeroSection() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-white"
     >
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top,var(--glow-color),transparent_28%)]" />
-
       <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none">
         <video
           ref={videoRef}
@@ -67,29 +65,29 @@ export default function HeroSection() {
           loop
           muted
           playsInline
-          className="video-mask h-full w-full object-cover opacity-0"
+          className="h-full w-full object-cover opacity-0 opacity-90"
+          style={{ mixBlendMode: 'multiply' }}
         />
-
-        <div className="absolute inset-0 bg-background/20 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center px-4 pb-16 pt-28 text-center sm:px-6 lg:px-8">
-        <div ref={badgeRef} className="section-eyebrow mb-8 border-border-color bg-foreground/5 text-foreground/80">
-          <span className="section-eyebrow-dot animate-pulse bg-viltrum-red shadow-[0_0_14px_rgba(139,0,0,0.5)]" />
+        <div ref={badgeRef} className="inline-flex items-center gap-2 mb-8 px-4 py-2 bg-zinc-100 border border-zinc-200 text-zinc-600 rounded-full text-xs font-bold uppercase tracking-widest">
+          <span className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
           Elite Performance Essentials
         </div>
 
         <h1
           ref={titleRef}
-          className="section-title text-[4rem] sm:text-[6rem] md:text-[7.5rem] lg:text-[9rem] font-bold tracking-tighter"
+          className="font-display text-[4rem] sm:text-[6rem] md:text-[8rem] lg:text-[10rem] font-bold tracking-tighter leading-[0.85] text-zinc-900"
         >
-          <span className="block text-foreground drop-shadow-sm">TRAIN HARD.</span>
-          <span className="mt-[-0.2em] block text-gradient-blood">LOOK SHARP.</span>
+          <span className="block">TRAIN HARD.</span>
+          <span className="block text-zinc-400">LOOK SHARP.</span>
         </h1>
 
         <p
           ref={subtitleRef}
-          className="mt-8 max-w-2xl text-lg leading-relaxed text-foreground/70 md:text-xl font-medium"
+          className="mt-8 max-w-2xl text-lg leading-relaxed text-zinc-600 md:text-xl font-medium"
         >
           Premium compression wear crafted for athletes who want discipline in
           performance and confidence in presentation.
@@ -97,36 +95,23 @@ export default function HeroSection() {
 
         <div
           ref={ctaRef}
-          className="mx-auto mt-12 flex w-full max-w-md flex-col justify-center gap-6 sm:max-w-none sm:flex-row"
+          className="mx-auto mt-12 flex w-full max-w-md flex-col justify-center gap-4 sm:max-w-none sm:flex-row"
         >
-          <a
-            href="#products"
-            className="armor-btn group text-xl sm:text-2xl"
-          >
-            <span className="relative z-10 flex items-center gap-3">
-              Shop The Drop
-              <ChevronRight
-                size={22}
-                className="transition-transform duration-300 group-hover:translate-x-1.5"
-              />
-            </span>
+          <a href="#products" className="btn-primary group">
+            <span>Shop The Drop</span>
+            <ChevronRight size={18} className="ml-2 transition-transform duration-300 group-hover:translate-x-1" />
           </a>
-          <a
-            href="#about"
-            className="armor-ghost-btn text-xl sm:text-2xl"
-          >
+          <a href="#about" className="btn-outline">
             Why Viltrum
           </a>
         </div>
-
-
       </div>
 
       <div className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3 animate-bounce">
-        <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-foreground/40">
+        <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-400">
           Scroll
         </span>
-        <ArrowDown size={16} className="text-foreground/40" />
+        <ArrowDown size={16} className="text-zinc-400" />
       </div>
     </section>
   );

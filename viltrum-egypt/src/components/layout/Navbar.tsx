@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { ShoppingBag, Menu, X, Sun, Moon } from "lucide-react";
-import { useTheme } from "next-themes";
+import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 
 interface NavbarProps {
@@ -10,7 +9,6 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onCartOpen }: NavbarProps) {
-  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -30,9 +28,9 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
   return (
     <nav
       id="main-navbar"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-background/80 backdrop-blur-md border-b border-border-color py-4"
+          ? "bg-white/90 backdrop-blur-md border-b border-zinc-200 py-3"
           : "bg-transparent py-6"
       }`}
     >
@@ -45,14 +43,11 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-[linear-gradient(135deg,#191414_0%,#0c0c0c_100%)] shadow-[0_12px_30px_rgba(0,0,0,0.3)] transition-transform duration-300 group-hover:scale-105">
-            <span className="text-gradient-blood font-display text-3xl leading-none">V</span>
-          </div>
           <div className="flex flex-col">
-            <span className="font-display text-[2rem] leading-none tracking-[0.14em] text-foreground transition-colors duration-300">
+            <span className="font-display text-3xl leading-none tracking-[0.15em] text-zinc-900 transition-colors duration-300">
               VILTRUM
             </span>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-foreground/60">
+            <span className="text-[9px] uppercase tracking-[0.3em] text-zinc-500 font-bold">
               Egypt Performance
             </span>
           </div>
@@ -61,13 +56,13 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         <div className="hidden md:flex items-center gap-10">
           <a
             href="#products"
-            className="text-[12px] tracking-[0.24em] text-foreground/60 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
+            className="text-xs tracking-[0.2em] text-zinc-500 hover:text-zinc-900 transition-colors duration-300 uppercase font-bold"
           >
             Collection
           </a>
           <a
             href="#about"
-            className="text-[12px] tracking-[0.24em] text-foreground/60 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
+            className="text-xs tracking-[0.2em] text-zinc-500 hover:text-zinc-900 transition-colors duration-300 uppercase font-bold"
           >
             Brand Story
           </a>
@@ -75,7 +70,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[12px] tracking-[0.24em] text-foreground/60 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
+            className="text-xs tracking-[0.2em] text-zinc-500 hover:text-zinc-900 transition-colors duration-300 uppercase font-bold"
           >
             WhatsApp
           </a>
@@ -83,54 +78,46 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border-color bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-all duration-300"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-
-          <button
             id="cart-button"
             onClick={onCartOpen}
-            className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border-color bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-all duration-300"
+            className="relative flex h-10 w-10 items-center justify-center rounded-sm bg-zinc-100 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 transition-all duration-300"
             aria-label="Open cart"
           >
-            <ShoppingBag size={20} />
+            <ShoppingBag size={18} />
             {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-viltrum-red text-[10px] font-bold text-white shadow-[0_0_12px_rgba(178,0,0,0.5)]">
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-bold text-white">
                 {itemCount}
               </span>
             )}
           </button>
 
           <button
-            className="md:hidden flex h-12 w-12 items-center justify-center rounded-2xl border border-border-color bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-all duration-300"
+            className="md:hidden flex h-10 w-10 items-center justify-center rounded-sm bg-zinc-100 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 transition-all duration-300"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-500 ease-out ${
-          mobileMenuOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+        className={`md:hidden overflow-hidden transition-all duration-500 ease-out bg-white border-b border-zinc-200 ${
+          mobileMenuOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0 border-transparent"
         }`}
       >
-        <div className="glass mx-4 mt-4 rounded-[24px] p-8 space-y-6 border border-viltrum-white/5">
+        <div className="px-6 py-6 space-y-6">
           <a
             href="#products"
-            className="block text-[12px] tracking-[0.24em] text-foreground/60/70 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
+            className="block text-xs tracking-[0.2em] text-zinc-600 hover:text-zinc-900 transition-colors duration-300 uppercase font-bold"
             onClick={() => setMobileMenuOpen(false)}
           >
             Collection
           </a>
           <a
             href="#about"
-            className="block text-[12px] tracking-[0.24em] text-foreground/60/70 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
+            className="block text-xs tracking-[0.2em] text-zinc-600 hover:text-zinc-900 transition-colors duration-300 uppercase font-bold"
             onClick={() => setMobileMenuOpen(false)}
           >
             Brand Story
@@ -139,7 +126,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="block text-[12px] tracking-[0.24em] text-foreground/60/70 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
+            className="block text-xs tracking-[0.2em] text-zinc-600 hover:text-zinc-900 transition-colors duration-300 uppercase font-bold"
             onClick={() => setMobileMenuOpen(false)}
           >
             WhatsApp

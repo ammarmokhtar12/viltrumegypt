@@ -39,13 +39,13 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-foreground">Cart is Empty</h1>
-          <p className="text-foreground/40">Add products before checking out.</p>
+      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+        <div className="text-center space-y-6 uppercase">
+          <h1 className="text-3xl font-display font-bold text-zinc-900 tracking-widest">Cart is Empty</h1>
+          <p className="text-zinc-400 text-xs font-bold tracking-widest">Add products before checking out.</p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-viltrum-red text-white rounded-xl font-bold text-sm tracking-widest uppercase hover:bg-viltrum-red-light transition-colors"
+            className="btn-primary inline-flex items-center gap-2"
           >
             <ArrowLeft size={16} />
             Back to Shop
@@ -122,147 +122,141 @@ export default function CheckoutPage() {
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="min-h-screen bg-background pt-32 pb-20 noise-bg">
-        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          {/* Back Button */}
+      <main className="min-h-screen bg-white pt-32 pb-20">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 uppercase">
+          {/* Back Link */}
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-bold tracking-widest text-foreground/40 hover:text-viltrum-red transition-all duration-300 uppercase mb-12 group"
+            className="inline-flex items-center gap-2 text-[10px] font-bold tracking-widest text-zinc-400 hover:text-zinc-900 transition-all duration-300 mb-12 group"
           >
-            <ArrowLeft size={16} className="transition-transform duration-300 group-hover:-translate-x-1" />
+            <ArrowLeft size={14} className="transition-transform duration-300 group-hover:-translate-x-1" />
             Back to Shop
           </Link>
 
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-            <h1 className="text-5xl md:text-7xl font-black text-foreground tracking-tighter uppercase leading-none">
-              CHECKOUT
+          <header className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-6">
+            <h1 className="font-display text-6xl md:text-8xl font-bold text-zinc-900 tracking-tighter leading-none">
+              Checkout
             </h1>
-            <div className="flex items-center gap-3 text-foreground/40 text-sm tracking-widest uppercase font-bold">
-              <ShieldCheck size={18} className="text-viltrum-red" />
-              Secure Checkout
+            <div className="flex items-center gap-2 text-zinc-400 text-[10px] tracking-widest font-bold">
+              <ShieldCheck size={16} />
+              Secure Payment
             </div>
-          </div>
+          </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
             {/* Form Column */}
-            <div className="lg:col-span-7 space-y-10">
-              <div className="glass-card rounded-3xl p-8 md:p-10">
-                <h2 className="text-xl font-bold text-foreground tracking-widest uppercase mb-10 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-viltrum-red/10 flex items-center justify-center text-viltrum-red text-xs">01</span>
-                  Personal Details
-                </h2>
+            <div className="lg:col-span-7 space-y-16">
+              <section className="space-y-10">
+                <div className="flex items-center gap-4">
+                  <span className="w-10 h-10 bg-zinc-900 text-white flex items-center justify-center font-bold text-xs ring-4 ring-zinc-50">01</span>
+                  <h2 className="text-xl font-bold text-zinc-900 tracking-widest">Personal Details</h2>
+                </div>
                 <CheckoutForm
                   onSubmit={handleFormSubmit}
                   paymentMethod={paymentMethod}
                   onPaymentMethodChange={setPaymentMethod}
                 />
-              </div>
+              </section>
 
-              <div className="glass-card rounded-3xl p-8 md:p-10">
-                <h2 className="text-xl font-bold text-foreground tracking-widest uppercase mb-10 flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-viltrum-red/10 flex items-center justify-center text-viltrum-red text-xs">02</span>
-                  Payment Proof
-                </h2>
+              <section className="space-y-10">
+                <div className="flex items-center gap-4">
+                  <span className="w-10 h-10 bg-zinc-900 text-white flex items-center justify-center font-bold text-xs ring-4 ring-zinc-50">02</span>
+                  <h2 className="text-xl font-bold text-zinc-900 tracking-widest">Payment Proof</h2>
+                </div>
                 <PaymentUpload
                   onUploadComplete={(url) => setScreenshotUrl(url)}
                   uploaded={!!screenshotUrl}
                 />
-              </div>
+              </section>
 
               {/* Submit Button */}
-              <div className="pt-4">
+              <div className="pt-8">
                 <button
                   id="submit-order"
                   onClick={handleFinalSubmit}
                   disabled={!isReadyToSubmit}
-                  className={`armor-btn w-full !h-20 text-lg ${
-                    !isReadyToSubmit ? "opacity-40 cursor-not-allowed grayscale" : ""
+                  className={`btn-primary w-full !h-20 text-lg transition-all duration-300 ${
+                    !isReadyToSubmit ? "opacity-20 cursor-not-allowed bg-zinc-200 text-zinc-400" : ""
                   }`}
                 >
                   {submitting ? (
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="flex items-center gap-4">
+                      <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                       Processing...
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
-                      <Send size={20} />
-                      {!formData
-                        ? "Fill Details First"
-                        : !screenshotUrl
-                        ? "Upload Payment Screenshot"
-                        : "Confirm & Send to WhatsApp"}
+                      <Send size={18} />
+                      <span className="tracking-widest capitalize font-sans font-bold">
+                        {!formData
+                          ? "Enter Shipping Details"
+                          : !screenshotUrl
+                          ? "Upload Payment Proof"
+                          : "Confirm & Send to WhatsApp"}
+                      </span>
                     </div>
                   )}
                 </button>
+                {!formData && (
+                  <p className="mt-4 text-[10px] text-zinc-400 text-center tracking-widest font-bold">
+                    Please provide your contact info above first
+                  </p>
+                )}
               </div>
-
-              {!formData && (
-                <p className="text-xs text-foreground/30 text-center tracking-widest uppercase font-bold">
-                  Please validate your details above to proceed.
-                </p>
-              )}
             </div>
 
             {/* Order Summary Column */}
-            <div className="lg:col-span-5">
-              <div className="glass-card rounded-3xl p-8 md:p-10 lg:sticky lg:top-36">
-                <div className="flex items-center justify-between mb-10 pb-6 border-b border-border-color">
-                  <h2 className="text-xl font-bold text-foreground tracking-widest uppercase">
-                    Your Order
-                  </h2>
-                  <span className="px-3 py-1 bg-viltrum-red/10 text-viltrum-red text-[10px] font-black uppercase tracking-tighter rounded-full">
+            <aside className="lg:col-span-5">
+              <div className="bg-zinc-50 p-8 md:p-12 lg:sticky lg:top-36 border border-zinc-100">
+                <div className="flex items-center justify-between mb-10 pb-6 border-b border-zinc-200">
+                  <h2 className="text-lg font-bold text-zinc-900 tracking-widest">Summary</h2>
+                  <span className="text-[10px] font-bold text-zinc-400">
                     {cartItems.length} {cartItems.length === 1 ? 'Item' : 'Items'}
                   </span>
                 </div>
 
-                <div className="space-y-6 mb-10">
+                <div className="space-y-8 mb-12">
                   {cartItems.map((item) => (
-                    <div
-                      key={`${item.product_id}-${item.size}`}
-                      className="flex justify-between items-start gap-4"
-                    >
-                      <div className="space-y-1">
-                        <p className="text-sm font-bold text-foreground uppercase tracking-wide">
+                    <div key={`${item.product_id}-${item.size}`} className="flex justify-between gap-4">
+                      <div className="space-y-1 flex-1">
+                        <p className="text-xs font-bold text-zinc-900 tracking-wider">
                           {item.title}
                         </p>
-                        <p className="text-xs text-foreground/40 font-medium bg-foreground/5 px-2 py-0.5 rounded w-fit">
-                          Size: {item.size} × {item.quantity}
+                        <p className="text-[10px] text-zinc-400 font-bold">
+                          Size {item.size} x {item.quantity}
                         </p>
                       </div>
-                      <span className="text-sm font-black text-foreground">
+                      <span className="text-xs font-bold text-zinc-900">
                         {formatPrice(item.price * item.quantity)}
                       </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="pt-8 border-t border-border-color space-y-4">
-                  <div className="flex justify-between items-center text-foreground/40 text-xs tracking-widest uppercase font-bold">
+                <div className="pt-8 border-t border-zinc-200 space-y-4">
+                  <div className="flex justify-between items-center text-[10px] font-bold text-zinc-400 tracking-widest">
                     <span>Subtotal</span>
                     <span>{formatPrice(cartTotal)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-foreground/40 text-xs tracking-widest uppercase font-bold">
+                  <div className="flex justify-between items-center text-[10px] font-bold text-zinc-400 tracking-widest">
                     <span>Shipping</span>
-                    <span className="text-viltrum-red">Calculated on Call</span>
+                    <span className="text-zinc-900 italic">TBD</span>
                   </div>
-                  <div className="flex justify-between items-center pt-4">
-                    <span className="text-sm tracking-widest text-foreground font-black uppercase">
-                      Total
-                    </span>
-                    <span className="text-3xl font-black text-viltrum-red">
+                  <div className="flex justify-between items-center pt-8 border-t border-zinc-200/50 mt-4">
+                    <span className="text-xs font-bold text-zinc-900 tracking-widest">Total</span>
+                    <span className="text-4xl font-bold text-zinc-900">
                       {formatPrice(cartTotal)}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-8 p-4 bg-background/50 rounded-2xl border border-border-color/50">
-                  <p className="text-[10px] text-foreground/40 leading-relaxed text-center uppercase tracking-widest font-bold">
-                    Prices exclude delivery fees. Our team will contact you to confirm shipping.
+                <div className="mt-12 p-6 bg-white border border-zinc-200">
+                  <p className="text-[9px] text-zinc-500 leading-relaxed text-center font-bold tracking-[0.05em]">
+                    Delivery fees are calculated based on your address and will be confirmed via phone call.
                   </p>
                 </div>
               </div>
-            </div>
+            </aside>
           </div>
         </div>
       </main>

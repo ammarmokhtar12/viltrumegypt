@@ -70,13 +70,12 @@ export default function ProductGrid({ products }: ProductGridProps) {
       if (cards) {
         gsap.fromTo(
           cards,
-          { opacity: 0, y: 80, scale: 0.92 },
+          { opacity: 0, y: 80 },
           {
             opacity: 1,
             y: 0,
-            scale: 1,
             duration: 0.8,
-            stagger: 0.12,
+            stagger: 0.1,
             ease: "power3.out",
             scrollTrigger: {
               trigger: gridRef.current,
@@ -93,16 +92,13 @@ export default function ProductGrid({ products }: ProductGridProps) {
 
   if (products.length === 0) {
     return (
-      <section id="products" className="section-padding">
-        <div className="max-w-7xl mx-auto text-center py-24">
-          <div className="w-24 h-24 rounded-full bg-viltrum-red/8 flex items-center justify-center mx-auto mb-8 red-glow">
-            <span className="text-viltrum-red text-4xl font-display font-black">V</span>
-          </div>
-          <h2 className="mb-4 font-display text-[3rem] leading-none tracking-[0.08em] text-foreground">
+      <section id="products" className="py-32 bg-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="mb-4 font-display text-[3rem] leading-none tracking-wide text-zinc-900">
             Collection Coming Soon
           </h2>
-          <p className="text-foreground/60/40 max-w-md mx-auto text-sm leading-relaxed">
-            Our warriors are forging the next collection. Stay tuned for legendary drops.
+          <p className="text-zinc-500 max-w-md mx-auto text-sm leading-relaxed">
+            We are preparing the next drop. Stay tuned.
           </p>
         </div>
       </section>
@@ -113,28 +109,27 @@ export default function ProductGrid({ products }: ProductGridProps) {
     <section
       ref={sectionRef}
       id="products"
-      className={`section-padding ${isMobile ? "" : "noise-bg"}`}
-      style={{ background: "linear-gradient(180deg, #0A0A0A 0%, #0D0D0D 50%, #0A0A0A 100%)" }}
+      className="py-32 bg-white"
     >
-      <div className="relative z-10 max-w-7xl mx-auto">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Divider line */}
         <div
           ref={lineRef}
-          className="h-[1px] bg-gradient-to-r from-transparent via-viltrum-mist/10 to-transparent mb-24 origin-center"
+          className="h-[1px] bg-zinc-200 mb-24 origin-center"
         />
 
         {/* Section Heading */}
         <div ref={headingRef} className="text-center mb-24 md:mb-32 space-y-6">
-          <span className="section-eyebrow">
-            <span className="section-eyebrow-dot" />
+          <span className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-100 border border-zinc-200 text-zinc-600 rounded-full text-xs font-bold uppercase tracking-widest">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
             Signature Selection
           </span>
 
-          <h2 className="section-title text-[4rem] text-foreground md:text-[5.2rem] lg:text-[6.6rem]">
-            Made For <span className="text-gradient-blood">Presence</span>
+          <h2 className="font-display text-[4rem] md:text-[6rem] lg:text-[8rem] leading-[0.85] text-zinc-900 tracking-tighter">
+            Made For <span className="text-zinc-400">Presence</span>
           </h2>
 
-          <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-viltrum-silver/80 md:text-lg">
+          <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-zinc-500 md:text-lg">
             A tighter edit of premium essentials designed to hold shape,
             elevate silhouette, and make every training look feel more
             intentional.
@@ -144,7 +139,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
         {/* Product Grid */}
         <div
           ref={gridRef}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 md:gap-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12"
         >
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />

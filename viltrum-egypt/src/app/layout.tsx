@@ -46,11 +46,12 @@ export default function RootLayout({
       className={`${manrope.variable} ${bebasNeue.variable}`}
       data-scroll-behavior="smooth"
     >
-      <body className="font-sans antialiased bg-background text-foreground transition-colors duration-300">
+      <body className="font-sans antialiased bg-background text-foreground">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem
+          forcedTheme="light"
+          enableSystem={false}
           disableTransitionOnChange
         >
           {children}

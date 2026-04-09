@@ -42,7 +42,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-[60] bg-black/80 transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[60] bg-zinc-900/10 backdrop-blur-sm transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
@@ -51,29 +51,22 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] z-[70] bg-background border-l border-viltrum-white/5 transform transition-transform duration-500 ease-out ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[450px] z-[70] bg-white border-l border-zinc-100 transform transition-transform duration-500 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full uppercase font-sans">
           {/* Header */}
-          <div className="flex items-center justify-between p-8 border-b border-border-color">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <ShoppingBag size={24} className="text-viltrum-red" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-viltrum-red text-[10px] font-black text-white shadow-[0_4px_12px_rgba(139,0,0,0.4)]">
-                    {cartCount}
-                  </span>
-                )}
-              </div>
-              <h2 className="text-xl font-bold tracking-[0.2em] text-foreground uppercase">
-                Cart
+          <div className="flex items-center justify-between p-8 border-b border-zinc-100">
+            <div className="flex items-center gap-3">
+               <ShoppingBag size={20} className="text-zinc-900" />
+               <h2 className="text-lg font-bold tracking-widest text-zinc-900">
+                Cart ({cartCount})
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center rounded-xl bg-foreground/[0.03] text-foreground/40 hover:text-foreground transition-all duration-300 border border-border-color"
+              className="w-10 h-10 flex items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors"
               aria-label="Close cart"
             >
               <X size={20} />
@@ -83,22 +76,19 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           {/* Items */}
           <div className="flex-1 overflow-y-auto p-8 space-y-4">
             {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
-                <div className="w-24 h-24 rounded-3xl bg-foreground/[0.03] border border-border-color flex items-center justify-center">
-                  <ShoppingBag
-                    size={40}
-                    className="text-foreground/10"
-                  />
+              <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
+                <div className="w-16 h-16 bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                  <ShoppingBag size={24} className="text-zinc-200" />
                 </div>
-                <div className="space-y-2">
-                  <p className="text-foreground/40 text-xs font-black uppercase tracking-widest">
-                    Empty Inventory
+                <div className="space-y-4">
+                  <p className="text-[10px] text-zinc-400 font-bold tracking-widest">
+                    Your cart is empty
                   </p>
                   <button
                     onClick={onClose}
-                    className="text-sm text-viltrum-red font-bold uppercase tracking-widest hover:text-viltrum-red-light transition-colors"
+                    className="text-[10px] text-zinc-900 font-bold tracking-widest underline underline-offset-4"
                   >
-                    Return to Drops
+                    Start Shopping
                   </button>
                 </div>
               </div>
@@ -114,22 +104,22 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <div className="p-8 border-t border-border-color space-y-8 bg-foreground/[0.01]">
+            <div className="p-8 border-t border-zinc-100 space-y-8 bg-zinc-50/50">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-foreground/40 font-black tracking-widest uppercase">
-                  Total Value
+                <span className="text-[10px] text-zinc-400 font-bold tracking-widest">
+                  Total
                 </span>
-                <span className="text-3xl font-black text-viltrum-red">
+                <span className="text-2xl font-bold text-zinc-900">
                   {formatPrice(cartTotal)}
                 </span>
               </div>
               <Link
                 href="/checkout"
                 onClick={onClose}
-                className="armor-btn w-full !h-16 text-sm"
+                className="btn-primary w-full"
               >
-                Go To Checkout
-                <ArrowRight size={18} className="ml-2" />
+                Proceed To Checkout
+                <ArrowRight size={16} className="ml-2" />
               </Link>
             </div>
           )}
