@@ -13,6 +13,12 @@ import {
   Save,
   Eye,
   EyeOff,
+  Search,
+  MoreVertical,
+  DollarSign,
+  BarChart3,
+  TrendingUp,
+  Image as ImageIcon,
 } from "lucide-react";
 
 export default function AdminProductsPage() {
@@ -20,6 +26,8 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterActive, setFilterActive] = useState<"all" | "active" | "hidden">("all");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -30,6 +38,7 @@ export default function AdminProductsPage() {
   });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -141,15 +150,33 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
-
     try {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (!error) {
         setProducts((prev) => prev.filter((p) => p.id !== id));
+        setDeleteConfirm(null);
       }
     } catch (err) {
       console.error("Delete error:", err);
+    }
+  };
+
+  const toggleActive = async (product: Product) => {
+    try {
+      const { error } = await supabase
+        .from("products")
+        .update({ is_active: !product.is_active })
+        .eq("id", product.id);
+
+      if (!error) {
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === product.id ? { ...p, is_active: !p.is_active } : p
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Toggle error:", err);
     }
   };
 
@@ -162,12 +189,29 @@ export default function AdminProductsPage() {
     }));
   };
 
+  // Filtered products
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter =
+      filterActive === "all" ||
+      (filterActive === "active" && p.is_active) ||
+      (filterActive === "hidden" && !p.is_active);
+    return matchesSearch && matchesFilter;
+  });
+
+  // Stats
+  const activeCount = products.filter((p) => p.is_active).length;
+  const totalValue = products.reduce((sum, p) => sum + p.price, 0);
+  const avgPrice = products.length > 0 ? totalValue / products.length : 0;
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-viltrum-red border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs tracking-[0.2em] text-foreground/60/30 uppercase">Loading products</span>
+          <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
+          <span className="text-[11px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">
+            Loading products
+          </span>
         </div>
       </div>
     );
@@ -176,11 +220,13 @@ export default function AdminProductsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-display font-black text-foreground tracking-tight">Products</h1>
-          <p className="text-sm text-foreground/60/35 mt-1">
-            {products.length} products
+          <h1 className="font-display text-2xl text-zinc-900 tracking-wide">
+            Products
+          </h1>
+          <p className="text-sm text-zinc-400 mt-1">
+            {products.length} products · {activeCount} active
           </p>
         </div>
         <button
@@ -188,35 +234,337 @@ export default function AdminProductsPage() {
             resetForm();
             setShowForm(true);
           }}
-          className="admin-btn admin-btn-primary"
+          className="inline-flex items-center gap-2 h-12 px-6 bg-zinc-900 text-white text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-zinc-700 transition-colors rounded-sm"
         >
           <Plus size={15} />
           Add Product
         </button>
       </div>
 
-      {/* Product Form Modal */}
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white border border-zinc-100 p-5 rounded-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 rounded-sm bg-zinc-50 flex items-center justify-center">
+              <Package size={15} className="text-zinc-400" />
+            </div>
+            <p className="text-[10px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">Total</p>
+          </div>
+          <p className="text-2xl font-display text-zinc-900">{products.length}</p>
+        </div>
+        <div className="bg-white border border-zinc-100 p-5 rounded-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 rounded-sm bg-emerald-50 flex items-center justify-center">
+              <Eye size={15} className="text-emerald-600" />
+            </div>
+            <p className="text-[10px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">Active</p>
+          </div>
+          <p className="text-2xl font-display text-emerald-600">{activeCount}</p>
+        </div>
+        <div className="bg-white border border-zinc-100 p-5 rounded-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 rounded-sm bg-zinc-50 flex items-center justify-center">
+              <DollarSign size={15} className="text-zinc-400" />
+            </div>
+            <p className="text-[10px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">Avg Price</p>
+          </div>
+          <p className="text-2xl font-display text-zinc-900">EGP {avgPrice.toFixed(0)}</p>
+        </div>
+        <div className="bg-white border border-zinc-100 p-5 rounded-sm">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 rounded-sm bg-zinc-50 flex items-center justify-center">
+              <EyeOff size={15} className="text-zinc-400" />
+            </div>
+            <p className="text-[10px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">Hidden</p>
+          </div>
+          <p className="text-2xl font-display text-zinc-500">{products.length - activeCount}</p>
+        </div>
+      </div>
+
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search products..."
+            className="w-full h-12 pl-11 pr-4 text-sm bg-white border border-zinc-200 rounded-sm text-zinc-900 placeholder-zinc-300 focus:outline-none focus:border-zinc-400 transition-colors"
+          />
+        </div>
+        <div className="flex gap-2">
+          {(["all", "active", "hidden"] as const).map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setFilterActive(filter)}
+              className={`h-12 px-5 text-[11px] font-semibold uppercase tracking-[0.15em] border transition-all rounded-sm ${
+                filterActive === filter
+                  ? "bg-zinc-900 text-white border-zinc-900"
+                  : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400"
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Products Table */}
+      {filteredProducts.length === 0 ? (
+        <div className="text-center py-24 bg-white border border-zinc-100 rounded-sm">
+          <Package size={36} className="mx-auto text-zinc-200 mb-5" />
+          <h2 className="text-lg font-display text-zinc-400">
+            {searchQuery ? "No products match your search" : "No products yet"}
+          </h2>
+          <p className="text-sm text-zinc-300 mt-2">
+            {searchQuery ? "Try a different search term." : "Add your first product to get started."}
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white border border-zinc-100 rounded-sm overflow-hidden">
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>Sizes</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th className="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProducts.map((product) => (
+                  <tr key={product.id} className="hover:bg-zinc-50 transition-colors">
+                    {/* Product (Image + Name) */}
+                    <td>
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 bg-zinc-50 border border-zinc-100 rounded-sm overflow-hidden flex-shrink-0">
+                          {product.image_url ? (
+                            <img
+                              src={product.image_url}
+                              alt={product.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <ImageIcon size={16} className="text-zinc-200" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-medium text-zinc-900 text-sm truncate max-w-[200px]">
+                            {product.title}
+                          </p>
+                          {product.description && (
+                            <p className="text-xs text-zinc-400 truncate max-w-[200px] mt-0.5">
+                              {product.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    {/* Price */}
+                    <td>
+                      <span className="font-display font-bold text-zinc-900">
+                        EGP {product.price}
+                      </span>
+                    </td>
+                    {/* Sizes */}
+                    <td>
+                      <div className="flex gap-1.5">
+                        {product.sizes?.map((size) => (
+                          <span
+                            key={size}
+                            className="px-2 py-0.5 text-[10px] font-semibold text-zinc-500 bg-zinc-50 border border-zinc-100 rounded-sm"
+                          >
+                            {size}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    {/* Status */}
+                    <td>
+                      <button
+                        onClick={() => toggleActive(product)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold rounded-sm transition-colors ${
+                          product.is_active
+                            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                            : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200"
+                        }`}
+                      >
+                        {product.is_active ? (
+                          <>
+                            <Eye size={12} /> Active
+                          </>
+                        ) : (
+                          <>
+                            <EyeOff size={12} /> Hidden
+                          </>
+                        )}
+                      </button>
+                    </td>
+                    {/* Date */}
+                    <td>
+                      <span className="text-sm text-zinc-400">
+                        {new Date(product.created_at).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </td>
+                    {/* Actions */}
+                    <td>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => openEditForm(product)}
+                          className="h-9 px-3 inline-flex items-center gap-1.5 text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 bg-zinc-50 border border-zinc-100 hover:border-zinc-300 rounded-sm transition-all"
+                        >
+                          <Edit2 size={12} />
+                          Edit
+                        </button>
+                        {deleteConfirm === product.id ? (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleDelete(product.id)}
+                              className="h-9 px-3 text-[11px] font-semibold text-white bg-red-600 hover:bg-red-700 rounded-sm transition-colors"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(null)}
+                              className="h-9 px-3 text-[11px] font-semibold text-zinc-500 bg-zinc-50 border border-zinc-100 rounded-sm transition-colors"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setDeleteConfirm(product.id)}
+                            className="h-9 w-9 inline-flex items-center justify-center text-zinc-400 hover:text-red-600 bg-zinc-50 border border-zinc-100 hover:border-red-200 rounded-sm transition-all"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y divide-zinc-100">
+            {filteredProducts.map((product) => (
+              <div key={product.id} className="p-4 space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-zinc-50 border border-zinc-100 rounded-sm overflow-hidden flex-shrink-0">
+                    {product.image_url ? (
+                      <img
+                        src={product.image_url}
+                        alt={product.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package size={18} className="text-zinc-200" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-zinc-900 text-sm truncate">
+                      {product.title}
+                    </p>
+                    <p className="text-lg font-display font-bold text-zinc-900 mt-0.5">
+                      EGP {product.price}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => toggleActive(product)}
+                    className={`flex-shrink-0 px-3 py-1.5 text-[10px] font-semibold rounded-sm ${
+                      product.is_active
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-zinc-100 text-zinc-400"
+                    }`}
+                  >
+                    {product.is_active ? "Active" : "Hidden"}
+                  </button>
+                </div>
+
+                <div className="flex gap-1.5">
+                  {product.sizes?.map((size) => (
+                    <span
+                      key={size}
+                      className="px-2 py-0.5 text-[10px] font-semibold text-zinc-400 bg-zinc-50 border border-zinc-100 rounded-sm"
+                    >
+                      {size}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openEditForm(product)}
+                    className="flex-1 h-10 flex items-center justify-center gap-2 text-[11px] font-semibold text-zinc-600 bg-zinc-50 border border-zinc-200 hover:border-zinc-400 rounded-sm transition-all"
+                  >
+                    <Edit2 size={12} />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() =>
+                      deleteConfirm === product.id
+                        ? handleDelete(product.id)
+                        : setDeleteConfirm(product.id)
+                    }
+                    className={`h-10 px-4 flex items-center justify-center gap-2 text-[11px] font-semibold rounded-sm transition-all border ${
+                      deleteConfirm === product.id
+                        ? "bg-red-600 text-white border-red-600"
+                        : "text-zinc-400 border-zinc-200 hover:text-red-600 hover:border-red-200"
+                    }`}
+                  >
+                    <Trash2 size={12} />
+                    {deleteConfirm === product.id ? "Confirm" : ""}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Product Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={resetForm}>
+        <div
+          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
+          onClick={resetForm}
+        >
           <div
-            className="glass-card-static rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-sm shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-6" style={{ borderBottom: "1px solid rgba(240, 240, 240, 0.05)" }}>
-              <h2 className="font-display font-bold text-foreground tracking-wide">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-zinc-100">
+              <h2 className="font-display text-lg text-zinc-900 tracking-wide">
                 {editingProduct ? "Edit Product" : "Add New Product"}
               </h2>
               <button
                 onClick={resetForm}
-                className="p-1.5 rounded-lg text-foreground/60/40 hover:text-foreground hover:bg-viltrum-white/5 transition-all"
+                className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors"
               >
                 <X size={16} />
               </button>
             </div>
+
+            {/* Form */}
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {/* Title */}
-              <div>
-                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-2">
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
                   Title *
                 </label>
                 <input
@@ -225,16 +573,15 @@ export default function AdminProductsPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  className="w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all"
-                  style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
+                  className="viltrum-input"
                   placeholder="Product name"
                   required
                 />
               </div>
 
               {/* Description */}
-              <div>
-                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-2">
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
                   Description
                 </label>
                 <textarea
@@ -246,15 +593,14 @@ export default function AdminProductsPage() {
                     }))
                   }
                   rows={3}
-                  className="w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all resize-none"
-                  style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
+                  className="viltrum-input resize-none"
                   placeholder="Product description"
                 />
               </div>
 
               {/* Price */}
-              <div>
-                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-2">
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
                   Price (EGP) *
                 </label>
                 <input
@@ -263,8 +609,7 @@ export default function AdminProductsPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, price: e.target.value }))
                   }
-                  className="w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all"
-                  style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
+                  className="viltrum-input"
                   placeholder="0"
                   min="0"
                   step="0.01"
@@ -273,12 +618,12 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Image Upload */}
-              <div>
-                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-2">
+              <div className="space-y-2">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
                   Product Image
                 </label>
                 {formData.image_url ? (
-                  <div className="relative rounded-xl overflow-hidden" style={{ border: "1px solid rgba(240, 240, 240, 0.06)" }}>
+                  <div className="relative border border-zinc-100 rounded-sm overflow-hidden">
                     <img
                       src={formData.image_url}
                       alt="Product"
@@ -289,8 +634,7 @@ export default function AdminProductsPage() {
                       onClick={() =>
                         setFormData((prev) => ({ ...prev, image_url: "" }))
                       }
-                      className="absolute top-3 right-3 p-2 rounded-lg text-white hover:bg-viltrum-red transition-colors"
-                      style={{ background: "rgba(0, 0, 0, 0.6)" }}
+                      className="absolute top-3 right-3 p-2 rounded-sm text-white bg-zinc-900/70 hover:bg-zinc-900 transition-colors"
                     >
                       <X size={14} />
                     </button>
@@ -298,20 +642,15 @@ export default function AdminProductsPage() {
                 ) : (
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="rounded-xl p-8 text-center cursor-pointer transition-all duration-300 hover:border-viltrum-red/20"
-                    style={{ border: "2px dashed rgba(240, 240, 240, 0.08)", background: "rgba(240, 240, 240, 0.02)" }}
+                    className="border border-dashed border-zinc-200 p-8 text-center cursor-pointer hover:border-zinc-400 hover:bg-zinc-50 transition-all"
                   >
                     {uploading ? (
-                      <div className="w-6 h-6 border-2 border-viltrum-red border-t-transparent rounded-full animate-spin mx-auto" />
+                      <div className="w-6 h-6 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin mx-auto" />
                     ) : (
                       <>
-                        <Upload
-                          size={24}
-                          className="mx-auto text-foreground/60/20 mb-3"
-                        />
-                        <p className="text-sm text-foreground/60/30">
-                          Click to upload image
-                        </p>
+                        <Upload size={22} className="mx-auto text-zinc-300 mb-3" />
+                        <p className="text-sm text-zinc-500">Click to upload image</p>
+                        <p className="text-[11px] text-zinc-300 mt-1">JPG, PNG — Max 5MB</p>
                       </>
                     )}
                   </div>
@@ -336,15 +675,14 @@ export default function AdminProductsPage() {
                       image_url: e.target.value,
                     }))
                   }
-                  className="w-full mt-3 px-4 py-2.5 rounded-xl text-sm text-foreground placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all"
-                  style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
+                  className="viltrum-input mt-2"
                   placeholder="Or paste image URL"
                 />
               </div>
 
               {/* Sizes */}
-              <div>
-                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-3">
+              <div className="space-y-3">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
                   Available Sizes
                 </label>
                 <div className="flex gap-2">
@@ -353,16 +691,11 @@ export default function AdminProductsPage() {
                       key={size}
                       type="button"
                       onClick={() => toggleSize(size)}
-                      className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-300 ${
+                      className={`h-10 px-4 text-xs font-semibold border transition-all rounded-sm ${
                         formData.sizes.includes(size)
-                          ? "bg-viltrum-red/15 text-viltrum-red border border-viltrum-red/20"
-                          : "text-foreground/60/30 hover:text-foreground/60/60"
+                          ? "bg-zinc-900 text-white border-zinc-900"
+                          : "bg-white text-zinc-400 border-zinc-200 hover:border-zinc-400"
                       }`}
-                      style={
-                        !formData.sizes.includes(size)
-                          ? { background: "rgba(240, 240, 240, 0.03)", border: "1px solid rgba(240, 240, 240, 0.06)" }
-                          : undefined
-                      }
                     >
                       {size}
                     </button>
@@ -370,8 +703,8 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Active toggle */}
-              <div className="flex items-center gap-3">
+              {/* Active Toggle */}
+              <div className="flex items-center gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() =>
@@ -381,7 +714,7 @@ export default function AdminProductsPage() {
                     }))
                   }
                   className={`relative w-11 h-6 rounded-full transition-colors duration-300 ${
-                    formData.is_active ? "bg-viltrum-red" : "bg-viltrum-gray-lighter"
+                    formData.is_active ? "bg-emerald-600" : "bg-zinc-200"
                   }`}
                 >
                   <span
@@ -390,113 +723,36 @@ export default function AdminProductsPage() {
                     }`}
                   />
                 </button>
-                <span className="text-sm text-foreground/60/50 flex items-center gap-2">
+                <span className="text-sm text-zinc-500 flex items-center gap-2">
                   {formData.is_active ? (
-                    <><Eye size={14} /> Visible</>
+                    <>
+                      <Eye size={14} /> Visible on store
+                    </>
                   ) : (
-                    <><EyeOff size={14} /> Hidden</>
+                    <>
+                      <EyeOff size={14} /> Hidden from store
+                    </>
                   )}
                 </span>
               </div>
 
               {/* Submit */}
-              <button
-                type="submit"
-                disabled={saving}
-                className="admin-btn admin-btn-primary w-full py-3.5"
-              >
-                <Save size={15} />
-                {saving
-                  ? "Saving..."
-                  : editingProduct
-                  ? "Update Product"
-                  : "Add Product"}
-              </button>
+              <div className="pt-4 border-t border-zinc-100">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="w-full h-14 flex items-center justify-center gap-2 bg-zinc-900 text-white text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-zinc-700 transition-colors rounded-sm disabled:opacity-50"
+                >
+                  <Save size={15} />
+                  {saving
+                    ? "Saving..."
+                    : editingProduct
+                    ? "Update Product"
+                    : "Add Product"}
+                </button>
+              </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {/* Products Grid */}
-      {products.length === 0 ? (
-        <div className="text-center py-24 glass-card-static rounded-2xl">
-          <Package size={40} className="mx-auto text-foreground/60/15 mb-5" />
-          <h2 className="text-lg font-display font-bold text-foreground/60/40">
-            No products yet
-          </h2>
-          <p className="text-sm text-foreground/60/20 mt-2">
-            Add your first product to get started.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="glass-card-static rounded-2xl overflow-hidden group transition-all duration-300 hover:border-viltrum-white/10"
-            >
-              <div className="relative" style={{ aspectRatio: "4/5" }}>
-                {product.image_url ? (
-                  <img
-                    src={product.image_url}
-                    alt={product.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center" style={{ background: "rgba(22, 22, 22, 0.8)" }}>
-                    <Package size={36} className="text-foreground/60/15" />
-                  </div>
-                )}
-                {!product.is_active && (
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-lg text-[10px] font-bold tracking-wider uppercase"
-                    style={{ background: "rgba(0, 0, 0, 0.7)", color: "rgba(240, 240, 240, 0.5)" }}
-                  >
-                    Hidden
-                  </div>
-                )}
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-70" />
-              </div>
-              <div className="p-5 space-y-4">
-                <div>
-                  <h3 className="font-display font-bold text-foreground truncate">
-                    {product.title}
-                  </h3>
-                  <p className="text-lg font-display font-black text-viltrum-red mt-1">
-                    EGP {product.price}
-                  </p>
-                </div>
-                <div className="flex gap-1.5">
-                  {product.sizes?.map((size) => (
-                    <span
-                      key={size}
-                      className="px-2 py-0.5 text-[10px] font-semibold rounded text-foreground/60/30"
-                      style={{ background: "rgba(240, 240, 240, 0.04)" }}
-                    >
-                      {size}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={() => openEditForm(product)}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 text-[12px] font-semibold rounded-xl transition-all duration-300 text-foreground/60/50 hover:text-foreground"
-                    style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
-                  >
-                    <Edit2 size={13} />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="flex items-center justify-center gap-2 py-2.5 px-4 text-[12px] font-semibold rounded-xl transition-all duration-300 text-viltrum-red/60 hover:text-viltrum-red hover:bg-viltrum-red/10"
-                    style={{ border: "1px solid rgba(178, 0, 0, 0.1)" }}
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       )}
     </div>
