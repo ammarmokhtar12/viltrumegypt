@@ -119,32 +119,7 @@ export default function HeroSection() {
           </a>
         </div>
 
-        <div className="mt-24 grid w-full max-w-4xl grid-cols-1 gap-6 text-left sm:grid-cols-3">
-          <div className="bg-card-bg backdrop-blur-md border border-border-color rounded-[32px] px-8 py-8 transition-all duration-300 hover:border-viltrum-red/30">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-foreground/50">
-              Material
-            </p>
-            <p className="mt-2 text-xl font-bold text-foreground">
-              Sculpted compression fit
-            </p>
-          </div>
-          <div className="bg-card-bg backdrop-blur-md border border-border-color rounded-[32px] px-8 py-8 transition-all duration-300 hover:border-viltrum-red/30">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-foreground/50">
-              Presence
-            </p>
-            <p className="mt-2 text-xl font-bold text-foreground">
-              Premium silhouette
-            </p>
-          </div>
-          <div className="bg-card-bg backdrop-blur-md border border-border-color rounded-[32px] px-8 py-8 transition-all duration-300 hover:border-viltrum-red/30">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-foreground/50">
-              Finish
-            </p>
-            <p className="mt-2 text-xl font-bold text-foreground">
-              Sharp details
-            </p>
-          </div>
-        </div>
+
       </div>
 
       <div className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3 animate-bounce">
