@@ -166,13 +166,13 @@ body {
 .armor-btn {
   position: relative;
   overflow: hidden;
-  border-radius: 2px;
+  border-radius: 8px;
   background: #0A0A0A;
-  border: 1px solid rgba(178, 0, 0, 0.8);
+  border: 1px solid rgba(178, 0, 0, 0.5);
   color: #F0F0F0;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 0 0 1px rgba(178,0,0,0.2), 0 0 15px rgba(178,0,0,0.1);
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: inset 0 0 0 1px rgba(178,0,0,0.1), 0 0 10px rgba(178,0,0,0.05);
   z-index: 1;
 }
 
@@ -188,9 +188,9 @@ body {
 }
 
 .armor-btn:hover {
-  box-shadow: 0 0 30px rgba(178, 0, 0, 0.4), inset 0 0 10px rgba(255,255,255,0.2);
-  border-color: #FF3333;
-  letter-spacing: 0.25em; /* Glow-expand effect */
+  box-shadow: 0 0 25px rgba(178, 0, 0, 0.3), inset 0 0 15px rgba(255,255,255,0.1);
+  border-color: rgba(178, 0, 0, 0.8);
+  transform: translateY(-2px);
 }
 
 .armor-btn:hover::before {
@@ -198,18 +198,19 @@ body {
 }
 
 .armor-ghost-btn {
-  border-radius: 2px;
+  border-radius: 8px;
   background: transparent;
   border: 1px solid rgba(240, 240, 240, 0.15);
   color: rgba(240, 240, 240, 0.7);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .armor-ghost-btn:hover {
-  border-color: rgba(178, 0, 0, 0.8);
+  border-color: rgba(240, 240, 240, 0.5);
   color: rgba(240, 240, 240, 1);
-  box-shadow: 0 0 15px rgba(178, 0, 0, 0.3);
-  background: rgba(178, 0, 0, 0.05);
+  box-shadow: 0 0 20px rgba(240, 240, 240, 0.1);
+  background: rgba(240, 240, 240, 0.05);
+  transform: translateY(-2px);
 }
 
 .social-glow {
@@ -324,16 +325,16 @@ body {
 
 /* ===== SECTION SPACING (GENEROUS) ===== */
 .section-padding {
-  padding: 6rem 1.5rem;
+  padding: 8rem 1.5rem;
 }
 @media (min-width: 768px) {
   .section-padding {
-    padding: 8rem 2.5rem;
+    padding: 10rem 2.5rem;
   }
 }
 @media (min-width: 1024px) {
   .section-padding {
-    padding: 10rem 4rem;
+    padding: 12rem 4rem;
   }
 }
 

@@ -9,10 +9,10 @@ export default function Footer() {
       id="about"
       className="relative border-t border-viltrum-red/10"
       style={{
-        background: "radial-gradient(ellipse at top center, #0D0D0D 0%, #050505 100%)",
+        background: "radial-gradient(ellipse at top center, #121212 0%, #0A0A0A 100%)",
       }}
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-20 md:py-24">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-24 md:py-32">
         {/* CSS Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
           
@@ -95,7 +95,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-20 pt-8 border-t border-viltrum-white/[0.04] flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="mt-32 pt-10 border-t border-viltrum-white/[0.04] flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[11px] text-viltrum-mist/30 tracking-wider">
             © {new Date().getFullYear()} VILTRUM EGYPT. ALL RIGHTS RESERVED.
           </p>

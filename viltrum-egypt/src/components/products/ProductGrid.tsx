@@ -120,22 +120,22 @@ export default function ProductGrid({ products }: ProductGridProps) {
         {/* Divider line */}
         <div
           ref={lineRef}
-          className="h-[1px] bg-gradient-to-r from-transparent via-viltrum-red/30 to-transparent mb-16 origin-center"
+          className="h-[1px] bg-gradient-to-r from-transparent via-viltrum-mist/10 to-transparent mb-24 origin-center"
         />
 
         {/* Section Heading */}
-        <div ref={headingRef} className="text-center mb-16 md:mb-20 space-y-6">
-          <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-viltrum-red/20 bg-viltrum-red/5 text-viltrum-red text-[10px] tracking-[0.4em] font-bold uppercase">
-            <span className="w-1.5 h-1.5 rounded-full bg-viltrum-red/60" />
+        <div ref={headingRef} className="text-center mb-24 md:mb-32 space-y-6">
+          <span className="inline-flex items-center gap-2 px-6 py-2 rounded-full border border-viltrum-mist/10 bg-white/5 text-viltrum-white text-xs tracking-[0.4em] font-medium uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-viltrum-white/60" />
             The Collection
           </span>
 
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-black text-viltrum-white tracking-[-0.02em] leading-[0.95]">
+          <h2 className="font-display text-5xl md:text-6xl lg:text-7xl font-black text-viltrum-white tracking-tighter leading-[0.95]">
             BUILT FOR{" "}
             <span className="text-gradient-blood">WARRIORS</span>
           </h2>
 
-          <p className="text-viltrum-mist/40 max-w-lg mx-auto text-sm leading-relaxed">
+          <p className="text-viltrum-mist max-w-lg mx-auto text-base leading-relaxed mt-8">
             Each piece is precision-engineered for peak performance, 
             unmatched comfort, and a look that commands respect.
           </p>

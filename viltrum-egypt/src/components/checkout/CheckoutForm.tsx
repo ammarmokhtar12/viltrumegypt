@@ -45,9 +45,9 @@ export default function CheckoutForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {/* Name */}
-      <div className="space-y-1.5">
+      <div className="space-y-3">
         <label className="flex items-center gap-2 text-sm font-medium text-viltrum-white/70">
           <User size={14} />
           Full Name <span className="text-viltrum-red">*</span>
@@ -66,7 +66,7 @@ export default function CheckoutForm({
       </div>
 
       {/* Phone */}
-      <div className="space-y-1.5">
+      <div className="space-y-3">
         <label className="flex items-center gap-2 text-sm font-medium text-viltrum-white/70">
           <Phone size={14} />
           Phone Number <span className="text-viltrum-red">*</span>
@@ -85,7 +85,7 @@ export default function CheckoutForm({
       </div>
 
       {/* Address */}
-      <div className="space-y-1.5">
+      <div className="space-y-3">
         <label className="flex items-center gap-2 text-sm font-medium text-viltrum-white/70">
           <MapPin size={14} />
           Detailed Address <span className="text-viltrum-red">*</span>
@@ -104,7 +104,7 @@ export default function CheckoutForm({
       </div>
 
       {/* Payment Method Toggle */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <label className="flex items-center gap-2 text-sm font-medium text-viltrum-white/70">
           <CreditCard size={14} />
           Payment Method

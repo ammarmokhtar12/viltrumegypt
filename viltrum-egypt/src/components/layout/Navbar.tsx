@@ -31,8 +31,8 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
       id="main-navbar"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
         scrolled
-          ? "glass py-3 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
-          : "bg-transparent py-5"
+          ? "glass py-5 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+          : "bg-transparent py-8"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -111,7 +111,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           mobileMenuOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="glass mx-4 mt-3 rounded-xl p-6 space-y-4 border border-viltrum-white/5">
+        <div className="glass mx-4 mt-4 rounded-xl p-8 space-y-6 border border-viltrum-white/5">
           <a
             href="#products"
             className="block text-[12px] tracking-[0.2em] text-viltrum-mist/60 hover:text-viltrum-white transition-colors duration-300 uppercase font-medium"

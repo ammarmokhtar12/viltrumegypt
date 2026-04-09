@@ -62,7 +62,7 @@ export default function HeroSection() {
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-viltrum-black"
     >
       {/* Background Video */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden bg-black pointer-events-none">
+      <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden bg-[#0A0A0A] pointer-events-none">
         <video
           ref={videoRef}
           src="/hero-video.mp4"
@@ -84,17 +84,17 @@ export default function HeroSection() {
         
         <div
           ref={badgeRef}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-viltrum-red/30 bg-black/40 backdrop-blur-md text-viltrum-red text-xs tracking-[0.35em] font-semibold uppercase mb-8 shadow-[0_0_20px_rgba(178,0,0,0.15)]"
+          className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-viltrum-red/20 bg-[#0A0A0A]/60 backdrop-blur-md text-viltrum-white text-xs tracking-[0.3em] font-medium uppercase mb-10 shadow-lg"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-viltrum-red animate-pulse" />
-          Premium Athletic Wear
+          Premium AI Automation
         </div>
 
         {/* Text Overlay with Drop Shadow & Blend Mode */}
         <h1
           ref={titleRef}
-          className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-[9rem] font-black leading-[0.85] tracking-[-0.02em]"
-          style={{ textShadow: "0 20px 50px rgba(0,0,0,0.7), 0 0 20px rgba(178,0,0,0.2)" }}
+          className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black leading-[0.85] tracking-tighter"
+          style={{ textShadow: "0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(178,0,0,0.15)" }}
         >
           <span className="text-viltrum-white block">VILTRUM</span>
           <span className="text-gradient-blood block mt-2">EGYPT</span>
@@ -102,28 +102,27 @@ export default function HeroSection() {
 
         <p
           ref={subtitleRef}
-          className="text-base md:text-xl text-viltrum-white/90 max-w-2xl mx-auto mt-8 leading-relaxed font-light drop-shadow-lg"
-          style={{ textShadow: "0 4px 10px rgba(0,0,0,0.8)" }}
+          className="text-lg md:text-xl text-viltrum-mist max-w-2xl mx-auto mt-10 leading-relaxed font-normal bg-[#0A0A0A]/30 backdrop-blur-sm p-4 rounded-xl border border-white/5"
         >
-          Forged in strength. Built for warriors who demand peak performance. 
-          Our compression shirts are engineered with Viltrumite-grade precision.
+          Forged in strength. Designed with precision. 
+          World-class performance engineering meets premium aesthetics.
         </p>
 
-        <div ref={ctaRef} className="flex flex-col sm:flex-row gap-5 justify-center mt-12">
+        <div ref={ctaRef} className="flex flex-col sm:flex-row gap-6 justify-center mt-12 w-full max-w-md mx-auto sm:max-w-none">
           <a
             href="#products"
-            className="armor-btn group inline-flex items-center justify-center gap-3 px-12 py-5 font-bold text-sm tracking-[0.2em] uppercase"
+            className="armor-btn group inline-flex items-center justify-center gap-3 px-8 py-4 font-bold text-[13px] tracking-[0.2em] uppercase rounded-xl"
           >
             <span className="relative z-10 flex items-center gap-2">
               CLAIM YOUR ARMOR
-              <ChevronRight size={16} className="group-hover:translate-x-1.5 transition-transform duration-300" />
+              <ChevronRight size={18} className="group-hover:translate-x-1.5 transition-transform duration-300" />
             </span>
           </a>
           <a
             href="#products"
-            className="armor-ghost-btn inline-flex items-center justify-center px-12 py-5 font-semibold text-sm tracking-[0.2em] uppercase backdrop-blur-md"
+            className="armor-ghost-btn inline-flex items-center justify-center px-8 py-4 font-semibold text-[13px] tracking-[0.2em] uppercase backdrop-blur-md rounded-xl"
           >
-            View Collection
+            Explore Collection
           </a>
         </div>
       </div>

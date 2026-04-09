@@ -112,10 +112,10 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Product Info */}
-      <div className="p-6 space-y-5">
+      <div className="p-8 space-y-6">
         {/* Title */}
         <div>
-          <h3 className="text-base font-bold text-viltrum-white tracking-wide leading-tight font-display">
+          <h3 className="text-lg font-bold text-viltrum-white tracking-wide leading-tight font-display">
             {product.title}
           </h3>
           {product.description && (
@@ -136,9 +136,9 @@ export default function ProductCard({ product }: ProductCardProps) {
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`armor-ghost-btn px-4 py-2 text-xs font-semibold ${
+                  className={`armor-ghost-btn px-4 py-2 rounded-lg text-xs font-semibold ${
                     selectedSize === size
-                      ? "!border-viltrum-red !text-viltrum-white !bg-viltrum-red/10 !shadow-[0_0_15px_rgba(178,0,0,0.3)]"
+                      ? "!border-viltrum-white/50 !text-viltrum-white !bg-white/5 !shadow-[0_0_15px_rgba(255,255,255,0.1)]"
                       : ""
                   }`}
                 >
@@ -155,7 +155,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           id={`add-to-cart-${product.id}`}
           onClick={handleAddToCart}
           disabled={!selectedSize || added}
-          className={`armor-btn w-full py-4 px-4 font-bold text-[13px] tracking-[0.15em] uppercase flex items-center justify-center gap-2.5 ${
+          className={`armor-btn w-full py-4 px-6 rounded-xl font-bold text-[13px] tracking-[0.15em] uppercase flex items-center justify-center gap-2.5 ${
             added
               ? "!bg-green-600/90 !text-white !border-green-500 !shadow-[0_0_20px_rgba(34,197,94,0.2)]"
               : !selectedSize
