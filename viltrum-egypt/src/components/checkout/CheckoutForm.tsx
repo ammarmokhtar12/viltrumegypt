@@ -26,139 +26,137 @@ export default function CheckoutForm({
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!name.trim()) newErrors.name = "LEGAL NAME IS REQUIRED";
-    if (!phone.trim()) newErrors.phone = "CONTACT NUMBER IS REQUIRED";
+    if (!name.trim()) newErrors.name = "FIELD REQUIRED";
+    if (!phone.trim()) newErrors.phone = "FIELD REQUIRED";
     else if (!/^01[0125]\d{8}$/.test(phone.replace(/\s/g, "")))
-      newErrors.phone = "INVALID EGYPTIAN PROTOCOL";
-    if (!address.trim()) newErrors.address = "DETAILED ADDRESS IS REQUIRED";
-    else if (address.trim().length < 10)
-      newErrors.address = "PROVIDE MORE PRECISION IN ADDRESS";
+      newErrors.phone = "INVALID FORMAT";
+    if (!address.trim()) newErrors.address = "FIELD REQUIRED";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validate()) {
-      onSubmit({ name: name.trim(), phone: phone.trim(), address: address.trim(), paymentMethod });
-    }
+  const handleChange = (field: string, value: string) => {
+    const updated = {
+      name: field === 'name' ? value.toUpperCase() : name,
+      phone: field === 'phone' ? value : phone,
+      address: field === 'address' ? value : address,
+      paymentMethod
+    };
+    onSubmit(updated);
   };
 
   return (
-    <form onChange={handleSubmit} className="space-y-20">
-      <div className="space-y-16">
+    <form className="space-y-10">
+      <div className="space-y-8">
         {/* Name */}
-        <div className="space-y-6">
-          <label className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-900 block border-l-2 border-zinc-900 pl-4">
-            Full Legal Name
+        <div className="space-y-3">
+          <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">
+            Full Name
           </label>
           <input
-            id="checkout-name"
             type="text"
             value={name}
             onChange={(e) => {
               setName(e.target.value.toUpperCase());
-              onSubmit({ name: e.target.value.toUpperCase(), phone, address, paymentMethod });
+              handleChange('name', e.target.value);
             }}
-            placeholder="E.G. AMMAR MOKHTAR"
-            className="viltrum-input !text-lg !py-6"
+            placeholder="John Doe"
+            className="w-full h-14 rounded-full bg-zinc-50/50 border border-zinc-100 px-8 text-xs font-bold tracking-widest focus:border-zinc-900 focus:bg-white transition-all duration-300 outline-none placeholder:text-zinc-200"
           />
           {errors.name && (
-            <p className="text-[10px] text-red-600 font-black uppercase tracking-widest">{errors.name}</p>
+            <p className="text-[8px] text-red-500 font-bold tracking-widest pl-4">{errors.name}</p>
           )}
         </div>
 
         {/* Phone */}
-        <div className="space-y-6">
-          <label className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-900 block border-l-2 border-zinc-900 pl-4">
+        <div className="space-y-3">
+          <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">
             Contact Number
           </label>
           <input
-            id="checkout-phone"
             type="tel"
             value={phone}
             onChange={(e) => {
               setPhone(e.target.value);
-              onSubmit({ name, phone: e.target.value, address, paymentMethod });
+              handleChange('phone', e.target.value);
             }}
-            placeholder="01XXXXXXXXX"
-            className="viltrum-input !text-lg !py-6"
+            placeholder="012XXXXXXXX"
+            className="w-full h-14 rounded-full bg-zinc-50/50 border border-zinc-100 px-8 text-xs font-bold tracking-widest focus:border-zinc-900 focus:bg-white transition-all duration-300 outline-none placeholder:text-zinc-200"
           />
           {errors.phone && (
-            <p className="text-[10px] text-red-600 font-black uppercase tracking-widest">{errors.phone}</p>
+            <p className="text-[8px] text-red-500 font-bold tracking-widest pl-4">{errors.phone}</p>
           )}
         </div>
 
         {/* Address */}
-        <div className="space-y-6">
-          <label className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-900 block border-l-2 border-zinc-900 pl-4">
-            Shipping Destination
+        <div className="space-y-3">
+          <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">
+            Shipping Address
           </label>
-          <textarea
-            id="checkout-address"
+          <input
+            type="text"
             value={address}
             onChange={(e) => {
               setAddress(e.target.value);
-              onSubmit({ name, phone, address: e.target.value, paymentMethod });
+              handleChange('address', e.target.value);
             }}
-            placeholder="CITY, AREA, STREET, BUILDING..."
-            rows={4}
-            className="viltrum-input !text-lg !py-6 resize-none"
+            placeholder="City, Street, Building..."
+            className="w-full h-14 rounded-full bg-zinc-50/50 border border-zinc-100 px-8 text-xs font-bold tracking-widest focus:border-zinc-900 focus:bg-white transition-all duration-300 outline-none placeholder:text-zinc-200"
           />
           {errors.address && (
-            <p className="text-[10px] text-red-600 font-black uppercase tracking-widest">{errors.address}</p>
+            <p className="text-[8px] text-red-500 font-bold tracking-widest pl-4">{errors.address}</p>
           )}
         </div>
       </div>
 
-      {/* Payment Method Toggle */}
-      <div className="space-y-10 pt-16 border-t border-zinc-100">
-        <label className="text-xs font-bold uppercase tracking-[0.3em] text-zinc-900 block border-l-2 border-zinc-900 pl-4">
-          Transfer Method
+      {/* Payment Method */}
+      <div className="space-y-8 pt-6">
+        <label className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-400">
+          Transfer Protocol
         </label>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="flex gap-4">
           <button
             type="button"
-            onClick={() => onPaymentMethodChange("vodafone_cash")}
-            className={`flex flex-col items-center justify-center py-10 px-6 border transition-all duration-500 rounded-none ${
+            onClick={() => {
+              onPaymentMethodChange("vodafone_cash");
+              onSubmit({ name, phone, address, paymentMethod: "vodafone_cash" });
+            }}
+            className={`flex-1 h-14 rounded-full text-[9px] font-black uppercase tracking-[0.3em] transition-all duration-500 border ${
               paymentMethod === "vodafone_cash"
-                ? "border-zinc-900 bg-zinc-900 text-white shadow-xl shadow-zinc-900/10"
-                : "border-zinc-100 bg-white text-zinc-400 hover:border-zinc-300"
+                ? "bg-zinc-900 border-zinc-900 text-white shadow-lg shadow-zinc-900/20"
+                : "bg-white border-zinc-100 text-zinc-400 hover:border-zinc-300"
             }`}
           >
-            <span className="text-xs font-black uppercase tracking-[0.3em]">
-              Vodafone Cash
-            </span>
+            Vodafone Cash
           </button>
           <button
             type="button"
-            onClick={() => onPaymentMethodChange("instapay")}
-            className={`flex flex-col items-center justify-center py-10 px-6 border transition-all duration-500 rounded-none ${
+            onClick={() => {
+              onPaymentMethodChange("instapay");
+              onSubmit({ name, phone, address, paymentMethod: "instapay" });
+            }}
+            className={`flex-1 h-14 rounded-full text-[9px] font-black uppercase tracking-[0.3em] transition-all duration-500 border ${
               paymentMethod === "instapay"
-                ? "border-zinc-900 bg-zinc-900 text-white shadow-xl shadow-zinc-900/10"
-                : "border-zinc-100 bg-white text-zinc-400 hover:border-zinc-300"
+                ? "bg-zinc-900 border-zinc-900 text-white shadow-lg shadow-zinc-900/20"
+                : "bg-white border-zinc-100 text-zinc-400 hover:border-zinc-300"
             }`}
           >
-            <span className="text-xs font-black uppercase tracking-[0.3em]">
-              InstaPay
-            </span>
+            InstaPay
           </button>
         </div>
 
-        {/* Payment Instructions */}
-        <div className="p-10 bg-zinc-900 text-white border border-zinc-900">
-          <div className="flex items-start gap-6">
-            <CreditCard size={24} className="text-zinc-400 mt-1" />
-            <div className="space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-400">Transfer Securely To:</p>
-              <p className="text-2xl font-display font-bold tracking-widest">
-                01031429229
-              </p>
-              <p className="text-[10px] font-bold text-zinc-500 leading-relaxed uppercase tracking-widest pt-2">
-                AFTER TRANSFER, TAKE A CLEAR SCREENSHOT AND UPLOAD IT IN THE SECTION BELOW TO VALIDATE YOUR DROP.
-              </p>
-            </div>
-          </div>
+        {/* Instruction Card */}
+        <div className="p-8 rounded-[2rem] bg-zinc-50 border border-zinc-100 space-y-4">
+           <div className="flex items-center justify-between">
+              <span className="text-[8px] font-black tracking-[0.4em] text-zinc-300">RECEIVER</span>
+              <CreditCard size={14} className="text-zinc-300" />
+           </div>
+           <p className="text-2xl font-display font-bold text-zinc-900 tracking-widest">
+             01031429229
+           </p>
+           <p className="text-[8px] text-zinc-400 font-bold leading-relaxed tracking-widest">
+             TRANSFER THE EXACT TOTAL AMOUNT TO THE NUMBER ABOVE AND PROVIDE THE VALIDATION SCREENSHOT BELOW.
+           </p>
         </div>
       </div>
     </form>
