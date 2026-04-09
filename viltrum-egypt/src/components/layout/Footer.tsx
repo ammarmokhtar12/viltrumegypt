@@ -90,18 +90,18 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-24 sm:mt-32 pt-12 border-t border-zinc-100 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-[11px] text-zinc-300 tracking-[0.25em] uppercase font-semibold">
+        <div className="mt-24 sm:mt-32 pt-12 border-t border-zinc-100 flex flex-col md:flex-row justify-between items-center gap-8">
+          <p className="text-[11px] text-zinc-300 tracking-[0.25em] uppercase font-semibold text-center md:text-left flex-1">
             © {new Date().getFullYear()} VILTRUM EGYPT. ALL RIGHTS RESERVED.
           </p>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/admin"
-              className="w-2 h-2 rounded-full bg-zinc-100 hover:bg-zinc-900 transition-colors duration-500"
-              aria-label="Admin"
-            />
-          </div>
+          
+          <Link
+            href="/admin"
+            className="w-5 h-5 rounded-full bg-zinc-50 border border-zinc-100 hover:bg-zinc-900 hover:border-zinc-900 transition-all duration-500"
+            aria-label="Admin"
+          />
+
+          <div className="flex-1 hidden md:block" />
         </div>
       </div>
     </footer>
