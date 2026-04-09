@@ -58,7 +58,7 @@ export default function CheckoutForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Enter your full name"
-          className="w-full px-4 py-3 bg-viltrum-gray border border-viltrum-white/10 rounded-xl text-viltrum-white placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors"
+          className="w-full px-4 py-3 bg-[#0A0A0A] border border-viltrum-white/10 rounded-xl text-viltrum-white placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors"
         />
         {errors.name && (
           <p className="text-xs text-red-400">{errors.name}</p>
@@ -77,7 +77,7 @@ export default function CheckoutForm({
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="01XXXXXXXXX"
-          className="w-full px-4 py-3 bg-viltrum-gray border border-viltrum-white/10 rounded-xl text-viltrum-white placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors"
+          className="w-full px-4 py-3 bg-[#0A0A0A] border border-viltrum-white/10 rounded-xl text-viltrum-white placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors"
         />
         {errors.phone && (
           <p className="text-xs text-red-400">{errors.phone}</p>
@@ -96,7 +96,7 @@ export default function CheckoutForm({
           onChange={(e) => setAddress(e.target.value)}
           placeholder="City, Area, Street, Building, Floor..."
           rows={3}
-          className="w-full px-4 py-3 bg-viltrum-gray border border-viltrum-white/10 rounded-xl text-viltrum-white placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors resize-none"
+          className="w-full px-4 py-3 bg-[#0A0A0A] border border-viltrum-white/10 rounded-xl text-viltrum-white placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors resize-none"
         />
         {errors.address && (
           <p className="text-xs text-red-400">{errors.address}</p>

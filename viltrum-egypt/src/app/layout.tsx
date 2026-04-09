@@ -40,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`} data-scroll-behavior="smooth">
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased bg-[#0A0A0A] text-viltrum-white">{children}</body>
     </html>
   );
 }

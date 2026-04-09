@@ -82,13 +82,13 @@ export default function PaymentUpload({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <label className="block text-sm font-medium text-viltrum-white/70 tracking-wide">
         Payment Screenshot <span className="text-viltrum-red">*</span>
       </label>
 
       {preview ? (
-        <div className="relative rounded-xl overflow-hidden border border-viltrum-white/10">
+        <div className="relative rounded-xl overflow-hidden border border-viltrum-white/10 bg-[#0A0A0A]/50">
           <img
             src={preview}
             alt="Payment proof"
@@ -130,10 +130,10 @@ export default function PaymentUpload({
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`cursor-pointer border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+          className={`cursor-pointer border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${
             dragOver
               ? "border-viltrum-red bg-viltrum-red/5"
-              : "border-viltrum-white/10 hover:border-viltrum-red/30 hover:bg-viltrum-white/2"
+              : "border-viltrum-white/10 hover:border-viltrum-red/30 hover:bg-viltrum-white/5 bg-[#0A0A0A]"
           }`}
         >
           <Upload
