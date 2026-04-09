@@ -51,7 +51,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] z-[70] bg-viltrum-black border-l border-viltrum-white/5 transform transition-transform duration-500 ease-out ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] z-[70] bg-background border-l border-viltrum-white/5 transform transition-transform duration-500 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -60,7 +60,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           <div className="flex items-center justify-between p-5 border-b border-viltrum-white/5">
             <div className="flex items-center gap-3">
               <ShoppingBag size={20} className="text-viltrum-red" />
-              <h2 className="text-lg font-bold tracking-widest text-viltrum-white">
+              <h2 className="text-lg font-bold tracking-widest text-foreground">
                 CART
               </h2>
               {cartCount > 0 && (
@@ -71,7 +71,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-viltrum-white/50 hover:text-viltrum-white transition-colors"
+              className="p-2 text-foreground/50 hover:text-foreground transition-colors"
               aria-label="Close cart"
             >
               <X size={20} />
@@ -85,10 +85,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <div className="w-20 h-20 rounded-full bg-viltrum-gray flex items-center justify-center">
                   <ShoppingBag
                     size={32}
-                    className="text-viltrum-white/20"
+                    className="text-foreground/20"
                   />
                 </div>
-                <p className="text-viltrum-white/40 text-sm">
+                <p className="text-foreground/40 text-sm">
                   Your cart is empty
                 </p>
                 <button
@@ -112,7 +112,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           {cartItems.length > 0 && (
             <div className="p-5 border-t border-viltrum-white/5 space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-viltrum-white/50 tracking-widest uppercase">
+                <span className="text-sm text-foreground/50 tracking-widest uppercase">
                   Total
                 </span>
                 <span className="text-2xl font-black text-viltrum-red">

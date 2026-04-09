@@ -83,7 +83,7 @@ export default function PaymentUpload({
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-medium text-viltrum-white/70 tracking-wide">
+      <label className="block text-sm font-medium text-foreground/70 tracking-wide">
         Payment Screenshot <span className="text-viltrum-red">*</span>
       </label>
 
@@ -114,7 +114,7 @@ export default function PaymentUpload({
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
               <div className="text-center">
                 <div className="w-8 h-8 border-2 border-viltrum-red border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                <span className="text-sm text-viltrum-white/70">
+                <span className="text-sm text-foreground/70">
                   Uploading...
                 </span>
               </div>
@@ -139,13 +139,13 @@ export default function PaymentUpload({
           <Upload
             size={32}
             className={`mx-auto mb-3 ${
-              dragOver ? "text-viltrum-red" : "text-viltrum-white/30"
+              dragOver ? "text-viltrum-red" : "text-foreground/30"
             }`}
           />
-          <p className="text-sm text-viltrum-white/50 mb-1">
+          <p className="text-sm text-foreground/50 mb-1">
             Drag & drop your screenshot here
           </p>
-          <p className="text-xs text-viltrum-white/30">
+          <p className="text-xs text-foreground/30">
             or click to browse (max 5MB)
           </p>
         </div>

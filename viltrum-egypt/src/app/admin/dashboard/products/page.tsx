@@ -167,7 +167,7 @@ export default function AdminProductsPage() {
       <div className="flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-viltrum-red border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs tracking-[0.2em] text-viltrum-mist/30 uppercase">Loading products</span>
+          <span className="text-xs tracking-[0.2em] text-foreground/60/30 uppercase">Loading products</span>
         </div>
       </div>
     );
@@ -178,8 +178,8 @@ export default function AdminProductsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-display font-black text-viltrum-white tracking-tight">Products</h1>
-          <p className="text-sm text-viltrum-mist/35 mt-1">
+          <h1 className="text-2xl font-display font-black text-foreground tracking-tight">Products</h1>
+          <p className="text-sm text-foreground/60/35 mt-1">
             {products.length} products
           </p>
         </div>
@@ -203,12 +203,12 @@ export default function AdminProductsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-6" style={{ borderBottom: "1px solid rgba(240, 240, 240, 0.05)" }}>
-              <h2 className="font-display font-bold text-viltrum-white tracking-wide">
+              <h2 className="font-display font-bold text-foreground tracking-wide">
                 {editingProduct ? "Edit Product" : "Add New Product"}
               </h2>
               <button
                 onClick={resetForm}
-                className="p-1.5 rounded-lg text-viltrum-mist/40 hover:text-viltrum-white hover:bg-viltrum-white/5 transition-all"
+                className="p-1.5 rounded-lg text-foreground/60/40 hover:text-foreground hover:bg-viltrum-white/5 transition-all"
               >
                 <X size={16} />
               </button>
@@ -216,7 +216,7 @@ export default function AdminProductsPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               {/* Title */}
               <div>
-                <label className="block text-[11px] font-semibold text-viltrum-mist/40 tracking-[0.15em] uppercase mb-2">
+                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-2">
                   Title *
                 </label>
                 <input
@@ -225,7 +225,7 @@ export default function AdminProductsPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  className="w-full px-4 py-3 rounded-xl text-sm text-viltrum-white placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all"
+                  className="w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all"
                   style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
                   placeholder="Product name"
                   required
@@ -234,7 +234,7 @@ export default function AdminProductsPage() {
 
               {/* Description */}
               <div>
-                <label className="block text-[11px] font-semibold text-viltrum-mist/40 tracking-[0.15em] uppercase mb-2">
+                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-2">
                   Description
                 </label>
                 <textarea
@@ -246,7 +246,7 @@ export default function AdminProductsPage() {
                     }))
                   }
                   rows={3}
-                  className="w-full px-4 py-3 rounded-xl text-sm text-viltrum-white placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all resize-none"
+                  className="w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all resize-none"
                   style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
                   placeholder="Product description"
                 />
@@ -254,7 +254,7 @@ export default function AdminProductsPage() {
 
               {/* Price */}
               <div>
-                <label className="block text-[11px] font-semibold text-viltrum-mist/40 tracking-[0.15em] uppercase mb-2">
+                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-2">
                   Price (EGP) *
                 </label>
                 <input
@@ -263,7 +263,7 @@ export default function AdminProductsPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, price: e.target.value }))
                   }
-                  className="w-full px-4 py-3 rounded-xl text-sm text-viltrum-white placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all"
+                  className="w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all"
                   style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
                   placeholder="0"
                   min="0"
@@ -274,7 +274,7 @@ export default function AdminProductsPage() {
 
               {/* Image Upload */}
               <div>
-                <label className="block text-[11px] font-semibold text-viltrum-mist/40 tracking-[0.15em] uppercase mb-2">
+                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-2">
                   Product Image
                 </label>
                 {formData.image_url ? (
@@ -307,9 +307,9 @@ export default function AdminProductsPage() {
                       <>
                         <Upload
                           size={24}
-                          className="mx-auto text-viltrum-mist/20 mb-3"
+                          className="mx-auto text-foreground/60/20 mb-3"
                         />
-                        <p className="text-sm text-viltrum-mist/30">
+                        <p className="text-sm text-foreground/60/30">
                           Click to upload image
                         </p>
                       </>
@@ -336,7 +336,7 @@ export default function AdminProductsPage() {
                       image_url: e.target.value,
                     }))
                   }
-                  className="w-full mt-3 px-4 py-2.5 rounded-xl text-sm text-viltrum-white placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all"
+                  className="w-full mt-3 px-4 py-2.5 rounded-xl text-sm text-foreground placeholder-viltrum-mist/20 focus:outline-none focus:ring-1 focus:ring-viltrum-red/30 transition-all"
                   style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
                   placeholder="Or paste image URL"
                 />
@@ -344,7 +344,7 @@ export default function AdminProductsPage() {
 
               {/* Sizes */}
               <div>
-                <label className="block text-[11px] font-semibold text-viltrum-mist/40 tracking-[0.15em] uppercase mb-3">
+                <label className="block text-[11px] font-semibold text-foreground/60/40 tracking-[0.15em] uppercase mb-3">
                   Available Sizes
                 </label>
                 <div className="flex gap-2">
@@ -356,7 +356,7 @@ export default function AdminProductsPage() {
                       className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-300 ${
                         formData.sizes.includes(size)
                           ? "bg-viltrum-red/15 text-viltrum-red border border-viltrum-red/20"
-                          : "text-viltrum-mist/30 hover:text-viltrum-mist/60"
+                          : "text-foreground/60/30 hover:text-foreground/60/60"
                       }`}
                       style={
                         !formData.sizes.includes(size)
@@ -390,7 +390,7 @@ export default function AdminProductsPage() {
                     }`}
                   />
                 </button>
-                <span className="text-sm text-viltrum-mist/50 flex items-center gap-2">
+                <span className="text-sm text-foreground/60/50 flex items-center gap-2">
                   {formData.is_active ? (
                     <><Eye size={14} /> Visible</>
                   ) : (
@@ -420,11 +420,11 @@ export default function AdminProductsPage() {
       {/* Products Grid */}
       {products.length === 0 ? (
         <div className="text-center py-24 glass-card-static rounded-2xl">
-          <Package size={40} className="mx-auto text-viltrum-mist/15 mb-5" />
-          <h2 className="text-lg font-display font-bold text-viltrum-mist/40">
+          <Package size={40} className="mx-auto text-foreground/60/15 mb-5" />
+          <h2 className="text-lg font-display font-bold text-foreground/60/40">
             No products yet
           </h2>
-          <p className="text-sm text-viltrum-mist/20 mt-2">
+          <p className="text-sm text-foreground/60/20 mt-2">
             Add your first product to get started.
           </p>
         </div>
@@ -444,7 +444,7 @@ export default function AdminProductsPage() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center" style={{ background: "rgba(22, 22, 22, 0.8)" }}>
-                    <Package size={36} className="text-viltrum-mist/15" />
+                    <Package size={36} className="text-foreground/60/15" />
                   </div>
                 )}
                 {!product.is_active && (
@@ -459,7 +459,7 @@ export default function AdminProductsPage() {
               </div>
               <div className="p-5 space-y-4">
                 <div>
-                  <h3 className="font-display font-bold text-viltrum-white truncate">
+                  <h3 className="font-display font-bold text-foreground truncate">
                     {product.title}
                   </h3>
                   <p className="text-lg font-display font-black text-viltrum-red mt-1">
@@ -470,7 +470,7 @@ export default function AdminProductsPage() {
                   {product.sizes?.map((size) => (
                     <span
                       key={size}
-                      className="px-2 py-0.5 text-[10px] font-semibold rounded text-viltrum-mist/30"
+                      className="px-2 py-0.5 text-[10px] font-semibold rounded text-foreground/60/30"
                       style={{ background: "rgba(240, 240, 240, 0.04)" }}
                     >
                       {size}
@@ -480,7 +480,7 @@ export default function AdminProductsPage() {
                 <div className="flex gap-2 pt-1">
                   <button
                     onClick={() => openEditForm(product)}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 text-[12px] font-semibold rounded-xl transition-all duration-300 text-viltrum-mist/50 hover:text-viltrum-white"
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 text-[12px] font-semibold rounded-xl transition-all duration-300 text-foreground/60/50 hover:text-foreground"
                     style={{ background: "rgba(240, 240, 240, 0.04)", border: "1px solid rgba(240, 240, 240, 0.06)" }}
                   >
                     <Edit2 size={13} />

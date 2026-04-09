@@ -24,10 +24,10 @@ export default function Footer() {
                 <span className="text-gradient-blood font-display text-4xl leading-none">V</span>
               </div>
               <div>
-                <span className="block font-display text-[2.4rem] leading-none tracking-[0.16em] text-viltrum-white">
+                <span className="block font-display text-[2.4rem] leading-none tracking-[0.16em] text-foreground">
                   VILTRUM
                 </span>
-                <span className="text-[11px] uppercase tracking-[0.28em] text-viltrum-mist">
+                <span className="text-[11px] uppercase tracking-[0.28em] text-foreground/60">
                   Egypt Performance
                 </span>
               </div>
@@ -47,13 +47,13 @@ export default function Footer() {
             <div className="flex flex-col space-y-4">
               <a
                 href="#products"
-                className="w-fit text-[14px] text-viltrum-mist/75 hover:text-viltrum-white transition-colors duration-300"
+                className="w-fit text-[14px] text-foreground/60/75 hover:text-foreground transition-colors duration-300"
               >
                 Shop Collection
               </a>
               <a
                 href="#about"
-                className="w-fit text-[14px] text-viltrum-mist/75 hover:text-viltrum-white transition-colors duration-300"
+                className="w-fit text-[14px] text-foreground/60/75 hover:text-foreground transition-colors duration-300"
               >
                 Brand Story
               </a>
@@ -61,7 +61,7 @@ export default function Footer() {
                 href={`https://wa.me/201031429229`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-fit text-[14px] text-viltrum-mist/75 hover:text-viltrum-white transition-colors duration-300"
+                className="w-fit text-[14px] text-foreground/60/75 hover:text-foreground transition-colors duration-300"
               >
                 Customer Support
               </a>
@@ -73,7 +73,7 @@ export default function Footer() {
             <h3 className="text-[11px] font-bold tracking-[0.3em] text-viltrum-red uppercase">
               Connect
             </h3>
-            <p className="max-w-xs text-[14px] leading-relaxed text-viltrum-mist/80">
+            <p className="max-w-xs text-[14px] leading-relaxed text-foreground/60/80">
               Reach out for sizing help, order follow-up, or direct purchase
               guidance.
             </p>
@@ -82,21 +82,21 @@ export default function Footer() {
                 href="https://wa.me/201031429229"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="social-glow flex h-11 w-11 items-center justify-center text-viltrum-mist/50 bg-[#0A0A0A]"
+                className="social-glow flex h-11 w-11 items-center justify-center text-foreground/60/50 bg-[#0A0A0A]"
                 aria-label="WhatsApp"
               >
                 <MessageCircle size={16} />
               </a>
               <a
                 href="#"
-                className="social-glow flex h-11 w-11 items-center justify-center text-viltrum-mist/50 bg-[#0A0A0A]"
+                className="social-glow flex h-11 w-11 items-center justify-center text-foreground/60/50 bg-[#0A0A0A]"
                 aria-label="Instagram"
               >
                 <Camera size={16} />
               </a>
               <a
                 href="#"
-                className="social-glow flex h-11 w-11 items-center justify-center text-viltrum-mist/50 bg-[#0A0A0A]"
+                className="social-glow flex h-11 w-11 items-center justify-center text-foreground/60/50 bg-[#0A0A0A]"
                 aria-label="Email"
               >
                 <Mail size={16} />
@@ -107,10 +107,10 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-32 pt-10 border-t border-viltrum-white/[0.04] flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[11px] text-viltrum-mist/30 tracking-[0.18em] uppercase">
+          <p className="text-[11px] text-foreground/60/30 tracking-[0.18em] uppercase">
             © {new Date().getFullYear()} VILTRUM EGYPT. ALL RIGHTS RESERVED.
           </p>
-          <p className="text-[10px] font-bold text-viltrum-mist/20 tracking-[0.28em] uppercase">
+          <p className="text-[10px] font-bold text-foreground/60/20 tracking-[0.28em] uppercase">
             Precision wear for serious training.
           </p>
         </div>

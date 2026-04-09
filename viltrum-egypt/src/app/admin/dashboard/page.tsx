@@ -99,7 +99,7 @@ export default function AdminOrdersPage() {
       <div className="flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-viltrum-red border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs tracking-[0.2em] text-viltrum-mist/30 uppercase">Loading orders</span>
+          <span className="text-xs tracking-[0.2em] text-foreground/60/30 uppercase">Loading orders</span>
         </div>
       </div>
     );
@@ -110,8 +110,8 @@ export default function AdminOrdersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-display font-black text-viltrum-white tracking-tight">Orders</h1>
-          <p className="text-sm text-viltrum-mist/35 mt-1">
+          <h1 className="text-2xl font-display font-black text-foreground tracking-tight">Orders</h1>
+          <p className="text-sm text-foreground/60/35 mt-1">
             {orders.length} total · {pendingCount} pending
           </p>
         </div>
@@ -127,7 +127,7 @@ export default function AdminOrdersPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Orders", value: orders.length, color: "text-viltrum-white" },
+          { label: "Total Orders", value: orders.length, color: "text-foreground" },
           { label: "Pending", value: pendingCount, color: "text-yellow-400" },
           { label: "Revenue", value: `EGP ${totalRevenue.toFixed(0)}`, color: "text-viltrum-red" },
           { label: "Delivered", value: orders.filter((o) => o.status === "delivered").length, color: "text-green-400" },
@@ -136,7 +136,7 @@ export default function AdminOrdersPage() {
             key={stat.label}
             className="rounded-xl p-5 glass-card-static"
           >
-            <p className="text-[10px] tracking-[0.2em] text-viltrum-mist/30 uppercase font-semibold">{stat.label}</p>
+            <p className="text-[10px] tracking-[0.2em] text-foreground/60/30 uppercase font-semibold">{stat.label}</p>
             <p className={`text-2xl font-display font-black mt-2 ${stat.color}`}>{stat.value}</p>
           </div>
         ))}
@@ -145,9 +145,9 @@ export default function AdminOrdersPage() {
       {/* Orders Table */}
       {orders.length === 0 ? (
         <div className="text-center py-24 glass-card-static rounded-2xl">
-          <ShoppingCart size={40} className="mx-auto text-viltrum-mist/15 mb-5" />
-          <h2 className="text-lg font-display font-bold text-viltrum-mist/40">No orders yet</h2>
-          <p className="text-sm text-viltrum-mist/20 mt-2">
+          <ShoppingCart size={40} className="mx-auto text-foreground/60/15 mb-5" />
+          <h2 className="text-lg font-display font-bold text-foreground/60/40">No orders yet</h2>
+          <p className="text-sm text-foreground/60/20 mt-2">
             Orders will appear here once customers place them.
           </p>
         </div>
@@ -177,23 +177,23 @@ export default function AdminOrdersPage() {
                     <>
                       <tr key={order.id} className="cursor-pointer" onClick={() => setExpandedOrder(isExpanded ? null : order.id)}>
                         <td>
-                          <span className="font-display font-bold text-viltrum-white">
+                          <span className="font-display font-bold text-foreground">
                             #{order.order_number}
                           </span>
                         </td>
                         <td>
                           <div>
-                            <p className="font-medium text-viltrum-white text-sm">{order.customer_name}</p>
-                            <p className="text-xs text-viltrum-mist/30 mt-0.5">{order.customer_phone}</p>
+                            <p className="font-medium text-foreground text-sm">{order.customer_name}</p>
+                            <p className="text-xs text-foreground/60/30 mt-0.5">{order.customer_phone}</p>
                           </div>
                         </td>
                         <td>
-                          <span className="font-display font-bold text-viltrum-white">
+                          <span className="font-display font-bold text-foreground">
                             EGP {order.total}
                           </span>
                         </td>
                         <td>
-                          <span className="text-[13px] text-viltrum-mist/50">
+                          <span className="text-[13px] text-foreground/60/50">
                             {order.payment_method === "vodafone_cash" ? "Vodafone Cash" : "InstaPay"}
                           </span>
                         </td>
@@ -204,15 +204,15 @@ export default function AdminOrdersPage() {
                           </span>
                         </td>
                         <td>
-                          <span className="text-[13px] text-viltrum-mist/35">
+                          <span className="text-[13px] text-foreground/60/35">
                             {new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
                           </span>
                         </td>
                         <td>
                           {isExpanded ? (
-                            <ChevronUp size={16} className="text-viltrum-mist/30" />
+                            <ChevronUp size={16} className="text-foreground/60/30" />
                           ) : (
-                            <ChevronDown size={16} className="text-viltrum-mist/30" />
+                            <ChevronDown size={16} className="text-foreground/60/30" />
                           )}
                         </td>
                       </tr>
@@ -223,24 +223,24 @@ export default function AdminOrdersPage() {
                               {/* Customer Info */}
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="flex items-start gap-3">
-                                  <Phone size={14} className="text-viltrum-mist/25 mt-0.5" />
+                                  <Phone size={14} className="text-foreground/60/25 mt-0.5" />
                                   <div>
-                                    <p className="text-[10px] text-viltrum-mist/25 uppercase tracking-wider">Phone</p>
-                                    <p className="text-sm text-viltrum-white mt-0.5">{order.customer_phone}</p>
+                                    <p className="text-[10px] text-foreground/60/25 uppercase tracking-wider">Phone</p>
+                                    <p className="text-sm text-foreground mt-0.5">{order.customer_phone}</p>
                                   </div>
                                 </div>
                                 <div className="flex items-start gap-3">
-                                  <MapPin size={14} className="text-viltrum-mist/25 mt-0.5" />
+                                  <MapPin size={14} className="text-foreground/60/25 mt-0.5" />
                                   <div>
-                                    <p className="text-[10px] text-viltrum-mist/25 uppercase tracking-wider">Address</p>
-                                    <p className="text-sm text-viltrum-white mt-0.5">{order.customer_address}</p>
+                                    <p className="text-[10px] text-foreground/60/25 uppercase tracking-wider">Address</p>
+                                    <p className="text-sm text-foreground mt-0.5">{order.customer_address}</p>
                                   </div>
                                 </div>
                               </div>
 
                               {/* Items */}
                               <div>
-                                <p className="text-[10px] text-viltrum-mist/25 uppercase tracking-wider mb-3">Items</p>
+                                <p className="text-[10px] text-foreground/60/25 uppercase tracking-wider mb-3">Items</p>
                                 <div className="space-y-2">
                                   {items.map((item, i) => (
                                     <div
@@ -249,12 +249,12 @@ export default function AdminOrdersPage() {
                                       style={{ background: "rgba(240, 240, 240, 0.02)" }}
                                     >
                                       <div>
-                                        <p className="text-sm font-medium text-viltrum-white">{item.title}</p>
-                                        <p className="text-xs text-viltrum-mist/30 mt-0.5">
+                                        <p className="text-sm font-medium text-foreground">{item.title}</p>
+                                        <p className="text-xs text-foreground/60/30 mt-0.5">
                                           Size: {item.size} × {item.quantity}
                                         </p>
                                       </div>
-                                      <span className="text-sm font-display font-bold text-viltrum-white">
+                                      <span className="text-sm font-display font-bold text-foreground">
                                         EGP {item.price * item.quantity}
                                       </span>
                                     </div>
@@ -280,7 +280,7 @@ export default function AdminOrdersPage() {
 
                                 {/* Status Update */}
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[10px] text-viltrum-mist/25 uppercase tracking-wider mr-1">
+                                  <span className="text-[10px] text-foreground/60/25 uppercase tracking-wider mr-1">
                                     Update:
                                   </span>
                                   {STATUSES.map((status) => {
@@ -295,7 +295,7 @@ export default function AdminOrdersPage() {
                                         className={`px-3 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-300 ${
                                           order.status === status
                                             ? sc.cssClass
-                                            : "text-viltrum-mist/25 hover:text-viltrum-mist/60"
+                                            : "text-foreground/60/25 hover:text-foreground/60/60"
                                         }`}
                                         style={
                                           order.status !== status
@@ -337,26 +337,26 @@ export default function AdminOrdersPage() {
                       <div className="flex items-center gap-3 min-w-0">
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-display font-bold text-viltrum-white">
+                            <span className="font-display font-bold text-foreground">
                               #{order.order_number}
                             </span>
                             <span className={`status-badge text-[10px] ${config.cssClass}`}>
                               {config.label}
                             </span>
                           </div>
-                          <p className="text-xs text-viltrum-mist/30 mt-1 truncate">
+                          <p className="text-xs text-foreground/60/30 mt-1 truncate">
                             {order.customer_name}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0">
-                        <span className="font-display font-bold text-viltrum-white text-sm">
+                        <span className="font-display font-bold text-foreground text-sm">
                           EGP {order.total}
                         </span>
                         {isExpanded ? (
-                          <ChevronUp size={16} className="text-viltrum-mist/25" />
+                          <ChevronUp size={16} className="text-foreground/60/25" />
                         ) : (
-                          <ChevronDown size={16} className="text-viltrum-mist/25" />
+                          <ChevronDown size={16} className="text-foreground/60/25" />
                         )}
                       </div>
                     </div>
@@ -364,11 +364,11 @@ export default function AdminOrdersPage() {
 
                   {isExpanded && (
                     <div className="px-4 pb-5 space-y-4" style={{ background: "rgba(178, 0, 0, 0.02)" }}>
-                      <div className="flex items-start gap-2 text-xs text-viltrum-mist/40">
+                      <div className="flex items-start gap-2 text-xs text-foreground/60/40">
                         <Phone size={12} className="mt-0.5" />
                         {order.customer_phone}
                       </div>
-                      <div className="flex items-start gap-2 text-xs text-viltrum-mist/40">
+                      <div className="flex items-start gap-2 text-xs text-foreground/60/40">
                         <MapPin size={12} className="mt-0.5" />
                         {order.customer_address}
                       </div>
@@ -376,8 +376,8 @@ export default function AdminOrdersPage() {
                       <div className="space-y-2">
                         {items.map((item, i) => (
                           <div key={i} className="flex justify-between text-xs py-2 px-3 rounded-lg" style={{ background: "rgba(240, 240, 240, 0.02)" }}>
-                            <span className="text-viltrum-white">{item.title} ({item.size}) ×{item.quantity}</span>
-                            <span className="text-viltrum-mist/50 font-semibold">EGP {item.price * item.quantity}</span>
+                            <span className="text-foreground">{item.title} ({item.size}) ×{item.quantity}</span>
+                            <span className="text-foreground/60/50 font-semibold">EGP {item.price * item.quantity}</span>
                           </div>
                         ))}
                       </div>
@@ -400,7 +400,7 @@ export default function AdminOrdersPage() {
                               key={status}
                               onClick={() => updateStatus(order.id, status)}
                               className={`flex-1 py-2 text-[10px] font-semibold rounded-lg transition-all ${
-                                order.status === status ? sc.cssClass : "text-viltrum-mist/25"
+                                order.status === status ? sc.cssClass : "text-foreground/60/25"
                               }`}
                               style={
                                 order.status !== status
@@ -427,12 +427,12 @@ export default function AdminOrdersPage() {
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setScreenshotModal(null)}>
           <div className="glass-card-static rounded-2xl max-w-lg w-full overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5" style={{ borderBottom: "1px solid rgba(240, 240, 240, 0.05)" }}>
-              <h3 className="font-display font-bold text-viltrum-white text-sm tracking-wide">
+              <h3 className="font-display font-bold text-foreground text-sm tracking-wide">
                 Payment Screenshot
               </h3>
               <button
                 onClick={() => setScreenshotModal(null)}
-                className="p-1.5 rounded-lg text-viltrum-mist/40 hover:text-viltrum-white hover:bg-viltrum-white/5 transition-all"
+                className="p-1.5 rounded-lg text-foreground/60/40 hover:text-foreground hover:bg-viltrum-white/5 transition-all"
               >
                 <X size={16} />
               </button>

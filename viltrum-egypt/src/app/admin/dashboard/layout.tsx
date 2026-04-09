@@ -52,7 +52,7 @@ export default function AdminLayout({
       <div className="min-h-screen flex items-center justify-center" style={{ background: "#0A0A0A" }}>
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-2 border-viltrum-red border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs tracking-[0.2em] text-viltrum-mist/30 uppercase">Authenticating</span>
+          <span className="text-xs tracking-[0.2em] text-foreground/60/30 uppercase">Authenticating</span>
         </div>
       </div>
     );
@@ -83,7 +83,7 @@ export default function AdminLayout({
       >
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-lg text-viltrum-mist/60 hover:text-viltrum-white hover:bg-viltrum-white/5 transition-all"
+          className="p-2 rounded-lg text-foreground/60/60 hover:text-foreground hover:bg-viltrum-white/5 transition-all"
         >
           {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -91,13 +91,13 @@ export default function AdminLayout({
           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-viltrum-red to-viltrum-red-dark flex items-center justify-center">
             <span className="text-white text-[10px] font-display font-black">V</span>
           </div>
-          <span className="font-display font-bold text-sm tracking-[0.25em] text-viltrum-white">
+          <span className="font-display font-bold text-sm tracking-[0.25em] text-foreground">
             ADMIN
           </span>
         </div>
         <button
           onClick={handleLogout}
-          className="p-2 rounded-lg text-viltrum-mist/40 hover:text-viltrum-red transition-colors"
+          className="p-2 rounded-lg text-foreground/60/40 hover:text-viltrum-red transition-colors"
         >
           <LogOut size={18} />
         </button>
@@ -122,17 +122,17 @@ export default function AdminLayout({
               <span className="text-white font-display font-black text-sm">V</span>
             </div>
             <div>
-              <h2 className="font-display font-bold text-sm tracking-[0.2em] text-viltrum-white">
+              <h2 className="font-display font-bold text-sm tracking-[0.2em] text-foreground">
                 VILTRUM
               </h2>
-              <p className="text-[10px] text-viltrum-mist/30 tracking-wide">Dashboard</p>
+              <p className="text-[10px] text-foreground/60/30 tracking-wide">Dashboard</p>
             </div>
           </div>
         </div>
 
         {/* Nav Items */}
         <nav className="p-4 space-y-1">
-          <p className="text-[10px] tracking-[0.2em] text-viltrum-mist/25 uppercase font-semibold px-3 mb-3">
+          <p className="text-[10px] tracking-[0.2em] text-foreground/60/25 uppercase font-semibold px-3 mb-3">
             Management
           </p>
           {navItems.map((item) => (
@@ -143,7 +143,7 @@ export default function AdminLayout({
               className={`flex items-center justify-between px-4 py-3 rounded-xl text-[13px] font-medium transition-all duration-300 group ${
                 item.active
                   ? "bg-viltrum-red/10 text-viltrum-red border border-viltrum-red/15"
-                  : "text-viltrum-mist/50 hover:bg-viltrum-white/4 hover:text-viltrum-white border border-transparent"
+                  : "text-foreground/60/50 hover:bg-viltrum-white/4 hover:text-foreground border border-transparent"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -161,14 +161,14 @@ export default function AdminLayout({
         >
           <Link
             href="/"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium text-viltrum-mist/35 hover:text-viltrum-white hover:bg-viltrum-white/4 transition-all duration-300"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium text-foreground/60/35 hover:text-foreground hover:bg-viltrum-white/4 transition-all duration-300"
           >
             <LayoutDashboard size={17} />
             View Store
           </Link>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium text-viltrum-mist/35 hover:text-viltrum-red hover:bg-viltrum-red/5 transition-all duration-300 w-full"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] font-medium text-foreground/60/35 hover:text-viltrum-red hover:bg-viltrum-red/5 transition-all duration-300 w-full"
           >
             <LogOut size={17} />
             Logout

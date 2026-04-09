@@ -36,24 +36,24 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-viltrum-black flex items-center justify-center px-4 noise-bg">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 noise-bg">
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-full bg-viltrum-red flex items-center justify-center mx-auto mb-4 red-glow">
             <span className="text-white font-black text-2xl">V</span>
           </div>
-          <h1 className="text-2xl font-black tracking-[0.3em] text-viltrum-white">
+          <h1 className="text-2xl font-black tracking-[0.3em] text-foreground">
             ADMIN
           </h1>
-          <p className="text-sm text-viltrum-white/30 mt-2">
+          <p className="text-sm text-foreground/30 mt-2">
             Viltrum Egypt Dashboard
           </p>
         </div>
 
         {/* Login Card */}
         <div className="glass-card rounded-2xl p-8 space-y-6">
-          <div className="flex items-center gap-2 text-viltrum-white/50">
+          <div className="flex items-center gap-2 text-foreground/50">
             <Lock size={16} />
             <span className="text-sm tracking-widest uppercase">Secure Access</span>
           </div>
@@ -66,13 +66,13 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter admin password"
-                className="w-full px-4 py-3 pr-12 bg-viltrum-gray border border-viltrum-white/10 rounded-xl text-viltrum-white placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors"
+                className="w-full px-4 py-3 pr-12 bg-viltrum-gray border border-viltrum-white/10 rounded-xl text-foreground placeholder-viltrum-white/20 focus:outline-none focus:border-viltrum-red/50 transition-colors"
                 autoFocus
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-viltrum-white/30 hover:text-viltrum-white/50"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/50"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>

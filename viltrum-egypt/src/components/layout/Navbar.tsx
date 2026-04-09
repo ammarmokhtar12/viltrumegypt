@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, Menu, X, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useCartStore } from "@/store/cart";
 
 interface NavbarProps {
@@ -9,29 +10,29 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onCartOpen }: NavbarProps) {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const totalItems = useCartStore((s) => s.totalItems);
-  const isHydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const itemCount = isHydrated ? totalItems() : 0;
+  const itemCount = mounted ? totalItems() : 0;
+  
+  if (!mounted) return null;
 
   return (
     <nav
       id="main-navbar"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
         scrolled
-          ? "glass py-4"
+          ? "bg-background/80 backdrop-blur-md border-b border-border-color py-4"
           : "bg-transparent py-6"
       }`}
     >
@@ -48,10 +49,10 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             <span className="text-gradient-blood font-display text-3xl leading-none">V</span>
           </div>
           <div className="flex flex-col">
-            <span className="font-display text-[2rem] leading-none tracking-[0.14em] text-viltrum-white">
+            <span className="font-display text-[2rem] leading-none tracking-[0.14em] text-foreground transition-colors duration-300">
               VILTRUM
             </span>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-viltrum-mist">
+            <span className="text-[10px] uppercase tracking-[0.3em] text-foreground/60">
               Egypt Performance
             </span>
           </div>
@@ -60,13 +61,13 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         <div className="hidden md:flex items-center gap-10">
           <a
             href="#products"
-            className="text-[12px] tracking-[0.24em] text-viltrum-mist/70 hover:text-viltrum-white transition-colors duration-300 uppercase font-semibold"
+            className="text-[12px] tracking-[0.24em] text-foreground/60 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
           >
             Collection
           </a>
           <a
             href="#about"
-            className="text-[12px] tracking-[0.24em] text-viltrum-mist/70 hover:text-viltrum-white transition-colors duration-300 uppercase font-semibold"
+            className="text-[12px] tracking-[0.24em] text-foreground/60 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
           >
             Brand Story
           </a>
@@ -74,7 +75,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[12px] tracking-[0.24em] text-viltrum-mist/70 hover:text-viltrum-white transition-colors duration-300 uppercase font-semibold"
+            className="text-[12px] tracking-[0.24em] text-foreground/60 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
           >
             WhatsApp
           </a>
@@ -82,9 +83,17 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border-color bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-all duration-300"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
+          <button
             id="cart-button"
             onClick={onCartOpen}
-            className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-white/8 bg-white/[0.03] text-viltrum-mist/80 hover:border-white/15 hover:text-viltrum-white hover:bg-viltrum-white/5 transition-all duration-300"
+            className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-border-color bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-all duration-300"
             aria-label="Open cart"
           >
             <ShoppingBag size={20} />
@@ -96,7 +105,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           </button>
 
           <button
-            className="md:hidden flex h-12 w-12 items-center justify-center rounded-2xl border border-white/8 bg-white/[0.03] text-viltrum-mist/80 hover:text-viltrum-white hover:bg-viltrum-white/5 transition-all duration-300"
+            className="md:hidden flex h-12 w-12 items-center justify-center rounded-2xl border border-border-color bg-foreground/[0.03] text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-all duration-300"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -114,14 +123,14 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         <div className="glass mx-4 mt-4 rounded-[24px] p-8 space-y-6 border border-viltrum-white/5">
           <a
             href="#products"
-            className="block text-[12px] tracking-[0.24em] text-viltrum-mist/70 hover:text-viltrum-white transition-colors duration-300 uppercase font-semibold"
+            className="block text-[12px] tracking-[0.24em] text-foreground/60/70 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
             onClick={() => setMobileMenuOpen(false)}
           >
             Collection
           </a>
           <a
             href="#about"
-            className="block text-[12px] tracking-[0.24em] text-viltrum-mist/70 hover:text-viltrum-white transition-colors duration-300 uppercase font-semibold"
+            className="block text-[12px] tracking-[0.24em] text-foreground/60/70 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
             onClick={() => setMobileMenuOpen(false)}
           >
             Brand Story
@@ -130,7 +139,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="block text-[12px] tracking-[0.24em] text-viltrum-mist/70 hover:text-viltrum-white transition-colors duration-300 uppercase font-semibold"
+            className="block text-[12px] tracking-[0.24em] text-foreground/60/70 hover:text-foreground transition-colors duration-300 uppercase font-semibold"
             onClick={() => setMobileMenuOpen(false)}
           >
             WhatsApp

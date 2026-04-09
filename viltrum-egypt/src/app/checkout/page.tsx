@@ -39,10 +39,10 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-viltrum-black flex items-center justify-center px-4">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold text-viltrum-white">Cart is Empty</h1>
-          <p className="text-viltrum-white/40">Add products before checking out.</p>
+          <h1 className="text-2xl font-bold text-foreground">Cart is Empty</h1>
+          <p className="text-foreground/40">Add products before checking out.</p>
           <Link
             href="/"
             className="inline-flex items-center gap-2 px-6 py-3 bg-viltrum-red text-white rounded-xl font-bold text-sm tracking-widest uppercase hover:bg-viltrum-red-light transition-colors"
@@ -122,18 +122,18 @@ export default function CheckoutPage() {
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="min-h-screen bg-viltrum-black pt-24 pb-12 noise-bg">
+      <main className="min-h-screen bg-background pt-24 pb-12 noise-bg">
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-viltrum-white/40 hover:text-viltrum-red transition-colors mb-8"
+            className="inline-flex items-center gap-2 text-sm text-foreground/40 hover:text-viltrum-red transition-colors mb-8"
           >
             <ArrowLeft size={16} />
             Back to Shop
           </Link>
 
-          <h1 className="text-3xl md:text-4xl font-black text-viltrum-white mb-8 tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-black text-foreground mb-8 tracking-tight">
             CHECKOUT
           </h1>
 
@@ -141,7 +141,7 @@ export default function CheckoutPage() {
             {/* Form Column */}
             <div className="lg:col-span-3 space-y-6">
               <div className="glass-card rounded-2xl p-6 space-y-6">
-                <h2 className="text-lg font-bold text-viltrum-white tracking-widest flex items-center gap-2">
+                <h2 className="text-lg font-bold text-foreground tracking-widest flex items-center gap-2">
                   <ShieldCheck size={18} className="text-viltrum-red" />
                   YOUR DETAILS
                 </h2>
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="glass-card rounded-2xl p-6 space-y-4">
-                <h2 className="text-lg font-bold text-viltrum-white tracking-widest">
+                <h2 className="text-lg font-bold text-foreground tracking-widest">
                   PAYMENT PROOF
                 </h2>
                 <PaymentUpload
@@ -170,7 +170,7 @@ export default function CheckoutPage() {
                 className={`w-full py-4 rounded-xl font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2 transition-all duration-300 ${
                   isReadyToSubmit
                     ? "bg-viltrum-red text-white hover:bg-viltrum-red-light red-glow-hover active:scale-[0.98]"
-                    : "bg-viltrum-gray-light text-viltrum-white/30 cursor-not-allowed"
+                    : "bg-viltrum-gray-light text-foreground/30 cursor-not-allowed"
                 }`}
               >
                 {submitting ? (
@@ -191,7 +191,7 @@ export default function CheckoutPage() {
               </button>
 
               {!formData && (
-                <p className="text-xs text-viltrum-white/30 text-center">
+                <p className="text-xs text-foreground/30 text-center">
                   Fill in the form above, then click any field to validate.
                 </p>
               )}
@@ -200,7 +200,7 @@ export default function CheckoutPage() {
             {/* Order Summary Column */}
             <div className="lg:col-span-2">
               <div className="glass-card rounded-2xl p-6 space-y-4 lg:sticky lg:top-24">
-                <h2 className="text-lg font-bold text-viltrum-white tracking-widest">
+                <h2 className="text-lg font-bold text-foreground tracking-widest">
                   ORDER SUMMARY
                 </h2>
                 <div className="space-y-3">
@@ -210,10 +210,10 @@ export default function CheckoutPage() {
                       className="flex justify-between items-center py-2 border-b border-viltrum-white/5"
                     >
                       <div>
-                        <p className="text-sm font-medium text-viltrum-white">
+                        <p className="text-sm font-medium text-foreground">
                           {item.title}
                         </p>
-                        <p className="text-xs text-viltrum-white/40">
+                        <p className="text-xs text-foreground/40">
                           Size: {item.size} × {item.quantity}
                         </p>
                       </div>
@@ -224,7 +224,7 @@ export default function CheckoutPage() {
                   ))}
                 </div>
                 <div className="pt-4 border-t border-viltrum-white/10 flex justify-between items-center">
-                  <span className="text-sm tracking-widest text-viltrum-white/50 uppercase">
+                  <span className="text-sm tracking-widest text-foreground/50 uppercase">
                     Total
                   </span>
                   <span className="text-2xl font-black text-viltrum-red">

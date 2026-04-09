@@ -100,7 +100,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent opacity-60" />
 
         <div className="absolute left-4 top-4 z-10">
-          <span className="rounded-full border border-white/10 bg-black/45 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-viltrum-white backdrop-blur-md">
+          <span className="rounded-full border border-white/10 bg-black/45 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-foreground backdrop-blur-md">
             Premium Drop
           </span>
         </div>
@@ -116,11 +116,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       <div className="p-8 space-y-6">
         {/* Title */}
         <div>
-          <h3 className="font-display text-[2rem] leading-none tracking-[0.08em] text-viltrum-white">
+          <h3 className="font-display text-[2rem] leading-none tracking-[0.08em] text-foreground">
             {product.title}
           </h3>
           {product.description && (
-            <p className="mt-3 line-clamp-2 text-[14px] leading-relaxed text-viltrum-mist/70">
+            <p className="mt-3 line-clamp-2 text-[14px] leading-relaxed text-foreground/60/70">
               {product.description}
             </p>
           )}
@@ -129,7 +129,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Size Selector (Hidden until hover) */}
         <div className="grid transition-all duration-[400ms] grid-rows-[0fr] opacity-0 group-hover:grid-rows-[1fr] group-hover:opacity-100 overflow-hidden">
           <div className="space-y-3 min-h-0">
-            <span className="block text-[10px] tracking-[0.24em] text-viltrum-mist/45 uppercase font-semibold">
+            <span className="block text-[10px] tracking-[0.24em] text-foreground/60/45 uppercase font-semibold">
               Choose Size
             </span>
             <div className="flex gap-2 flex-wrap pb-1">
@@ -139,7 +139,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   onClick={() => setSelectedSize(size)}
                   className={`armor-ghost-btn px-4 py-2 text-xs font-semibold ${
                     selectedSize === size
-                      ? "!border-viltrum-white/40 !text-viltrum-white !bg-white/10 !shadow-[0_0_15px_rgba(255,255,255,0.08)]"
+                      ? "!border-viltrum-white/40 !text-foreground !bg-white/10 !shadow-[0_0_15px_rgba(255,255,255,0.08)]"
                       : ""
                   }`}
                 >
@@ -160,7 +160,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             added
               ? "!bg-green-600/90 !text-white !border-green-500 !shadow-[0_0_20px_rgba(34,197,94,0.2)]"
               : !selectedSize
-              ? "!bg-viltrum-gray-light/60 !text-viltrum-mist/25 !border-transparent !cursor-not-allowed !shadow-none"
+              ? "!bg-viltrum-gray-light/60 !text-foreground/60/25 !border-transparent !cursor-not-allowed !shadow-none"
               : ""
           }`}
         >

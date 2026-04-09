@@ -98,10 +98,10 @@ export default function ProductGrid({ products }: ProductGridProps) {
           <div className="w-24 h-24 rounded-full bg-viltrum-red/8 flex items-center justify-center mx-auto mb-8 red-glow">
             <span className="text-viltrum-red text-4xl font-display font-black">V</span>
           </div>
-          <h2 className="mb-4 font-display text-[3rem] leading-none tracking-[0.08em] text-viltrum-white">
+          <h2 className="mb-4 font-display text-[3rem] leading-none tracking-[0.08em] text-foreground">
             Collection Coming Soon
           </h2>
-          <p className="text-viltrum-mist/40 max-w-md mx-auto text-sm leading-relaxed">
+          <p className="text-foreground/60/40 max-w-md mx-auto text-sm leading-relaxed">
             Our warriors are forging the next collection. Stay tuned for legendary drops.
           </p>
         </div>
@@ -130,7 +130,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
             Signature Selection
           </span>
 
-          <h2 className="section-title text-[4rem] text-viltrum-white md:text-[5.2rem] lg:text-[6.6rem]">
+          <h2 className="section-title text-[4rem] text-foreground md:text-[5.2rem] lg:text-[6.6rem]">
             Made For <span className="text-gradient-blood">Presence</span>
           </h2>
 

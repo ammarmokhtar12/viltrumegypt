@@ -1,22 +1,39 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #050505;
-  --color-foreground: #f5f1ea;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
   --color-viltrum-black: #050505;
   --color-viltrum-deep: #101010;
   --color-viltrum-white: #f5f1ea;
   --color-viltrum-silver: #d2cdc2;
   --color-viltrum-mist: #9f9788;
-  --color-viltrum-red: #b80f0a;
-  --color-viltrum-red-light: #f0442f;
-  --color-viltrum-red-dark: #6b0907;
+  --color-viltrum-red: #8B0000;
+  --color-viltrum-red-light: #B22222;
+  --color-viltrum-red-dark: #4A0000;
   --color-viltrum-gray: #161312;
   --color-viltrum-gray-light: #221d1b;
   --color-viltrum-gray-lighter: #302826;
   --color-viltrum-gray-mid: #433734;
+  --color-electric-blue: #00E5FF;
   --font-sans: var(--font-manrope), system-ui, sans-serif;
   --font-display: var(--font-bebas), Impact, sans-serif;
+}
+
+:root {
+  --background: #F9FAFB;
+  --foreground: #111827;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --border-color: rgba(17, 24, 39, 0.1);
+  --glow-color: rgba(139, 0, 0, 0.2);
+}
+
+.dark {
+  --background: #020617;
+  --foreground: #f5f1ea;
+  --card-bg: rgba(10, 10, 10, 0.8);
+  --border-color: rgba(245, 241, 234, 0.1);
+  --glow-color: rgba(0, 229, 255, 0.3);
 }
 
 /* ===== BASE RESET ===== */
@@ -32,10 +49,9 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(circle at top, rgba(184, 15, 10, 0.14), transparent 30%),
-    linear-gradient(180deg, #080808 0%, #050505 45%, #090909 100%);
-  color: var(--color-viltrum-white);
+  background: var(--background);
+  background-image: radial-gradient(circle at top, var(--glow-color), transparent 30%);
+  color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -137,19 +153,18 @@ body {
 
 /* ===== GLASSMORPHISM (MINIMAL 4PX BLUR) ===== */
 .glass {
-  background: rgba(10, 10, 10, 0.78);
+  background: var(--card-bg);
   backdrop-filter: blur(14px) saturate(130%);
   -webkit-backdrop-filter: blur(14px) saturate(130%);
-  border: 1px solid rgba(245, 241, 234, 0.08);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.38);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.1);
 }
 
 .glass-card {
-  background:
-    linear-gradient(180deg, rgba(25, 22, 21, 0.96) 0%, rgba(13, 12, 12, 0.98) 100%);
+  background: var(--card-bg);
   backdrop-filter: blur(12px) saturate(130%);
   -webkit-backdrop-filter: blur(12px) saturate(130%);
-  border: 1px solid rgba(245, 241, 234, 0.08);
+  border: 1px solid var(--border-color);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -347,10 +362,9 @@ body {
 }
 
 .surface-panel {
-  background:
-    linear-gradient(180deg, rgba(23, 20, 20, 0.92) 0%, rgba(10, 10, 10, 0.98) 100%);
-  border: 1px solid rgba(245, 241, 234, 0.08);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
 }
 
 /* ===== GSAP REVEAL HELPERS ===== */

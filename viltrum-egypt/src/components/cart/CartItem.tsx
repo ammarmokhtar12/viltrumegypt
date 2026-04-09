@@ -36,16 +36,16 @@ export default function CartItem({ item }: CartItemProps) {
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex justify-between items-start">
           <div>
-            <h4 className="text-sm font-bold text-viltrum-white truncate">
+            <h4 className="text-sm font-bold text-foreground truncate">
               {item.title}
             </h4>
-            <span className="text-xs text-viltrum-white/40">
+            <span className="text-xs text-foreground/40">
               Size: {item.size}
             </span>
           </div>
           <button
             onClick={() => removeItem(item.product_id, item.size)}
-            className="p-1 text-viltrum-white/30 hover:text-viltrum-red transition-colors"
+            className="p-1 text-foreground/30 hover:text-viltrum-red transition-colors"
             aria-label="Remove item"
           >
             <Trash2 size={14} />
@@ -59,19 +59,19 @@ export default function CartItem({ item }: CartItemProps) {
               onClick={() =>
                 updateQuantity(item.product_id, item.size, item.quantity - 1)
               }
-              className="w-7 h-7 rounded-lg border border-viltrum-white/10 flex items-center justify-center text-viltrum-white/50 hover:border-viltrum-red hover:text-viltrum-red transition-colors"
+              className="w-7 h-7 rounded-lg border border-viltrum-white/10 flex items-center justify-center text-foreground/50 hover:border-viltrum-red hover:text-viltrum-red transition-colors"
               aria-label="Decrease quantity"
             >
               <Minus size={12} />
             </button>
-            <span className="text-sm font-medium text-viltrum-white w-6 text-center">
+            <span className="text-sm font-medium text-foreground w-6 text-center">
               {item.quantity}
             </span>
             <button
               onClick={() =>
                 updateQuantity(item.product_id, item.size, item.quantity + 1)
               }
-              className="w-7 h-7 rounded-lg border border-viltrum-white/10 flex items-center justify-center text-viltrum-white/50 hover:border-viltrum-red hover:text-viltrum-red transition-colors"
+              className="w-7 h-7 rounded-lg border border-viltrum-white/10 flex items-center justify-center text-foreground/50 hover:border-viltrum-red hover:text-viltrum-red transition-colors"
               aria-label="Increase quantity"
             >
               <Plus size={12} />

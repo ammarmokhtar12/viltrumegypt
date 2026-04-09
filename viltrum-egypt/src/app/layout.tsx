@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Manrope } from "next/font/google";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -45,8 +46,15 @@ export default function RootLayout({
       className={`${manrope.variable} ${bebasNeue.variable}`}
       data-scroll-behavior="smooth"
     >
-      <body className="font-sans antialiased bg-[#050505] text-viltrum-white">
-        {children}
+      <body className="font-sans antialiased bg-background text-foreground transition-colors duration-300">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
