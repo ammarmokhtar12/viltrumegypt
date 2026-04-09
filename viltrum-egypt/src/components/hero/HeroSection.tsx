@@ -1,30 +1,62 @@
-import React from 'react';
+"use client";
+
+import { useEffect, useRef } from "react";
+import { ArrowDown, ChevronRight } from "lucide-react";
+import gsap from "gsap";
 
 export default function HeroSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+
+      tl.fromTo(
+        videoRef.current,
+        { opacity: 0, scale: 1.05 },
+        { opacity: 0.65, scale: 1, duration: 2.5 }
+      )
+        .fromTo(
+          badgeRef.current,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 1 },
+          "-=1.5"
+        )
+        .fromTo(
+          titleRef.current,
+          { opacity: 0, y: 40, scale: 0.95 },
+          { opacity: 1, y: 0, scale: 1, duration: 1.5 },
+          "-=1.2"
+        )
+        .fromTo(
+          subtitleRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 1 },
+          "-=1.0"
+        )
+        .fromTo(
+          ctaRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          "-=0.8"
+        );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-<<<<<<< HEAD
-    <section className="relative bg-[#0a0a0a] py-32 px-6 flex flex-col items-center justify-center text-center">
-      <div className="max-w-4xl mt-20">
-        <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tighter mb-8">
-          VILTRUM <span className="text-gray-500">EGYPT</span>
-        </h1>
-        <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-          The future of AI automation. Built for speed, scaled for strength.
-        </p>
-        <div className="flex gap-6 justify-center">
-          <button className="px-12 py-5 bg-white text-black font-bold rounded-full text-xl hover:scale-105 transition-all">
-            Get Started
-          </button>
-          <button className="px-12 py-5 border-2 border-white text-white font-bold rounded-full text-xl hover:bg-white hover:text-black transition-all">
-            Contact Us
-          </button>
-=======
     <section
       ref={sectionRef}
       id="hero"
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-viltrum-black"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(240,68,47,0.14),transparent_28%),linear-gradient(180deg,rgba(3,3,3,0.4),rgba(3,3,3,0.78))] z-0" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top,rgba(240,68,47,0.14),transparent_28%),linear-gradient(180deg,rgba(3,3,3,0.4),rgba(3,3,3,0.78))]" />
 
       <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden bg-[#080808] pointer-events-none">
         <video
@@ -35,7 +67,7 @@ export default function HeroSection() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover video-mask opacity-0"
+          className="video-mask h-full w-full object-cover opacity-0"
         />
 
         <div className="absolute inset-0 bg-gradient-to-b from-[#080808] via-black/30 to-[#080808] opacity-90" />
@@ -43,10 +75,7 @@ export default function HeroSection() {
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center px-4 pb-16 pt-28 text-center sm:px-6 lg:px-8">
-        <div
-          ref={badgeRef}
-          className="section-eyebrow mb-8"
-        >
+        <div ref={badgeRef} className="section-eyebrow mb-8">
           <span className="section-eyebrow-dot animate-pulse" />
           Elite Performance Essentials
         </div>
@@ -74,11 +103,11 @@ export default function HeroSection() {
 
         <div
           ref={ctaRef}
-          className="mt-12 flex w-full max-w-md flex-col justify-center gap-4 mx-auto sm:max-w-none sm:flex-row"
+          className="mx-auto mt-12 flex w-full max-w-md flex-col justify-center gap-4 sm:max-w-none sm:flex-row"
         >
           <a
             href="#products"
-            className="armor-btn group inline-flex items-center justify-center gap-3 px-8 py-4 text-[13px] font-extrabold tracking-[0.22em] uppercase"
+            className="armor-btn group inline-flex items-center justify-center gap-3 px-8 py-4 text-[13px] font-extrabold uppercase tracking-[0.22em]"
           >
             <span className="relative z-10 flex items-center gap-2">
               Shop The Drop
@@ -90,11 +119,10 @@ export default function HeroSection() {
           </a>
           <a
             href="#about"
-            className="armor-ghost-btn inline-flex items-center justify-center px-8 py-4 text-[13px] font-bold tracking-[0.18em] uppercase backdrop-blur-md"
+            className="armor-ghost-btn inline-flex items-center justify-center px-8 py-4 text-[13px] font-bold uppercase tracking-[0.18em] backdrop-blur-md"
           >
             Why Viltrum
           </a>
->>>>>>> 9349298 (feat: premium compression brand UI and fixed package structure)
         </div>
 
         <div className="mt-14 grid w-full max-w-4xl grid-cols-1 gap-4 text-left sm:grid-cols-3">
@@ -124,16 +152,13 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
-<<<<<<< HEAD
-=======
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-bounce z-10">
-        <span className="text-[10px] tracking-[0.4em] text-viltrum-white/50 uppercase font-bold drop-shadow-md">
+      <div className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3 animate-bounce">
+        <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-viltrum-white/50 drop-shadow-md">
           Scroll
         </span>
         <ArrowDown size={16} className="text-viltrum-white/50 drop-shadow-md" />
       </div>
->>>>>>> 9349298 (feat: premium compression brand UI and fixed package structure)
     </section>
   );
 }
