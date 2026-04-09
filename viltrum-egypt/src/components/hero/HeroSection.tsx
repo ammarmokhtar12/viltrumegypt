@@ -101,19 +101,19 @@ export default function HeroSection() {
         >
           <a
             href="#products"
-            className="armor-btn group inline-flex items-center justify-center gap-3 px-10 py-5 text-[14px] font-extrabold uppercase tracking-[0.25em]"
+            className="armor-btn group inline-flex items-center justify-center gap-4 px-10 py-5 text-[15px]"
           >
             <span className="relative z-10 flex items-center gap-2">
               Shop The Drop
               <ChevronRight
-                size={18}
+                size={20}
                 className="transition-transform duration-300 group-hover:translate-x-1.5"
               />
             </span>
           </a>
           <a
             href="#about"
-            className="armor-ghost-btn inline-flex items-center justify-center px-10 py-5 text-[14px] font-bold uppercase tracking-[0.2em] backdrop-blur-md border border-border-color bg-foreground/5 text-foreground/70"
+            className="armor-ghost-btn inline-flex items-center justify-center px-10 py-5 text-[15px]"
           >
             Why Viltrum
           </a>
