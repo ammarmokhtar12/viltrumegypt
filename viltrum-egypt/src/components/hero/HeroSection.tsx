@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ArrowDown, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import gsap from "gsap";
+import Link from "next/link";
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -11,7 +12,7 @@ export default function HeroSection() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const brandScrollRef = useRef<HTMLDivElement>(null);
+  const brandRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -19,13 +20,13 @@ export default function HeroSection() {
 
       tl.fromTo(
         videoRef.current,
-        { opacity: 0, scale: 1.05 },
+        { opacity: 0, scale: 1.08 },
         { opacity: 0.9, scale: 1, duration: 2.5 }
       )
         .fromTo(
-          brandScrollRef.current,
-          { opacity: 0, scale: 0.8 },
-          { opacity: 1, scale: 1, duration: 2, ease: "expo.out" },
+          brandRef.current,
+          { opacity: 0, scale: 0.85 },
+          { opacity: 1, scale: 1, duration: 2.2, ease: "expo.out" },
           "-=2"
         )
         .fromTo(
@@ -36,13 +37,13 @@ export default function HeroSection() {
         )
         .fromTo(
           titleRef.current,
-          { opacity: 0, y: 40, scale: 0.98 },
+          { opacity: 0, y: 50, scale: 0.97 },
           { opacity: 1, y: 0, scale: 1, duration: 1.5 },
           "-=1.2"
         )
         .fromTo(
           subtitleRef.current,
-          { opacity: 0, y: 20 },
+          { opacity: 0, y: 30 },
           { opacity: 1, y: 0, duration: 1 },
           "-=1.0"
         )
@@ -63,6 +64,7 @@ export default function HeroSection() {
       id="hero"
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-white"
     >
+      {/* Background Video */}
       <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none">
         <video
           ref={videoRef}
@@ -72,39 +74,43 @@ export default function HeroSection() {
           loop
           muted
           playsInline
-          className="h-full w-full object-cover opacity-0 opacity-90"
-          style={{ mixBlendMode: 'multiply' }}
+          className="h-full w-full object-cover opacity-0"
+          style={{ mixBlendMode: "multiply" }}
         />
-        <div className="absolute inset-0 bg-white/40" />
-        
-        {/* Brand Overlay Text */}
-        <div 
-          ref={brandScrollRef}
+        <div className="absolute inset-0 bg-white/50" />
+
+        {/* Brand Watermark */}
+        <div
+          ref={brandRef}
           className="absolute inset-0 flex items-center justify-center opacity-0 select-none"
         >
-          <span className="text-[22vw] font-display font-black text-zinc-900/[0.03] uppercase tracking-tighter whitespace-nowrap">
+          <span className="text-[20vw] font-display font-bold text-zinc-900/[0.03] uppercase tracking-tight whitespace-nowrap">
             Viltrum Egypt
           </span>
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center px-4 pb-16 pt-28 text-center sm:px-6 lg:px-8">
-        <div ref={badgeRef} className="inline-flex items-center gap-2 mb-8 px-4 py-2 bg-zinc-100 border border-zinc-200 text-zinc-600 rounded-full text-xs font-bold uppercase tracking-widest">
-          <span className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
-          Elite Performance Essentials
+      {/* Content */}
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-6 pb-20 pt-36 text-center">
+        <div
+          ref={badgeRef}
+          className="inline-flex items-center gap-2 mb-10 px-5 py-2.5 bg-zinc-50 border border-zinc-100 text-zinc-500 rounded-full text-[11px] font-semibold uppercase tracking-[0.35em]"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+          Premium Performance
         </div>
 
         <h1
           ref={titleRef}
-          className="font-display text-[4rem] sm:text-[6rem] md:text-[8rem] lg:text-[10rem] font-bold tracking-tighter leading-[0.85] text-zinc-900"
+          className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight leading-[0.9] text-zinc-900"
         >
-          <span className="block">TRAIN HARD.</span>
-          <span className="block text-zinc-400">LOOK SHARP.</span>
+          <span className="block">Precision.</span>
+          <span className="block text-zinc-300 mt-2">Elegance.</span>
         </h1>
 
         <p
           ref={subtitleRef}
-          className="mt-8 max-w-2xl text-lg leading-relaxed text-zinc-600 md:text-xl font-medium"
+          className="mt-10 max-w-xl text-lg sm:text-xl leading-relaxed text-zinc-400 font-light"
         >
           Premium compression wear crafted for athletes who want discipline in
           performance and confidence in presentation.
@@ -112,23 +118,22 @@ export default function HeroSection() {
 
         <div
           ref={ctaRef}
-          className="mx-auto mt-12 flex w-full max-w-md flex-col justify-center gap-4 sm:max-w-none sm:flex-row"
+          className="mt-14 flex flex-col sm:flex-row gap-4 w-full max-w-md sm:max-w-none justify-center"
         >
-          <a href="#products" className="btn-primary group">
-            <span>Shop The Drop</span>
-            <ChevronRight size={18} className="ml-2 transition-transform duration-300 group-hover:translate-x-1" />
-          </a>
-          <a href="#about" className="btn-outline">
-            Why Viltrum
+          <Link
+            href="/products"
+            className="btn-primary group inline-flex items-center justify-center"
+          >
+            <span>View All Products</span>
+            <ChevronRight
+              size={18}
+              className="ml-2 transition-transform duration-300 group-hover:translate-x-1"
+            />
+          </Link>
+          <a href="#about" className="btn-outline inline-flex items-center justify-center">
+            About Viltrum
           </a>
         </div>
-      </div>
-
-      <div className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3 animate-bounce">
-        <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-400">
-          Scroll
-        </span>
-        <ArrowDown size={16} className="text-zinc-400" />
       </div>
     </section>
   );

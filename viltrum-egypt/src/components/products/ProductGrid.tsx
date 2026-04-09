@@ -16,46 +16,17 @@ export default function ProductGrid({ products }: ProductGridProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const lineRef = useRef<HTMLDivElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent));
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Line reveal
-      if (lineRef.current) {
-        gsap.fromTo(
-          lineRef.current,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            duration: 1.2,
-            ease: "power3.inOut",
-            scrollTrigger: {
-              trigger: lineRef.current,
-              start: "top 90%",
-              toggleActions: "play none none none",
-            },
-          }
-        );
-      }
-
       // Heading reveal
       gsap.fromTo(
         headingRef.current,
-        { opacity: 0, y: 50 },
+        { opacity: 0, y: 40 },
         {
           opacity: 1,
           y: 0,
-          duration: 1,
+          duration: 1.2,
           ease: "power3.out",
           scrollTrigger: {
             trigger: headingRef.current,
@@ -70,12 +41,12 @@ export default function ProductGrid({ products }: ProductGridProps) {
       if (cards) {
         gsap.fromTo(
           cards,
-          { opacity: 0, y: 80 },
+          { opacity: 0, y: 60 },
           {
             opacity: 1,
             y: 0,
-            duration: 0.8,
-            stagger: 0.1,
+            duration: 0.9,
+            stagger: 0.12,
             ease: "power3.out",
             scrollTrigger: {
               trigger: gridRef.current,
@@ -92,12 +63,12 @@ export default function ProductGrid({ products }: ProductGridProps) {
 
   if (products.length === 0) {
     return (
-      <section id="products" className="py-32 bg-white">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="mb-4 font-display text-[3rem] leading-none tracking-wide text-zinc-900">
+      <section id="products" className="py-40 bg-white">
+        <div className="max-w-7xl mx-auto text-center px-6">
+          <h2 className="mb-6 font-display text-4xl sm:text-5xl text-zinc-900 tracking-wide">
             Collection Coming Soon
           </h2>
-          <p className="text-zinc-500 max-w-md mx-auto text-sm leading-relaxed">
+          <p className="text-zinc-400 max-w-md mx-auto text-lg leading-relaxed">
             We are preparing the next drop. Stay tuned.
           </p>
         </div>
@@ -109,37 +80,27 @@ export default function ProductGrid({ products }: ProductGridProps) {
     <section
       ref={sectionRef}
       id="products"
-      className="py-32 bg-white"
+      className="py-28 sm:py-40 bg-white"
     >
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Divider line */}
-        <div
-          ref={lineRef}
-          className="h-[1px] bg-zinc-200 mb-24 origin-center"
-        />
-
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         {/* Section Heading */}
-        <div ref={headingRef} className="text-center mb-24 md:mb-32 space-y-6">
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-100 border border-zinc-200 text-zinc-600 rounded-full text-xs font-bold uppercase tracking-widest">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
-            Signature Selection
+        <div ref={headingRef} className="text-center mb-20 sm:mb-28 space-y-6">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.4em] text-zinc-400">
+            Our Collection
           </span>
-
-          <h2 className="font-display text-[4rem] md:text-[6rem] lg:text-[8rem] leading-[0.85] text-zinc-900 tracking-tighter">
-            Made For <span className="text-zinc-400">Presence</span>
+          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl text-zinc-900 tracking-wide leading-tight">
+            Premium Essentials
           </h2>
-
-          <p className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-zinc-500 md:text-lg">
-            A tighter edit of premium essentials designed to hold shape,
-            elevate silhouette, and make every training look feel more
-            intentional.
+          <p className="mx-auto mt-6 max-w-lg text-base sm:text-lg leading-relaxed text-zinc-400">
+            Premium compression wear crafted for athletes who refuse to
+            compromise on form or function.
           </p>
         </div>
 
         {/* Product Grid */}
         <div
           ref={gridRef}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12 lg:gap-16"
         >
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />

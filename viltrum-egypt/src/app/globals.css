@@ -6,9 +6,8 @@
   --color-primary: #18181b; /* Zinc 900 */
   --color-secondary: #71717a; /* Zinc 500 */
   --color-border-light: #e4e4e7; /* Zinc 200 */
-  --color-accent: #dc2626; /* Red 600 - used very sparingly */
   --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-display: var(--font-outfit), Impact, sans-serif;
+  --font-display: var(--font-outfit), sans-serif;
 }
 
 :root {
@@ -35,22 +34,22 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* ===== CUSTOM SCROLLBAR ===== */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #f4f4f5; /* Zinc 100 */
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d8; /* Zinc 300 */
+  background: #d4d4d8;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1aa; /* Zinc 400 */
+  background: #a1a1aa;
 }
 
 /* ===== MINIMAL UTILITIES ===== */
@@ -62,55 +61,58 @@ body {
   text-wrap: balance;
 }
 
-/* ===== FLAT BUTTONS (Replaces Armor Buttons) ===== */
+/* ===== BUTTONS ===== */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 3.5rem;
-  padding: 0 2.5rem;
-  background-color: #18181b; /* Zinc 900 */
+  height: 3.75rem;
+  padding: 0 3rem;
+  background-color: #18181b;
   color: #ffffff;
   font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 0.875rem;
-  letter-spacing: 0.05em;
-  border-radius: 9999px; /* Pill shape for premium feel */
-  transition: background-color 0.2s ease;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 0;
+  transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-  background-color: #3f3f46; /* Zinc 700 */
+  background-color: #3f3f46;
 }
 
 .btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 3.5rem;
-  padding: 0 2.5rem;
+  height: 3.75rem;
+  padding: 0 3rem;
   background-color: transparent;
   color: #18181b;
-  border: 1px solid #18181b;
+  border: 1px solid #d4d4d8;
   font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 0.875rem;
-  letter-spacing: 0.05em;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
   border-radius: 0;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .btn-outline:hover {
-  background-color: #f4f4f5; /* Zinc 100 */
+  background-color: #f4f4f5;
+  border-color: #18181b;
 }
 
 /* ===== FORM INPUTS ===== */
 .viltrum-input {
   width: 100%;
-  padding: 1rem 1.25rem;
-  background-color: #f4f4f5; /* Zinc 100 */
-  border: 1px solid transparent;
-  border-radius: 4px;
+  padding: 1rem 1.5rem;
+  background-color: #fafafa;
+  border: 1px solid #e4e4e7;
+  border-radius: 0;
   color: #18181b;
   font-family: var(--font-sans);
   font-size: 0.875rem;
@@ -124,7 +126,7 @@ body {
 }
 
 .viltrum-input::placeholder {
-  color: #a1a1aa; /* Zinc 400 */
+  color: #a1a1aa;
 }
 
 /* ===== GSAP REVEAL HELPERS ===== */
@@ -133,7 +135,7 @@ body {
   transform: translateY(20px);
 }
 
-/* ===== ADMIN DASHBOARD STYLES (Cleaned up) ===== */
+/* ===== ADMIN DASHBOARD STYLES ===== */
 .admin-table {
   width: 100%;
   border-collapse: separate;
