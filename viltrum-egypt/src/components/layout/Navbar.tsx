@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, User } from "lucide-react";
 import Link from "next/link";
 import { useCartStore } from "@/store/cart";
+import { useAuthStore } from "@/store/auth";
+import { supabase } from "@/lib/supabase";
 
 interface NavbarProps {
   onCartOpen: () => void;
@@ -14,6 +16,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const totalItems = useCartStore((s) => s.totalItems);
+  const { user } = useAuthStore();
 
   useEffect(() => {
     setMounted(true);
@@ -62,8 +65,33 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             </div>
           </Link>
 
-          {/* Right Side: Cart + Hamburger */}
+          {/* Right Side: Auth + Cart + Hamburger */}
           <div className="flex items-center gap-4 z-50">
+            {/* Auth Button */}
+            {user ? (
+               <button
+                 onClick={() => {
+                   if(confirm("Logout?")) {
+                      supabase.auth.signOut();
+                   }
+                 }}
+                 className="relative flex h-11 w-11 items-center justify-center rounded-full bg-zinc-900 text-white hover:bg-zinc-800 transition-all duration-300"
+                 title="Logout"
+               >
+                 <span className="font-display font-medium text-xs">
+                   {user.user_metadata?.full_name?.charAt(0).toUpperCase() || "U"}
+                 </span>
+               </button>
+            ) : (
+               <Link
+                 href="/login"
+                 className="relative flex h-11 w-11 items-center justify-center rounded-full bg-zinc-50 border border-zinc-100 text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-all duration-300"
+                 aria-label="Login"
+               >
+                 <User size={18} />
+               </Link>
+            )}
+
             {/* Cart Button */}
             <button
               id="cart-button"

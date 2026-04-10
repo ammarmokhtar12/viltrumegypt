@@ -83,6 +83,12 @@ export default function AdminLayout({
       icon: Package,
       active: pathname === "/admin/dashboard/products",
     },
+    {
+      href: "/admin/dashboard/customers",
+      label: "Customers",
+      icon: Users,
+      active: pathname === "/admin/dashboard/customers",
+    },
   ];
 
   return (
