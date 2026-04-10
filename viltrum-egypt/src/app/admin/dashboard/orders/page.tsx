@@ -161,7 +161,7 @@ export default function AdminOrdersPage() {
               onClick={() => setStatusFilter(s)}
               className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap ${
                 statusFilter === s
-                  ? "bg-primary text-background shadow-md shadow-primary/10"
+                  ? "bg-primary text-white shadow-md shadow-primary/10"
                   : "text-muted hover:text-foreground"
               }`}
             >
@@ -197,7 +197,7 @@ export default function AdminOrdersPage() {
                   onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
                 >
                   <div className="flex items-center gap-6 min-w-0">
-                    <div className="w-12 h-12 rounded-2xl bg-background border border-border-light flex-shrink-0 flex items-center justify-center text-sm font-bold text-foreground shadow-sm group-hover:bg-primary group-hover:text-background transition-all">
+                    <div className="w-12 h-12 rounded-2xl bg-background border border-border-light flex-shrink-0 flex items-center justify-center text-sm font-bold text-foreground shadow-sm group-hover:bg-primary group-hover:text-white transition-all">
                       {order.customer_name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
@@ -264,7 +264,7 @@ export default function AdminOrdersPage() {
                          {order.payment_screenshot_url && (
                            <button
                              onClick={() => setScreenshotModal(order.payment_screenshot_url)}
-                             className="w-full p-4 bg-primary text-background rounded-2xl flex items-center justify-between group hover:opacity-90 transition-all font-bold text-xs uppercase tracking-widest"
+                             className="w-full p-4 bg-primary text-white rounded-2xl flex items-center justify-between group hover:opacity-90 transition-all font-bold text-xs uppercase tracking-widest"
                            >
                              <span>Verification Proof</span>
                              <ExternalLink size={14} />
@@ -309,7 +309,7 @@ export default function AdminOrdersPage() {
                               {order.status === "pending" && (
                                 <button
                                   onClick={() => updateStatus(order.id, "confirmed")}
-                                  className="h-12 px-6 bg-primary text-background font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
+                                  className="h-12 px-6 bg-primary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
                                 >
                                   <CheckCircle size={16} />
                                   Confirm Mission
@@ -319,7 +319,7 @@ export default function AdminOrdersPage() {
                               {order.status === "confirmed" && (
                                 <button
                                   onClick={() => updateStatus(order.id, "shipped")}
-                                  className="h-12 px-6 bg-primary text-background font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
+                                  className="h-12 px-6 bg-primary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
                                 >
                                   <Truck size={16} />
                                   Commence Logistics
@@ -329,7 +329,7 @@ export default function AdminOrdersPage() {
                               {order.status === "shipped" && (
                                 <button
                                   onClick={() => updateStatus(order.id, "delivered")}
-                                  className="h-12 px-6 bg-primary text-background font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
+                                  className="h-12 px-6 bg-primary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
                                 >
                                   <PackageCheck size={16} />
                                   Confirm Delivery

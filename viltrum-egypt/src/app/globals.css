@@ -10,6 +10,8 @@
   --color-muted: #837a6d;
   --color-surface: #f6f5f4;
   --color-border-light: #ecebe9;
+  --color-background: #ffffff;
+  --color-foreground: #211f1c;
 }
 
 @layer base {
