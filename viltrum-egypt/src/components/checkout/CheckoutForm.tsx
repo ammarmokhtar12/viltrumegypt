@@ -47,10 +47,10 @@ export default function CheckoutForm({
   };
 
   return (
-    <form className="space-y-8">
+    <form className="space-y-12">
       {/* Name */}
-      <div className="space-y-3">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+      <div className="space-y-6">
+        <label className="text-[11px] font-medium uppercase tracking-[0.35em] text-white block">
           Full Name
         </label>
         <input
@@ -61,7 +61,7 @@ export default function CheckoutForm({
             handleChange("name", e.target.value);
           }}
           placeholder="Your full name"
-          className="viltrum-input"
+          className="viltrum-input bg-zinc-900 border-zinc-700 rounded-xl"
         />
         {errors.name && (
           <p className="text-[11px] text-red-500 font-medium">{errors.name}</p>
@@ -69,8 +69,8 @@ export default function CheckoutForm({
       </div>
 
       {/* Phone */}
-      <div className="space-y-3">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+      <div className="space-y-6">
+        <label className="text-[11px] font-medium uppercase tracking-[0.35em] text-white block">
           Phone Number
         </label>
         <input
@@ -81,7 +81,7 @@ export default function CheckoutForm({
             handleChange("phone", e.target.value);
           }}
           placeholder="01XXXXXXXXX"
-          className="viltrum-input"
+          className="viltrum-input bg-zinc-900 border-zinc-700 rounded-xl"
         />
         {errors.phone && (
           <p className="text-[11px] text-red-500 font-medium">{errors.phone}</p>
@@ -89,8 +89,8 @@ export default function CheckoutForm({
       </div>
 
       {/* Address */}
-      <div className="space-y-3">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+      <div className="space-y-6">
+        <label className="text-[11px] font-medium uppercase tracking-[0.35em] text-white block">
           Delivery Address
         </label>
         <input
@@ -101,7 +101,7 @@ export default function CheckoutForm({
             handleChange("address", e.target.value);
           }}
           placeholder="City, area, street, building..."
-          className="viltrum-input"
+          className="viltrum-input bg-zinc-900 border-zinc-700 rounded-xl"
         />
         {errors.address && (
           <p className="text-[11px] text-red-500 font-medium">
@@ -111,8 +111,8 @@ export default function CheckoutForm({
       </div>
 
       {/* Payment Method */}
-      <div className="space-y-5 pt-8 border-t border-zinc-200">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+      <div className="space-y-6 pt-8 border-t border-zinc-800">
+        <label className="text-[11px] font-medium uppercase tracking-[0.35em] text-white block">
           Payment Method
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -126,8 +126,8 @@ export default function CheckoutForm({
               }}
               className={`h-14 flex items-center justify-center text-sm font-semibold transition-all duration-300 rounded-xl ${
                 paymentMethod === method
-                  ? "bg-zinc-900 text-white"
-                  : "bg-white text-zinc-600 hover:text-zinc-900"
+                  ? "bg-white text-black"
+                  : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
               }`}
             >
               {method === "vodafone_cash" ? "Vodafone Cash" : "InstaPay"}
@@ -136,17 +136,17 @@ export default function CheckoutForm({
         </div>
 
         {/* Transfer Info */}
-        <div className="rounded-2xl p-7 bg-white border border-zinc-200 space-y-4">
-          <div className="flex items-center gap-2 text-zinc-600">
+        <div className="rounded-xl p-7 bg-zinc-900 border border-zinc-700 space-y-4">
+          <div className="flex items-center gap-2 text-zinc-300">
             <CreditCard size={14} />
             <span className="text-[10px] font-semibold uppercase tracking-[0.3em]">
               Transfer to
             </span>
           </div>
-          <p className="text-2xl font-bold text-zinc-900 tracking-wide">
+          <p className="text-2xl font-bold text-white tracking-wide">
             01031429229
           </p>
-          <p className="text-[11px] text-zinc-600 leading-relaxed">
+          <p className="text-[11px] text-zinc-300 leading-relaxed">
             Transfer the exact total amount, then upload your payment screenshot
             below.
           </p>

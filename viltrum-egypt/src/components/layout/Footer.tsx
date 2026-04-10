@@ -7,93 +7,78 @@ export default function Footer() {
   return (
     <footer
       id="about"
-      className="bg-slate-50 border-t border-zinc-200"
+      className="bg-black border-t border-zinc-800"
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-28 sm:py-36">
-        <div className="flex flex-col items-center text-center space-y-24">
-          
-          {/* Subscribe Section */}
-          <div className="w-full max-w-2xl space-y-10">
-            <div className="space-y-5">
-              <h2 className="text-4xl font-extrabold tracking-tight text-zinc-900 sm:text-5xl">
-                Subscribe to our Dream
-              </h2>
-            </div>
-            
-            <div className="mx-auto max-w-lg">
-              <Link
-                href="/login"
-                className="btn-primary w-full h-16 text-xs tracking-[0.22em]"
-              >
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-24 sm:py-28">
+        <div className="grid grid-cols-1 gap-12 text-left md:grid-cols-2 lg:grid-cols-4">
+          <div className="space-y-5">
+            <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+              Join Viltrum
+            </h2>
+            <p className="text-sm text-zinc-300">
+              Get updates on premium drops and member-only releases.
+            </p>
+            <div className="max-w-xs">
+              <Link href="/login" className="btn-primary w-full h-14 text-xs tracking-[0.2em]">
                 Subscribe
               </Link>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-20 w-full">
-            {/* Column 1: Brand */}
-            <div className="space-y-6">
-              <div className="flex flex-col items-center">
-                <span className="text-2xl font-extrabold leading-none tracking-[0.2em] text-zinc-900">
-                  VILTRUM
-                </span>
-                <span className="text-[9px] uppercase tracking-[0.4em] text-zinc-600 font-bold mt-2">
-                  Egypt Performance
-                </span>
-              </div>
-              <p className="text-sm text-zinc-600 leading-relaxed font-light">
-                Premium performancewear crafted for the elite athlete.
-              </p>
-            </div>
-
-            {/* Column 2: Navigate */}
-            <div className="space-y-6">
-              <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-900">
-                Navigate
-              </h3>
-              <div className="flex flex-col items-center space-y-4">
-                <Link href="/products" className="text-sm font-light tracking-wide text-zinc-600 transition-all hover:text-zinc-900">
-                  Shop Collection
-                </Link>
-                <a href="#about" className="text-sm font-light tracking-wide text-zinc-600 transition-all hover:text-zinc-900">
-                  About Us
-                </a>
-                <a href="https://wa.me/201031429229" className="text-sm font-light tracking-wide text-zinc-600 transition-all hover:text-zinc-900">
-                  WhatsApp Support
-                </a>
-              </div>
-            </div>
-
-            {/* Column 3: Connect */}
-            <div className="space-y-6">
-               <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-900">
-                Connect
-              </h3>
-              <div className="flex justify-center gap-4">
-                <a href="#" className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 transition-all hover:border-zinc-400 hover:text-zinc-900">
-                  <MessageCircle size={18} />
-                </a>
-                <a href="#" className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 transition-all hover:border-zinc-400 hover:text-zinc-900">
-                  <Camera size={18} />
-                </a>
-                <a href="#" className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 transition-all hover:border-zinc-400 hover:text-zinc-900">
-                  <Mail size={18} />
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full pt-12 border-t border-zinc-200 flex flex-col items-center gap-8">
-            <p className="text-[10px] text-zinc-600 tracking-[0.3em] uppercase font-bold text-center">
-              © {new Date().getFullYear()} VILTRUM EGYPT. ALL RIGHTS RESERVED.
+          <div className="space-y-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.35em] text-zinc-300">
+              Brand
+            </h3>
+            <p className="text-xl font-extrabold leading-none tracking-[0.2em] text-white">
+              VILTRUM
             </p>
-            
-            <Link
-              href="/admin"
-              className="h-4 w-4 rounded-full bg-zinc-800 transition-all duration-700 hover:bg-zinc-900"
-              aria-label="Admin"
-            />
+            <p className="text-sm text-zinc-300">
+              Premium performancewear crafted for elite athletes.
+            </p>
           </div>
+
+          <div className="space-y-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.35em] text-zinc-300">
+              Navigate
+            </h3>
+            <div className="flex flex-col gap-3">
+              <Link href="/products" className="text-sm text-zinc-300 transition-colors hover:text-white">
+                Shop Collection
+              </Link>
+              <a href="#about" className="text-sm text-zinc-300 transition-colors hover:text-white">
+                About Us
+              </a>
+              <a href="https://wa.me/201031429229" className="text-sm text-zinc-300 transition-colors hover:text-white">
+                WhatsApp Support
+              </a>
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.35em] text-zinc-300">
+              Connect
+            </h3>
+            <div className="flex gap-3">
+              <a href="#" className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700 text-white/80 transition-colors hover:text-white">
+                <MessageCircle size={18} />
+              </a>
+              <a href="#" className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700 text-white/80 transition-colors hover:text-white">
+                <Camera size={18} />
+              </a>
+              <a href="#" className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-700 text-white/80 transition-colors hover:text-white">
+                <Mail size={18} />
+              </a>
+            </div>
+            <Link href="/admin" className="inline-block text-xs text-zinc-500 hover:text-zinc-300">
+              Admin
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-14 border-t border-zinc-800 pt-8">
+          <p className="text-center text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500">
+            © {new Date().getFullYear()} VILTRUM EGYPT. ALL RIGHTS RESERVED.
+          </p>
         </div>
       </div>
     </footer>

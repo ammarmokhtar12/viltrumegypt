@@ -10,8 +10,8 @@
 }
 
 :root {
-  --background: #f8fafc; /* Slate 50 */
-  --foreground: #27272a; /* Zinc 800 */
+  --background: #000000;
+  --foreground: #ffffff;
 }
 
 /* ===== BASE RESET ===== */
@@ -76,20 +76,20 @@ p, li, dd, blockquote {
   justify-content: center;
   min-height: 3.5rem;
   padding: 0.95rem 2rem;
-  background-color: #18181b;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #000000;
   font-family: var(--font-sans);
   font-weight: 700;
   font-size: 0.82rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border-radius: 9999px;
+  border-radius: 0.75rem;
   border: 0;
   transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-  background-color: #3f3f46;
+  background-color: #e4e4e7;
   transform: translateY(-1px);
 }
 
@@ -103,21 +103,21 @@ p, li, dd, blockquote {
   justify-content: center;
   min-height: 3.5rem;
   padding: 0.95rem 2rem;
-  background-color: #ffffff;
-  color: #27272a;
-  border: 1px solid #e4e4e7;
+  background-color: #27272a;
+  color: #ffffff;
+  border: 0;
   font-family: var(--font-sans);
   font-weight: 700;
   font-size: 0.82rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  border-radius: 9999px;
+  border-radius: 0.75rem;
   transition: all 0.3s ease;
 }
 
 .btn-outline:hover {
-  border-color: #a1a1aa;
-  color: #18181b;
+  background-color: #3f3f46;
+  color: #ffffff;
   transform: translateY(-1px);
 }
 
@@ -126,10 +126,10 @@ p, li, dd, blockquote {
   width: 100%;
   min-height: 3.5rem;
   padding: 0 1.5rem;
-  background-color: #ffffff;
-  border: 1px solid #e4e4e7;
-  border-radius: 0.9rem;
-  color: #27272a;
+  background-color: #18181b;
+  border: 1px solid #3f3f46;
+  border-radius: 0.75rem;
+  color: #ffffff;
   font-family: var(--font-sans);
   font-size: 0.875rem;
   transition: all 0.3s ease;
@@ -137,12 +137,12 @@ p, li, dd, blockquote {
 
 .viltrum-input:focus {
   outline: none;
-  border-color: #3f3f46;
-  box-shadow: 0 0 0 3px rgba(63, 63, 70, 0.15);
+  border-color: #52525b;
+  box-shadow: 0 0 0 3px rgba(82, 82, 91, 0.25);
 }
 
 .viltrum-input::placeholder {
-  color: #a1a1aa;
+  color: #71717a;
 }
 
 /* ===== GSAP REVEAL HELPERS ===== */
