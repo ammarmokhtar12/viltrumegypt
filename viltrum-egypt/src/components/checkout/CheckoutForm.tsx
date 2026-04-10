@@ -50,7 +50,7 @@ export default function CheckoutForm({
     <form className="space-y-6">
       {/* Name */}
       <div className="space-y-2">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
           Full Name
         </label>
         <input
@@ -70,7 +70,7 @@ export default function CheckoutForm({
 
       {/* Phone */}
       <div className="space-y-2">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
           Phone Number
         </label>
         <input
@@ -90,7 +90,7 @@ export default function CheckoutForm({
 
       {/* Address */}
       <div className="space-y-2">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
           Delivery Address
         </label>
         <input
@@ -111,8 +111,8 @@ export default function CheckoutForm({
       </div>
 
       {/* Payment Method */}
-      <div className="space-y-4 pt-6 border-t border-zinc-100">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
+      <div className="space-y-4 pt-6 border-t border-zinc-200">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
           Payment Method
         </label>
         <div className="flex gap-3">
@@ -124,10 +124,10 @@ export default function CheckoutForm({
                 onPaymentMethodChange(method);
                 onSubmit({ name, phone, address, paymentMethod: method });
               }}
-              className={`flex-1 h-14 flex items-center justify-center text-sm font-medium border transition-all duration-300 rounded-sm ${
+              className={`flex-1 h-14 flex items-center justify-center text-sm font-semibold transition-all duration-300 rounded-xl ${
                 paymentMethod === method
-                  ? "bg-zinc-900 text-white border-zinc-900"
-                  : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-400"
+                  ? "bg-zinc-900 text-white"
+                  : "bg-white text-zinc-600 hover:text-zinc-900"
               }`}
             >
               {method === "vodafone_cash" ? "Vodafone Cash" : "InstaPay"}
@@ -136,17 +136,17 @@ export default function CheckoutForm({
         </div>
 
         {/* Transfer Info */}
-        <div className="p-6 bg-zinc-50 border border-zinc-100 space-y-3">
-          <div className="flex items-center gap-2 text-zinc-300">
+        <div className="rounded-2xl p-6 bg-white border border-zinc-200 space-y-3">
+          <div className="flex items-center gap-2 text-zinc-600">
             <CreditCard size={14} />
             <span className="text-[10px] font-semibold uppercase tracking-[0.3em]">
               Transfer to
             </span>
           </div>
-          <p className="text-2xl font-display text-zinc-900 tracking-wider">
+          <p className="text-2xl font-bold text-zinc-900 tracking-wide">
             01031429229
           </p>
-          <p className="text-[11px] text-zinc-400 leading-relaxed">
+          <p className="text-[11px] text-zinc-600 leading-relaxed">
             Transfer the exact total amount, then upload your payment screenshot
             below.
           </p>

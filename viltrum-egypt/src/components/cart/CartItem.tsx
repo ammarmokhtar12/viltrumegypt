@@ -14,15 +14,15 @@ export default function CartItem({ item }: CartItemProps) {
   const { removeItem, updateQuantity } = useCartStore();
 
   return (
-    <div className="flex gap-4 p-3 bg-zinc-50 border border-zinc-100">
+    <div className="flex gap-4 p-3 rounded-2xl bg-white border border-zinc-200">
       {/* Thumbnail */}
-      <div className="relative w-20 h-24 overflow-hidden bg-white border border-zinc-100 flex-shrink-0">
+      <div className="relative w-20 h-24 overflow-hidden rounded-xl bg-slate-50 border border-zinc-200 flex-shrink-0">
         {item.image_url ? (
           <Image
             src={item.image_url}
             alt={item.title}
             fill
-            className="object-cover mix-blend-multiply"
+            className="object-cover "
             sizes="80px"
           />
         ) : (
@@ -39,7 +39,7 @@ export default function CartItem({ item }: CartItemProps) {
             <h4 className="text-xs font-bold text-zinc-900 uppercase tracking-wider truncate">
               {item.title}
             </h4>
-            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest block mt-1">
+            <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest block mt-1">
               Size: {item.size}
             </span>
           </div>
@@ -54,12 +54,12 @@ export default function CartItem({ item }: CartItemProps) {
 
         <div className="flex items-center justify-between pb-1">
           {/* Quantity Controls */}
-          <div className="flex items-center border border-zinc-200 bg-white">
+          <div className="flex items-center rounded-xl border border-zinc-200 bg-slate-50">
             <button
               onClick={() =>
                 updateQuantity(item.product_id, item.size, item.quantity - 1)
               }
-              className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-zinc-600 hover:text-zinc-900 transition-colors"
               aria-label="Decrease quantity"
             >
               <Minus size={10} />
@@ -71,7 +71,7 @@ export default function CartItem({ item }: CartItemProps) {
               onClick={() =>
                 updateQuantity(item.product_id, item.size, item.quantity + 1)
               }
-              className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-zinc-600 hover:text-zinc-900 transition-colors"
               aria-label="Increase quantity"
             >
               <Plus size={10} />

@@ -7,7 +7,7 @@ export default function Footer() {
   return (
     <footer
       id="about"
-      className="bg-zinc-950 border-t border-zinc-900"
+      className="bg-slate-50 border-t border-zinc-200"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-24 sm:py-32">
         <div className="flex flex-col items-center text-center space-y-20">
@@ -15,21 +15,21 @@ export default function Footer() {
           {/* Subscribe Section */}
           <div className="w-full max-w-2xl space-y-8">
             <div className="space-y-4">
-              <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight text-white">
+              <h2 className="text-4xl font-extrabold tracking-tight text-zinc-900 sm:text-5xl">
                 Subscribe to our Dream
               </h2>
-              <p className="text-zinc-400 text-lg font-light max-w-md mx-auto">
+              <p className="text-zinc-600 text-lg font-light max-w-md mx-auto">
                 Join the inner circle. Be the first to witness new drops and exclusive athlete events.
               </p>
             </div>
             
-            <form onSubmit={(e) => e.preventDefault()} className="relative max-w-lg mx-auto overflow-hidden">
+            <form onSubmit={(e) => e.preventDefault()} className="relative mx-auto max-w-lg overflow-hidden">
                <input 
                  type="email" 
                  placeholder="your@email.com" 
-                 className="w-full h-16 pl-6 pr-40 bg-white/5 border border-white/10 text-white rounded-full focus:outline-none focus:border-white/30 transition-all font-medium placeholder:text-zinc-500"
+                 className="h-16 w-full rounded-full border border-zinc-200 bg-white pl-6 pr-40 text-zinc-900 placeholder:text-zinc-600 transition-all focus:border-zinc-400 focus:outline-none"
                />
-               <button className="absolute right-2 top-2 bottom-2 px-8 bg-white text-zinc-950 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+               <button className="absolute bottom-2 right-2 top-2 rounded-full bg-zinc-900 px-8 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-zinc-700">
                   Subscribe
                </button>
             </form>
@@ -39,31 +39,31 @@ export default function Footer() {
             {/* Column 1: Brand */}
             <div className="space-y-6">
               <div className="flex flex-col items-center">
-                <span className="font-display text-2xl leading-none tracking-[0.2em] text-white">
+                <span className="text-2xl font-extrabold leading-none tracking-[0.2em] text-zinc-900">
                   VILTRUM
                 </span>
-                <span className="text-[9px] uppercase tracking-[0.4em] text-zinc-500 font-bold mt-2">
+                <span className="text-[9px] uppercase tracking-[0.4em] text-zinc-600 font-bold mt-2">
                   Egypt Performance
                 </span>
               </div>
-              <p className="text-sm text-zinc-400 leading-relaxed font-light">
+              <p className="text-sm text-zinc-600 leading-relaxed font-light">
                 Premium performancewear crafted for the elite athlete.
               </p>
             </div>
 
             {/* Column 2: Navigate */}
             <div className="space-y-6">
-              <h3 className="text-[10px] font-bold tracking-[0.4em] text-white uppercase">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-900">
                 Navigate
               </h3>
               <div className="flex flex-col items-center space-y-4">
-                <Link href="/products" className="text-sm text-zinc-400 hover:text-white transition-all font-light tracking-wide">
+                <Link href="/products" className="text-sm font-light tracking-wide text-zinc-600 transition-all hover:text-zinc-900">
                   Shop Collection
                 </Link>
-                <a href="#about" className="text-sm text-zinc-400 hover:text-white transition-all font-light tracking-wide">
+                <a href="#about" className="text-sm font-light tracking-wide text-zinc-600 transition-all hover:text-zinc-900">
                   About Us
                 </a>
-                <a href="https://wa.me/201031429229" className="text-sm text-zinc-400 hover:text-white transition-all font-light tracking-wide">
+                <a href="https://wa.me/201031429229" className="text-sm font-light tracking-wide text-zinc-600 transition-all hover:text-zinc-900">
                   WhatsApp Support
                 </a>
               </div>
@@ -71,31 +71,31 @@ export default function Footer() {
 
             {/* Column 3: Connect */}
             <div className="space-y-6">
-               <h3 className="text-[10px] font-bold tracking-[0.4em] text-white uppercase">
+               <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-900">
                 Connect
               </h3>
               <div className="flex justify-center gap-4">
-                <a href="#" className="w-12 h-12 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition-all">
+                <a href="#" className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 transition-all hover:border-zinc-400 hover:text-zinc-900">
                   <MessageCircle size={18} />
                 </a>
-                <a href="#" className="w-12 h-12 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition-all">
+                <a href="#" className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 transition-all hover:border-zinc-400 hover:text-zinc-900">
                   <Camera size={18} />
                 </a>
-                <a href="#" className="w-12 h-12 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 transition-all">
+                <a href="#" className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 transition-all hover:border-zinc-400 hover:text-zinc-900">
                   <Mail size={18} />
                 </a>
               </div>
             </div>
           </div>
 
-          <div className="w-full pt-12 border-t border-zinc-900 flex flex-col items-center gap-8">
-            <p className="text-[10px] text-zinc-500 tracking-[0.3em] uppercase font-bold text-center">
+          <div className="w-full pt-12 border-t border-zinc-200 flex flex-col items-center gap-8">
+            <p className="text-[10px] text-zinc-600 tracking-[0.3em] uppercase font-bold text-center">
               © {new Date().getFullYear()} VILTRUM EGYPT. ALL RIGHTS RESERVED.
             </p>
             
             <Link
               href="/admin"
-              className="w-4 h-4 rounded-full bg-zinc-800 hover:bg-white transition-all duration-700"
+              className="h-4 w-4 rounded-full bg-zinc-800 transition-all duration-700 hover:bg-zinc-900"
               aria-label="Admin"
             />
           </div>

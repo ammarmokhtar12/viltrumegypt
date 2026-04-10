@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck, Send } from "lucide-react";
+import { ArrowLeft, Send } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { supabase } from "@/lib/supabase";
 import { formatPrice, generateOrderWhatsAppUrl } from "@/lib/utils";
@@ -40,9 +39,9 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-6 px-6">
-        <h1 className="font-display text-3xl text-zinc-900 tracking-wide">Your Cart is Empty</h1>
-        <p className="text-zinc-400 text-base">Add products before checking out.</p>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-slate-50 px-6">
+        <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">Your Cart is Empty</h1>
+        <p className="text-zinc-600 text-base">Add products before checking out.</p>
         <Link href="/products" className="btn-primary">
           Browse Products
         </Link>
@@ -117,12 +116,12 @@ export default function CheckoutPage() {
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="min-h-screen bg-white pt-24 sm:pt-28">
+      <main className="min-h-screen bg-slate-50 pt-24 sm:pt-28">
         {/* Back Link */}
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-900 transition-colors duration-300 font-medium"
+            className="inline-flex items-center gap-2 text-sm font-medium text-zinc-600 transition-colors duration-300 hover:text-zinc-900"
           >
             <ArrowLeft size={16} />
             <span>Back to products</span>
@@ -136,10 +135,10 @@ export default function CheckoutPage() {
             {/* Left: Order Summary (product images + totals) */}
             <div>
               <div className="space-y-4 mb-10">
-                <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-zinc-900 tracking-wide leading-tight">
+                <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-zinc-900 sm:text-5xl md:text-6xl">
                   Checkout
                 </h1>
-                <p className="text-lg text-zinc-400 font-light">
+                <p className="text-lg text-zinc-600 font-light">
                   {cartItems.length} {cartItems.length === 1 ? "item" : "items"} in your order
                 </p>
               </div>
@@ -152,7 +151,7 @@ export default function CheckoutPage() {
                     className="flex gap-6"
                   >
                     {/* Item Image */}
-                    <div className="relative w-28 h-36 sm:w-32 sm:h-40 bg-zinc-50 flex-shrink-0 overflow-hidden">
+                    <div className="relative h-36 w-28 flex-shrink-0 overflow-hidden rounded-2xl border border-zinc-200 bg-white sm:h-40 sm:w-32">
                       {item.image_url ? (
                         <img
                           src={item.image_url}
@@ -161,22 +160,22 @@ export default function CheckoutPage() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-zinc-200 font-display text-3xl">V</span>
+                          <span className="text-3xl font-bold text-zinc-400">V</span>
                         </div>
                       )}
                     </div>
 
                     {/* Item Details */}
                     <div className="flex flex-col justify-center flex-1 min-w-0">
-                      <h3 className="text-base font-medium text-zinc-900 leading-snug mb-1">
+                      <h3 className="mb-1 text-base font-semibold leading-snug text-zinc-900">
                         {item.title}
                       </h3>
-                      <div className="flex items-center gap-3 text-[11px] text-zinc-400 font-semibold uppercase tracking-[0.25em] mb-4">
+                      <div className="flex items-center gap-3 text-[11px] text-zinc-600 font-semibold uppercase tracking-[0.25em] mb-4">
                         <span>Size: {item.size}</span>
                         <span className="w-1 h-1 rounded-full bg-zinc-200" />
                         <span>Qty: {item.quantity}</span>
                       </div>
-                      <p className="text-lg font-display text-zinc-500 tracking-wider">
+                      <p className="text-lg font-bold tracking-wide text-zinc-600">
                         {formatPrice(item.price * item.quantity)}
                       </p>
                     </div>
@@ -185,9 +184,9 @@ export default function CheckoutPage() {
               </div>
 
               {/* Order Total */}
-              <div className="pt-8 border-t border-zinc-100 space-y-4">
+              <div className="space-y-4 border-t border-zinc-200 pt-8">
                 <div className="flex justify-between items-center">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600">
                     Subtotal
                   </span>
                   <span className="text-base font-medium text-zinc-900">
@@ -195,25 +194,25 @@ export default function CheckoutPage() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600">
                     Shipping
                   </span>
                   <span className="text-base font-medium text-zinc-900">
                     Free
                   </span>
                 </div>
-                <div className="flex justify-between items-center pt-4 border-t border-zinc-100">
+                <div className="flex items-center justify-between border-t border-zinc-200 pt-4">
                   <span className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-900">
                     Total
                   </span>
-                  <span className="text-2xl sm:text-3xl font-display text-zinc-900 tracking-wider">
+                  <span className="text-2xl font-bold tracking-wide text-zinc-900 sm:text-3xl">
                     {formatPrice(cartTotal)}
                   </span>
                 </div>
               </div>
 
               {/* Trust Badges */}
-              <div className="mt-10 pt-10 border-t border-zinc-100 space-y-3">
+              <div className="mt-10 space-y-3 border-t border-zinc-200 pt-10">
                 <p className="text-[11px] uppercase tracking-[0.3em] text-zinc-300 font-semibold">
                   Free shipping across Egypt
                 </p>
@@ -229,7 +228,7 @@ export default function CheckoutPage() {
                 {/* Form Section */}
                 <div className="space-y-10">
                   <div className="space-y-4">
-                    <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
+                    <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
                       Customer Information
                     </label>
                     <div className="w-10 h-[1px] bg-zinc-200" />
@@ -242,8 +241,8 @@ export default function CheckoutPage() {
                   />
 
                   {/* Payment Upload */}
-                  <div className="space-y-4 pt-8 border-t border-zinc-100">
-                    <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
+                  <div className="space-y-4 border-t border-zinc-200 pt-8">
+                    <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
                       Payment Proof
                     </label>
                     <PaymentUpload
@@ -256,10 +255,10 @@ export default function CheckoutPage() {
                   <button
                     onClick={handleFinalSubmit}
                     disabled={!isReadyToSubmit}
-                    className={`w-full h-14 sm:h-16 flex items-center justify-center gap-3 text-sm font-semibold tracking-[0.2em] uppercase transition-all duration-500 rounded-sm ${
+                    className={`flex h-14 w-full items-center justify-center gap-3 rounded-full text-sm font-semibold uppercase tracking-[0.2em] transition-all duration-500 sm:h-16 ${
                       isReadyToSubmit
                         ? "bg-zinc-900 text-white hover:bg-zinc-700"
-                        : "bg-zinc-100 text-zinc-400 cursor-not-allowed"
+                        : "cursor-not-allowed bg-zinc-200 text-zinc-500"
                     }`}
                   >
                     {submitting ? (

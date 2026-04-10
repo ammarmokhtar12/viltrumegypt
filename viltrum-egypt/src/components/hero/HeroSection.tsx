@@ -62,7 +62,7 @@ export default function HeroSection() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-white"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50"
     >
       {/* Background Video */}
       <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none">
@@ -76,41 +76,41 @@ export default function HeroSection() {
           playsInline
           className="h-full w-full object-cover opacity-0"
         />
-        <div className="absolute inset-0 bg-black/80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
+        <div className="absolute inset-0 bg-white/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white/35 via-transparent to-white/20" />
 
         {/* Brand Watermark */}
         <div
           ref={brandRef}
           className="absolute inset-0 flex items-center justify-center opacity-0 select-none"
         >
-          <span className="text-[20vw] font-display font-bold text-white/[0.02] uppercase tracking-tighter whitespace-nowrap">
+          <span className="text-[20vw] font-display font-bold text-black/[0.04] uppercase tracking-tighter whitespace-nowrap">
             VILTRUM
           </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-6 pb-20 pt-48 sm:pt-64 text-center mt-12 sm:mt-24">
+      <div className="relative z-10 mx-auto mt-12 flex w-full max-w-6xl flex-col items-center px-6 pb-32 pt-52 text-center sm:mt-20 sm:pb-40 sm:pt-64">
         <div
           ref={badgeRef}
-          className="inline-flex items-center gap-2 mb-10 px-5 py-2bg-white/5 backdrop-blur-sm border border-white/10 text-zinc-300 rounded-full text-[11px] font-bold uppercase tracking-[0.35em] shadow-sm"
+          className="mb-12 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/85 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.35em] text-zinc-600 backdrop-blur-sm"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-900" />
           Viltrum Egypt Edition
         </div>
 
         <h1
           ref={titleRef}
-          className="font-display text-6xl sm:text-8xl md:text-9xl font-bold tracking-tighter leading-[0.85] text-white"
+          className="text-7xl font-extrabold leading-[0.82] tracking-tighter text-zinc-900 sm:text-8xl md:text-[9rem]"
         >
-          <span className="block drop-shadow-2xl">Viltrum.</span>
-          <span className="block text-zinc-400 mt-2 drop-shadow-xl">Egypt.</span>
+          <span className="block">Viltrum.</span>
+          <span className="mt-2 block text-zinc-400">Egypt.</span>
         </h1>
 
         <p
           ref={subtitleRef}
-          className="mt-12 max-w-xl text-lg sm:text-xl leading-relaxed text-zinc-300 font-medium tracking-tight"
+          className="mt-12 max-w-2xl text-lg font-medium leading-relaxed tracking-tight text-zinc-400 sm:text-xl"
         >
           The ultimate compression performancewear. Forged in strength, 
           designed for the elite. Experience the Viltrum revolution.
@@ -118,11 +118,11 @@ export default function HeroSection() {
 
         <div
           ref={ctaRef}
-          className="mt-14 flex flex-col sm:flex-row gap-4 w-full max-w-md sm:max-w-none justify-center"
+          className="mt-16 flex w-full max-w-md flex-col justify-center gap-4 sm:max-w-none sm:flex-row"
         >
           <Link
             href="/products"
-            className="btn-primary group inline-flex items-center justify-center"
+            className="btn-primary group inline-flex items-center justify-center px-10"
           >
             <span>View All Products</span>
             <ChevronRight
@@ -130,7 +130,7 @@ export default function HeroSection() {
               className="ml-2 transition-transform duration-300 group-hover:translate-x-1"
             />
           </Link>
-          <a href="#about" className="btn-outline inline-flex items-center justify-center">
+          <a href="#about" className="btn-outline inline-flex items-center justify-center px-10">
             About Viltrum
           </a>
         </div>

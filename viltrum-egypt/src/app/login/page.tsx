@@ -27,24 +27,24 @@ export default function LoginPage() {
       if (authError) throw authError;
 
       router.push("/");
-    } catch (err: any) {
-      setError(err.message || "Failed to login");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to login");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col justify-center items-center py-12">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center py-12">
       <div className="max-w-md w-full px-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-950 transition-colors mb-12 font-medium tracking-tight">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors mb-12 font-medium tracking-tight">
           <ArrowLeft size={16} />
           Back to Store
         </Link>
         
         <div className="text-center mb-10">
-          <h1 className="font-display text-4xl sm:text-5xl text-zinc-950 mb-3 tracking-tight font-bold">Welcome Back</h1>
-          <p className="text-zinc-400 text-sm font-medium tracking-tight">Sign in to your Viltrum account to view orders and checkout faster.</p>
+          <h1 className="text-4xl sm:text-5xl text-zinc-900 mb-3 tracking-tight font-extrabold">Welcome Back</h1>
+          <p className="text-zinc-600 text-sm font-medium tracking-tight">Sign in to your Viltrum account to view orders and checkout faster.</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -55,7 +55,7 @@ export default function LoginPage() {
           )}
 
           <div className="relative group">
-             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 transition-colors">
+             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
                <Mail size={18} />
              </div>
              <input
@@ -69,7 +69,7 @@ export default function LoginPage() {
           </div>
 
           <div className="relative group">
-             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 transition-colors">
+             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
                <Lock size={18} />
              </div>
              <input
@@ -91,9 +91,9 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-center mt-10 text-sm text-zinc-400 font-medium tracking-tight">
+        <p className="text-center mt-10 text-sm text-zinc-600 font-medium tracking-tight">
           New here?{" "}
-          <Link href="/register" className="text-zinc-950 font-bold hover:underline underline-offset-4">
+          <Link href="/register" className="text-zinc-900 font-bold hover:underline underline-offset-4">
             Create an account
           </Link>
         </p>

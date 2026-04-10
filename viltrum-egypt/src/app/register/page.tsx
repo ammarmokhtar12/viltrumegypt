@@ -52,33 +52,33 @@ export default function RegisterPage() {
         router.push("/login");
       }, 3000);
       
-    } catch (err: any) {
-      setError(err.message || "Failed to register");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to register");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col justify-center items-center py-12">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center py-12">
       <div className="max-w-md w-full px-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-950 transition-colors mb-12 font-medium tracking-tight">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors mb-12 font-medium tracking-tight">
           <ArrowLeft size={16} />
           Back to Store
         </Link>
         
         <div className="text-center mb-10">
-          <h1 className="font-display text-4xl sm:text-5xl text-zinc-950 mb-3 tracking-tight font-bold">Create Account</h1>
-          <p className="text-zinc-400 text-sm font-medium tracking-tight">Join Viltrum to manage your orders and speed up checkout.</p>
+          <h1 className="text-4xl sm:text-5xl text-zinc-900 mb-3 tracking-tight font-extrabold">Create Account</h1>
+          <p className="text-zinc-600 text-sm font-medium tracking-tight">Join Viltrum to manage your orders and speed up checkout.</p>
         </div>
 
         {success ? (
-          <div className="text-center p-10 bg-white border border-zinc-100 rounded-3xl shadow-premium animate-in fade-in zoom-in duration-500">
+          <div className="text-center p-10 bg-white border border-zinc-200 rounded-3xl animate-in fade-in zoom-in duration-500">
              <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <User size={32} />
              </div>
-             <h2 className="font-display text-2xl text-zinc-950 mb-2 font-bold">Welcome to Viltrum</h2>
-             <p className="text-sm text-zinc-500 mb-8 leading-relaxed">Your account has been created successfully. Redirecting you to login...</p>
+             <h2 className="text-2xl text-zinc-900 mb-2 font-extrabold">Welcome to Viltrum</h2>
+             <p className="text-sm text-zinc-600 mb-8 leading-relaxed">Your account has been created successfully. Redirecting you to login...</p>
              <Link href="/login" className="btn-primary w-full">
                Sign In Now
              </Link>
@@ -92,7 +92,7 @@ export default function RegisterPage() {
             )}
 
             <div className="relative group">
-               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 transition-colors">
+               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
                  <User size={18} />
                </div>
                <input
@@ -106,7 +106,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="relative group">
-               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 transition-colors">
+               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
                  <Mail size={18} />
                </div>
                <input
@@ -120,7 +120,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="relative group">
-               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 transition-colors">
+               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
                  <Lock size={18} />
                </div>
                <input
@@ -144,9 +144,9 @@ export default function RegisterPage() {
           </form>
         )}
 
-        <p className="text-center mt-10 text-sm text-zinc-400 font-medium tracking-tight">
+        <p className="text-center mt-10 text-sm text-zinc-600 font-medium tracking-tight">
           Already have an account?{" "}
-          <Link href="/login" className="text-zinc-950 font-bold hover:underline underline-offset-4">
+          <Link href="/login" className="text-zinc-900 font-bold hover:underline underline-offset-4">
             Sign In
           </Link>
         </p>

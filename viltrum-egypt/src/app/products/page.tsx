@@ -36,25 +36,25 @@ export default function ProductsPage() {
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-slate-50">
         {/* Page Header */}
-        <div className="pt-36 sm:pt-44 pb-16 sm:pb-24 text-center px-6">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.4em] text-zinc-400 block mb-6">
+        <div className="px-6 pb-20 pt-40 text-center sm:pb-28 sm:pt-48">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.4em] text-zinc-600 block mb-6">
             Browse
           </span>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-zinc-900 tracking-wide">
+          <h1 className="text-5xl font-extrabold tracking-tighter text-zinc-900 sm:text-6xl md:text-7xl">
             All Products
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-zinc-400 max-w-lg mx-auto leading-relaxed">
+          <p className="mt-6 text-base sm:text-lg text-zinc-600 max-w-lg mx-auto leading-relaxed">
             Every piece in the Viltrum collection. Click to explore sizes and details.
           </p>
         </div>
 
         {/* Product Grid */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pb-28 sm:pb-40">
+        <div className="mx-auto max-w-7xl px-6 pb-32 sm:px-8 sm:pb-44 lg:px-12">
           {products.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-zinc-300 text-lg">No products available yet.</p>
+            <div className="py-20 text-center">
+              <p className="text-lg text-zinc-600">No products available yet.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12 lg:gap-16">

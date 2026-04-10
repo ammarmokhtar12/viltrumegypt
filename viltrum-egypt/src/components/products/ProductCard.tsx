@@ -13,37 +13,36 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group block"
+      className="group block transition-transform duration-300 hover:scale-[1.02]"
     >
-      {/* Product Image */}
-      <div className="relative overflow-hidden bg-zinc-50 mb-6" style={{ aspectRatio: "3/4" }}>
-        {product.image_url ? (
-          <Image
-            src={product.image_url}
-            alt={product.title}
-            fill
-            className="object-cover object-center transition-transform duration-[1.2s] ease-out group-hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-zinc-50">
-            <span className="text-zinc-200 font-display text-5xl tracking-widest">V</span>
-          </div>
-        )}
+      <div className="overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4">
+        <div className="relative mb-6 overflow-hidden rounded-2xl bg-slate-50" style={{ aspectRatio: "3/4" }}>
+          {product.image_url ? (
+            <Image
+              src={product.image_url}
+              alt={product.title}
+              fill
+              className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              loading="lazy"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-slate-50">
+              <span className="text-5xl font-bold tracking-widest text-zinc-400">V</span>
+            </div>
+          )}
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-700" />
-      </div>
+          <div className="absolute inset-0 bg-black/0 transition-colors duration-500 group-hover:bg-black/10" />
+        </div>
 
-      {/* Product Info */}
-      <div className="space-y-2 px-1">
-        <h3 className="text-base sm:text-lg font-medium text-zinc-900 leading-snug tracking-wide group-hover:text-zinc-500 transition-colors duration-500">
-          {product.title}
-        </h3>
-        <p className="text-base font-display text-zinc-500 tracking-wider">
-          {formatPrice(product.price)}
-        </p>
+        <div className="space-y-2 px-1 pb-1">
+          <h3 className="text-base font-bold leading-snug tracking-tight text-zinc-900 transition-colors duration-300 group-hover:text-zinc-900 sm:text-lg">
+            {product.title}
+          </h3>
+          <p className="text-base font-semibold tracking-wide text-zinc-600">
+            {formatPrice(product.price)}
+          </p>
+        </div>
       </div>
     </Link>
   );

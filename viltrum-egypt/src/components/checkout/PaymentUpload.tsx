@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, CheckCircle, Smartphone } from "lucide-react";
+import { Upload, X, CheckCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 interface PaymentUploadProps {
@@ -83,7 +83,7 @@ export default function PaymentUpload({
   return (
     <div className="space-y-4">
       {preview ? (
-        <div className="relative bg-zinc-50 border border-zinc-100 p-3 overflow-hidden">
+        <div className="relative rounded-2xl bg-white border border-zinc-200 p-3 overflow-hidden">
           <img
             src={preview}
             alt="Payment proof"
@@ -91,7 +91,7 @@ export default function PaymentUpload({
           />
 
           {uploaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/80">
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-50/80">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center">
                   <CheckCircle size={20} />
@@ -106,16 +106,16 @@ export default function PaymentUpload({
           {!uploaded && !uploading && (
             <button
               onClick={clearPreview}
-              className="absolute top-5 right-5 p-2 bg-zinc-900 text-white rounded-sm hover:bg-zinc-700 transition-colors"
+              className="absolute top-5 right-5 rounded-xl bg-slate-50 p-2 text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
             >
               <X size={14} />
             </button>
           )}
 
           {uploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/90">
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-50/90">
               <div className="text-center space-y-3">
-                <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin mx-auto" />
+                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
                 <span className="text-[11px] font-semibold text-zinc-900 uppercase tracking-[0.2em]">
                   Uploading...
                 </span>
@@ -134,20 +134,20 @@ export default function PaymentUpload({
           onClick={() => fileInputRef.current?.click()}
           className={`cursor-pointer border border-dashed p-12 text-center transition-all duration-300 group ${
             dragOver
-              ? "border-zinc-900 bg-zinc-50"
-              : "border-zinc-200 bg-white hover:border-zinc-400 hover:bg-zinc-50"
+              ? "border-zinc-400 bg-white"
+              : "border-zinc-200 bg-slate-50 hover:border-zinc-400 hover:bg-white"
           }`}
         >
           <div className="flex flex-col items-center space-y-4">
             <Upload
               size={24}
-              className="text-zinc-300 group-hover:text-zinc-500 transition-colors duration-300"
+              className="text-zinc-600 group-hover:text-zinc-900 transition-colors duration-300"
             />
             <div className="space-y-1">
-              <p className="text-sm font-medium text-zinc-600">
+              <p className="text-sm font-medium text-zinc-700">
                 Click or drag to upload
               </p>
-              <p className="text-[11px] text-zinc-300 font-semibold">
+              <p className="text-[11px] font-semibold text-zinc-500">
                 JPG, PNG — Max 5MB
               </p>
             </div>

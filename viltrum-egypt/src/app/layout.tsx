@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Outfit, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap",
-});
-
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -44,7 +38,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${outfit.variable}`}
+      className={inter.variable}
       data-scroll-behavior="smooth"
     >
       <body className="font-sans antialiased bg-background text-foreground">
