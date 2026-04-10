@@ -37,7 +37,7 @@ export interface Order {
   payment_screenshot_url: string | null;
   items: OrderItem[];
   total: number;
-  status: "pending" | "confirmed" | "shipped" | "delivered";
+  status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
   created_at: string;
   updated_at: string;
 }
