@@ -177,7 +177,7 @@ export default function ProductDetailPage() {
                         onClick={() => setSelectedSize(size)}
                         className={`flex h-12 w-16 items-center justify-center rounded-xl text-xs font-bold transition-all duration-300 ${
                           selectedSize === size
-                            ? "bg-primary text-background shadow-lg shadow-primary/20 scale-105"
+                            ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105"
                             : "bg-surface border border-border-light text-secondary hover:text-foreground hover:border-secondary"
                         }`}
                       >

@@ -1,9 +1,27 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Mail } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Footer() {
+  const router = useRouter();
+  const [clickCount, setClickCount] = useState(0);
+
+  const handlePrivacyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const newCount = clickCount + 1;
+    if (newCount >= 3) {
+      router.push("/admin");
+      setClickCount(0);
+    } else {
+      setClickCount(newCount);
+      // Optional: Reset counter after 1 second of inactivity
+      setTimeout(() => setClickCount(0), 1000);
+    }
+  };
+
   return (
     <footer className="bg-[#211f1c] text-white pt-16 pb-8 font-sans selection:bg-secondary selection:text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,7 +76,12 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Viltrum Egypt. Engineered by Antigravity.
           </p>
           <div className="flex items-center gap-6">
-            <Link href="#" className="text-xs text-gray-500 hover:text-white transition-colors">Privacy Policy</Link>
+            <button 
+              onClick={handlePrivacyClick}
+              className="text-xs text-gray-500 hover:text-white transition-colors cursor-pointer"
+            >
+              Privacy Policy
+            </button>
             <Link href="#" className="text-xs text-gray-500 hover:text-white transition-colors">Terms of Service</Link>
             <Link 
               href="/admin" 
@@ -73,4 +96,5 @@ export default function Footer() {
     </footer>
   );
 }
+
 
