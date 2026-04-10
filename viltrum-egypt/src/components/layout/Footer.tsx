@@ -57,9 +57,16 @@ export default function Footer() {
           <p className="text-sm text-gray-500 italic">
             &copy; {new Date().getFullYear()} Viltrum Egypt. Engineered by Antigravity.
           </p>
-          <div className="flex gap-6">
+          <div className="flex items-center gap-6">
             <Link href="#" className="text-xs text-gray-500 hover:text-white transition-colors">Privacy Policy</Link>
             <Link href="#" className="text-xs text-gray-500 hover:text-white transition-colors">Terms of Service</Link>
+            <Link 
+              href="/admin" 
+              className="w-1 h-1 bg-gray-600 rounded-full opacity-0 hover:opacity-100 transition-opacity cursor-default"
+              aria-hidden="true"
+            >
+              .
+            </Link>
           </div>
         </div>
       </div>
