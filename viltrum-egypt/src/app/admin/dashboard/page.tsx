@@ -189,18 +189,18 @@ export default function AdminDashboardPage() {
         {/* Metric List (Left) */}
         <div className="lg:col-span-4 bg-white rounded-[2.5rem] shadow-premium-xl border border-zinc-100 p-8 flex flex-col justify-between">
           <div>
-            <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-10">Asset Performance</h3>
+            <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-10">Asset Performance</h3>
             <div className="space-y-8">
               <div className="flex justify-between items-end border-b border-zinc-50 pb-5">
-                <span className="text-zinc-400 font-bold uppercase text-[9px] tracking-widest">Total Revenue</span>
+                <span className="text-zinc-400 font-bold uppercase text-xs tracking-widest">Total Revenue</span>
                 <span className="text-3xl font-display font-bold text-zinc-950 tracking-tighter">{totalRevenue.toLocaleString()} <span className="text-xs uppercase ml-1">EGP</span></span>
               </div>
               <div className="flex justify-between items-end border-b border-zinc-50 pb-5">
-                <span className="text-zinc-400 font-bold uppercase text-[9px] tracking-widest">AOV</span>
+                <span className="text-zinc-400 font-bold uppercase text-xs tracking-widest">AOV</span>
                 <span className="text-2xl font-display font-bold text-zinc-800 tracking-tight">{avgOrderValue.toFixed(0)} <span className="text-xs uppercase ml-1">EGP</span></span>
               </div>
               <div className="flex justify-between items-end border-b border-zinc-50 pb-5">
-                <span className="text-zinc-400 font-bold uppercase text-[9px] tracking-widest">Conversion Count</span>
+                <span className="text-zinc-400 font-bold uppercase text-xs tracking-widest">Conversion Count</span>
                 <span className="text-2xl font-display font-bold text-zinc-800 tracking-tight">{orders.length}</span>
               </div>
             </div>
@@ -208,8 +208,8 @@ export default function AdminDashboardPage() {
           
           <div className="mt-12 bg-zinc-950 rounded-3xl p-6 text-white overflow-hidden relative shadow-2xl">
              <div className="relative z-10">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">Projected Run Rate</p>
-                <p className="text-3xl font-display font-bold mt-2">{(totalRevenue * 1.4).toLocaleString()} <span className="text-[10px] uppercase font-bold opacity-50">EGP</span></p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] opacity-60">Projected Run Rate</p>
+                <p className="text-3xl font-display font-bold mt-2">{(totalRevenue * 1.4).toLocaleString()} <span className="text-[11px] uppercase font-bold opacity-50">EGP</span></p>
              </div>
              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 -mr-10 -mt-10 rounded-full blur-3xl" />
           </div>
@@ -218,10 +218,10 @@ export default function AdminDashboardPage() {
         {/* Intelligence Chart (Right) */}
         <div className="lg:col-span-8 bg-white rounded-[2.5rem] shadow-premium-xl border border-zinc-100 p-8">
            <div className="flex justify-between items-center mb-10">
-              <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Revenue Analytics</h3>
+              <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Revenue Analytics</h3>
               <div className="flex items-center gap-2">
-                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-zinc-950"></div><span className="text-[9px] font-bold text-zinc-500 uppercase">Revenue</span></div>
-                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-zinc-300"></div><span className="text-[9px] font-bold text-zinc-500 uppercase">Margin</span></div>
+                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-zinc-950"></div><span className="text-xs font-bold text-zinc-500 uppercase">Revenue</span></div>
+                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-zinc-300"></div><span className="text-xs font-bold text-zinc-500 uppercase">Margin</span></div>
               </div>
            </div>
            <div className="h-[350px] w-full">
@@ -255,7 +255,7 @@ export default function AdminDashboardPage() {
         {/* Action Center */}
         <div className="bg-white rounded-[2rem] shadow-premium border border-zinc-100 p-8 flex flex-col justify-between">
            <div>
-              <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Inventory Risk</h3>
+              <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Inventory Risk</h3>
               <div className="space-y-4">
                  <div className="p-5 bg-zinc-50 rounded-3xl border border-zinc-100 flex items-center justify-between group hover:bg-zinc-950 transition-all cursor-pointer">
                     <div className="flex items-center gap-4">
@@ -281,7 +281,7 @@ export default function AdminDashboardPage() {
         {/* Matrix Visualization */}
         <div className="lg:col-span-2 bg-white rounded-[2.5rem] shadow-premium border border-zinc-100 p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
             <div>
-               <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Performance Matrix</h3>
+               <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Performance Matrix</h3>
                <div className="h-[200px] w-full">
                  <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={chartData}>
@@ -295,7 +295,7 @@ export default function AdminDashboardPage() {
                </div>
             </div>
             <div>
-               <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Size Utilization</h3>
+               <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Size Utilization</h3>
                 <div className="h-[200px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <ScatterChart>
@@ -311,7 +311,7 @@ export default function AdminDashboardPage() {
                   </ResponsiveContainer>
                   <div className="flex flex-wrap justify-center gap-4 mt-2">
                      {varianceData.slice(0, 4).map((v, i) => (
-                       <span key={i} className="flex items-center gap-1.5 text-[9px] font-bold uppercase text-zinc-400">
+                       <span key={i} className="flex items-center gap-1.5 text-xs font-bold uppercase text-zinc-400">
                           <div className="w-2 h-2 rounded-full" style={{background: v.fill}}></div>{v.name}
                        </span>
                      ))}

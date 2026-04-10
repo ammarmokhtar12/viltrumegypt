@@ -76,41 +76,41 @@ export default function HeroSection() {
           playsInline
           className="h-full w-full object-cover opacity-0"
         />
-        <div className="absolute inset-0 bg-black/70" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-zinc-950/20 to-black/60" />
+        <div className="absolute inset-0 bg-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
 
         {/* Brand Watermark */}
         <div
           ref={brandRef}
           className="absolute inset-0 flex items-center justify-center opacity-0 select-none"
         >
-          <span className="text-[20vw] font-display font-bold text-white/[0.03] uppercase tracking-tighter whitespace-nowrap">
+          <span className="text-[20vw] font-display font-bold text-white/[0.02] uppercase tracking-tighter whitespace-nowrap">
             VILTRUM
           </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-6 pb-20 pt-36 text-center">
+      <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-6 pb-20 pt-48 sm:pt-64 text-center mt-12 sm:mt-24">
         <div
           ref={badgeRef}
-          className="inline-flex items-center gap-2 mb-10 px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full text-[11px] font-bold uppercase tracking-[0.35em] shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+          className="inline-flex items-center gap-2 mb-10 px-5 py-2bg-white/5 backdrop-blur-sm border border-white/10 text-zinc-300 rounded-full text-[11px] font-bold uppercase tracking-[0.35em] shadow-sm"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           Viltrum Egypt Edition
         </div>
 
         <h1
           ref={titleRef}
-          className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter leading-[0.85] text-white"
+          className="font-display text-6xl sm:text-8xl md:text-9xl font-bold tracking-tighter leading-[0.85] text-white"
         >
-          <span className="block drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">Viltrum.</span>
+          <span className="block drop-shadow-2xl">Viltrum.</span>
           <span className="block text-zinc-400 mt-2 drop-shadow-xl">Egypt.</span>
         </h1>
 
         <p
           ref={subtitleRef}
-          className="mt-10 max-w-xl text-lg sm:text-xl leading-relaxed text-zinc-300 font-medium tracking-tight"
+          className="mt-12 max-w-xl text-lg sm:text-xl leading-relaxed text-zinc-300 font-medium tracking-tight"
         >
           The ultimate compression performancewear. Forged in strength, 
           designed for the elite. Experience the Viltrum revolution.

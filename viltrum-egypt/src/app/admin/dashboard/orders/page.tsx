@@ -295,20 +295,25 @@ export default function AdminOrdersPage() {
                                 <CheckCircle size={13} />
                                 Confirm Order
                               </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (confirm("Are you sure you want to cancel this order?")) {
-                                    updateStatus(order.id, "cancelled");
-                                  }
-                                }}
-                                className="h-9 px-4 text-[11px] font-semibold text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 rounded-md transition-colors inline-flex items-center gap-1.5"
-                              >
-                                <XCircle size={13} />
-                                Cancel
-                              </button>
                             </>
                           )}
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              if (confirm("Are you sure you want to COMPLETELY DELETE this order? This cannot be undone.")) {
+                                const { error } = await supabase.from("orders").delete().eq("id", order.id);
+                                if (!error) {
+                                  setOrders(orders.filter(o => o.id !== order.id));
+                                } else {
+                                  alert("Failed to delete order.");
+                                }
+                              }
+                            }}
+                            className="h-9 px-4 text-[11px] font-semibold text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 rounded-md transition-colors inline-flex items-center gap-1.5"
+                          >
+                            <XCircle size={13} />
+                            Delete
+                          </button>
                           {order.status === "confirmed" && (
                             <button
                               onClick={(e) => {

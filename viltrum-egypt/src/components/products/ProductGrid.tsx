@@ -80,7 +80,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
     <section
       ref={sectionRef}
       id="products"
-      className="py-28 sm:py-40 bg-white"
+      className="py-40 sm:py-56 bg-white"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         {/* Section Heading */}

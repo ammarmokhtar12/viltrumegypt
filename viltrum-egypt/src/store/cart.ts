@@ -58,7 +58,7 @@ export const useCartStore = create<CartStore>()(
         get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     }),
     {
-      name: "viltrum-cart",
+      name: "viltrum-cart-v3",
     }
   )
 );
