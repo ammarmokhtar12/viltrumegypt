@@ -124,7 +124,40 @@ p, li, dd, blockquote {
 
 .btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+}
+
+/* Checkout Specifics */
+.quantity-badge {
+  @apply absolute -top-1.5 -right-1.5 w-5 h-5 bg-zinc-900 text-white text-[10px] font-bold rounded-full flex items-center justify-center z-10;
+}
+
+.radio-card {
+  @apply flex items-center justify-between p-4 border border-border-light rounded-xl cursor-pointer transition-all duration-200 bg-white;
+}
+
+.radio-card-selected {
+  @apply border-primary bg-primary/5 ring-1 ring-primary;
+}
+
+.radio-circle {
+  @apply w-5 h-5 rounded-full border-2 border-border-light flex items-center justify-center transition-all duration-200;
+}
+
+.radio-card-selected .radio-circle {
+  @apply border-primary bg-primary;
+}
+
+.radio-dot {
+  @apply w-1.5 h-1.5 rounded-full bg-white transition-all duration-200 scale-0;
+}
+
+.radio-card-selected .radio-dot {
+  @apply scale-100;
+}
+
+.checkout-sidebar {
+  @apply bg-[#f5f5f5] lg:border-l lg:border-border-light;
 }
 
 .btn-outline {
