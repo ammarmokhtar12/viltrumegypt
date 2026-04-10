@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Mail, Calendar, Search, ArrowLeft } from "lucide-react";
+import { Users, Mail, Calendar, Search, ArrowLeft, ShieldCheck, UserCheck } from "lucide-react";
 import Link from "next/link";
 
 interface Profile {
@@ -46,102 +46,104 @@ export default function RegisteredEmailsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-32">
-        <div className="w-8 h-8 border-2 border-zinc-200 border-t-zinc-950 rounded-full animate-spin" />
+      <div className="flex items-center justify-center py-24">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-border-light border-t-foreground rounded-full animate-spin" />
+          <span className="text-[10px] tracking-[0.25em] text-muted uppercase font-bold">
+            Scanning Userbase
+          </span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-10 max-w-[1450px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-12 animate-fade-in max-w-[1400px] mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-7 pb-10 border-b border-zinc-200">
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-8 pb-4">
         <div>
-           <Link href="/admin/dashboard" className="text-zinc-400 hover:text-zinc-950 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest mb-4 transition-colors">
-              <ArrowLeft size={14} />
-              Dashboard
-           </Link>
-           <h1 className="text-5xl sm:text-6xl font-display font-bold text-zinc-950 tracking-tight">
-             Registered Emails
-           </h1>
-           <p className="text-zinc-500 text-lg mt-3 font-medium tracking-tight">Manage the users who joined the Viltrum revolution.</p>
+          <span className="text-[10px] font-bold text-muted uppercase tracking-[0.3em] block mb-2">Authenticated Base</span>
+          <h1 className="text-4xl sm:text-5xl font-bold text-foreground border-l-4 border-primary pl-6 leading-none">
+            Registered
+          </h1>
+          <p className="text-secondary text-sm font-medium mt-4 italic">User accounts and authentication records for the platform.</p>
         </div>
-        <div className="bg-white px-8 py-5 rounded-3xl shadow-premium border border-zinc-100 flex items-center gap-5">
-           <div className="w-12 h-12 bg-zinc-950 text-white rounded-2xl flex items-center justify-center shadow-lg">
-              <Users size={24} />
-           </div>
+        <div className="flex items-center gap-3 bg-surface border border-border-light px-5 py-3 rounded-2xl">
+           <UserCheck size={18} className="text-primary" />
            <div>
-              <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-[0.2em]">Total Users</p>
-              <p className="text-3xl font-display font-bold text-zinc-950 leading-tight">{profiles.length}</p>
+              <p className="text-[9px] text-muted font-bold uppercase tracking-wider">Total Members</p>
+              <p className="text-lg font-bold text-foreground leading-none mt-0.5">{profiles.length}</p>
            </div>
         </div>
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-zinc-200 overflow-hidden">
+      <div className="bg-surface border border-border-light rounded-[2rem] overflow-hidden shadow-sm">
         {/* Search Bar */}
-        <div className="p-8 border-b border-zinc-50 bg-zinc-50/30">
+        <div className="p-6 border-b border-border-light bg-background/50">
            <div className="max-w-md relative group">
-              <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-zinc-950 transition-colors" />
+              <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-foreground transition-all" />
               <input
                 type="text"
-                placeholder="Search by name or email..."
+                placeholder="Search by identity or email domain..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="viltrum-input pl-14"
+                className="viltrum-input pl-11 !min-h-[2.5rem]"
               />
            </div>
         </div>
 
         {/* Table View */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="admin-table">
             <thead>
-              <tr className="bg-zinc-50/50 border-b border-zinc-100">
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">User</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Email</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Joined Date</th>
-                <th className="px-8 py-6 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Status</th>
+              <tr>
+                <th>Identity</th>
+                <th>Communication Channel</th>
+                <th>Activation Date</th>
+                <th className="text-right">Access Level</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-50">
+            <tbody>
               {filteredProfiles.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="py-24 text-center">
                     <div className="flex flex-col items-center gap-4">
-                       <Mail className="text-zinc-200" size={48} />
-                       <p className="text-zinc-400 font-medium italic">No registered users found matching your search.</p>
+                       <Mail className="text-muted opacity-20" size={40} />
+                       <p className="text-sm font-bold text-muted tracking-widest uppercase italic">The user cloud is empty</p>
                     </div>
                   </td>
                 </tr>
               ) : (
                 filteredProfiles.map((p) => (
-                  <tr key={p.id} className="admin-table-row group">
-                    <td className="px-8 py-6">
+                  <tr key={p.id}>
+                    <td>
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-zinc-100 text-zinc-950 flex items-center justify-center font-bold text-sm shadow-sm group-hover:bg-zinc-950 group-hover:text-white transition-all">
+                        <div className="w-10 h-10 rounded-xl bg-background border border-border-light text-foreground flex items-center justify-center font-bold text-xs shadow-sm">
                           {p.full_name?.charAt(0).toUpperCase() || "U"}
                         </div>
-                        <p className="font-bold text-zinc-950">{p.full_name || "Anonymous User"}</p>
+                        <p className="font-bold text-foreground text-sm">{p.full_name || "Anonymous User"}</p>
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                      <p className="text-zinc-500 font-medium tracking-tight">{p.email}</p>
+                    <td>
+                      <p className="text-sm font-medium text-secondary">{p.email}</p>
                     </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-2 text-zinc-400 font-medium">
-                         <Calendar size={14} />
-                         {new Date(p.created_at).toLocaleDateString("en-US", {
+                    <td>
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-muted uppercase tracking-widest">
+                         <Calendar size={12} />
+                         {new Date(p.created_at).toLocaleDateString("en-GB", {
                            year: "numeric",
                            month: "short",
                            day: "numeric"
                          })}
                       </div>
                     </td>
-                    <td className="px-8 py-6">
-                       <span className="status-tag bg-emerald-50 text-emerald-600 border border-emerald-100/50 shadow-sm">
-                          Active User
-                       </span>
+                    <td className="text-right">
+                       <div className="flex items-center justify-end gap-2">
+                          <span className="px-2.5 py-1 text-[9px] font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 rounded-lg uppercase tracking-wider">
+                             Member Account
+                          </span>
+                       </div>
                     </td>
                   </tr>
                 ))
@@ -149,6 +151,17 @@ export default function RegisteredEmailsPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Security Info Flag */}
+      <div className="p-6 bg-surface border border-border-light rounded-2xl flex items-center gap-4">
+         <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <ShieldCheck size={20} />
+         </div>
+         <div>
+            <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Global Authentication Layer</p>
+            <p className="text-xs font-bold text-foreground mt-0.5">All user data is encrypted and managed via Supabase Auth services.</p>
+         </div>
       </div>
     </div>
   );

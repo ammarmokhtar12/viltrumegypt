@@ -14,11 +14,11 @@ import {
   Eye,
   EyeOff,
   Search,
-  MoreVertical,
   DollarSign,
-  BarChart3,
-  TrendingUp,
   Image as ImageIcon,
+  Check,
+  ChevronRight,
+  Filter,
 } from "lucide-react";
 
 export default function AdminProductsPage() {
@@ -206,11 +206,11 @@ export default function AdminProductsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-32">
+      <div className="flex items-center justify-center py-24">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
-          <span className="text-[11px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">
-            Loading products
+          <div className="w-8 h-8 border-2 border-border-light border-t-foreground rounded-full animate-spin" />
+          <span className="text-[10px] tracking-[0.25em] text-muted uppercase font-bold">
+            Scanning Inventory
           </span>
         </div>
       </div>
@@ -218,90 +218,67 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <div className="space-y-10">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+    <div className="space-y-12 animate-fade-in">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-8 pb-4">
         <div>
-          <h1 className="font-display text-3xl sm:text-4xl text-zinc-900 tracking-wide">
-            Products
+          <span className="text-[10px] font-bold text-muted uppercase tracking-[0.3em] block mb-2">Global Stock</span>
+          <h1 className="text-4xl sm:text-5xl font-bold text-foreground border-l-4 border-primary pl-6 leading-none">
+            Inventory
           </h1>
-          <p className="text-base text-zinc-500 mt-2">
-            {products.length} products · {activeCount} active
-          </p>
+          <p className="text-secondary text-sm font-medium mt-4">Manage products, stock levels and visibility.</p>
         </div>
         <button
           onClick={() => {
             resetForm();
             setShowForm(true);
           }}
-          className="inline-flex items-center gap-2 h-12 px-6 bg-zinc-900 text-white text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-zinc-700 transition-colors rounded-sm"
+          className="btn-primary group"
         >
-          <Plus size={15} />
-          Add Product
+          <Plus size={16} className="mr-2" />
+          New Product
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        <div className="bg-white border border-zinc-200 p-6 rounded-xl shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-sm bg-zinc-50 flex items-center justify-center">
-              <Package size={15} className="text-zinc-400" />
+      {/* Stats Quickbar */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Total Assets", value: products.length, icon: Package, color: "text-foreground" },
+          { label: "Live Items", value: activeCount, icon: Eye, color: "text-emerald-500" },
+          { label: "Avg Listing", value: `${avgPrice.toFixed(0)} EGP`, icon: DollarSign, color: "text-foreground" },
+          { label: "Shadowed", value: products.length - activeCount, icon: EyeOff, color: "text-muted" },
+        ].map((stat, i) => (
+          <div key={i} className="bg-surface border border-border-light p-6 rounded-2xl flex flex-col justify-between hover:border-secondary transition-colors">
+            <div className="flex justify-between items-start mb-4">
+              <span className="text-[10px] font-bold text-muted uppercase tracking-widest">{stat.label}</span>
+              <stat.icon size={14} className="text-muted" />
             </div>
-            <p className="text-[10px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">Total</p>
+            <p className={`text-2xl font-bold ${stat.color} tracking-tight`}>{stat.value}</p>
           </div>
-          <p className="text-2xl font-display text-zinc-900">{products.length}</p>
-        </div>
-        <div className="bg-white border border-zinc-200 p-6 rounded-xl shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-sm bg-emerald-50 flex items-center justify-center">
-              <Eye size={15} className="text-emerald-600" />
-            </div>
-            <p className="text-[10px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">Active</p>
-          </div>
-          <p className="text-2xl font-display text-emerald-600">{activeCount}</p>
-        </div>
-        <div className="bg-white border border-zinc-200 p-6 rounded-xl shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-sm bg-zinc-50 flex items-center justify-center">
-              <DollarSign size={15} className="text-zinc-400" />
-            </div>
-            <p className="text-[10px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">Avg Price</p>
-          </div>
-          <p className="text-2xl font-display text-zinc-900">EGP {avgPrice.toFixed(0)}</p>
-        </div>
-        <div className="bg-white border border-zinc-200 p-6 rounded-xl shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-sm bg-zinc-50 flex items-center justify-center">
-              <EyeOff size={15} className="text-zinc-400" />
-            </div>
-            <p className="text-[10px] tracking-[0.25em] text-zinc-400 uppercase font-semibold">Hidden</p>
-          </div>
-          <p className="text-2xl font-display text-zinc-500">{products.length - activeCount}</p>
-        </div>
+        ))}
       </div>
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-5">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300" />
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row gap-4 items-center">
+        <div className="relative flex-1 group">
+          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-foreground transition-colors" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search products..."
-            className="w-full h-12 pl-11 pr-4 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-900 placeholder-zinc-300 focus:outline-none focus:border-zinc-400 transition-colors"
+            placeholder="Search stock..."
+            className="viltrum-input pl-11 !min-h-[2.75rem]"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 p-1 bg-surface border border-border-light rounded-xl overflow-hidden self-stretch sm:self-auto">
           {(["all", "active", "hidden"] as const).map((filter) => (
             <button
               key={filter}
               onClick={() => setFilterActive(filter)}
-              className={`h-12 px-5 text-[11px] font-semibold uppercase tracking-[0.15em] border transition-all rounded-lg ${
+              className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all ${
                 filterActive === filter
-                  ? "bg-zinc-900 text-white border-zinc-900"
-                  : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400"
+                  ? "bg-primary text-background shadow-md shadow-primary/10"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               {filter}
@@ -310,444 +287,280 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Products Table */}
-      {filteredProducts.length === 0 ? (
-        <div className="text-center py-24 bg-white border border-zinc-100 rounded-sm">
-          <Package size={36} className="mx-auto text-zinc-200 mb-5" />
-          <h2 className="text-lg font-display text-zinc-400">
-            {searchQuery ? "No products match your search" : "No products yet"}
-          </h2>
-          <p className="text-sm text-zinc-300 mt-2">
-            {searchQuery ? "Try a different search term." : "Add your first product to get started."}
-          </p>
-        </div>
-      ) : (
-        <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden">
-          {/* Desktop Table */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Price</th>
-                  <th>Sizes</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                  <th className="text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-zinc-50 transition-colors">
-                    {/* Product (Image + Name) */}
-                    <td>
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-zinc-50 border border-zinc-100 rounded-sm overflow-hidden flex-shrink-0">
-                          {product.image_url ? (
-                            <img
-                              src={product.image_url}
-                              alt={product.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <ImageIcon size={16} className="text-zinc-200" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-medium text-zinc-900 text-sm truncate max-w-[200px]">
-                            {product.title}
-                          </p>
-                          {product.description && (
-                            <p className="text-xs text-zinc-400 truncate max-w-[200px] mt-0.5">
-                              {product.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    {/* Price */}
-                    <td>
-                      <span className="font-display font-bold text-zinc-900">
-                        EGP {product.price}
-                      </span>
-                    </td>
-                    {/* Sizes */}
-                    <td>
-                      <div className="flex gap-1.5">
-                        {product.sizes?.map((size) => (
-                          <span
-                            key={size}
-                            className="px-2 py-0.5 text-[10px] font-semibold text-zinc-500 bg-zinc-50 border border-zinc-100 rounded-sm"
-                          >
-                            {size}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    {/* Status */}
-                    <td>
-                      <button
-                        onClick={() => toggleActive(product)}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold rounded-sm transition-colors ${
-                          product.is_active
-                            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                            : "bg-zinc-100 text-zinc-400 hover:bg-zinc-200"
-                        }`}
-                      >
-                        {product.is_active ? (
-                          <>
-                            <Eye size={12} /> Active
-                          </>
+      {/* Table Section */}
+      <div className="bg-surface border border-border-light rounded-2xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Asset Identity</th>
+                <th>Price Matrix</th>
+                <th>Dimensions</th>
+                <th>Visibility</th>
+                <th className="text-right">Manage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.map((product) => (
+                <tr key={product.id}>
+                  <td>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-14 bg-background border border-border-light rounded-lg overflow-hidden flex-shrink-0 group">
+                        {product.image_url ? (
+                          <img
+                            src={product.image_url}
+                            alt={product.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
                         ) : (
-                          <>
-                            <EyeOff size={12} /> Hidden
-                          </>
-                        )}
-                      </button>
-                    </td>
-                    {/* Date */}
-                    <td>
-                      <span className="text-sm text-zinc-400">
-                        {new Date(product.created_at).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
-                    </td>
-                    {/* Actions */}
-                    <td>
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEditForm(product)}
-                          className="h-9 px-3 inline-flex items-center gap-1.5 text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 bg-zinc-50 border border-zinc-100 hover:border-zinc-300 rounded-sm transition-all"
-                        >
-                          <Edit2 size={12} />
-                          Edit
-                        </button>
-                        {deleteConfirm === product.id ? (
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => handleDelete(product.id)}
-                              className="h-9 px-3 text-[11px] font-semibold text-white bg-red-600 hover:bg-red-700 rounded-sm transition-colors"
-                            >
-                              Confirm
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirm(null)}
-                              className="h-9 px-3 text-[11px] font-semibold text-zinc-500 bg-zinc-50 border border-zinc-100 rounded-sm transition-colors"
-                            >
-                              Cancel
-                            </button>
+                          <div className="w-full h-full flex items-center justify-center opacity-20">
+                            <ImageIcon size={18} />
                           </div>
-                        ) : (
-                          <button
-                            onClick={() => setDeleteConfirm(product.id)}
-                            className="h-9 w-9 inline-flex items-center justify-center text-zinc-400 hover:text-red-600 bg-zinc-50 border border-zinc-100 hover:border-red-200 rounded-sm transition-all"
-                          >
-                            <Trash2 size={13} />
-                          </button>
                         )}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Card View */}
-          <div className="md:hidden divide-y divide-zinc-100">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="p-5 space-y-5">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-zinc-50 border border-zinc-100 rounded-sm overflow-hidden flex-shrink-0">
-                    {product.image_url ? (
-                      <img
-                        src={product.image_url}
-                        alt={product.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Package size={18} className="text-zinc-200" />
+                      <div className="min-w-0">
+                        <p className="font-bold text-foreground text-sm truncate max-w-[200px]">
+                          {product.title}
+                        </p>
+                        <p className="text-[10px] text-muted font-bold tracking-widest mt-0.5 truncate max-w-[200px] uppercase">
+                          ID: {product.id.split('-')[0]}
+                        </p>
                       </div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-zinc-900 text-sm truncate">
-                      {product.title}
-                    </p>
-                    <p className="text-lg font-display font-bold text-zinc-900 mt-0.5">
-                      EGP {product.price}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => toggleActive(product)}
-                    className={`flex-shrink-0 px-3 py-1.5 text-[10px] font-semibold rounded-sm ${
-                      product.is_active
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-zinc-100 text-zinc-400"
-                    }`}
-                  >
-                    {product.is_active ? "Active" : "Hidden"}
-                  </button>
-                </div>
-
-                <div className="flex gap-1.5">
-                  {product.sizes?.map((size) => (
-                    <span
-                      key={size}
-                      className="px-2 py-0.5 text-[10px] font-semibold text-zinc-400 bg-zinc-50 border border-zinc-100 rounded-sm"
-                    >
-                      {size}
+                    </div>
+                  </td>
+                  <td>
+                    <span className="font-bold text-foreground">
+                      {product.price.toLocaleString()} <span className="text-[10px] font-bold opacity-50 ml-1">EGP</span>
                     </span>
-                  ))}
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => openEditForm(product)}
-                    className="flex-1 h-10 flex items-center justify-center gap-2 text-[11px] font-semibold text-zinc-600 bg-zinc-50 border border-zinc-200 hover:border-zinc-400 rounded-sm transition-all"
-                  >
-                    <Edit2 size={12} />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() =>
-                      deleteConfirm === product.id
-                        ? handleDelete(product.id)
-                        : setDeleteConfirm(product.id)
-                    }
-                    className={`h-10 px-4 flex items-center justify-center gap-2 text-[11px] font-semibold rounded-sm transition-all border ${
-                      deleteConfirm === product.id
-                        ? "bg-red-600 text-white border-red-600"
-                        : "text-zinc-400 border-zinc-200 hover:text-red-600 hover:border-red-200"
-                    }`}
-                  >
-                    <Trash2 size={12} />
-                    {deleteConfirm === product.id ? "Confirm" : ""}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+                  </td>
+                  <td>
+                    <div className="flex flex-wrap gap-1">
+                      {product.sizes?.map((size) => (
+                        <span
+                          key={size}
+                          className="px-1.5 py-0.5 text-[9px] font-bold text-muted bg-background border border-border-light rounded uppercase"
+                        >
+                          {size}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => toggleActive(product)}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all border ${
+                        product.is_active
+                          ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                          : "bg-muted/10 text-muted border-transparent"
+                      }`}
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full ${product.is_active ? 'bg-emerald-500' : 'bg-muted opacity-50'}`}></div>
+                      {product.is_active ? "Live" : "Shadowed"}
+                    </button>
+                  </td>
+                  <td>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => openEditForm(product)}
+                        className="h-9 w-9 flex items-center justify-center text-muted hover:text-foreground hover:bg-background border border-border-light rounded-lg transition-all"
+                        title="Edit asset"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      
+                      {deleteConfirm === product.id ? (
+                        <div className="flex items-center gap-1 animate-fade-in">
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            className="h-9 px-3 text-[10px] font-bold uppercase tracking-wider bg-red-500 text-white rounded-lg"
+                          >
+                            Purge
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirm(null)}
+                            className="h-9 w-9 flex items-center justify-center text-muted hover:bg-background rounded-lg"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setDeleteConfirm(product.id)}
+                          className="h-9 w-9 flex items-center justify-center text-muted hover:text-red-500 hover:bg-red-500/10 border border-border-light rounded-lg transition-all"
+                          title="Purge asset"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {filteredProducts.length === 0 && (
+            <div className="py-24 text-center">
+              <Package size={40} className="mx-auto text-muted opacity-20 mb-4" />
+              <p className="text-sm font-bold text-muted tracking-widest uppercase italic">The grid is empty</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Add/Edit Product Modal */}
+      {/* Modal Form Overlay */}
       {showForm && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4"
-          onClick={resetForm}
-        >
+        <div className="fixed inset-0 z-[100] bg-primary/20 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 lg:p-10 animate-fade-in">
           <div
-            className="bg-white w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-sm shadow-2xl"
+            className="bg-background w-full max-w-2xl max-h-full overflow-y-auto rounded-3xl border border-secondary shadow-2xl flex flex-col scale-100 animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-zinc-100">
-              <h2 className="font-display text-lg text-zinc-900 tracking-wide">
-                {editingProduct ? "Edit Product" : "Add New Product"}
-              </h2>
-              <button
-                onClick={resetForm}
-                className="p-2 text-zinc-400 hover:text-zinc-900 transition-colors"
-              >
-                <X size={16} />
-              </button>
+            {/* Modal Head */}
+            <div className="h-20 px-8 flex items-center justify-between border-b border-border-light shrink-0">
+               <div>
+                 <h2 className="text-lg font-bold text-foreground">
+                   {editingProduct ? "Revise Asset" : "Initialize Asset"}
+                 </h2>
+                 <p className="text-[10px] text-muted font-bold tracking-[0.2em] uppercase mt-1">
+                    {editingProduct ? "ID: "+editingProduct.id : "New Inventory Object"}
+                 </p>
+               </div>
+               <button
+                 onClick={resetForm}
+                 className="p-3 text-muted hover:text-foreground hover:bg-surface rounded-xl transition-all"
+               >
+                 <X size={18} />
+               </button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="p-8 space-y-7 bg-zinc-50 border-t border-zinc-100">
-              {/* Title & Price Row */}
-              <div className="grid grid-cols-2 gap-5">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 ml-1">
-                    Title
-                  </label>
+            {/* Form Body */}
+            <form onSubmit={handleSubmit} className="p-8 space-y-10 overflow-y-auto">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted ml-1">Identity Label</label>
                   <input
                     type="text"
                     value={formData.title}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, title: e.target.value }))
-                    }
-                    className="w-full h-12 px-4 bg-white border border-transparent focus:border-zinc-300 rounded-lg shadow-sm transition-all text-sm outline-none font-medium"
-                    placeholder="E.g. Viltrum Core Compression"
+                    onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+                    className="viltrum-input"
+                    placeholder="Product Title"
                     required
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 ml-1">
-                    Price (EGP)
-                  </label>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted ml-1">Asset Value (EGP)</label>
                   <input
                     type="number"
                     value={formData.price}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, price: e.target.value }))
-                    }
-                    className="w-full h-12 px-4 bg-white border border-transparent focus:border-zinc-300 rounded-lg shadow-sm transition-all text-sm outline-none font-medium"
-                    placeholder="999"
+                    onChange={(e) => setFormData((prev) => ({ ...prev, price: e.target.value }))}
+                    className="viltrum-input"
+                    placeholder="999.00"
                     required
                   />
                 </div>
               </div>
 
-              {/* Description */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 ml-1">
-                  Short Desc
-                </label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted ml-1">Mission Specs</label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  rows={2}
-                  className="w-full p-4 bg-white border border-transparent focus:border-zinc-300 rounded-lg shadow-sm transition-all text-sm outline-none font-medium resize-none"
-                  placeholder="High-performance fabric..."
+                  onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+                  rows={3}
+                  className="viltrum-input !py-4 min-h-[100px] resize-none"
+                  placeholder="Detailed product descriptions..."
                 />
               </div>
 
-              {/* Image Upload */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
-                  Product Image
-                </label>
-                {formData.image_url ? (
-                  <div className="relative border border-zinc-100 rounded-sm overflow-hidden">
-                    <img
-                      src={formData.image_url}
-                      alt="Product"
-                      className="w-full h-44 object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFormData((prev) => ({ ...prev, image_url: "" }))
-                      }
-                      className="absolute top-3 right-3 p-2 rounded-sm text-white bg-zinc-900/70 hover:bg-zinc-900 transition-colors"
+              <div className="space-y-6">
+                 <label className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted ml-1">Visual Matrix</label>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="aspect-[4/5] border-2 border-dashed border-border-light rounded-2xl flex flex-col items-center justify-center group cursor-pointer hover:border-primary transition-all p-6 text-center"
                     >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border border-dashed border-zinc-200 p-8 text-center cursor-pointer hover:border-zinc-400 hover:bg-zinc-50 transition-all"
-                  >
-                    {uploading ? (
-                      <div className="w-6 h-6 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin mx-auto" />
-                    ) : (
-                      <>
-                        <Upload size={22} className="mx-auto text-zinc-300 mb-3" />
-                        <p className="text-sm text-zinc-500">Click to upload image</p>
-                        <p className="text-[11px] text-zinc-300 mt-1">JPG, PNG — Max 5MB</p>
-                      </>
-                    )}
-                  </div>
-                )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleImageUpload(file);
-                  }}
-                  className="hidden"
-                />
-                {/* Or paste URL */}
-                <input
-                  type="text"
-                  value={formData.image_url}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      image_url: e.target.value,
-                    }))
-                  }
-                  className="viltrum-input mt-2"
-                  placeholder="Or paste image URL"
-                />
+                       {formData.image_url ? (
+                         <div className="relative w-full h-full rounded-xl overflow-hidden shadow-inner bg-surface">
+                           <img src={formData.image_url} className="w-full h-full object-cover" />
+                           <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Upload className="text-background" size={24} />
+                           </div>
+                         </div>
+                       ) : (
+                         <>
+                           <Upload className="text-muted group-hover:text-primary transition-colors mb-4" size={32} />
+                           <p className="text-xs font-bold text-foreground">Upload Frame</p>
+                           <p className="text-[10px] text-muted mt-2">JPG, PNG up to 5MB</p>
+                         </>
+                       )}
+                    </div>
+
+                    <div className="space-y-4">
+                       <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Global Sizes</p>
+                       <div className="flex flex-wrap gap-2">
+                         {["S", "M", "L", "XL", "XXL"].map((size) => (
+                           <button
+                             key={size}
+                             type="button"
+                             onClick={() => toggleSize(size)}
+                             className={`w-12 h-12 flex items-center justify-center text-xs font-bold rounded-xl transition-all border ${
+                               formData.sizes.includes(size)
+                                 ? "bg-primary text-background border-primary"
+                                 : "bg-surface text-muted border-border-light hover:border-secondary"
+                             }`}
+                           >
+                             {size}
+                           </button>
+                         ))}
+                       </div>
+                       
+                       <div className="pt-6">
+                         <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-3">Accessibility</p>
+                         <button
+                           type="button"
+                           onClick={() => setFormData(p => ({ ...p, is_active: !p.is_active }))}
+                           className={`w-full h-14 flex items-center justify-between px-6 rounded-2xl border transition-all ${
+                             formData.is_active ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500' : 'bg-surface border-border-light text-muted'
+                           }`}
+                         >
+                           <div className="flex items-center gap-3">
+                              {formData.is_active ? <Eye size={16} /> : <EyeOff size={16} />}
+                              <span className="text-xs font-bold uppercase tracking-wider">
+                                 {formData.is_active ? 'Live Broadcast' : 'Maintenance Mode'}
+                              </span>
+                           </div>
+                           <div className={`w-2 h-2 rounded-full ${formData.is_active ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-muted'}`}></div>
+                         </button>
+                       </div>
+                    </div>
+                 </div>
+                 <input
+                   ref={fileInputRef}
+                   type="file"
+                   accept="image/*"
+                   onChange={(e) => {
+                     const file = e.target.files?.[0];
+                     if (file) handleImageUpload(file);
+                   }}
+                   className="hidden"
+                 />
               </div>
 
-              {/* Sizes */}
-              <div className="space-y-3">
-                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
-                  Available Sizes
-                </label>
-                <div className="flex gap-2">
-                  {["S", "M", "L", "XL", "XXL"].map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => toggleSize(size)}
-                      className={`h-10 px-4 text-xs font-semibold border transition-all rounded-sm ${
-                        formData.sizes.includes(size)
-                          ? "bg-zinc-900 text-white border-zinc-900"
-                          : "bg-white text-zinc-400 border-zinc-200 hover:border-zinc-400"
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Active Toggle */}
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      is_active: !prev.is_active,
-                    }))
-                  }
-                  className={`relative w-11 h-6 rounded-full transition-colors duration-300 ${
-                    formData.is_active ? "bg-emerald-600" : "bg-zinc-200"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-300 shadow-md ${
-                      formData.is_active ? "translate-x-5" : ""
-                    }`}
-                  />
-                </button>
-                <span className="text-sm text-zinc-500 flex items-center gap-2">
-                  {formData.is_active ? (
-                    <>
-                      <Eye size={14} /> Visible on store
-                    </>
-                  ) : (
-                    <>
-                      <EyeOff size={14} /> Hidden from store
-                    </>
-                  )}
-                </span>
-              </div>
-
-              {/* Submit */}
-              <div className="pt-4 border-t border-zinc-100">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="w-full h-14 flex items-center justify-center gap-2 bg-zinc-900 text-white text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-zinc-700 transition-colors rounded-sm disabled:opacity-50"
-                >
-                  <Save size={15} />
-                  {saving
-                    ? "Saving..."
-                    : editingProduct
-                    ? "Update Product"
-                    : "Add Product"}
-                </button>
+              {/* Submit Action */}
+              <div className="pt-10 flex gap-4">
+                 <button
+                   type="button"
+                   onClick={resetForm}
+                   className="flex-1 h-14 font-bold text-xs uppercase tracking-[0.2em] border border-border-light text-muted hover:text-foreground hover:bg-surface rounded-2xl transition-all"
+                 >
+                   Abort
+                 </button>
+                 <button
+                   type="submit"
+                   disabled={saving || uploading}
+                   className="flex-[2] btn-primary"
+                 >
+                   {saving ? "Commiting..." : uploading ? "Uploading Visuals..." : editingProduct ? "Confirm Revision" : "Deploy Asset"}
+                 </button>
               </div>
             </form>
           </div>

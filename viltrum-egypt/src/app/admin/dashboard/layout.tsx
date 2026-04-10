@@ -10,10 +10,10 @@ import {
   Menu,
   X,
   LayoutDashboard,
-  ChevronRight,
   BarChart3,
   Users,
   Mail,
+  Home,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -52,11 +52,11 @@ export default function AdminLayout({
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
-          <span className="text-xs tracking-[0.2em] text-zinc-400 uppercase font-medium">
-            Loading dashboard
+          <div className="w-8 h-8 border-2 border-border-light border-t-foreground rounded-full animate-spin" />
+          <span className="text-[10px] tracking-[0.2em] text-muted uppercase font-bold">
+            Authenticating
           </span>
         </div>
       </div>
@@ -68,7 +68,7 @@ export default function AdminLayout({
   const navItems = [
     {
       href: "/admin/dashboard",
-      label: "Dashboard",
+      label: "Overview",
       icon: BarChart3,
       active: pathname === "/admin/dashboard",
     },
@@ -80,7 +80,7 @@ export default function AdminLayout({
     },
     {
       href: "/admin/dashboard/products",
-      label: "Products",
+      label: "Inventory",
       icon: Package,
       active: pathname === "/admin/dashboard/products",
     },
@@ -92,107 +92,126 @@ export default function AdminLayout({
     },
     {
       href: "/admin/dashboard/users",
-      label: "Registered Users",
+      label: "Accounts",
       icon: Mail,
       active: pathname === "/admin/dashboard/users",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex overflow-hidden">
-      {/* Universal Top Header */}
-      <div className="fixed top-0 left-0 right-0 z-40 h-20 px-5 sm:px-8 flex items-center justify-between bg-white border-b border-zinc-200 shadow-sm">
-        <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-background flex overflow-hidden text-foreground">
+      {/* Universal Top Header (Mobile & Context) */}
+      <div className="fixed top-0 left-0 right-0 z-40 h-16 px-5 sm:px-8 flex items-center justify-between bg-surface/80 backdrop-blur-xl border-b border-border-light">
+        <div className="flex items-center gap-4">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2.5 -ml-2 text-zinc-500 hover:text-zinc-950 transition-colors bg-zinc-50 hover:bg-zinc-100 rounded-xl flex-shrink-0"
+            className="p-2 -ml-2 text-secondary hover:text-foreground transition-all hover:bg-background rounded-lg lg:hidden"
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-zinc-950 text-white flex items-center justify-center rounded-lg">
-              <span className="text-[11px] font-display font-bold">V</span>
+          
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-primary text-background flex items-center justify-center rounded-lg">
+              <span className="text-xs font-display font-bold">V</span>
             </div>
-            <span className="font-display text-base tracking-[0.18em] text-zinc-950 font-bold hidden sm:block">VILTRUM</span>
+            <div className="hidden sm:block">
+               <p className="text-[10px] font-bold text-muted uppercase tracking-[0.25em] leading-none mb-1">Viltrum Admin</p>
+               <p className="text-xs font-bold text-foreground tracking-tight leading-none uppercase">Console</p>
+            </div>
           </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="p-2 text-zinc-400 hover:text-zinc-950 transition-colors bg-zinc-50 hover:bg-red-50 hover:text-red-600 rounded-lg"
-        >
-          <LogOut size={18} />
-        </button>
+
+        <div className="flex items-center gap-3">
+           <Link
+             href="/"
+             className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold text-secondary bg-background border border-border-light rounded-lg hover:text-foreground transition-all uppercase tracking-wider"
+           >
+             <Home size={12} />
+             Storefront
+           </Link>
+           <button
+             onClick={handleLogout}
+             className="w-9 h-9 flex items-center justify-center text-muted hover:text-red-500 transition-colors bg-background border border-border-light rounded-lg"
+             title="Logout"
+           >
+             <LogOut size={16} />
+           </button>
+        </div>
       </div>
 
       {/* Sidebar Overlay/Drawer */}
       <aside
-         className={`fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-zinc-200 transform transition-transform duration-300 ease-out flex flex-col ${
+         className={`fixed inset-y-0 left-0 z-50 w-72 bg-surface border-r border-border-light transform transition-transform duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
         {/* Brand */}
-        <div className="h-20 px-7 flex items-center justify-between border-b border-zinc-200 shrink-0">
+        <div className="h-16 px-6 flex items-center justify-between border-b border-border-light shrink-0">
           <div className="flex items-center gap-3">
-             <div className="w-9 h-9 bg-zinc-950 text-white flex items-center justify-center rounded-lg shadow-sm">
-               <span className="font-display font-bold text-sm">V</span>
+             <div className="w-8 h-8 bg-primary text-background flex items-center justify-center rounded-lg">
+               <span className="font-display font-bold text-xs uppercase">V</span>
              </div>
              <div>
-               <p className="font-display text-base tracking-[0.15em] text-zinc-950 font-bold leading-none">VILTRUM</p>
-               <p className="text-[11px] text-zinc-400 tracking-wider font-semibold mt-1.5">ADMIN PANEL</p>
+               <p className="text-[11px] font-bold tracking-[0.2em] text-foreground leading-none">VILTRUM</p>
+               <p className="text-[9px] text-muted tracking-wide font-bold mt-1 uppercase">Management</p>
              </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="p-2 text-zinc-400 hover:text-zinc-950 transition-colors hover:bg-zinc-100 rounded-lg">
+          <button onClick={() => setSidebarOpen(false)} className="p-2 text-muted hover:text-foreground transition-colors hover:bg-background rounded-lg lg:hidden">
              <X size={18} />
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-5 py-10">
-          <p className="text-xs tracking-[0.24em] text-zinc-400 uppercase font-bold px-3 mb-5">
-            Navigation
+        <nav className="flex-1 overflow-y-auto px-4 py-8">
+          <p className="text-[10px] tracking-[0.25em] text-muted uppercase font-bold px-3 mb-6">
+            Main Menu
           </p>
-          <div className="space-y-3">
+          <div className="space-y-1.5">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3.5 px-4 py-4 text-base font-semibold transition-all duration-300 rounded-2xl ${
+                className={`flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-all duration-200 rounded-xl ${
                   item.active
-                    ? "bg-zinc-950 text-white shadow-lg shadow-zinc-950/10"
-                    : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950"
+                    ? "bg-primary text-background shadow-lg shadow-primary/10"
+                    : "text-secondary hover:bg-background hover:text-foreground"
                 }`}
               >
-                <item.icon size={18} className={item.active ? "text-white" : "text-zinc-400"} />
+                <item.icon size={16} className={item.active ? "text-background" : "text-muted group-hover:text-foreground"} />
                 {item.label}
               </Link>
             ))}
           </div>
         </nav>
 
-        {/* Bottom */}
-        <div className="p-5 border-t border-zinc-100 space-y-2 shrink-0 bg-zinc-50/50">
-          <Link
-            href="/"
-            className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-zinc-600 bg-white shadow-sm hover:text-zinc-950 hover:shadow-md transition-all rounded-xl border border-zinc-200"
-          >
-            <LayoutDashboard size={18} />
-            View Live Store
-          </Link>
+        {/* User Context */}
+        <div className="p-4 border-t border-border-light shrink-0">
+          <div className="p-4 bg-background border border-border-light rounded-2xl flex items-center gap-3">
+             <div className="w-8 h-8 rounded-full bg-surface border border-border-light flex items-center justify-center text-[10px] font-bold text-foreground">
+                AD
+             </div>
+             <div className="min-w-0">
+                <p className="text-xs font-bold text-foreground truncate">Administrator</p>
+                <p className="text-[10px] text-muted truncate">Admin Rights</p>
+             </div>
+          </div>
         </div>
       </aside>
 
       {/* Universal Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-zinc-950/40 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 z-40 bg-primary/20 backdrop-blur-sm transition-opacity lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full min-h-screen pt-20 overflow-y-auto bg-zinc-50/50">
-        <div className="p-5 sm:p-8 lg:p-12 max-w-[1500px] mx-auto">{children}</div>
+      <main className="flex-1 w-full min-h-screen pt-16 overflow-y-auto bg-background transition-all lg:ml-72">
+        <div className="p-4 sm:p-8 lg:p-10 max-w-7xl mx-auto">
+          {children}
+        </div>
       </main>
     </div>
   );

@@ -13,20 +13,24 @@ import {
   MapPin,
   X,
   RefreshCw,
-  ShoppingCart,
   ChevronDown,
   ChevronUp,
   Search,
   XCircle,
   DollarSign,
+  User,
+  ArrowRight,
+  ExternalLink,
+  ShoppingCart,
+  Trash2,
 } from "lucide-react";
 
 const STATUS_CONFIG = {
-  pending: { label: "Pending", bg: "bg-amber-50", text: "text-amber-700", icon: Clock },
-  confirmed: { label: "Confirmed", bg: "bg-blue-50", text: "text-blue-700", icon: CheckCircle },
-  shipped: { label: "Shipped", bg: "bg-purple-50", text: "text-purple-700", icon: Truck },
-  delivered: { label: "Delivered", bg: "bg-emerald-50", text: "text-emerald-700", icon: PackageCheck },
-  cancelled: { label: "Cancelled", bg: "bg-red-50", text: "text-red-600", icon: XCircle },
+  pending: { label: "Pending", bg: "bg-amber-500/10", border: "border-amber-500/20", text: "text-amber-500", icon: Clock },
+  confirmed: { label: "Confirmed", bg: "bg-blue-500/10", border: "border-blue-500/20", text: "text-blue-500", icon: CheckCircle },
+  shipped: { label: "Shipped", bg: "bg-purple-500/10", border: "border-purple-500/20", text: "text-purple-500", icon: Truck },
+  delivered: { label: "Delivered", bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-500", icon: PackageCheck },
+  cancelled: { label: "Cancelled", bg: "bg-red-500/10", border: "border-red-500/20", text: "text-red-500", icon: XCircle },
 };
 
 const STATUSES = ["pending", "confirmed", "shipped", "delivered"] as const;
@@ -94,9 +98,9 @@ export default function AdminOrdersPage() {
     return (
       <div className="flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
-          <span className="text-xs tracking-[0.2em] text-zinc-400 uppercase font-medium">
-            Loading orders
+          <div className="w-8 h-8 border-2 border-border-light border-t-foreground rounded-full animate-spin" />
+          <span className="text-[10px] tracking-[0.25em] text-muted uppercase font-bold">
+            Ingesting Orders
           </span>
         </div>
       </div>
@@ -104,265 +108,272 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-12 animate-fade-in max-w-[1400px] mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-8 pb-4">
         <div>
-          <h1 className="font-display text-3xl sm:text-4xl text-zinc-900 tracking-wide">
+          <span className="text-[10px] font-bold text-muted uppercase tracking-[0.3em] block mb-2">Operations</span>
+          <h1 className="text-4xl sm:text-5xl font-bold text-foreground border-l-4 border-primary pl-6 leading-none">
             Orders
           </h1>
-          <p className="text-base text-zinc-500 mt-2">
-            {orders.length} total · {pendingCount} pending
-          </p>
+          <p className="text-secondary text-sm font-medium mt-4 italic">Monitor and manage global customer transactions.</p>
         </div>
         <button
           onClick={fetchOrders}
-          className="inline-flex items-center gap-2 h-11 px-5 text-xs font-semibold text-zinc-500 border border-zinc-200 hover:border-zinc-400 hover:text-zinc-900 transition-all rounded-lg"
+          className="btn-outline flex items-center gap-2"
         >
-          <RefreshCw size={13} />
-          Refresh
+          <RefreshCw size={14} />
+          Sync Data
         </button>
       </div>
 
-      {/* Search & Filter */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-300" />
+      {/* Stats Board */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+         {[
+           { label: "Total Flow", value: orders.length, color: "text-foreground" },
+           { label: "Critical (Pending)", value: pendingCount, color: "text-amber-500" },
+           { label: "Total Volume", value: `${orders.reduce((sum, o) => sum + o.total, 0).toLocaleString()} EGP`, color: "text-foreground" },
+           { label: "Fulfillment", value: `${orders.length > 0 ? ((orders.filter(o => o.status === 'delivered').length / orders.length) * 100).toFixed(0) : 0}%`, color: "text-emerald-500" },
+         ].map((s, i) => (
+           <div key={i} className="bg-surface border border-border-light p-6 rounded-2xl">
+              <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-3">{s.label}</p>
+              <p className={`text-2xl font-bold tracking-tight ${s.color}`}>{s.value}</p>
+           </div>
+         ))}
+      </div>
+
+      {/* Control Strip */}
+      <div className="flex flex-col lg:flex-row gap-5 items-center">
+        <div className="relative flex-1 w-full">
+          <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, phone, or order #..."
-            className="w-full h-11 pl-10 pr-4 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-900 placeholder-zinc-300 focus:outline-none focus:border-zinc-400"
+            placeholder="Search identity, phone or order code..."
+            className="viltrum-input pl-11 !min-h-[2.75rem]"
           />
         </div>
-        <div className="flex gap-1.5 overflow-x-auto">
+        <div className="flex gap-2 p-1 bg-surface border border-border-light rounded-xl overflow-x-auto w-full lg:w-auto">
           {["all", "pending", "confirmed", "shipped", "delivered"].map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-            className={`h-11 px-4 text-xs font-semibold capitalize border rounded-lg whitespace-nowrap transition-all ${
+              className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap ${
                 statusFilter === s
-                  ? "bg-zinc-900 text-white border-zinc-900"
-                  : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400"
+                  ? "bg-primary text-background shadow-md shadow-primary/10"
+                  : "text-muted hover:text-foreground"
               }`}
             >
-              {s === "all" ? `All (${orders.length})` : `${s} (${orders.filter((o) => o.status === s).length})`}
+              {s} ({s === 'all' ? orders.length : orders.filter(o => o.status === s).length})
             </button>
           ))}
         </div>
       </div>
 
-      {/* Orders List */}
+      {/* Orders Grid/Table */}
       {filteredOrders.length === 0 ? (
-        <div className="text-center py-24 bg-white border border-zinc-200 rounded-xl">
-          <ShoppingCart size={32} className="mx-auto text-zinc-200 mb-4" />
-          <p className="text-sm text-zinc-400">
-            {searchQuery ? "No orders match your search" : "No orders yet"}
-          </p>
+        <div className="py-32 text-center bg-surface border border-border-light rounded-[2.5rem]">
+           <ShoppingCart size={40} className="mx-auto text-muted opacity-20 mb-4" />
+           <p className="text-sm font-bold text-muted tracking-widest uppercase italic">Transaction log is clean</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {filteredOrders.map((order) => {
             const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
             const isExpanded = expandedOrder === order.id;
             const items = Array.isArray(order.items) ? order.items : [];
 
             return (
-              <div key={order.id} className="bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-sm transition-shadow">
-                {/* Order Header Row */}
-                <div
-                  className="px-6 py-5 flex items-center justify-between cursor-pointer hover:bg-zinc-50/70 transition-colors"
+              <div 
+                key={order.id} 
+                className={`bg-surface border rounded-[1.5rem] transition-all duration-300 overflow-hidden ${
+                  isExpanded ? 'border-primary shadow-xl ring-1 ring-primary/5' : 'border-border-light hover:border-secondary shadow-sm'
+                }`}
+              >
+                {/* Visual Strip */}
+                <div 
+                  className="px-6 py-5 flex items-center justify-between cursor-pointer group"
                   onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
                 >
-                  <div className="flex items-center gap-5 min-w-0">
-                    {/* Customer Avatar */}
-                    <div className="w-11 h-11 rounded-full bg-zinc-100 flex-shrink-0 flex items-center justify-center text-sm font-display font-bold text-zinc-500">
+                  <div className="flex items-center gap-6 min-w-0">
+                    <div className="w-12 h-12 rounded-2xl bg-background border border-border-light flex-shrink-0 flex items-center justify-center text-sm font-bold text-foreground shadow-sm group-hover:bg-primary group-hover:text-background transition-all">
                       {order.customer_name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <span className="font-display font-bold text-zinc-900 text-lg">
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-foreground text-lg tracking-tight">
                           #{order.order_number}
                         </span>
-                        <span className={`px-2.5 py-0.5 text-[10px] font-semibold rounded-full ${config.bg} ${config.text}`}>
+                        <div className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg border ${config.bg} ${config.text} ${config.border}`}>
                           {config.label}
-                        </span>
+                        </div>
                       </div>
-                      <p className="text-[13px] text-zinc-500 mt-1 truncate">
-                        {order.customer_name} · {new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
+                      <p className="text-xs font-bold text-muted mt-1 truncate uppercase tracking-widest">
+                        {order.customer_name} · {new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 flex-shrink-0">
-                    <span className="font-display font-bold text-zinc-900 text-base">
-                      EGP {order.total}
-                    </span>
-                    {isExpanded ? (
-                      <ChevronUp size={16} className="text-zinc-300" />
-                    ) : (
-                      <ChevronDown size={16} className="text-zinc-300" />
-                    )}
+
+                  <div className="flex items-center gap-6">
+                    <div className="text-right hidden sm:block">
+                       <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Grand Total</p>
+                       <p className="text-lg font-bold text-foreground leading-none mt-1">{order.total.toLocaleString()} <span className="text-xs opacity-50">EGP</span></p>
+                    </div>
+                    <div className="p-2 rounded-xl bg-background border border-border-light text-muted group-hover:text-primary transition-all">
+                       {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </div>
                   </div>
                 </div>
 
-                {/* Expanded Details */}
+                {/* Content Reveal */}
                 {isExpanded && (
-                  <div className="border-t border-zinc-100">
-                    <div className="p-6 space-y-6">
-                      {/* Customer Info */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                        <div className="flex items-start gap-3 bg-zinc-50 rounded-xl p-4">
-                          <Phone size={14} className="text-zinc-400 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Phone</p>
-                            <p className="text-sm text-zinc-900 mt-0.5">{order.customer_phone}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3 bg-zinc-50 rounded-xl p-4">
-                          <MapPin size={14} className="text-zinc-400 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Address</p>
-                            <p className="text-sm text-zinc-900 mt-0.5">{order.customer_address}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3 bg-zinc-50 rounded-xl p-4">
-                          <DollarSign size={14} className="text-zinc-400 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Payment</p>
-                            <p className="text-sm text-zinc-900 mt-0.5">
-                              {order.payment_method === "vodafone_cash" ? "Vodafone Cash" : "InstaPay"}
-                            </p>
-                          </div>
-                        </div>
+                  <div className="px-8 pb-8 pt-4 border-t border-border-light animate-in slide-in-from-top-2 duration-300 bg-background/30">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                      
+                      {/* Technical Info */}
+                      <div className="lg:col-span-4 space-y-6">
+                         <div className="space-y-4">
+                            <h4 className="text-[10px] font-bold text-muted uppercase tracking-[0.25em]">Customer Coordinates</h4>
+                            
+                            <div className="p-4 bg-background border border-border-light rounded-2xl space-y-4">
+                               <div className="flex items-start gap-4">
+                                  <div className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-muted"><Phone size={14} /></div>
+                                  <div>
+                                     <p className="text-[9px] font-bold text-muted uppercase tracking-widest">Voice/Data</p>
+                                     <p className="text-sm font-bold text-foreground mt-0.5">{order.customer_phone}</p>
+                                  </div>
+                               </div>
+                               <div className="flex items-start gap-4">
+                                  <div className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-muted"><MapPin size={14} /></div>
+                                  <div>
+                                     <p className="text-[9px] font-bold text-muted uppercase tracking-widest">Physical Location</p>
+                                     <p className="text-sm font-bold text-foreground mt-0.5 leading-relaxed">{order.customer_address}</p>
+                                  </div>
+                               </div>
+                               <div className="flex items-start gap-4">
+                                  <div className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-muted"><DollarSign size={14} /></div>
+                                  <div>
+                                     <p className="text-[9px] font-bold text-muted uppercase tracking-widest">Payment Protocol</p>
+                                     <p className="text-sm font-bold text-foreground mt-0.5 uppercase">{order.payment_method?.replace('_', ' ')}</p>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+
+                         {order.payment_screenshot_url && (
+                           <button
+                             onClick={() => setScreenshotModal(order.payment_screenshot_url)}
+                             className="w-full p-4 bg-primary text-background rounded-2xl flex items-center justify-between group hover:opacity-90 transition-all font-bold text-xs uppercase tracking-widest"
+                           >
+                             <span>Verification Proof</span>
+                             <ExternalLink size={14} />
+                           </button>
+                         )}
                       </div>
 
-                      {/* Items */}
-                      <div>
-                        <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold mb-3">
-                          Order Items ({items.length})
-                        </p>
-                        <div className="space-y-2">
+                      {/* Item Matrix */}
+                      <div className="lg:col-span-8 space-y-6">
+                        <div className="flex justify-between items-center">
+                           <h4 className="text-[10px] font-bold text-muted uppercase tracking-[0.25em]">Unit Inventory ({items.length})</h4>
+                           <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">Order Hash: {order.id.split('-')[0]}</span>
+                        </div>
+                        
+                        <div className="space-y-3">
                           {items.map((item, i) => (
                             <div
                               key={i}
-                              className="flex justify-between items-center py-2.5 px-4 bg-zinc-50 rounded-lg"
+                              className="flex justify-between items-center p-4 bg-surface border border-border-light rounded-2xl hover:border-secondary transition-all"
                             >
-                              <div>
-                                <p className="text-sm font-medium text-zinc-900">{item.title}</p>
-                                <p className="text-[11px] text-zinc-400 mt-0.5">
-                                  Size: {item.size} · Qty: {item.quantity}
-                                </p>
+                              <div className="flex items-center gap-4">
+                                 <div className="w-10 h-10 bg-background rounded-lg flex items-center justify-center text-muted opacity-50"><PackageCheck size={18} /></div>
+                                 <div>
+                                   <p className="text-sm font-bold text-foreground leading-none">{item.title}</p>
+                                   <p className="text-[10px] text-muted font-bold mt-1.5 uppercase tracking-widest">
+                                     Size {item.size} · {item.quantity} Units
+                                   </p>
+                                 </div>
                               </div>
-                              <span className="text-sm font-display font-bold text-zinc-900">
-                                EGP {item.price * item.quantity}
+                              <span className="font-bold text-foreground">
+                                {(item.price * item.quantity).toLocaleString()} <span className="text-[10px] opacity-40 ml-1">EGP</span>
                               </span>
                             </div>
                           ))}
                         </div>
-                      </div>
 
-                      {/* Actions */}
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-3 border-t border-zinc-100">
-                        {/* Screenshot */}
-                        <div className="flex gap-2">
-                          {order.payment_screenshot_url && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setScreenshotModal(order.payment_screenshot_url);
-                              }}
-                              className="inline-flex items-center gap-2 h-9 px-4 text-[11px] font-semibold text-zinc-500 border border-zinc-200 hover:border-zinc-400 hover:text-zinc-900 transition-all rounded-md"
-                            >
-                              <ImageIcon size={13} />
-                              Payment Proof
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Status Actions */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {/* Quick Actions */}
-                          {order.status === "pending" && (
-                            <>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  updateStatus(order.id, "confirmed");
-                                }}
-                                className="h-9 px-4 text-[11px] font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors inline-flex items-center gap-1.5"
-                              >
-                                <CheckCircle size={13} />
-                                Confirm Order
-                              </button>
-                            </>
-                          )}
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              if (confirm("Are you sure you want to COMPLETELY DELETE this order? This cannot be undone.")) {
-                                const { error } = await supabase.from("orders").delete().eq("id", order.id);
-                                if (!error) {
-                                  setOrders(orders.filter(o => o.id !== order.id));
-                                } else {
-                                  alert("Failed to delete order.");
-                                }
-                              }
-                            }}
-                            className="h-9 px-4 text-[11px] font-semibold text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 rounded-md transition-colors inline-flex items-center gap-1.5"
-                          >
-                            <XCircle size={13} />
-                            Delete
-                          </button>
-                          {order.status === "confirmed" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                updateStatus(order.id, "shipped");
-                              }}
-                              className="h-9 px-4 text-[11px] font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors inline-flex items-center gap-1.5"
-                            >
-                              <Truck size={13} />
-                              Mark Shipped
-                            </button>
-                          )}
-                          {order.status === "shipped" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                updateStatus(order.id, "delivered");
-                              }}
-                              className="h-9 px-4 text-[11px] font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md transition-colors inline-flex items-center gap-1.5"
-                            >
-                              <PackageCheck size={13} />
-                              Mark Delivered
-                            </button>
-                          )}
-
-                          {/* All status buttons */}
-                          <div className="hidden sm:flex items-center gap-1 ml-2 pl-2 border-l border-zinc-100">
-                            {STATUSES.map((status) => {
-                              const sc = STATUS_CONFIG[status];
-                              return (
+                        {/* Status Management */}
+                        <div className="pt-8 border-t border-border-light">
+                           <h4 className="text-[10px] font-bold text-muted uppercase tracking-[0.25em] mb-5">Command Control</h4>
+                           <div className="flex flex-wrap items-center gap-3">
+                              {/* Workflow Actions */}
+                              {order.status === "pending" && (
                                 <button
-                                  key={status}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updateStatus(order.id, status);
-                                  }}
-                                  className={`px-2.5 py-1 text-[10px] font-semibold rounded-md transition-all ${
-                                    order.status === status
-                                      ? `${sc.bg} ${sc.text}`
-                                      : "text-zinc-300 hover:text-zinc-500"
-                                  }`}
+                                  onClick={() => updateStatus(order.id, "confirmed")}
+                                  className="h-12 px-6 bg-primary text-background font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
                                 >
-                                  {sc.label}
+                                  <CheckCircle size={16} />
+                                  Confirm Mission
                                 </button>
-                              );
-                            })}
-                          </div>
+                              )}
+                              
+                              {order.status === "confirmed" && (
+                                <button
+                                  onClick={() => updateStatus(order.id, "shipped")}
+                                  className="h-12 px-6 bg-primary text-background font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
+                                >
+                                  <Truck size={16} />
+                                  Commence Logistics
+                                </button>
+                              )}
+
+                              {order.status === "shipped" && (
+                                <button
+                                  onClick={() => updateStatus(order.id, "delivered")}
+                                  className="h-12 px-6 bg-primary text-background font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all flex items-center gap-2"
+                                >
+                                  <PackageCheck size={16} />
+                                  Confirm Delivery
+                                </button>
+                              )}
+
+                              <div className="h-10 w-px bg-border-light mx-2"></div>
+
+                              {/* Universal Toggles */}
+                              <div className="flex gap-1.5 p-1 bg-background border border-border-light rounded-xl">
+                                {STATUSES.map((status) => {
+                                  const sc = STATUS_CONFIG[status];
+                                  return (
+                                    <button
+                                      key={status}
+                                      onClick={() => updateStatus(order.id, status)}
+                                      className={`px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-lg transition-all ${
+                                        order.status === status
+                                          ? "bg-surface text-foreground shadow-sm ring-1 ring-border-light"
+                                          : "text-muted hover:text-foreground"
+                                      }`}
+                                    >
+                                      {sc.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              <button
+                                onClick={async () => {
+                                  if (confirm("Executing high-level purge. Confirm deletion of order data?")) {
+                                    const { error } = await supabase.from("orders").delete().eq("id", order.id);
+                                    if (!error) setOrders(orders.filter(o => o.id !== order.id));
+                                  }
+                                }}
+                                className="h-10 w-10 flex items-center justify-center text-muted hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all ml-auto"
+                                title="Purge Record"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                           </div>
                         </div>
                       </div>
+
                     </div>
                   </div>
                 )}
@@ -372,27 +383,27 @@ export default function AdminOrdersPage() {
         </div>
       )}
 
-      {/* Screenshot Modal */}
+      {/* Proof Modal */}
       {screenshotModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[110] bg-primary/40 backdrop-blur-xl flex items-center justify-center p-4 lg:p-10 animate-fade-in"
           onClick={() => setScreenshotModal(null)}
         >
           <div
-            className="bg-white max-w-lg w-full overflow-hidden rounded-lg shadow-2xl"
+            className="bg-background max-w-2xl w-full max-h-full overflow-y-auto rounded-3xl border border-secondary shadow-2xl scale-100 animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between p-4 border-b border-zinc-100">
-              <h3 className="font-display text-sm text-zinc-900">Payment Screenshot</h3>
+            <div className="h-16 px-6 flex items-center justify-between border-b border-border-light sticky top-0 bg-background/80 backdrop-blur-md z-10">
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-widest">Verification Protocol Image</h3>
               <button
                 onClick={() => setScreenshotModal(null)}
-                className="p-1.5 text-zinc-400 hover:text-zinc-900 transition-colors"
+                className="p-2 text-muted hover:text-foreground hover:bg-surface rounded-xl transition-all"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
-            <div className="p-4">
-              <img src={screenshotModal} alt="Payment proof" className="w-full rounded-md" />
+            <div className="p-8">
+              <img src={screenshotModal} alt="Payment proof" className="w-full rounded-2xl shadow-lg border border-border-light" />
             </div>
           </div>
         </div>

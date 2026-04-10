@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Users, Phone, MapPin, DollarSign, Search, ExternalLink } from "lucide-react";
+import { Users, Phone, MapPin, DollarSign, Search, ExternalLink, Trophy, Package, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 interface Customer {
-  id: string; // Using phone map for unique ID
+  id: string; 
   name: string;
   phone: string;
   address: string;
@@ -30,7 +30,6 @@ export default function AdminCustomersPage() {
           .order("created_at", { ascending: false });
 
         if (!error && orders) {
-          // Aggregate by phone number (acting as unique customer ID)
           const customerMap = new Map<string, Customer>();
 
           orders.forEach((order) => {
@@ -49,11 +48,9 @@ export default function AdminCustomersPage() {
             
             const cust = customerMap.get(phone)!;
             cust.totalOrders += 1;
-            // Only count completed revenue
             if (order.status !== 'cancelled') {
               cust.totalSpent += order.total;
             }
-            // Update address/name if it's a newer order (assuming descending creation date sort)
             if (new Date(order.created_at) > new Date(cust.lastOrderDate)) {
                cust.lastOrderDate = order.created_at;
                cust.address = order.customer_address;
@@ -83,146 +80,185 @@ export default function AdminCustomersPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-32">
-        <div className="w-8 h-8 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
+      <div className="flex items-center justify-center py-24">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-border-light border-t-foreground rounded-full animate-spin" />
+          <span className="text-[10px] tracking-[0.25em] text-muted uppercase font-bold">
+            Analytics Node Active
+          </span>
+        </div>
       </div>
     );
   }
 
-  const topCustomer = customers[0]; // Already sorted by totalSpent
+  const topCustomer = customers[0];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto bg-[#f4f5f7] min-h-screen p-5 sm:p-8 lg:p-10 rounded-2xl">
+    <div className="space-y-12 animate-fade-in max-w-[1400px] mx-auto">
       {/* Header */}
-      <div className="pb-6 border-b border-zinc-200/60 mb-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-8 pb-4">
         <div>
-           <h1 className="text-3xl sm:text-4xl font-display text-zinc-800 tracking-tight">
-             Customers CRM
-           </h1>
-           <p className="text-base text-zinc-500 mt-2">Manage and view your top clientele</p>
+          <span className="text-[10px] font-bold text-muted uppercase tracking-[0.3em] block mb-2">Relational Intelligence</span>
+          <h1 className="text-4xl sm:text-5xl font-bold text-foreground border-l-4 border-primary pl-6 leading-none">
+            Clientele
+          </h1>
+          <p className="text-secondary text-sm font-medium mt-4 italic">Analysis of high-value customer interactions and lifecycle.</p>
         </div>
-        <div className="bg-white px-4 py-2 rounded-lg border border-zinc-100 shadow-sm flex items-center gap-3">
-           <Users size={18} className="text-violet-600" />
+        <div className="flex items-center gap-3 bg-surface border border-border-light px-5 py-3 rounded-2xl">
+           <Users size={18} className="text-primary" />
            <div>
-              <p className="text-xs text-zinc-400 font-semibold uppercase tracking-wider">Total Base</p>
-              <p className="text-lg font-display font-bold text-zinc-900">{customers.length}</p>
+              <p className="text-[9px] text-muted font-bold uppercase tracking-wider">Unique Entities</p>
+              <p className="text-lg font-bold text-foreground leading-none mt-0.5">{customers.length}</p>
            </div>
         </div>
       </div>
 
-      {/* Highlights */}
+      {/* Spotlight Segment */}
       {topCustomer && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-           <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-2xl p-8 shadow-md text-white relative overflow-hidden">
-               <div className="absolute -right-10 -top-10 w-32 h-32 bg-zinc-700/30 rounded-full blur-2xl"></div>
-               <h3 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-4">Top Customer</h3>
-               <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center font-display text-xl">
-                     {topCustomer.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-display text-xl">{topCustomer.name}</p>
-                    <p className="text-white/60 text-sm mt-0.5">{topCustomer.phone}</p>
-                  </div>
-               </div>
-               <div className="mt-6 flex items-center gap-6">
-                  <div>
-                     <p className="text-xs text-white/50 mb-1 font-medium">LTV (Lifetime Value)</p>
-                     <p className="font-display text-2xl text-emerald-400">{topCustomer.totalSpent.toLocaleString()} EGP</p>
-                  </div>
-                  <div>
-                     <p className="text-xs text-white/50 mb-1 font-medium">Orders</p>
-                     <p className="font-display text-2xl">{topCustomer.totalOrders}</p>
-                  </div>
-               </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+           <div className="lg:col-span-8 bg-primary rounded-[2.5rem] p-10 relative overflow-hidden group shadow-2xl shadow-primary/10">
+              <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                <div className="space-y-6">
+                   <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-background/20 rounded-xl flex items-center justify-center">
+                         <Trophy size={20} className="text-background" />
+                      </div>
+                      <span className="text-[10px] font-bold text-background/60 uppercase tracking-[0.3em]">Tier 1 Customer</span>
+                   </div>
+                   
+                   <div>
+                      <h2 className="text-3xl font-bold text-background leading-none">{topCustomer.name}</h2>
+                      <p className="text-background/50 font-bold text-sm mt-3 uppercase tracking-widest">{topCustomer.phone}</p>
+                   </div>
+                   
+                   <div className="flex gap-10">
+                      <div>
+                        <p className="text-[10px] font-bold text-background/40 uppercase tracking-widest mb-1">Lifetime Value</p>
+                        <p className="text-3xl font-bold text-background">{topCustomer.totalSpent.toLocaleString()} <span className="text-xs opacity-50">EGP</span></p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-background/40 uppercase tracking-widest mb-1">Transaction Frequency</p>
+                        <p className="text-3xl font-bold text-background">{topCustomer.totalOrders} <span className="text-xs opacity-50">Orders</span></p>
+                      </div>
+                   </div>
+                </div>
+
+                <Link 
+                  href={`/admin/dashboard/orders?search=${topCustomer.phone}`}
+                  className="bg-background text-primary px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-transform shadow-xl"
+                >
+                  Inspect Activity
+                </Link>
+              </div>
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 -mr-20 -mt-20 rounded-full blur-3xl"></div>
+           </div>
+
+           <div className="lg:col-span-4 bg-surface border border-border-light rounded-[2.5rem] p-10 flex flex-col justify-between">
+              <div>
+                <h3 className="text-[10px] font-bold text-muted uppercase tracking-[0.3em] mb-6">CRM Insights</h3>
+                <div className="space-y-6">
+                   <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-background border border-border-light flex items-center justify-center text-muted"><Package size={18}/></div>
+                      <div>
+                         <p className="text-sm font-bold text-foreground">Retention Rate</p>
+                         <p className="text-xs text-secondary mt-1">Consistent repurchase detected in {((customers.filter(c => c.totalOrders > 1).length / customers.length) * 100).toFixed(0)}% of base.</p>
+                      </div>
+                   </div>
+                </div>
+              </div>
+              <div className="pt-6 border-t border-border-light mt-6">
+                 <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Global Ranking System active</p>
+              </div>
            </div>
         </div>
       )}
 
-      {/* Main CRM Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-zinc-100 overflow-hidden">
-        {/* Toolbar */}
-        <div className="p-4 border-b border-zinc-100 flex flex-col sm:flex-row gap-4 justify-between items-center bg-zinc-50/50">
-           <div className="relative w-full sm:w-80">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+      {/* CRM Database */}
+      <div className="bg-surface border border-border-light rounded-[2rem] overflow-hidden shadow-sm">
+        <div className="p-6 border-b border-border-light bg-background/50 flex flex-col sm:flex-row gap-4 justify-between items-center">
+           <div className="relative w-full sm:w-96 group">
+              <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-foreground transition-all" />
               <input
                 type="text"
-                placeholder="Search customers..."
+                placeholder="Search by identity or contact sequence..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+                className="viltrum-input pl-11 !min-h-[2.5rem]"
               />
            </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="admin-table">
             <thead>
-              <tr className="bg-zinc-50 border-b border-zinc-100">
-                <th className="px-6 py-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Customer</th>
-                <th className="px-6 py-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Contact</th>
-                <th className="px-6 py-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Orders</th>
-                <th className="px-6 py-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Total Spent</th>
-                <th className="px-6 py-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Last Activity</th>
-                <th className="px-6 py-4"></th>
+              <tr>
+                <th>Candidate Entity</th>
+                <th>Communication & Local</th>
+                <th>Engagement</th>
+                <th>Financial Weight</th>
+                <th>Last Ping</th>
+                <th className="text-right">Access</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100">
+            <tbody>
               {filteredCustomers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-zinc-400 text-sm">
-                    {searchQuery ? "No customers found matching your search." : "No customers yet."}
+                  <td colSpan={6} className="py-24 text-center">
+                    <Users size={40} className="mx-auto text-muted opacity-20 mb-4" />
+                    <p className="text-sm font-bold text-muted tracking-widest uppercase italic">Entity cloud is sparse</p>
                   </td>
                 </tr>
               ) : (
                 filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-zinc-50/80 transition-colors group">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-display font-bold text-xs">
+                  <tr key={customer.id}>
+                    <td>
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-background border border-border-light text-foreground flex items-center justify-center font-bold text-xs shadow-sm">
                           {customer.name.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <p className="font-medium text-zinc-900 text-sm">{customer.name}</p>
-                        </div>
+                        <p className="font-bold text-foreground text-sm">{customer.name}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="text-zinc-600 text-sm flex items-center gap-2">
-                        <Phone size={12} className="text-zinc-400" />
-                        {customer.phone}
-                      </p>
-                      <p className="text-zinc-400 text-xs mt-1 truncate max-w-[150px] flex items-center gap-2" title={customer.address}>
-                        <MapPin size={12} />
-                        {customer.address}
-                      </p>
+                    <td>
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-foreground flex items-center gap-2">
+                           <Phone size={12} className="text-muted" />
+                           {customer.phone}
+                        </p>
+                        <p className="text-[10px] text-muted font-bold tracking-tight flex items-center gap-2 uppercase truncate max-w-[180px]" title={customer.address}>
+                           <MapPin size={12} className="text-muted" />
+                           {customer.address}
+                        </p>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                       <span className="inline-flex items-center justify-center px-2.5 py-1 text-xs font-medium bg-zinc-100 text-zinc-700 rounded-lg">
-                          {customer.totalOrders} {customer.totalOrders === 1 ? 'order' : 'orders'}
+                    <td>
+                       <span className="px-2.5 py-1 text-[10px] font-bold text-muted bg-background border border-border-light rounded-lg uppercase tracking-wider">
+                          {customer.totalOrders} {customer.totalOrders === 1 ? 'Record' : 'Records'}
                        </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-display font-bold text-emerald-600 text-sm">
-                        {customer.totalSpent.toLocaleString()} EGP
+                    <td>
+                      <span className="font-bold text-foreground">
+                        {customer.totalSpent.toLocaleString()} <span className="text-[10px] opacity-40 ml-1">EGP</span>
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
-                      {new Date(customer.lastOrderDate).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric"
-                      })}
+                    <td>
+                      <span className="text-[10px] font-bold text-muted uppercase tracking-widest">
+                        {new Date(customer.lastOrderDate).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                       <Link 
-                         href={`/admin/dashboard/orders?search=${customer.phone}`}
-                         className="p-2 text-zinc-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors inline-block opacity-0 group-hover:opacity-100"
-                         title="View Orders"
-                       >
-                         <ExternalLink size={16} />
-                       </Link>
+                    <td>
+                       <div className="flex justify-end">
+                          <Link 
+                            href={`/admin/dashboard/orders?search=${customer.phone}`}
+                            className="w-9 h-9 flex items-center justify-center text-muted hover:text-primary hover:bg-background border border-border-light rounded-lg transition-all"
+                            title="Inspect Linked Orders"
+                          >
+                            <ArrowUpRight size={16} />
+                          </Link>
+                       </div>
                     </td>
                   </tr>
                 ))
