@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Check, Minus, Plus, ArrowLeft } from "lucide-react";
+import { ShoppingBag, Check, Minus, Plus, ArrowLeft, Truck, Shield } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Product } from "@/types";
 import { formatPrice } from "@/lib/utils";
@@ -64,16 +64,16 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-border-light border-t-foreground" />
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-slate-50 px-6">
-        <h1 className="text-3xl font-extrabold text-zinc-900">Product Not Found</h1>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6">
+        <h1 className="text-2xl font-bold text-foreground">Product Not Found</h1>
         <Link href="/products" className="btn-primary">
           Back to Products
         </Link>
@@ -88,66 +88,69 @@ export default function ProductDetailPage() {
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="min-h-screen bg-slate-50 pt-24 sm:pt-28">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
+      <main className="min-h-screen bg-background pt-20 sm:pt-24">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-6">
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 text-sm font-medium text-zinc-600 transition-colors duration-300 hover:text-zinc-900"
+            className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-foreground"
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={15} />
             <span>Back to products</span>
           </Link>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pb-28 sm:pb-40">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-            <div className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4" style={{ aspectRatio: "4/5" }}>
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 pb-20 sm:pb-28">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+            {/* Image */}
+            <div className="relative overflow-hidden rounded-2xl bg-surface border border-border-light" style={{ aspectRatio: "4/5" }}>
               {product.image_url ? (
                 <Image
                   src={product.image_url}
                   alt={product.title}
                   fill
-                  className="object-cover object-center rounded-2xl"
+                  className="object-cover object-center"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-8xl font-bold text-zinc-400">V</span>
+                  <span className="text-7xl font-display text-muted/20">V</span>
                 </div>
               )}
             </div>
 
-            <div className="flex flex-col justify-center py-8 lg:py-16">
+            {/* Details */}
+            <div className="flex flex-col justify-center py-4 lg:py-8">
               <div className="max-w-md">
-                <div className="space-y-4 mb-10">
-                  <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-zinc-900 sm:text-5xl md:text-6xl">
+                <div className="space-y-2 mb-8">
+                  <h1 className="text-3xl font-bold leading-tight text-foreground sm:text-4xl">
                     {product.title}
                   </h1>
-                  <p className="text-2xl font-bold tracking-wide text-zinc-600 sm:text-3xl">
+                  <p className="text-2xl font-bold text-secondary">
                     {formatPrice(product.price)}
                   </p>
                 </div>
 
                 {product.description && (
-                  <p className="text-base sm:text-lg leading-relaxed text-zinc-600 mb-12 font-light">
+                  <p className="text-base leading-relaxed text-secondary mb-8">
                     {product.description}
                   </p>
                 )}
 
-                <div className="space-y-4 mb-10">
-                  <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+                {/* Size */}
+                <div className="space-y-3 mb-8">
+                  <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">
                     Size
                   </label>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2">
                     {availableSizes.map((size) => (
                       <button
                         key={size}
                         onClick={() => setSelectedSize(size)}
-                        className={`flex h-12 w-14 items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 sm:h-14 sm:w-16 ${
+                        className={`flex h-11 w-14 items-center justify-center rounded-lg text-sm font-semibold transition-all duration-200 ${
                           selectedSize === size
-                            ? "bg-zinc-900 text-white"
-                            : "bg-white text-zinc-600 hover:text-zinc-900"
+                            ? "bg-primary text-background"
+                            : "bg-surface border border-border-light text-secondary hover:text-foreground hover:border-secondary"
                         }`}
                       >
                         {size}
@@ -156,60 +159,66 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                <div className="space-y-4 mb-12">
-                  <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+                {/* Quantity */}
+                <div className="space-y-3 mb-8">
+                  <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">
                     Quantity
                   </label>
-                  <div className="inline-flex items-center rounded-xl border border-zinc-200 bg-white">
+                  <div className="inline-flex items-center rounded-lg border border-border-light bg-surface">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="flex h-12 w-12 items-center justify-center text-zinc-600 transition-colors hover:text-zinc-900"
+                      className="flex h-11 w-11 items-center justify-center text-muted transition-colors hover:text-foreground"
                     >
-                      <Minus size={16} />
+                      <Minus size={15} />
                     </button>
-                    <span className="flex h-12 w-14 items-center justify-center border-x border-zinc-200 text-sm font-semibold text-zinc-900">
+                    <span className="flex h-11 w-12 items-center justify-center border-x border-border-light text-sm font-semibold text-foreground">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="flex h-12 w-12 items-center justify-center text-zinc-600 transition-colors hover:text-zinc-900"
+                      className="flex h-11 w-11 items-center justify-center text-muted transition-colors hover:text-foreground"
                     >
-                      <Plus size={16} />
+                      <Plus size={15} />
                     </button>
                   </div>
                 </div>
 
+                {/* Add to Cart */}
                 <button
                   onClick={handleAddToCart}
                   disabled={!selectedSize || added}
-                  className={`flex h-14 w-full items-center justify-center gap-3 rounded-full text-sm font-semibold uppercase tracking-[0.2em] transition-all duration-500 sm:h-16 ${
+                  className={`flex h-13 w-full items-center justify-center gap-2.5 rounded-xl text-sm font-semibold uppercase tracking-wider transition-all duration-300 ${
                     added
                       ? "bg-emerald-600 text-white"
                       : !selectedSize
-                      ? "cursor-not-allowed bg-zinc-200 text-zinc-500"
-                      : "bg-zinc-900 text-white hover:bg-zinc-700"
+                      ? "cursor-not-allowed bg-surface border border-border-light text-muted"
+                      : "bg-primary text-background hover:opacity-90 shadow-lg shadow-primary/10"
                   }`}
+                  style={{ minHeight: "3.25rem" }}
                 >
                   {added ? (
                     <>
-                      <Check size={18} />
+                      <Check size={17} />
                       Added to Cart
                     </>
                   ) : (
                     <>
-                      <ShoppingBag size={18} />
+                      <ShoppingBag size={17} />
                       {selectedSize ? "Add to Cart" : "Select a Size"}
                     </>
                   )}
                 </button>
 
-                <div className="mt-10 space-y-3 border-t border-zinc-200 pt-10">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-zinc-600">
-                    Free shipping across Egypt
-                  </p>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-zinc-600">
-                    Delivery within 3–5 business days
-                  </p>
+                {/* Trust badges */}
+                <div className="mt-8 space-y-3 border-t border-border-light pt-8">
+                  <div className="flex items-center gap-3 text-secondary">
+                    <Truck size={15} className="text-muted" />
+                    <span className="text-sm">Free shipping across Egypt</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-secondary">
+                    <Shield size={15} className="text-muted" />
+                    <span className="text-sm">Delivery within 3–5 business days</span>
+                  </div>
                 </div>
               </div>
             </div>

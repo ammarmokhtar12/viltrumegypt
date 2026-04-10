@@ -36,7 +36,7 @@ export default function HomePage() {
     <>
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-      <main className="bg-slate-50">
+      <main className="bg-background">
         <HeroSection />
         <ProductGrid products={products} />
       </main>

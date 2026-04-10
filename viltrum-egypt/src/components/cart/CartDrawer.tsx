@@ -42,7 +42,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-[60] bg-slate-50/70 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-[60] bg-primary/20 backdrop-blur-sm transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={onClose}
@@ -51,46 +51,47 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className={`fixed top-0 right-0 h-full w-full sm:w-[500px] z-[70] bg-slate-50 border-l border-zinc-200 transform transition-transform duration-500 ease-out ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] z-[70] bg-background border-l border-border-light transform transition-transform duration-400 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-full uppercase font-sans">
+        <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-9 border-b border-zinc-200">
-            <div className="flex items-center gap-3">
-               <ShoppingBag size={20} className="text-zinc-900" />
-               <h2 className="text-xl font-bold tracking-wider text-zinc-900">
-                Cart ({cartCount})
+          <div className="flex items-center justify-between px-6 py-5 border-b border-border-light">
+            <div className="flex items-center gap-2.5">
+              <ShoppingBag size={18} className="text-foreground" />
+              <h2 className="text-base font-semibold text-foreground">
+                Cart
+                {cartCount > 0 && (
+                  <span className="ml-1.5 text-sm text-muted font-normal">({cartCount})</span>
+                )}
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center text-zinc-600 hover:text-zinc-900 transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-muted hover:text-foreground hover:bg-surface transition-colors"
               aria-label="Close cart"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
 
           {/* Items */}
-          <div className="flex-1 overflow-y-auto p-9 space-y-5">
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
             {cartItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-                <div className="w-16 h-16 bg-white border border-zinc-200 flex items-center justify-center">
-                  <ShoppingBag size={24} className="text-zinc-600" />
+              <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
+                <div className="w-14 h-14 bg-surface border border-border-light rounded-xl flex items-center justify-center">
+                  <ShoppingBag size={22} className="text-muted" />
                 </div>
-                <div className="space-y-4">
-                  <p className="text-[10px] text-zinc-600 font-bold tracking-widest">
-                    Your cart is empty
-                  </p>
-                  <button
-                    onClick={onClose}
-                    className="text-[10px] font-bold tracking-widest text-zinc-900"
-                  >
-                    Start Shopping
-                  </button>
-                </div>
+                <p className="text-sm text-muted font-medium">
+                  Your cart is empty
+                </p>
+                <button
+                  onClick={onClose}
+                  className="text-sm font-semibold text-accent hover:underline underline-offset-4"
+                >
+                  Start Shopping
+                </button>
               </div>
             ) : (
               cartItems.map((item) => (
@@ -104,12 +105,12 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <div className="p-9 border-t border-zinc-200 space-y-8 bg-white/90">
+            <div className="px-6 py-5 border-t border-border-light space-y-4 bg-surface">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-zinc-600 font-bold tracking-widest">
+                <span className="text-sm text-secondary font-medium">
                   Total
                 </span>
-                <span className="text-2xl font-bold text-zinc-900">
+                <span className="text-xl font-bold text-foreground">
                   {formatPrice(cartTotal)}
                 </span>
               </div>
@@ -118,8 +119,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClick={onClose}
                 className="btn-primary w-full"
               >
-                Proceed To Checkout
-                <ArrowRight size={16} className="ml-2" />
+                Checkout
+                <ArrowRight size={15} className="ml-2" />
               </Link>
             </div>
           )}

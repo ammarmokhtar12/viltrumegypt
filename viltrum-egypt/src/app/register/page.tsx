@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Loader2, Mail, Lock, User } from "lucide-react";
+import { ArrowLeft, Loader2, Mail, Lock, User, CheckCircle } from "lucide-react";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -34,7 +34,6 @@ export default function RegisterPage() {
       if (authError) throw authError;
 
       if (data?.user) {
-        // Sync to profiles table
         await supabase.from("profiles").insert({
           id: data.user.id,
           full_name: name,
@@ -60,93 +59,112 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center py-12">
-      <div className="max-w-md w-full px-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors mb-12 font-medium tracking-tight">
-          <ArrowLeft size={16} />
+    <div className="min-h-screen bg-background flex flex-col justify-center items-center py-12">
+      <div className="max-w-sm w-full px-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors mb-10">
+          <ArrowLeft size={15} />
           Back to Store
         </Link>
         
-        <div className="text-center mb-10">
-          <h1 className="text-4xl sm:text-5xl text-zinc-900 mb-3 tracking-tight font-extrabold">Create Account</h1>
-          <p className="text-zinc-600 text-sm font-medium tracking-tight">Join Viltrum to manage your orders and speed up checkout.</p>
+        {/* Brand */}
+        <div className="flex items-center gap-2 mb-8">
+          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+            <span className="text-background font-display text-lg">V</span>
+          </div>
+          <span className="text-sm font-bold tracking-[0.15em] text-foreground">VILTRUM</span>
         </div>
 
         {success ? (
-          <div className="text-center p-10 bg-white border border-zinc-200 rounded-3xl animate-in fade-in zoom-in duration-500">
-             <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <User size={32} />
-             </div>
-             <h2 className="text-2xl text-zinc-900 mb-2 font-extrabold">Welcome to Viltrum</h2>
-             <p className="text-sm text-zinc-600 mb-8 leading-relaxed">Your account has been created successfully. Redirecting you to login...</p>
-             <Link href="/login" className="btn-primary w-full">
-               Sign In Now
-             </Link>
+          <div className="text-center p-8 bg-surface border border-border-light rounded-2xl animate-fade-up">
+            <div className="w-14 h-14 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-5">
+              <CheckCircle size={28} />
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2">Welcome to Viltrum</h2>
+            <p className="text-sm text-secondary mb-6 leading-relaxed">Your account has been created. Redirecting to login...</p>
+            <Link href="/login" className="btn-primary w-full">
+              Sign In Now
+            </Link>
           </div>
         ) : (
-          <form onSubmit={handleRegister} className="space-y-4">
-            {error && (
-              <div className="p-4 bg-red-50 text-red-600 text-[13px] font-bold rounded-2xl text-center border border-red-100">
-                {error}
+          <>
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold text-foreground mb-1">Create Account</h1>
+              <p className="text-sm text-secondary">Join Viltrum to manage orders and checkout faster.</p>
+            </div>
+
+            <form onSubmit={handleRegister} className="space-y-4">
+              {error && (
+                <div className="p-3 bg-red-500/10 text-red-500 text-[13px] font-medium rounded-lg text-center border border-red-500/20">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">Full Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted">
+                    <User size={16} />
+                  </div>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your full name"
+                    className="viltrum-input pl-11"
+                    required
+                  />
+                </div>
               </div>
-            )}
 
-            <div className="relative group">
-               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
-                 <User size={18} />
-               </div>
-               <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Full Name"
-                className="viltrum-input pl-14"
-                required
-              />
-            </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">Email</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted">
+                    <Mail size={16} />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="viltrum-input pl-11"
+                    required
+                  />
+                </div>
+              </div>
 
-            <div className="relative group">
-               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
-                 <Mail size={18} />
-               </div>
-               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email address"
-                className="viltrum-input pl-14"
-                required
-              />
-            </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">Password</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted">
+                    <Lock size={16} />
+                  </div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Min. 6 characters"
+                    className="viltrum-input pl-11"
+                    minLength={6}
+                    required
+                  />
+                </div>
+              </div>
 
-            <div className="relative group">
-               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
-                 <Lock size={18} />
-               </div>
-               <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password (min 6 characters)"
-                className="viltrum-input pl-14"
-                minLength={6}
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full mt-6"
-            >
-              {loading ? <Loader2 size={18} className="animate-spin" /> : "Create Account"}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full mt-2"
+              >
+                {loading ? <Loader2 size={17} className="animate-spin" /> : "Create Account"}
+              </button>
+            </form>
+          </>
         )}
 
-        <p className="text-center mt-10 text-sm text-zinc-600 font-medium tracking-tight">
+        <p className="text-center mt-8 text-sm text-secondary">
           Already have an account?{" "}
-          <Link href="/login" className="text-zinc-900 font-bold hover:underline underline-offset-4">
+          <Link href="/login" className="text-foreground font-semibold hover:underline underline-offset-4">
             Sign In
           </Link>
         </p>

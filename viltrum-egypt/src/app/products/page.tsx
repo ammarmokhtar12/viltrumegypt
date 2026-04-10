@@ -36,28 +36,28 @@ export default function ProductsPage() {
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="min-h-screen bg-slate-50">
+      <main className="min-h-screen bg-background">
         {/* Page Header */}
-        <div className="px-6 pb-24 pt-44 text-center sm:pb-32 sm:pt-52">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.4em] text-zinc-600 block mb-6">
+        <div className="px-5 pb-16 pt-32 text-center sm:pb-20 sm:pt-40">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.3em] text-muted block mb-3">
             Browse
           </span>
-          <h1 className="text-5xl font-extrabold tracking-tighter text-zinc-900 sm:text-6xl md:text-7xl">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
             All Products
           </h1>
-          <p className="mt-8 text-lg sm:text-xl text-zinc-600 max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 text-base text-secondary max-w-lg mx-auto leading-relaxed">
             Every piece in the Viltrum collection. Click to explore sizes and details.
           </p>
         </div>
 
         {/* Product Grid */}
-        <div className="mx-auto max-w-7xl px-6 pb-32 sm:px-8 sm:pb-44 lg:px-12">
+        <div className="mx-auto max-w-7xl px-5 pb-24 sm:px-8 sm:pb-32 lg:px-12">
           {products.length === 0 ? (
             <div className="py-20 text-center">
-              <p className="text-lg text-zinc-600">No products available yet.</p>
+              <p className="text-base text-muted">No products available yet.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12 lg:gap-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

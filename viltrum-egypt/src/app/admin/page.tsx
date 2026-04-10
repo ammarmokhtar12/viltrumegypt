@@ -36,24 +36,24 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
         {/* Brand */}
         <div className="text-center mb-10">
-          <div className="w-14 h-14 bg-zinc-900 text-white flex items-center justify-center mx-auto mb-5 rounded-sm">
-            <span className="font-display text-xl font-bold">V</span>
+          <div className="w-12 h-12 bg-primary text-background flex items-center justify-center mx-auto mb-4 rounded-xl">
+            <span className="font-display text-xl">V</span>
           </div>
-          <h1 className="font-display text-2xl tracking-wider text-zinc-900">
-            Admin
+          <h1 className="text-xl font-bold text-foreground">
+            Admin Portal
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">Viltrum Egypt Dashboard</p>
+          <p className="text-sm text-muted mt-1">Viltrum Egypt Dashboard</p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white border border-zinc-100 p-8 space-y-6">
-          <div className="flex items-center gap-2 text-zinc-400">
-            <Lock size={14} />
-            <span className="text-[11px] tracking-[0.3em] uppercase font-semibold">
+        <div className="bg-surface border border-border-light rounded-2xl p-7 space-y-5">
+          <div className="flex items-center gap-2 text-muted">
+            <Lock size={13} />
+            <span className="text-[10px] tracking-[0.2em] uppercase font-semibold">
               Secure Access
             </span>
           </div>
@@ -72,9 +72,9 @@ export default function AdminLoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-zinc-600 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
 
@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading || !password}
-              className="w-full h-14 bg-zinc-900 text-white font-semibold text-sm tracking-[0.15em] uppercase hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full"
             >
               {loading ? "Authenticating..." : "Access Dashboard"}
             </button>

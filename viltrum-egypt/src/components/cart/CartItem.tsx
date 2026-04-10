@@ -14,71 +14,71 @@ export default function CartItem({ item }: CartItemProps) {
   const { removeItem, updateQuantity } = useCartStore();
 
   return (
-    <div className="flex gap-5 p-4 rounded-2xl bg-white border border-zinc-200">
+    <div className="flex gap-4 p-3 rounded-xl bg-surface border border-border-light">
       {/* Thumbnail */}
-      <div className="relative w-24 h-28 overflow-hidden rounded-xl bg-slate-50 border border-zinc-200 flex-shrink-0">
+      <div className="relative w-20 h-24 overflow-hidden rounded-lg bg-background flex-shrink-0">
         {item.image_url ? (
           <Image
             src={item.image_url}
             alt={item.title}
             fill
-            className="object-cover "
+            className="object-cover"
             sizes="80px"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-zinc-100">
-            <span className="text-zinc-300 font-bold text-xs uppercase">VILTRUM</span>
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-muted/30 font-display text-xl">V</span>
           </div>
         )}
       </div>
 
       {/* Details */}
       <div className="flex-1 min-w-0 flex flex-col justify-between">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start gap-2">
           <div>
-            <h4 className="text-sm font-bold text-zinc-900 uppercase tracking-wider truncate">
+            <h4 className="text-sm font-semibold text-foreground truncate">
               {item.title}
             </h4>
-            <span className="text-[11px] text-zinc-600 font-bold uppercase tracking-widest block mt-1.5">
+            <span className="text-[11px] text-muted block mt-0.5">
               Size: {item.size}
             </span>
           </div>
           <button
             onClick={() => removeItem(item.product_id, item.size)}
-            className="text-zinc-300 hover:text-red-500 transition-colors"
+            className="text-muted hover:text-red-500 transition-colors p-1 -m-1"
             aria-label="Remove item"
           >
             <Trash2 size={14} />
           </button>
         </div>
 
-        <div className="flex items-center justify-between pb-1">
+        <div className="flex items-center justify-between mt-2">
           {/* Quantity Controls */}
-          <div className="flex items-center rounded-xl border border-zinc-200 bg-slate-50">
+          <div className="flex items-center rounded-lg border border-border-light bg-background">
             <button
               onClick={() =>
                 updateQuantity(item.product_id, item.size, item.quantity - 1)
               }
-              className="w-8 h-8 flex items-center justify-center text-zinc-600 hover:text-zinc-900 transition-colors"
+              className="w-7 h-7 flex items-center justify-center text-muted hover:text-foreground transition-colors"
               aria-label="Decrease quantity"
             >
-              <Minus size={10} />
+              <Minus size={12} />
             </button>
-            <span className="text-xs font-bold text-zinc-900 w-7 text-center">
+            <span className="text-xs font-semibold text-foreground w-7 text-center">
               {item.quantity}
             </span>
             <button
               onClick={() =>
                 updateQuantity(item.product_id, item.size, item.quantity + 1)
               }
-              className="w-8 h-8 flex items-center justify-center text-zinc-600 hover:text-zinc-900 transition-colors"
+              className="w-7 h-7 flex items-center justify-center text-muted hover:text-foreground transition-colors"
               aria-label="Increase quantity"
             >
-              <Plus size={10} />
+              <Plus size={12} />
             </button>
           </div>
 
-          <span className="text-base font-bold text-zinc-900">
+          <span className="text-sm font-bold text-foreground">
             {formatPrice(item.price * item.quantity)}
           </span>
         </div>

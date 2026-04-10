@@ -25,17 +25,6 @@ export default function CheckoutForm({
   const [address, setAddress] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!name.trim()) newErrors.name = "Required";
-    if (!phone.trim()) newErrors.phone = "Required";
-    else if (!/^01[0125]\d{8}$/.test(phone.replace(/\s/g, "")))
-      newErrors.phone = "Invalid number";
-    if (!address.trim()) newErrors.address = "Required";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleChange = (field: string, value: string) => {
     const updated = {
       name: field === "name" ? value : name,
@@ -47,10 +36,9 @@ export default function CheckoutForm({
   };
 
   return (
-    <form className="space-y-8">
-      {/* Name */}
-      <div className="space-y-3">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+    <form className="space-y-5">
+      <div className="space-y-1.5">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">
           Full Name
         </label>
         <input
@@ -68,9 +56,8 @@ export default function CheckoutForm({
         )}
       </div>
 
-      {/* Phone */}
-      <div className="space-y-3">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+      <div className="space-y-1.5">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">
           Phone Number
         </label>
         <input
@@ -88,9 +75,8 @@ export default function CheckoutForm({
         )}
       </div>
 
-      {/* Address */}
-      <div className="space-y-3">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+      <div className="space-y-1.5">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">
           Delivery Address
         </label>
         <input
@@ -104,18 +90,16 @@ export default function CheckoutForm({
           className="viltrum-input"
         />
         {errors.address && (
-          <p className="text-[11px] text-red-500 font-medium">
-            {errors.address}
-          </p>
+          <p className="text-[11px] text-red-500 font-medium">{errors.address}</p>
         )}
       </div>
 
       {/* Payment Method */}
-      <div className="space-y-5 pt-8 border-t border-zinc-200">
-        <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
+      <div className="space-y-4 pt-6 border-t border-border-light">
+        <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">
           Payment Method
         </label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {(["vodafone_cash", "instapay"] as const).map((method) => (
             <button
               key={method}
@@ -124,10 +108,10 @@ export default function CheckoutForm({
                 onPaymentMethodChange(method);
                 onSubmit({ name, phone, address, paymentMethod: method });
               }}
-              className={`h-14 flex items-center justify-center text-sm font-semibold transition-all duration-300 rounded-xl ${
+              className={`h-12 flex items-center justify-center text-sm font-semibold transition-all duration-200 rounded-lg ${
                 paymentMethod === method
-                  ? "bg-zinc-900 text-white"
-                  : "bg-white text-zinc-600 hover:text-zinc-900"
+                  ? "bg-primary text-background"
+                  : "bg-surface border border-border-light text-secondary hover:text-foreground hover:border-secondary"
               }`}
             >
               {method === "vodafone_cash" ? "Vodafone Cash" : "InstaPay"}
@@ -135,20 +119,18 @@ export default function CheckoutForm({
           ))}
         </div>
 
-        {/* Transfer Info */}
-        <div className="rounded-2xl p-7 bg-white border border-zinc-200 space-y-4">
-          <div className="flex items-center gap-2 text-zinc-600">
+        <div className="rounded-xl p-5 bg-surface border border-border-light space-y-3">
+          <div className="flex items-center gap-2 text-muted">
             <CreditCard size={14} />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.3em]">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em]">
               Transfer to
             </span>
           </div>
-          <p className="text-2xl font-bold text-zinc-900 tracking-wide">
+          <p className="text-xl font-bold text-foreground tracking-wide font-display">
             01031429229
           </p>
-          <p className="text-[11px] text-zinc-600 leading-relaxed">
-            Transfer the exact total amount, then upload your payment screenshot
-            below.
+          <p className="text-[12px] text-secondary leading-relaxed">
+            Transfer the exact total amount, then upload your payment screenshot below.
           </p>
         </div>
       </div>

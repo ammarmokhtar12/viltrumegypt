@@ -35,65 +35,79 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center py-12">
-      <div className="max-w-md w-full px-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-600 hover:text-zinc-900 transition-colors mb-12 font-medium tracking-tight">
-          <ArrowLeft size={16} />
+    <div className="min-h-screen bg-background flex flex-col justify-center items-center py-12">
+      <div className="max-w-sm w-full px-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-muted hover:text-foreground transition-colors mb-10">
+          <ArrowLeft size={15} />
           Back to Store
         </Link>
         
-        <div className="text-center mb-10">
-          <h1 className="text-4xl sm:text-5xl text-zinc-900 mb-3 tracking-tight font-extrabold">Welcome Back</h1>
-          <p className="text-zinc-600 text-sm font-medium tracking-tight">Sign in to your Viltrum account to view orders and checkout faster.</p>
+        {/* Brand */}
+        <div className="flex items-center gap-2 mb-8">
+          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+            <span className="text-background font-display text-lg">V</span>
+          </div>
+          <span className="text-sm font-bold tracking-[0.15em] text-foreground">VILTRUM</span>
+        </div>
+
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-foreground mb-1">Welcome back</h1>
+          <p className="text-sm text-secondary">Sign in to your account to continue.</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           {error && (
-            <div className="p-4 bg-red-50 text-red-600 text-[13px] font-bold rounded-2xl text-center border border-red-100">
+            <div className="p-3 bg-red-500/10 text-red-500 text-[13px] font-medium rounded-lg text-center border border-red-500/20">
               {error}
             </div>
           )}
 
-          <div className="relative group">
-             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
-               <Mail size={18} />
-             </div>
-             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email address"
-              className="viltrum-input pl-14"
-              required
-            />
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">Email</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted">
+                <Mail size={16} />
+              </div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="viltrum-input pl-11"
+                required
+              />
+            </div>
           </div>
 
-          <div className="relative group">
-             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-600 group-focus-within:text-zinc-900 transition-colors">
-               <Lock size={18} />
-             </div>
-             <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className="viltrum-input pl-14"
-              required
-            />
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted block">Password</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted">
+                <Lock size={16} />
+              </div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="viltrum-input pl-11"
+                required
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary w-full mt-6"
+            className="btn-primary w-full mt-2"
           >
-            {loading ? <Loader2 size={18} className="animate-spin" /> : "Sign In"}
+            {loading ? <Loader2 size={17} className="animate-spin" /> : "Sign In"}
           </button>
         </form>
 
-        <p className="text-center mt-10 text-sm text-zinc-600 font-medium tracking-tight">
+        <p className="text-center mt-8 text-sm text-secondary">
           New here?{" "}
-          <Link href="/register" className="text-zinc-900 font-bold hover:underline underline-offset-4">
+          <Link href="/register" className="text-foreground font-semibold hover:underline underline-offset-4">
             Create an account
           </Link>
         </p>
