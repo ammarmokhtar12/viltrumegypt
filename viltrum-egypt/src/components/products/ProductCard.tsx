@@ -15,8 +15,8 @@ export default function ProductCard({ product }: ProductCardProps) {
       href={`/products/${product.id}`}
       className="group block transition-transform duration-300 hover:scale-[1.02]"
     >
-      <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900 p-4">
-        <div className="relative mb-6 overflow-hidden rounded-2xl bg-black" style={{ aspectRatio: "3/4" }}>
+      <div className="overflow-hidden rounded-3xl border border-zinc-200 bg-white p-4">
+        <div className="relative mb-6 overflow-hidden rounded-2xl bg-slate-50" style={{ aspectRatio: "3/4" }}>
           {product.image_url ? (
             <Image
               src={product.image_url}
@@ -27,7 +27,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               loading="lazy"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-black">
+            <div className="flex h-full w-full items-center justify-center bg-slate-50">
               <span className="text-5xl font-bold tracking-widest text-zinc-400">V</span>
             </div>
           )}
@@ -36,10 +36,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="space-y-2 px-1 pb-1">
-          <h3 className="text-base font-bold leading-snug tracking-tight text-white transition-colors duration-300 group-hover:text-white sm:text-lg">
+          <h3 className="text-base font-bold leading-snug tracking-tight text-zinc-900 transition-colors duration-300 group-hover:text-zinc-900 sm:text-lg">
             {product.title}
           </h3>
-          <p className="text-base font-semibold tracking-wide text-zinc-300">
+          <p className="text-base font-semibold tracking-wide text-zinc-600">
             {formatPrice(product.price)}
           </p>
         </div>
