@@ -60,8 +60,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col justify-center py-12">
-      <div className="max-w-md w-full mx-auto px-6">
+    <div className="min-h-screen bg-zinc-50 flex flex-col justify-center items-center py-12">
+      <div className="max-w-md w-full px-6">
         <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-950 transition-colors mb-12 font-medium tracking-tight">
           <ArrowLeft size={16} />
           Back to Store

@@ -35,49 +35,49 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col justify-center">
-      <div className="max-w-md w-full mx-auto px-6">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-900 transition-colors mb-12">
+    <div className="min-h-screen bg-zinc-50 flex flex-col justify-center items-center py-12">
+      <div className="max-w-md w-full px-6">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-950 transition-colors mb-12 font-medium tracking-tight">
           <ArrowLeft size={16} />
           Back to Store
         </Link>
         
         <div className="text-center mb-10">
-          <h1 className="font-display text-4xl text-zinc-900 mb-2 tracking-wide">Welcome Back</h1>
-          <p className="text-zinc-400 text-sm">Sign in to your Viltrum account to view orders and checkout faster.</p>
+          <h1 className="font-display text-4xl sm:text-5xl text-zinc-950 mb-3 tracking-tight font-bold">Welcome Back</h1>
+          <p className="text-zinc-400 text-sm font-medium tracking-tight">Sign in to your Viltrum account to view orders and checkout faster.</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleLogin} className="space-y-4">
           {error && (
-            <div className="p-4 bg-red-50 text-red-600 text-[13px] font-medium rounded-sm text-center">
+            <div className="p-4 bg-red-50 text-red-600 text-[13px] font-bold rounded-2xl text-center border border-red-100">
               {error}
             </div>
           )}
 
-          <div className="relative">
-             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-zinc-400">
-               <Mail size={16} />
+          <div className="relative group">
+             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 transition-colors">
+               <Mail size={18} />
              </div>
              <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
-              className="w-full h-14 pl-12 pr-4 bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm font-medium rounded-sm focus:outline-none focus:border-zinc-400 transition-colors placeholder:font-normal placeholder:text-zinc-400"
+              className="viltrum-input pl-14"
               required
             />
           </div>
 
-          <div className="relative">
-             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-zinc-400">
-               <Lock size={16} />
+          <div className="relative group">
+             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 transition-colors">
+               <Lock size={18} />
              </div>
              <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full h-14 pl-12 pr-4 bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm font-medium rounded-sm focus:outline-none focus:border-zinc-400 transition-colors placeholder:font-normal placeholder:text-zinc-400"
+              className="viltrum-input pl-14"
               required
             />
           </div>
@@ -85,15 +85,15 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-14 mt-4 bg-zinc-900 text-white text-[11px] font-semibold tracking-[0.2em] uppercase flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all rounded-sm disabled:opacity-50"
+            className="btn-primary w-full mt-6"
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : "Sign In"}
+            {loading ? <Loader2 size={18} className="animate-spin" /> : "Sign In"}
           </button>
         </form>
 
-        <p className="text-center mt-8 text-sm text-zinc-500">
+        <p className="text-center mt-10 text-sm text-zinc-400 font-medium tracking-tight">
           New here?{" "}
-          <Link href="/register" className="text-zinc-900 font-semibold hover:underline">
+          <Link href="/register" className="text-zinc-950 font-bold hover:underline underline-offset-4">
             Create an account
           </Link>
         </p>
