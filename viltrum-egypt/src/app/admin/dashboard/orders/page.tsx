@@ -104,20 +104,20 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-8 max-w-7xl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl text-zinc-900 tracking-wide">
+          <h1 className="font-display text-3xl sm:text-4xl text-zinc-900 tracking-wide">
             Orders
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">
+          <p className="text-base text-zinc-500 mt-2">
             {orders.length} total · {pendingCount} pending
           </p>
         </div>
         <button
           onClick={fetchOrders}
-          className="inline-flex items-center gap-2 h-10 px-4 text-[11px] font-semibold text-zinc-500 border border-zinc-200 hover:border-zinc-400 hover:text-zinc-900 transition-all rounded-md"
+          className="inline-flex items-center gap-2 h-11 px-5 text-xs font-semibold text-zinc-500 border border-zinc-200 hover:border-zinc-400 hover:text-zinc-900 transition-all rounded-lg"
         >
           <RefreshCw size={13} />
           Refresh
@@ -125,7 +125,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Search & Filter */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-300" />
           <input
@@ -133,7 +133,7 @@ export default function AdminOrdersPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, phone, or order #..."
-            className="w-full h-10 pl-10 pr-4 text-sm bg-white border border-zinc-200 rounded-md text-zinc-900 placeholder-zinc-300 focus:outline-none focus:border-zinc-400"
+            className="w-full h-11 pl-10 pr-4 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-900 placeholder-zinc-300 focus:outline-none focus:border-zinc-400"
           />
         </div>
         <div className="flex gap-1.5 overflow-x-auto">
@@ -141,7 +141,7 @@ export default function AdminOrdersPage() {
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`h-10 px-3.5 text-[11px] font-semibold capitalize border rounded-md whitespace-nowrap transition-all ${
+            className={`h-11 px-4 text-xs font-semibold capitalize border rounded-lg whitespace-nowrap transition-all ${
                 statusFilter === s
                   ? "bg-zinc-900 text-white border-zinc-900"
                   : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400"
@@ -155,41 +155,41 @@ export default function AdminOrdersPage() {
 
       {/* Orders List */}
       {filteredOrders.length === 0 ? (
-        <div className="text-center py-20 bg-white border border-zinc-100 rounded-lg">
+        <div className="text-center py-24 bg-white border border-zinc-200 rounded-xl">
           <ShoppingCart size={32} className="mx-auto text-zinc-200 mb-4" />
           <p className="text-sm text-zinc-400">
             {searchQuery ? "No orders match your search" : "No orders yet"}
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {filteredOrders.map((order) => {
             const config = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
             const isExpanded = expandedOrder === order.id;
             const items = Array.isArray(order.items) ? order.items : [];
 
             return (
-              <div key={order.id} className="bg-white border border-zinc-100 rounded-lg overflow-hidden hover:shadow-sm transition-shadow">
+              <div key={order.id} className="bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-sm transition-shadow">
                 {/* Order Header Row */}
                 <div
-                  className="px-5 py-4 flex items-center justify-between cursor-pointer hover:bg-zinc-50/50 transition-colors"
+                  className="px-6 py-5 flex items-center justify-between cursor-pointer hover:bg-zinc-50/70 transition-colors"
                   onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
                 >
-                  <div className="flex items-center gap-4 min-w-0">
+                  <div className="flex items-center gap-5 min-w-0">
                     {/* Customer Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-zinc-100 flex-shrink-0 flex items-center justify-center text-sm font-display font-bold text-zinc-500">
+                    <div className="w-11 h-11 rounded-full bg-zinc-100 flex-shrink-0 flex items-center justify-center text-sm font-display font-bold text-zinc-500">
                       {order.customer_name.charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2.5 flex-wrap">
-                        <span className="font-display font-bold text-zinc-900">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="font-display font-bold text-zinc-900 text-lg">
                           #{order.order_number}
                         </span>
                         <span className={`px-2.5 py-0.5 text-[10px] font-semibold rounded-full ${config.bg} ${config.text}`}>
                           {config.label}
                         </span>
                       </div>
-                      <p className="text-[12px] text-zinc-400 mt-0.5 truncate">
+                      <p className="text-[13px] text-zinc-500 mt-1 truncate">
                         {order.customer_name} · {new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                       </p>
                     </div>
@@ -209,24 +209,24 @@ export default function AdminOrdersPage() {
                 {/* Expanded Details */}
                 {isExpanded && (
                   <div className="border-t border-zinc-100">
-                    <div className="p-5 space-y-5">
+                    <div className="p-6 space-y-6">
                       {/* Customer Info */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="flex items-start gap-3 bg-zinc-50 rounded-lg p-3.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                        <div className="flex items-start gap-3 bg-zinc-50 rounded-xl p-4">
                           <Phone size={14} className="text-zinc-400 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Phone</p>
                             <p className="text-sm text-zinc-900 mt-0.5">{order.customer_phone}</p>
                           </div>
                         </div>
-                        <div className="flex items-start gap-3 bg-zinc-50 rounded-lg p-3.5">
+                        <div className="flex items-start gap-3 bg-zinc-50 rounded-xl p-4">
                           <MapPin size={14} className="text-zinc-400 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Address</p>
                             <p className="text-sm text-zinc-900 mt-0.5">{order.customer_address}</p>
                           </div>
                         </div>
-                        <div className="flex items-start gap-3 bg-zinc-50 rounded-lg p-3.5">
+                        <div className="flex items-start gap-3 bg-zinc-50 rounded-xl p-4">
                           <DollarSign size={14} className="text-zinc-400 mt-0.5 flex-shrink-0" />
                           <div>
                             <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Payment</p>

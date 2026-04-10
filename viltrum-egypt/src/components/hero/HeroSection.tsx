@@ -91,7 +91,7 @@ export default function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 mx-auto mt-12 flex w-full max-w-6xl flex-col items-center px-6 pb-32 pt-52 text-center sm:mt-20 sm:pb-40 sm:pt-64">
+      <div className="relative z-10 mx-auto mt-14 flex w-full max-w-6xl flex-col items-center px-6 pb-36 pt-56 text-center sm:mt-24 sm:pb-44 sm:pt-72">
         <div
           ref={badgeRef}
           className="mb-12 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/85 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.35em] text-zinc-600 backdrop-blur-sm"
@@ -102,7 +102,7 @@ export default function HeroSection() {
 
         <h1
           ref={titleRef}
-          className="text-7xl font-extrabold leading-[0.82] tracking-tighter text-zinc-900 sm:text-8xl md:text-[9rem]"
+          className="text-7xl font-extrabold leading-[0.86] tracking-tighter text-zinc-900 sm:text-8xl md:text-[9rem]"
         >
           <span className="block">Viltrum.</span>
           <span className="mt-2 block text-zinc-400">Egypt.</span>
@@ -110,7 +110,7 @@ export default function HeroSection() {
 
         <p
           ref={subtitleRef}
-          className="mt-12 max-w-2xl text-lg font-medium leading-relaxed tracking-tight text-zinc-400 sm:text-xl"
+          className="mt-14 max-w-2xl text-lg font-medium leading-relaxed tracking-tight text-zinc-600 sm:text-xl"
         >
           The ultimate compression performancewear. Forged in strength, 
           designed for the elite. Experience the Viltrum revolution.
@@ -118,7 +118,7 @@ export default function HeroSection() {
 
         <div
           ref={ctaRef}
-          className="mt-16 flex w-full max-w-md flex-col justify-center gap-4 sm:max-w-none sm:flex-row"
+          className="mt-20 flex w-full max-w-md flex-col justify-center gap-5 sm:max-w-none sm:flex-row"
         >
           <Link
             href="/products"

@@ -9,16 +9,16 @@ export default function Footer() {
       id="about"
       className="bg-slate-50 border-t border-zinc-200"
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-24 sm:py-32">
-        <div className="flex flex-col items-center text-center space-y-20">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-28 sm:py-36">
+        <div className="flex flex-col items-center text-center space-y-24">
           
           {/* Subscribe Section */}
-          <div className="w-full max-w-2xl space-y-8">
-            <div className="space-y-4">
+          <div className="w-full max-w-2xl space-y-10">
+            <div className="space-y-5">
               <h2 className="text-4xl font-extrabold tracking-tight text-zinc-900 sm:text-5xl">
                 Subscribe to our Dream
               </h2>
-              <p className="text-zinc-600 text-lg font-light max-w-md mx-auto">
+              <p className="text-zinc-600 text-xl font-light max-w-lg mx-auto leading-relaxed">
                 Join the inner circle. Be the first to witness new drops and exclusive athlete events.
               </p>
             </div>
@@ -35,7 +35,7 @@ export default function Footer() {
             </form>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-20 w-full">
             {/* Column 1: Brand */}
             <div className="space-y-6">
               <div className="flex flex-col items-center">

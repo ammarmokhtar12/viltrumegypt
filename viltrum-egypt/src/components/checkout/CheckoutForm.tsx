@@ -47,9 +47,9 @@ export default function CheckoutForm({
   };
 
   return (
-    <form className="space-y-6">
+    <form className="space-y-8">
       {/* Name */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
           Full Name
         </label>
@@ -69,7 +69,7 @@ export default function CheckoutForm({
       </div>
 
       {/* Phone */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
           Phone Number
         </label>
@@ -89,7 +89,7 @@ export default function CheckoutForm({
       </div>
 
       {/* Address */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
           Delivery Address
         </label>
@@ -111,11 +111,11 @@ export default function CheckoutForm({
       </div>
 
       {/* Payment Method */}
-      <div className="space-y-4 pt-6 border-t border-zinc-200">
+      <div className="space-y-5 pt-8 border-t border-zinc-200">
         <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-600 block">
           Payment Method
         </label>
-        <div className="flex gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {(["vodafone_cash", "instapay"] as const).map((method) => (
             <button
               key={method}
@@ -124,7 +124,7 @@ export default function CheckoutForm({
                 onPaymentMethodChange(method);
                 onSubmit({ name, phone, address, paymentMethod: method });
               }}
-              className={`flex-1 h-14 flex items-center justify-center text-sm font-semibold transition-all duration-300 rounded-xl ${
+              className={`h-14 flex items-center justify-center text-sm font-semibold transition-all duration-300 rounded-xl ${
                 paymentMethod === method
                   ? "bg-zinc-900 text-white"
                   : "bg-white text-zinc-600 hover:text-zinc-900"
@@ -136,7 +136,7 @@ export default function CheckoutForm({
         </div>
 
         {/* Transfer Info */}
-        <div className="rounded-2xl p-6 bg-white border border-zinc-200 space-y-3">
+        <div className="rounded-2xl p-7 bg-white border border-zinc-200 space-y-4">
           <div className="flex items-center gap-2 text-zinc-600">
             <CreditCard size={14} />
             <span className="text-[10px] font-semibold uppercase tracking-[0.3em]">

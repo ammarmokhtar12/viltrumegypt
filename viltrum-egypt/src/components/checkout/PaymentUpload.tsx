@@ -81,13 +81,13 @@ export default function PaymentUpload({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {preview ? (
-        <div className="relative rounded-2xl bg-white border border-zinc-200 p-3 overflow-hidden">
+        <div className="relative rounded-2xl bg-white border border-zinc-200 p-4 overflow-hidden">
           <img
             src={preview}
             alt="Payment proof"
-            className="w-full h-48 object-contain"
+            className="w-full h-56 object-contain"
           />
 
           {uploaded && (
@@ -132,7 +132,7 @@ export default function PaymentUpload({
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`cursor-pointer border border-dashed p-12 text-center transition-all duration-300 group ${
+          className={`cursor-pointer border border-dashed p-14 text-center transition-all duration-300 group ${
             dragOver
               ? "border-zinc-400 bg-white"
               : "border-zinc-200 bg-slate-50 hover:border-zinc-400 hover:bg-white"
@@ -143,8 +143,8 @@ export default function PaymentUpload({
               size={24}
               className="text-zinc-600 group-hover:text-zinc-900 transition-colors duration-300"
             />
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-zinc-700">
+            <div className="space-y-2">
+              <p className="text-base font-medium text-zinc-700">
                 Click or drag to upload
               </p>
               <p className="text-[11px] font-semibold text-zinc-500">

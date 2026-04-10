@@ -101,19 +101,19 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-[#fafafa] flex overflow-hidden">
       {/* Universal Top Header */}
-      <div className="fixed top-0 left-0 right-0 z-40 h-16 px-4 sm:px-6 flex items-center justify-between bg-white border-b border-zinc-100 shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-40 h-20 px-5 sm:px-8 flex items-center justify-between bg-white border-b border-zinc-200 shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 -ml-2 text-zinc-500 hover:text-zinc-950 transition-colors bg-zinc-50 hover:bg-zinc-100 rounded-lg flex-shrink-0"
+            className="p-2.5 -ml-2 text-zinc-500 hover:text-zinc-950 transition-colors bg-zinc-50 hover:bg-zinc-100 rounded-xl flex-shrink-0"
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-zinc-950 text-white flex items-center justify-center rounded-md">
+            <div className="w-8 h-8 bg-zinc-950 text-white flex items-center justify-center rounded-lg">
               <span className="text-[11px] font-display font-bold">V</span>
             </div>
-            <span className="font-display text-[15px] tracking-[0.15em] text-zinc-950 font-bold hidden sm:block">VILTRUM</span>
+            <span className="font-display text-base tracking-[0.18em] text-zinc-950 font-bold hidden sm:block">VILTRUM</span>
           </div>
         </div>
         <button
@@ -126,19 +126,19 @@ export default function AdminLayout({
 
       {/* Sidebar Overlay/Drawer */}
       <aside
-         className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-zinc-100 transform transition-transform duration-300 ease-out flex flex-col ${
+         className={`fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-zinc-200 transform transition-transform duration-300 ease-out flex flex-col ${
           sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
         {/* Brand */}
-        <div className="h-16 px-6 flex items-center justify-between border-b border-zinc-100 shrink-0">
+        <div className="h-20 px-7 flex items-center justify-between border-b border-zinc-200 shrink-0">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 bg-zinc-950 text-white flex items-center justify-center rounded-lg shadow-sm">
+             <div className="w-9 h-9 bg-zinc-950 text-white flex items-center justify-center rounded-lg shadow-sm">
                <span className="font-display font-bold text-sm">V</span>
              </div>
              <div>
-               <p className="font-display text-sm tracking-[0.15em] text-zinc-950 font-bold leading-none">VILTRUM</p>
-               <p className="text-[10px] text-zinc-400 tracking-wider font-semibold mt-1">ADMIN PANEL</p>
+               <p className="font-display text-base tracking-[0.15em] text-zinc-950 font-bold leading-none">VILTRUM</p>
+               <p className="text-[11px] text-zinc-400 tracking-wider font-semibold mt-1.5">ADMIN PANEL</p>
              </div>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="p-2 text-zinc-400 hover:text-zinc-950 transition-colors hover:bg-zinc-100 rounded-lg">
@@ -147,17 +147,17 @@ export default function AdminLayout({
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-4 py-8">
-          <p className="text-[11px] tracking-[0.2em] text-zinc-400 uppercase font-bold px-3 mb-4">
+        <nav className="flex-1 overflow-y-auto px-5 py-10">
+          <p className="text-xs tracking-[0.24em] text-zinc-400 uppercase font-bold px-3 mb-5">
             Navigation
           </p>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3.5 text-sm font-semibold transition-all duration-300 rounded-xl ${
+                className={`flex items-center gap-3.5 px-4 py-4 text-base font-semibold transition-all duration-300 rounded-2xl ${
                   item.active
                     ? "bg-zinc-950 text-white shadow-lg shadow-zinc-950/10"
                     : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950"
@@ -191,8 +191,8 @@ export default function AdminLayout({
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 w-full min-h-screen pt-16 overflow-y-auto bg-zinc-50/50">
-        <div className="p-4 sm:p-6 lg:p-10 max-w-[1400px] mx-auto">{children}</div>
+      <main className="flex-1 w-full min-h-screen pt-20 overflow-y-auto bg-zinc-50/50">
+        <div className="p-5 sm:p-8 lg:p-12 max-w-[1500px] mx-auto">{children}</div>
       </main>
     </div>
   );

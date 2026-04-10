@@ -116,7 +116,7 @@ export default function CheckoutPage() {
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
-      <main className="min-h-screen bg-slate-50 pt-24 sm:pt-28">
+      <main className="min-h-screen bg-slate-50 pt-28 sm:pt-32">
         {/* Back Link */}
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
           <Link
@@ -129,22 +129,22 @@ export default function CheckoutPage() {
         </div>
 
         {/* Checkout — Split Layout (matching product detail page) */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pb-28 sm:pb-40">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pb-32 sm:pb-44">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
 
             {/* Left: Order Summary (product images + totals) */}
             <div>
-              <div className="space-y-4 mb-10">
+              <div className="space-y-5 mb-12">
                 <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-zinc-900 sm:text-5xl md:text-6xl">
                   Checkout
                 </h1>
-                <p className="text-lg text-zinc-600 font-light">
+                <p className="text-xl text-zinc-600 font-light">
                   {cartItems.length} {cartItems.length === 1 ? "item" : "items"} in your order
                 </p>
               </div>
 
               {/* Cart Items */}
-              <div className="space-y-8 mb-12">
+              <div className="space-y-10 mb-14">
                 {cartItems.map((item) => (
                   <div
                     key={`${item.product_id}-${item.size}`}
@@ -166,8 +166,8 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* Item Details */}
-                    <div className="flex flex-col justify-center flex-1 min-w-0">
-                      <h3 className="mb-1 text-base font-semibold leading-snug text-zinc-900">
+                    <div className="flex flex-col justify-center flex-1 min-w-0 space-y-1">
+                      <h3 className="text-lg font-semibold leading-snug text-zinc-900">
                         {item.title}
                       </h3>
                       <div className="flex items-center gap-3 text-[11px] text-zinc-600 font-semibold uppercase tracking-[0.25em] mb-4">

@@ -152,15 +152,15 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-10 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="space-y-14 max-w-[1450px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
       
       {/* Header Area */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8 pb-4">
         <div>
-          <h1 className="text-4xl sm:text-6xl font-display font-bold text-zinc-950 tracking-tighter">
+          <h1 className="text-5xl sm:text-7xl font-display font-bold text-zinc-950 tracking-tighter">
             Executive View
           </h1>
-          <p className="text-zinc-500 font-medium tracking-tight mt-2 italic">Real-time performance intelligence for Viltrum Egypt.</p>
+          <p className="text-zinc-500 text-lg font-medium tracking-tight mt-4 italic">Real-time performance intelligence for Viltrum Egypt.</p>
         </div>
         <div className="flex items-center gap-4">
            <Link href="/admin/dashboard/orders" className="btn-primary">
@@ -170,26 +170,26 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* TOP ROW: Vital Gauges */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
         {[
           { label: "Fulfillment", value: fulfillmentRate, color: "#09090b" },
           { label: "MoM Growth", value: growthRate, color: "#09090b" },
           { label: "High-Value", value: highValueRatio, color: "#09090b", max: 10 },
           { label: "Cancellation", value: returnedOrCancelledRate, color: "#ef4444" },
         ].map((gauge, i) => (
-          <div key={i} className="bg-white rounded-[2rem] shadow-premium border border-zinc-100 p-4 transition-all hover:shadow-premium-xl active:scale-95 group">
+          <div key={i} className="bg-white rounded-[2rem] shadow-sm border border-zinc-200 p-6 transition-all hover:shadow-md active:scale-95 group">
              <Gauge value={gauge.value} label={gauge.label} color={gauge.color} max={gauge.max} />
           </div>
         ))}
       </div>
 
       {/* MIDDLE ROW: Main Intelligence */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Metric List (Left) */}
-        <div className="lg:col-span-4 bg-white rounded-[2.5rem] shadow-premium-xl border border-zinc-100 p-8 flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-white rounded-[2.5rem] shadow-sm border border-zinc-200 p-10 flex flex-col justify-between">
           <div>
-            <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-10">Asset Performance</h3>
+            <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-[0.3em] mb-10">Asset Performance</h3>
             <div className="space-y-8">
               <div className="flex justify-between items-end border-b border-zinc-50 pb-5">
                 <span className="text-zinc-400 font-bold uppercase text-xs tracking-widest">Total Revenue</span>
@@ -206,7 +206,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           
-          <div className="mt-12 bg-zinc-950 rounded-3xl p-6 text-white overflow-hidden relative shadow-2xl">
+          <div className="mt-12 bg-zinc-950 rounded-3xl p-7 text-white overflow-hidden relative shadow-xl">
              <div className="relative z-10">
                 <p className="text-[11px] font-bold uppercase tracking-[0.2em] opacity-60">Projected Run Rate</p>
                 <p className="text-3xl font-display font-bold mt-2">{(totalRevenue * 1.4).toLocaleString()} <span className="text-[11px] uppercase font-bold opacity-50">EGP</span></p>
@@ -216,7 +216,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Intelligence Chart (Right) */}
-        <div className="lg:col-span-8 bg-white rounded-[2.5rem] shadow-premium-xl border border-zinc-100 p-8">
+        <div className="lg:col-span-8 bg-white rounded-[2.5rem] shadow-sm border border-zinc-200 p-10">
            <div className="flex justify-between items-center mb-10">
               <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Revenue Analytics</h3>
               <div className="flex items-center gap-2">
@@ -250,10 +250,10 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* BOTTOM ROW: Operational Efficiency */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Action Center */}
-        <div className="bg-white rounded-[2rem] shadow-premium border border-zinc-100 p-8 flex flex-col justify-between">
+        <div className="bg-white rounded-[2rem] shadow-sm border border-zinc-200 p-10 flex flex-col justify-between">
            <div>
               <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Inventory Risk</h3>
               <div className="space-y-4">
@@ -279,7 +279,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Matrix Visualization */}
-        <div className="lg:col-span-2 bg-white rounded-[2.5rem] shadow-premium border border-zinc-100 p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="lg:col-span-2 bg-white rounded-[2.5rem] shadow-sm border border-zinc-200 p-10 grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
                <h3 className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Performance Matrix</h3>
                <div className="h-[200px] w-full">

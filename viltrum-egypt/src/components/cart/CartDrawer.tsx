@@ -51,16 +51,16 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className={`fixed top-0 right-0 h-full w-full sm:w-[450px] z-[70] bg-slate-50 border-l border-zinc-200 transform transition-transform duration-500 ease-out ${
+        className={`fixed top-0 right-0 h-full w-full sm:w-[500px] z-[70] bg-slate-50 border-l border-zinc-200 transform transition-transform duration-500 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full uppercase font-sans">
           {/* Header */}
-          <div className="flex items-center justify-between p-8 border-b border-zinc-200">
+          <div className="flex items-center justify-between p-9 border-b border-zinc-200">
             <div className="flex items-center gap-3">
                <ShoppingBag size={20} className="text-zinc-900" />
-               <h2 className="text-lg font-bold tracking-widest text-zinc-900">
+               <h2 className="text-xl font-bold tracking-wider text-zinc-900">
                 Cart ({cartCount})
               </h2>
             </div>
@@ -74,7 +74,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           </div>
 
           {/* Items */}
-          <div className="flex-1 overflow-y-auto p-8 space-y-4">
+          <div className="flex-1 overflow-y-auto p-9 space-y-5">
             {cartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
                 <div className="w-16 h-16 bg-white border border-zinc-200 flex items-center justify-center">
@@ -104,7 +104,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <div className="p-8 border-t border-zinc-200 space-y-8 bg-white/90">
+            <div className="p-9 border-t border-zinc-200 space-y-8 bg-white/90">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-zinc-600 font-bold tracking-widest">
                   Total

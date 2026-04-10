@@ -14,9 +14,9 @@ export default function CartItem({ item }: CartItemProps) {
   const { removeItem, updateQuantity } = useCartStore();
 
   return (
-    <div className="flex gap-4 p-3 rounded-2xl bg-white border border-zinc-200">
+    <div className="flex gap-5 p-4 rounded-2xl bg-white border border-zinc-200">
       {/* Thumbnail */}
-      <div className="relative w-20 h-24 overflow-hidden rounded-xl bg-slate-50 border border-zinc-200 flex-shrink-0">
+      <div className="relative w-24 h-28 overflow-hidden rounded-xl bg-slate-50 border border-zinc-200 flex-shrink-0">
         {item.image_url ? (
           <Image
             src={item.image_url}
@@ -36,10 +36,10 @@ export default function CartItem({ item }: CartItemProps) {
       <div className="flex-1 min-w-0 flex flex-col justify-between">
         <div className="flex justify-between items-start">
           <div>
-            <h4 className="text-xs font-bold text-zinc-900 uppercase tracking-wider truncate">
+            <h4 className="text-sm font-bold text-zinc-900 uppercase tracking-wider truncate">
               {item.title}
             </h4>
-            <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest block mt-1">
+            <span className="text-[11px] text-zinc-600 font-bold uppercase tracking-widest block mt-1.5">
               Size: {item.size}
             </span>
           </div>
@@ -64,7 +64,7 @@ export default function CartItem({ item }: CartItemProps) {
             >
               <Minus size={10} />
             </button>
-            <span className="text-[11px] font-bold text-zinc-900 w-6 text-center">
+            <span className="text-xs font-bold text-zinc-900 w-7 text-center">
               {item.quantity}
             </span>
             <button
@@ -78,7 +78,7 @@ export default function CartItem({ item }: CartItemProps) {
             </button>
           </div>
 
-          <span className="text-sm font-bold text-zinc-900">
+          <span className="text-base font-bold text-zinc-900">
             {formatPrice(item.price * item.quantity)}
           </span>
         </div>

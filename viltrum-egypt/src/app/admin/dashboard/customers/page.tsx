@@ -92,14 +92,14 @@ export default function AdminCustomersPage() {
   const topCustomer = customers[0]; // Already sorted by totalSpent
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto bg-[#f4f5f7] min-h-screen p-4 sm:p-6 lg:p-8 rounded-xl">
+    <div className="space-y-8 max-w-7xl mx-auto bg-[#f4f5f7] min-h-screen p-5 sm:p-8 lg:p-10 rounded-2xl">
       {/* Header */}
-      <div className="pb-4 border-b border-zinc-200/60 mb-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+      <div className="pb-6 border-b border-zinc-200/60 mb-8 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6">
         <div>
-           <h1 className="text-2xl sm:text-3xl font-display text-zinc-800 tracking-tight">
+           <h1 className="text-3xl sm:text-4xl font-display text-zinc-800 tracking-tight">
              Customers CRM
            </h1>
-           <p className="text-sm text-zinc-500 mt-1">Manage and view your top clientele</p>
+           <p className="text-base text-zinc-500 mt-2">Manage and view your top clientele</p>
         </div>
         <div className="bg-white px-4 py-2 rounded-lg border border-zinc-100 shadow-sm flex items-center gap-3">
            <Users size={18} className="text-violet-600" />
@@ -112,8 +112,8 @@ export default function AdminCustomersPage() {
 
       {/* Highlights */}
       {topCustomer && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-           <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-xl p-6 shadow-md text-white relative overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+           <div className="bg-gradient-to-br from-zinc-900 to-zinc-800 rounded-2xl p-8 shadow-md text-white relative overflow-hidden">
                <div className="absolute -right-10 -top-10 w-32 h-32 bg-zinc-700/30 rounded-full blur-2xl"></div>
                <h3 className="text-xs font-bold text-white/50 uppercase tracking-widest mb-4">Top Customer</h3>
                <div className="flex items-center gap-4">

@@ -53,18 +53,18 @@ export default function RegisteredEmailsPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-10 max-w-[1450px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 pb-8 border-b border-zinc-100">
+      <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-7 pb-10 border-b border-zinc-200">
         <div>
            <Link href="/admin/dashboard" className="text-zinc-400 hover:text-zinc-950 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest mb-4 transition-colors">
               <ArrowLeft size={14} />
               Dashboard
            </Link>
-           <h1 className="text-4xl sm:text-5xl font-display font-bold text-zinc-950 tracking-tight">
+           <h1 className="text-5xl sm:text-6xl font-display font-bold text-zinc-950 tracking-tight">
              Registered Emails
            </h1>
-           <p className="text-zinc-500 text-base mt-2 font-medium tracking-tight">Manage the users who joined the Viltrum revolution.</p>
+           <p className="text-zinc-500 text-lg mt-3 font-medium tracking-tight">Manage the users who joined the Viltrum revolution.</p>
         </div>
         <div className="bg-white px-8 py-5 rounded-3xl shadow-premium border border-zinc-100 flex items-center gap-5">
            <div className="w-12 h-12 bg-zinc-950 text-white rounded-2xl flex items-center justify-center shadow-lg">
@@ -78,7 +78,7 @@ export default function RegisteredEmailsPage() {
       </div>
 
       {/* Main Content Card */}
-      <div className="bg-white rounded-[2.5rem] shadow-premium-xl border border-zinc-100 overflow-hidden">
+      <div className="bg-white rounded-[2.5rem] shadow-sm border border-zinc-200 overflow-hidden">
         {/* Search Bar */}
         <div className="p-8 border-b border-zinc-50 bg-zinc-50/30">
            <div className="max-w-md relative group">

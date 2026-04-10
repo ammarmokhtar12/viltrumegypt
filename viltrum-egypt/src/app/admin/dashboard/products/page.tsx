@@ -218,14 +218,14 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div>
-          <h1 className="font-display text-2xl text-zinc-900 tracking-wide">
+          <h1 className="font-display text-3xl sm:text-4xl text-zinc-900 tracking-wide">
             Products
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">
+          <p className="text-base text-zinc-500 mt-2">
             {products.length} products · {activeCount} active
           </p>
         </div>
@@ -242,8 +242,8 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-zinc-100 p-5 rounded-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div className="bg-white border border-zinc-200 p-6 rounded-xl shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-sm bg-zinc-50 flex items-center justify-center">
               <Package size={15} className="text-zinc-400" />
@@ -252,7 +252,7 @@ export default function AdminProductsPage() {
           </div>
           <p className="text-2xl font-display text-zinc-900">{products.length}</p>
         </div>
-        <div className="bg-white border border-zinc-100 p-5 rounded-sm">
+        <div className="bg-white border border-zinc-200 p-6 rounded-xl shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-sm bg-emerald-50 flex items-center justify-center">
               <Eye size={15} className="text-emerald-600" />
@@ -261,7 +261,7 @@ export default function AdminProductsPage() {
           </div>
           <p className="text-2xl font-display text-emerald-600">{activeCount}</p>
         </div>
-        <div className="bg-white border border-zinc-100 p-5 rounded-sm">
+        <div className="bg-white border border-zinc-200 p-6 rounded-xl shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-sm bg-zinc-50 flex items-center justify-center">
               <DollarSign size={15} className="text-zinc-400" />
@@ -270,7 +270,7 @@ export default function AdminProductsPage() {
           </div>
           <p className="text-2xl font-display text-zinc-900">EGP {avgPrice.toFixed(0)}</p>
         </div>
-        <div className="bg-white border border-zinc-100 p-5 rounded-sm">
+        <div className="bg-white border border-zinc-200 p-6 rounded-xl shadow-sm">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-8 h-8 rounded-sm bg-zinc-50 flex items-center justify-center">
               <EyeOff size={15} className="text-zinc-400" />
@@ -282,7 +282,7 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-5">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-300" />
           <input
@@ -290,7 +290,7 @@ export default function AdminProductsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search products..."
-            className="w-full h-12 pl-11 pr-4 text-sm bg-white border border-zinc-200 rounded-sm text-zinc-900 placeholder-zinc-300 focus:outline-none focus:border-zinc-400 transition-colors"
+            className="w-full h-12 pl-11 pr-4 text-sm bg-white border border-zinc-200 rounded-lg text-zinc-900 placeholder-zinc-300 focus:outline-none focus:border-zinc-400 transition-colors"
           />
         </div>
         <div className="flex gap-2">
@@ -298,7 +298,7 @@ export default function AdminProductsPage() {
             <button
               key={filter}
               onClick={() => setFilterActive(filter)}
-              className={`h-12 px-5 text-[11px] font-semibold uppercase tracking-[0.15em] border transition-all rounded-sm ${
+              className={`h-12 px-5 text-[11px] font-semibold uppercase tracking-[0.15em] border transition-all rounded-lg ${
                 filterActive === filter
                   ? "bg-zinc-900 text-white border-zinc-900"
                   : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-400"
@@ -322,7 +322,7 @@ export default function AdminProductsPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-white border border-zinc-100 rounded-sm overflow-hidden">
+        <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden">
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="admin-table">
@@ -461,7 +461,7 @@ export default function AdminProductsPage() {
           {/* Mobile Card View */}
           <div className="md:hidden divide-y divide-zinc-100">
             {filteredProducts.map((product) => (
-              <div key={product.id} className="p-4 space-y-4">
+              <div key={product.id} className="p-5 space-y-5">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-zinc-50 border border-zinc-100 rounded-sm overflow-hidden flex-shrink-0">
                     {product.image_url ? (
