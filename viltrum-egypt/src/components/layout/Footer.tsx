@@ -18,21 +18,16 @@ export default function Footer() {
               <h2 className="text-4xl font-extrabold tracking-tight text-zinc-900 sm:text-5xl">
                 Subscribe to our Dream
               </h2>
-              <p className="text-zinc-600 text-xl font-light max-w-lg mx-auto leading-relaxed">
-                Join the inner circle. Be the first to witness new drops and exclusive athlete events.
-              </p>
             </div>
             
-            <form onSubmit={(e) => e.preventDefault()} className="relative mx-auto max-w-lg overflow-hidden">
-               <input 
-                 type="email" 
-                 placeholder="your@email.com" 
-                 className="h-16 w-full rounded-full border border-zinc-200 bg-white pl-6 pr-40 text-zinc-900 placeholder:text-zinc-600 transition-all focus:border-zinc-400 focus:outline-none"
-               />
-               <button className="absolute bottom-2 right-2 top-2 rounded-full bg-zinc-900 px-8 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-zinc-700">
-                  Subscribe
-               </button>
-            </form>
+            <div className="mx-auto max-w-lg">
+              <Link
+                href="/login"
+                className="btn-primary w-full h-16 text-xs tracking-[0.22em]"
+              >
+                Subscribe
+              </Link>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-20 w-full">

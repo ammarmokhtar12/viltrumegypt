@@ -110,7 +110,7 @@ export default function HeroSection() {
 
         <div
           ref={ctaRef}
-          className="mt-20 flex w-full max-w-md flex-col justify-center gap-5 sm:max-w-none sm:flex-row"
+          className="mt-24 flex w-full max-w-md flex-col justify-center gap-5 sm:max-w-none sm:flex-row"
         >
           <Link
             href="/products"
