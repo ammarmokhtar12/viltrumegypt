@@ -1,68 +1,69 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { Mail } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-foreground text-background">
-      {/* Massive CTA Section */}
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-12 pt-32 pb-16 lg:pt-56 lg:pb-32">
-        <div className="flex flex-col border-b border-background/20 pb-16 lg:pb-32">
-           <h2 className="text-[12vw] leading-[0.8] font-display font-bold uppercase tracking-tighter mb-12">
-              JOIN THE<br />
-              ARCHIVE
-           </h2>
-           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-12 mt-12 w-full">
-              <p className="text-sm font-medium leading-relaxed max-w-sm text-background/70">
-                 Secure access to tier-one tactical apparel. Authorized personnel receive priority drops and classified intelligence.
-              </p>
-              <Link
-                href="/register"
-                className="bg-background text-foreground flex items-center justify-center h-16 px-12 text-[10px] uppercase font-bold tracking-widest hover:bg-background/80 transition-colors"
-              >
-                Establish Identity
-                <ArrowUpRight strokeWidth={1.5} size={16} className="ml-2" />
-              </Link>
-           </div>
+    <footer className="bg-[#211f1c] text-white pt-16 pb-8 font-sans selection:bg-secondary selection:text-white">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Top Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 border-b border-gray-800 pb-12 gap-8">
+          <div>
+            <Link href="/" className="flex flex-col leading-tight">
+              <span className="text-[12px] font-bold tracking-[0.2rem] text-white">VILTRUM</span>
+              <span className="text-[12px] font-medium tracking-[0.1rem] text-gray-500">COLLECTION</span>
+            </Link>
+          </div>
+          <nav className="flex flex-wrap gap-x-8 gap-y-4">
+            <Link href="/" className="text-sm font-normal text-gray-400 hover:text-white transition-colors">Home</Link>
+            <Link href="/products" className="text-sm font-normal text-gray-400 hover:text-white transition-colors">Products</Link>
+            <Link href="/checkout" className="text-sm font-normal text-gray-400 hover:text-white transition-colors">Checkout</Link>
+            <Link href="/login" className="text-sm font-normal text-gray-400 hover:text-white transition-colors">Login</Link>
+            <a 
+               href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
+               className="text-sm font-normal text-gray-400 hover:text-white transition-colors"
+            >
+              Contact
+            </a>
+          </nav>
         </div>
 
-        {/* Links Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 mt-16 lg:mt-32">
-           <div className="flex flex-col">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-background/50 mb-8">Navigation</span>
-              <Link href="/" className="text-base font-medium mb-4 hover:opacity-50 transition-opacity">Index</Link>
-              <Link href="/products" className="text-base font-medium mb-4 hover:opacity-50 transition-opacity">Archive</Link>
-              <Link href="/checkout" className="text-base font-medium mb-4 hover:opacity-50 transition-opacity">Checkout</Link>
-           </div>
-           
-           <div className="flex flex-col">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-background/50 mb-8">Identity</span>
-              <Link href="/login" className="text-base font-medium mb-4 hover:opacity-50 transition-opacity">Client Login</Link>
-              <Link href="/register" className="text-base font-medium mb-4 hover:opacity-50 transition-opacity">Register</Link>
-              <Link href="/admin" className="text-base font-medium mb-4 hover:opacity-50 transition-opacity">System Configurator</Link>
-           </div>
-
-           <div className="flex flex-col lg:col-span-2">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-background/50 mb-8">Comms</span>
-              <a 
-                 href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
-                 className="text-2xl sm:text-4xl lg:text-5xl font-display font-bold uppercase tracking-tighter hover:opacity-50 transition-opacity"
-              >
-                 +20-103-142-9229
+        {/* Middle Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
+          <div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal leading-tight">
+              We Design for the Modern Warrior.
+            </h2>
+          </div>
+          <div className="flex flex-col md:items-end gap-6 text-left md:text-right">
+            <div className="flex gap-4">
+              <a href="#" className="w-10 h-10 flex items-center justify-center border border-gray-700 rounded-full hover:bg-white hover:text-black transition-all">
+                <Mail size={18} />
               </a>
-           </div>
+            </div>
+            <div className="flex flex-col md:items-end">
+              <span className="text-xs text-gray-500 uppercase tracking-widest mb-1">Inquiries</span>
+              <span className="text-2xl font-light">info@viltrumegypt.com</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-32 pt-8 border-t border-background/20 gap-8">
-           <span className="text-4xl lg:text-5xl font-display font-bold tracking-tighter leading-none">
-              VILTRUM EGYPT
-           </span>
-           <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">
-              © {new Date().getFullYear()} CORE SYSTEMS
-           </span>
+        <hr className="border-gray-800 mb-8" />
+
+        {/* Bottom Section */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-sm text-gray-500 italic">
+            &copy; {new Date().getFullYear()} Viltrum Egypt. Engineered by Antigravity.
+          </p>
+          <div className="flex gap-6">
+            <Link href="#" className="text-xs text-gray-500 hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="#" className="text-xs text-gray-500 hover:text-white transition-colors">Terms of Service</Link>
+          </div>
         </div>
       </div>
     </footer>
   );
 }
+

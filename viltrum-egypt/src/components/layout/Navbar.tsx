@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, Menu, X, Phone } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
@@ -30,120 +30,100 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
   return (
     <nav
       id="main-navbar"
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
+      className={`fixed top-0 w-full z-50 transition-all duration-300 font-sans ${
         scrolled
-          ? "bg-background border-b border-border-light py-4"
-          : "bg-background py-6"
+          ? "bg-white shadow-sm py-3"
+          : "bg-white py-6"
       }`}
     >
-      <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between px-6 lg:px-12">
-        {/* Desktop Nav - Left */}
-        <div className="hidden lg:flex flex-1 items-center gap-10">
-          <Link href="/products" className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-50 transition-opacity">
-            Archive
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 uppercase">
+        {/* Brand - Left */}
+        <div className="flex-shrink-0">
+          <Link href="/" className="flex flex-col leading-tight">
+            <span className="text-[10px] font-bold tracking-[0.2rem] text-primary">VILTRUM</span>
+            <span className="text-[10px] font-medium tracking-[0.1rem] text-muted">COLLECTION</span>
           </Link>
-          <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-50 transition-opacity"
-          >
-            Concierge
-          </a>
         </div>
 
-        {/* Logo - Center */}
-        <div className="flex-1 lg:flex-none flex justify-start lg:justify-center">
-          <Link href="/" className="flex flex-col items-start lg:items-center">
-            <span className="text-3xl lg:text-4xl font-display font-bold leading-none tracking-tight text-foreground">
-              VILTRUM
-            </span>
+        {/* Links - Center (Desktop) */}
+        <div className="hidden lg:flex items-center gap-8 lowercase first-letter:uppercase">
+          <Link href="/" className="text-sm font-medium text-foreground hover:text-secondary transition-colors">
+            Home
+          </Link>
+          <Link href="/products" className="text-sm font-medium text-foreground hover:text-secondary transition-colors">
+            Products
+          </Link>
+          <a
+             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
+             target="_blank"
+             rel="noopener noreferrer"
+             className="text-sm font-medium text-foreground hover:text-secondary transition-colors"
+          >
+            Contact
+          </a>
+          <Link href="/admin" className="text-sm font-medium text-foreground hover:text-secondary transition-colors">
+            Account
           </Link>
         </div>
 
         {/* Actions - Right */}
-        <div className="flex flex-1 items-center justify-end gap-6">
-          {/* Identity */}
-          <div className="hidden lg:block">
-            {user ? (
-              <Link
-                href="/admin"
-                className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-50 transition-opacity"
-              >
-                {user.user_metadata?.full_name?.split(" ")[0] || "Client"}
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-50 transition-opacity"
-              >
-                Client Login
-              </Link>
-            )}
+        <div className="flex items-center gap-4 lg:gap-6">
+          <div className="hidden md:flex items-center gap-2 text-sm font-bold text-foreground">
+            <Phone size={16} className="text-secondary" />
+            <span>+201031429229</span>
           </div>
 
-          {/* Cart */}
           <button
-            id="cart-button"
             onClick={onCartOpen}
-            className="flex items-center gap-2 group"
+            className="flex items-center gap-2 group transition-opacity relative"
           >
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground group-hover:opacity-50 transition-opacity">
-              Cart
-            </span>
             <div className="relative">
-              <ShoppingBag strokeWidth={1.5} size={20} className="text-foreground" />
+              <ShoppingBag strokeWidth={1.5} size={22} className="text-foreground group-hover:text-secondary transition-colors" />
               {itemCount > 0 && (
-                <span className="absolute -right-2 -bottom-2 flex h-4 w-4 items-center justify-center bg-foreground text-background text-[9px] font-bold">
+                <span className="absolute -right-2 -top-1 flex h-4 w-4 items-center justify-center bg-secondary text-white text-[9px] font-bold rounded-full">
                   {itemCount}
                 </span>
               )}
             </div>
           </button>
 
-          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="flex items-center justify-center lg:hidden ml-2"
+            className="lg:hidden text-foreground hover:text-secondary transition-colors"
           >
-            {mobileOpen ? <X strokeWidth={1.5} size={24} /> : <Menu strokeWidth={1.5} size={24} />}
+            {mobileOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu Overlay */}
       {mobileOpen && (
-        <div className="absolute top-full left-0 w-full h-screen bg-background px-6 pt-10 pb-24 flex flex-col justify-between border-t border-border-light z-40 lg:hidden">
-          <div className="flex flex-col gap-8">
-            <Link href="/" onClick={() => setMobileOpen(false)} className="text-5xl font-display font-bold text-foreground">
-              INDEX
-            </Link>
-            <Link href="/products" onClick={() => setMobileOpen(false)} className="text-5xl font-display font-bold text-foreground">
-              ARCHIVE
-            </Link>
-            <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-5xl font-display font-bold text-foreground"
-            >
-              CONCIERGE
-            </a>
-          </div>
-          
-          <div className="border-t border-border-light pt-8">
-            {user ? (
-               <Link href="/admin" className="text-base font-bold uppercase tracking-widest text-foreground">
-                  View Profile
-               </Link>
-            ) : (
-               <Link href="/login" className="text-base font-bold uppercase tracking-widest text-foreground">
-                  Client Login
-               </Link>
-            )}
+        <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-border-light shadow-xl px-4 py-8 flex flex-col gap-6 selection:bg-secondary selection:text-white">
+          <Link href="/" onClick={() => setMobileOpen(false)} className="text-lg font-medium text-foreground border-b border-gray-50 pb-2">
+            Home
+          </Link>
+          <Link href="/products" onClick={() => setMobileOpen(false)} className="text-lg font-medium text-foreground border-b border-gray-50 pb-2">
+            Products
+          </Link>
+          <a
+            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMobileOpen(false)}
+            className="text-lg font-medium text-foreground border-b border-gray-50 pb-2"
+          >
+            Contact
+          </a>
+          <Link href="/login" onClick={() => setMobileOpen(false)} className="text-lg font-medium text-foreground border-b border-gray-50 pb-2">
+            {user ? "Dashboard" : "Login"}
+          </Link>
+          <div className="flex items-center gap-3 pt-4 font-bold text-secondary">
+            <Phone size={20} />
+            <span>+201031429229</span>
           </div>
         </div>
       )}
     </nav>
   );
 }
+
