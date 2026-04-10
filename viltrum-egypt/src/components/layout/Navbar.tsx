@@ -1,12 +1,10 @@
 "use client";
 
-import { ShoppingBag, User, Moon, Sun, Menu, X } from "lucide-react";
+import { ShoppingBag, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
 import { useAuthStore } from "@/store/auth";
-import { supabase } from "@/lib/supabase";
 
 interface NavbarProps {
   onCartOpen: () => void;
@@ -16,141 +14,133 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
   const totalItems = useCartStore((s) => s.totalItems);
   const { user } = useAuthStore();
   const itemCount = totalItems();
-  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  if (!mounted) return null;
+
   return (
     <nav
       id="main-navbar"
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-surface/80 backdrop-blur-xl border-b border-border-light shadow-sm"
-          : "bg-transparent"
+          ? "bg-background border-b border-border-light py-4"
+          : "bg-background py-6"
       }`}
     >
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-            <span className="text-background font-display text-lg">V</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold leading-none tracking-[0.2em] text-foreground">
-              VILTRUM
-            </span>
-            <span className="text-[8px] font-medium uppercase tracking-[0.3em] text-muted">
-              Egypt
-            </span>
-          </div>
-        </Link>
-
-        {/* Desktop Nav */}
-        <div className="hidden items-center gap-8 md:flex">
-          <Link href="/" className="text-[13px] font-medium text-secondary transition-colors hover:text-foreground">
-            Home
-          </Link>
-          <Link href="/products" className="text-[13px] font-medium text-secondary transition-colors hover:text-foreground">
-            Shop
+      <div className="mx-auto flex w-full max-w-[1400px] items-center justify-between px-6 lg:px-12">
+        {/* Desktop Nav - Left */}
+        <div className="hidden lg:flex flex-1 items-center gap-10">
+          <Link href="/products" className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-50 transition-opacity">
+            Archive
           </Link>
           <a
             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[13px] font-medium text-secondary transition-colors hover:text-foreground"
+            className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-50 transition-opacity"
           >
-            Contact
+            Concierge
           </a>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          {/* Theme Toggle */}
-          {mounted && (
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="relative flex h-9 w-9 items-center justify-center rounded-lg text-secondary transition-all hover:text-foreground hover:bg-surface"
-              aria-label="Toggle theme"
-            >
-              {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-            </button>
-          )}
+        {/* Logo - Center */}
+        <div className="flex-1 lg:flex-none flex justify-start lg:justify-center">
+          <Link href="/" className="flex flex-col items-start lg:items-center">
+            <span className="text-3xl lg:text-4xl font-display font-bold leading-none tracking-tight text-foreground">
+              VILTRUM
+            </span>
+          </Link>
+        </div>
 
-          {/* User */}
-          {user ? (
-            <button
-              onClick={() => {
-                if (confirm("Logout?")) {
-                  supabase.auth.signOut();
-                }
-              }}
-              className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-background text-xs font-bold transition-all hover:opacity-90"
-              title="Logout"
-            >
-              {user.user_metadata?.full_name?.charAt(0).toUpperCase() || "U"}
-            </button>
-          ) : (
-            <Link
-              href="/login"
-              className="relative flex h-9 w-9 items-center justify-center rounded-lg text-secondary transition-all hover:text-foreground hover:bg-surface"
-              aria-label="Login"
-            >
-              <User size={17} />
-            </Link>
-          )}
+        {/* Actions - Right */}
+        <div className="flex flex-1 items-center justify-end gap-6">
+          {/* Identity */}
+          <div className="hidden lg:block">
+            {user ? (
+              <Link
+                href="/admin"
+                className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-50 transition-opacity"
+              >
+                {user.user_metadata?.full_name?.split(" ")[0] || "Client"}
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground hover:opacity-50 transition-opacity"
+              >
+                Client Login
+              </Link>
+            )}
+          </div>
 
           {/* Cart */}
           <button
             id="cart-button"
             onClick={onCartOpen}
-            className="relative flex h-9 w-9 items-center justify-center rounded-lg text-secondary transition-all hover:text-foreground hover:bg-surface"
-            aria-label="Open cart"
+            className="flex items-center gap-2 group"
           >
-            <ShoppingBag size={17} />
-            {itemCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-accent text-[9px] font-bold text-white">
-                {itemCount}
-              </span>
-            )}
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-foreground group-hover:opacity-50 transition-opacity">
+              Cart
+            </span>
+            <div className="relative">
+              <ShoppingBag strokeWidth={1.5} size={20} className="text-foreground" />
+              {itemCount > 0 && (
+                <span className="absolute -right-2 -bottom-2 flex h-4 w-4 items-center justify-center bg-foreground text-background text-[9px] font-bold">
+                  {itemCount}
+                </span>
+              )}
+            </div>
           </button>
 
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-secondary transition-all hover:text-foreground hover:bg-surface md:hidden"
-            aria-label="Menu"
+            className="flex items-center justify-center lg:hidden ml-2"
           >
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            {mobileOpen ? <X strokeWidth={1.5} size={24} /> : <Menu strokeWidth={1.5} size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       {mobileOpen && (
-        <div className="border-t border-border-light bg-surface px-5 pb-6 pt-4 md:hidden animate-fade-up">
-          <div className="flex flex-col gap-4">
-            <Link href="/" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-secondary transition-colors hover:text-foreground py-2">
-              Home
+        <div className="absolute top-full left-0 w-full h-screen bg-background px-6 pt-10 pb-24 flex flex-col justify-between border-t border-border-light z-40 lg:hidden">
+          <div className="flex flex-col gap-8">
+            <Link href="/" onClick={() => setMobileOpen(false)} className="text-5xl font-display font-bold text-foreground">
+              INDEX
             </Link>
-            <Link href="/products" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-secondary transition-colors hover:text-foreground py-2">
-              Shop
+            <Link href="/products" onClick={() => setMobileOpen(false)} className="text-5xl font-display font-bold text-foreground">
+              ARCHIVE
             </Link>
             <a
               href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-secondary transition-colors hover:text-foreground py-2"
+              className="text-5xl font-display font-bold text-foreground"
             >
-              Contact
+              CONCIERGE
             </a>
+          </div>
+          
+          <div className="border-t border-border-light pt-8">
+            {user ? (
+               <Link href="/admin" className="text-base font-bold uppercase tracking-widest text-foreground">
+                  View Profile
+               </Link>
+            ) : (
+               <Link href="/login" className="text-base font-bold uppercase tracking-widest text-foreground">
+                  Client Login
+               </Link>
+            )}
           </div>
         </div>
       )}
