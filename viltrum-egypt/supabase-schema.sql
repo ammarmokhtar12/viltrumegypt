@@ -40,6 +40,17 @@ CREATE TABLE orders (
 );
 
 -- ==========================================
+-- PROFILES TABLE (REGISTERED USERS)
+-- ==========================================
+CREATE TABLE profiles (
+  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  full_name TEXT,
+  email TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
 -- INDEXES
 -- ==========================================
 CREATE INDEX idx_orders_status ON orders(status);

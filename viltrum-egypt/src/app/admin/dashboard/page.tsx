@@ -82,7 +82,7 @@ export default function AdminDashboardPage() {
       setLoading(true);
       try {
         const [ordersRes, productsRes] = await Promise.all([
-          supabase.from("orders").select("*").order("created_at", { ascending: true }), // Ascending for time series
+          supabase.from("orders").select("*").order("created_at", { ascending: true }),
           supabase.from("products").select("id", { count: "exact" }),
         ]);
 
@@ -100,7 +100,7 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <div className="w-8 h-8 border-2 border-emerald-100 border-t-emerald-600 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-zinc-100 border-t-zinc-950 rounded-full animate-spin" />
       </div>
     );
   }
@@ -113,26 +113,21 @@ export default function AdminDashboardPage() {
   
   const fulfillmentRate = orders.length > 0 ? (deliveredOrders.length / orders.length) * 100 : 0;
   const returnedOrCancelledRate = orders.length > 0 ? (orders.filter(o => o.status === 'cancelled').length / orders.length) * 100 : 0;
-  // A fake "Quick Ratio" equivalent for eccommerce - representing high value orders vs normal
   const highValueRatio = orders.length > 0 ? (orders.filter(o => o.total > 1500).length / orders.length) * 10 : 0;
-  const growthRate = 18.4; // Sample static metric for UI richness
+  const growthRate = 18.4;
 
-  // --- Timeseries Data Preparation ---
-  // Group orders by month/day for the area chart
   const revenueDataMap = new Map();
   orders.forEach(o => {
     const date = new Date(o.created_at).toLocaleDateString('en-US', { month: 'short' });
     if (!revenueDataMap.has(date)) {
-      revenueDataMap.set(date, { name: date, Revenue: 0, Profit: 0 }); // Simulating profit
+      revenueDataMap.set(date, { name: date, Revenue: 0, Profit: 0 });
     }
     const current = revenueDataMap.get(date);
     current.Revenue += o.total;
-    current.Profit += (o.total * 0.4); // Assuming 40% margin for chart visual
+    current.Profit += (o.total * 0.4);
   });
   const chartData = Array.from(revenueDataMap.values());
 
-  // --- Bubble Chart Data (Variance equivalent) ---
-  // Calculate size counts from all order items
   const sizeMap = new Map<string, number>();
   orders.forEach(o => {
     o.items?.forEach(item => {
@@ -143,184 +138,191 @@ export default function AdminDashboardPage() {
     });
   });
 
-  const colors = ['#fda4af', '#fcd34d', '#6ee7b7', '#93c5fd', '#c4b5fd'];
+  const colors = ['#09090b', '#27272a', '#52525b', '#a1a1aa', '#d4d4d8'];
   const varianceData = Array.from(sizeMap.entries()).map(([size, count], index) => ({
     name: size,
-    x: (index + 1) * 20, // arbitrary x spread
-    y: count * 10,       // arbitrary y mapping
-    z: Math.max(100, count * 50), // bubble size based on count
+    x: (index + 1) * 20,
+    y: count * 10,
+    z: Math.max(100, count * 50),
     fill: colors[index % colors.length]
   }));
 
-  // if no data yet, provide a single generic bubble to prevent chart crash
   if (varianceData.length === 0) {
     varianceData.push({ name: 'N/A', x: 50, y: 50, z: 100, fill: '#f4f4f5' });
   }
 
   return (
-    <div className="space-y-6 max-w-[1400px] mx-auto bg-[#f4f5f7] min-h-screen p-4 sm:p-6 lg:p-8 rounded-xl font-sans">
+    <div className="space-y-10 max-w-[1400px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
       
       {/* Header Area */}
-      <div className="pb-4 border-b border-zinc-200/60 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-display text-zinc-800 tracking-tight">
-          Executive KPI Dashboard
-        </h1>
-        <p className="text-sm text-zinc-500 mt-1">Real-time performance metrics</p>
-      </div>
-
-      {/* TOP ROW: Gauges */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-100 p-2 flex flex-col items-center transition-all hover:scale-[1.02]">
-           <Gauge value={fulfillmentRate} label="Fulfillment Rate" color="#34d399" />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-2">
+        <div>
+          <h1 className="text-4xl sm:text-6xl font-display font-bold text-zinc-950 tracking-tighter">
+            Executive View
+          </h1>
+          <p className="text-zinc-500 font-medium tracking-tight mt-2 italic">Real-time performance intelligence for Viltrum Egypt.</p>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-100 p-2 flex flex-col items-center transition-all hover:scale-[1.02]">
-           <Gauge value={growthRate} label="MoM Growth" color="#60a5fa" />
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-100 p-2 flex flex-col items-center transition-all hover:scale-[1.02]">
-           <Gauge value={highValueRatio} label="High-Value Ratio" color="#fbbf24" max={10} />
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-100 p-2 flex flex-col items-center transition-all hover:scale-[1.02]">
-           <Gauge value={returnedOrCancelledRate} label="Cancellation Rate" color="#f87171" />
+        <div className="flex items-center gap-4">
+           <Link href="/admin/dashboard/orders" className="btn-primary">
+              Run Reports
+           </Link>
         </div>
       </div>
 
-      {/* MIDDLE ROW */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      {/* TOP ROW: Vital Gauges */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Fulfillment", value: fulfillmentRate, color: "#09090b" },
+          { label: "MoM Growth", value: growthRate, color: "#09090b" },
+          { label: "High-Value", value: highValueRatio, color: "#09090b", max: 10 },
+          { label: "Cancellation", value: returnedOrCancelledRate, color: "#ef4444" },
+        ].map((gauge, i) => (
+          <div key={i} className="bg-white rounded-[2rem] shadow-premium border border-zinc-100 p-4 transition-all hover:shadow-premium-xl active:scale-95 group">
+             <Gauge value={gauge.value} label={gauge.label} color={gauge.color} max={gauge.max} />
+          </div>
+        ))}
+      </div>
+
+      {/* MIDDLE ROW: Main Intelligence */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Metric List (Left) */}
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-100 p-6 flex flex-col">
-          <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-6">Asset Health</h3>
-          <div className="space-y-4 flex-1">
-            <div className="flex justify-between items-center text-sm border-b border-zinc-100 pb-3">
-              <span className="text-zinc-600">Total Revenue</span>
-              <span className="font-medium text-zinc-900">{totalRevenue.toLocaleString()} EGP</span>
-            </div>
-            <div className="flex justify-between items-center text-sm border-b border-zinc-100 pb-3">
-              <span className="text-zinc-600">Avg. Order Value</span>
-              <span className="font-medium text-zinc-900">{avgOrderValue.toFixed(0)} EGP</span>
-            </div>
-            <div className="flex justify-between items-center text-sm border-b border-zinc-100 pb-3">
-              <span className="text-zinc-600">Total Orders</span>
-              <span className="font-medium text-zinc-900">{orders.length}</span>
-            </div>
-            <div className="flex justify-between items-center text-sm border-b border-zinc-100 pb-3">
-              <span className="text-zinc-600">Active Products</span>
-              <span className="font-medium text-zinc-900">{productCount}</span>
-            </div>
-             <div className="flex justify-between items-center text-sm border-b border-zinc-100 pb-3">
-              <span className="text-zinc-600">Unique Customers</span>
-              <span className="font-medium text-zinc-900">{uniqueCustomers}</span>
+        <div className="lg:col-span-4 bg-white rounded-[2.5rem] shadow-premium-xl border border-zinc-100 p-8 flex flex-col justify-between">
+          <div>
+            <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-10">Asset Performance</h3>
+            <div className="space-y-8">
+              <div className="flex justify-between items-end border-b border-zinc-50 pb-5">
+                <span className="text-zinc-400 font-bold uppercase text-[9px] tracking-widest">Total Revenue</span>
+                <span className="text-3xl font-display font-bold text-zinc-950 tracking-tighter">{totalRevenue.toLocaleString()} <span className="text-xs uppercase ml-1">EGP</span></span>
+              </div>
+              <div className="flex justify-between items-end border-b border-zinc-50 pb-5">
+                <span className="text-zinc-400 font-bold uppercase text-[9px] tracking-widest">AOV</span>
+                <span className="text-2xl font-display font-bold text-zinc-800 tracking-tight">{avgOrderValue.toFixed(0)} <span className="text-xs uppercase ml-1">EGP</span></span>
+              </div>
+              <div className="flex justify-between items-end border-b border-zinc-50 pb-5">
+                <span className="text-zinc-400 font-bold uppercase text-[9px] tracking-widest">Conversion Count</span>
+                <span className="text-2xl font-display font-bold text-zinc-800 tracking-tight">{orders.length}</span>
+              </div>
             </div>
           </div>
-          <div className="mt-4 pt-4 border-t-2 border-zinc-900 flex justify-between items-center">
-             <span className="font-bold text-zinc-800">Projected Value</span>
-             <span className="font-bold text-zinc-800">{(totalRevenue * 1.2).toLocaleString()} EGP</span>
+          
+          <div className="mt-12 bg-zinc-950 rounded-3xl p-6 text-white overflow-hidden relative shadow-2xl">
+             <div className="relative z-10">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60">Projected Run Rate</p>
+                <p className="text-3xl font-display font-bold mt-2">{(totalRevenue * 1.4).toLocaleString()} <span className="text-[10px] uppercase font-bold opacity-50">EGP</span></p>
+             </div>
+             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 -mr-10 -mt-10 rounded-full blur-3xl" />
           </div>
         </div>
 
-        {/* Main Chart (Center) */}
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-100 p-6 lg:col-span-2">
-           <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-6">Revenue & Margin Analysis</h3>
-           <div className="h-[280px] w-full">
+        {/* Intelligence Chart (Right) */}
+        <div className="lg:col-span-8 bg-white rounded-[2.5rem] shadow-premium-xl border border-zinc-100 p-8">
+           <div className="flex justify-between items-center mb-10">
+              <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em]">Revenue Analytics</h3>
+              <div className="flex items-center gap-2">
+                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-zinc-950"></div><span className="text-[9px] font-bold text-zinc-500 uppercase">Revenue</span></div>
+                 <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-zinc-300"></div><span className="text-[9px] font-bold text-zinc-500 uppercase">Margin</span></div>
+              </div>
+           </div>
+           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#09090b" stopOpacity={0.08}/>
+                    <stop offset="95%" stopColor="#09090b" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#a1a1aa' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#a1a1aa' }} dx={-10} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#a1a1aa' }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#a1a1aa' }} dx={-10} />
                 <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  itemStyle={{ fontSize: '13px', fontWeight: 500 }}
+                  cursor={{stroke: '#09090b', strokeWidth: 1}}
+                  contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)', padding: '15px' }}
+                  itemStyle={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' }}
                 />
-                <Area type="monotone" dataKey="Revenue" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-                <Area type="monotone" dataKey="Profit" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorProfit)" />
+                <Area type="monotone" dataKey="Revenue" stroke="#09090b" strokeWidth={4} fillOpacity={1} fill="url(#colorRevenue)" />
+                <Area type="monotone" dataKey="Profit" stroke="#d4d4d8" strokeWidth={2} strokeDasharray="5 5" fill="none" />
               </AreaChart>
             </ResponsiveContainer>
            </div>
         </div>
       </div>
 
-      {/* BOTTOM ROW */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      {/* BOTTOM ROW: Operational Efficiency */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Alerts / Tasks (Left) */}
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-100 p-6 flex flex-col">
-          <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-6">Actionable Liabilities</h3>
-          <div className="space-y-4 flex-1">
-             <div className="p-4 bg-amber-50 rounded-lg border border-amber-100 flex items-start gap-3">
-                <AlertCircle className="text-amber-600 mt-0.5 flex-shrink-0" size={18} />
-                <div>
-                   <p className="text-sm font-semibold text-amber-800">Pending Orders</p>
-                   <p className="text-xs text-amber-600 mt-1">{orders.filter(o => o.status === 'pending').length} orders awaiting confirmation</p>
-                </div>
-             </div>
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 flex items-start gap-3">
-                <ShoppingCart className="text-blue-600 mt-0.5 flex-shrink-0" size={18} />
-                <div>
-                   <p className="text-sm font-semibold text-blue-800">Ready to Ship</p>
-                   <p className="text-xs text-blue-600 mt-1">{orders.filter(o => o.status === 'confirmed').length} orders confirmed</p>
-                </div>
-             </div>
-          </div>
-          <Link href="/admin/dashboard/orders" className="w-full mt-6 py-3 bg-zinc-900 text-white rounded-lg text-sm font-semibold text-center hover:bg-zinc-800 transition-colors">
-            Manage Orders
-          </Link>
-        </div>
-
-        {/* Bar Chart (Center) */}
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-100 p-6">
-           <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-6">Performance Matrix</h3>
-           <div className="h-[220px] w-full mt-4">
-             <ResponsiveContainer width="100%" height="100%">
-               <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
-                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#a1a1aa' }} dy={5} />
-                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#a1a1aa' }} />
-                 <Tooltip cursor={{fill: '#f4f4f5'}} contentStyle={{ borderRadius: '8px', border: 'none' }} />
-                 <Bar dataKey="Revenue" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={30} />
-                 <Bar dataKey="Profit" fill="#93c5fd" radius={[4, 4, 0, 0]} maxBarSize={30} />
-               </BarChart>
-             </ResponsiveContainer>
-           </div>
-        </div>
-
-        {/* Bubble Chart (Right) */}
-        <div className="bg-white rounded-xl shadow-sm border border-zinc-100 p-6">
-           <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-6">Size Variance Analysis</h3>
-            <div className="h-[220px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 10, right: 10, bottom: 10, left: -20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
-                  <XAxis type="number" dataKey="x" name="stature" axisLine={false} tickLine={false} tick={false} />
-                  <YAxis type="number" dataKey="y" name="weight" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#a1a1aa' }} />
-                  <ZAxis type="number" dataKey="z" range={[60, 400]} />
-                  <Tooltip cursor={{strokeDasharray: '3 3'}} contentStyle={{ borderRadius: '8px', border: 'none' }} />
-                  <Scatter name="Sizes" data={varianceData}>
-                    {varianceData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Scatter>
-                </ScatterChart>
-              </ResponsiveContainer>
-              <div className="flex justify-center gap-3 mt-2">
-                 <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500"><div className="w-2 h-2 rounded-full bg-rose-300"></div>S</span>
-                 <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500"><div className="w-2 h-2 rounded-full bg-amber-300"></div>M</span>
-                 <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500"><div className="w-2 h-2 rounded-full bg-emerald-300"></div>L</span>
-                 <span className="flex items-center gap-1 text-[10px] uppercase text-zinc-500"><div className="w-2 h-2 rounded-full bg-blue-300"></div>XL</span>
+        {/* Action Center */}
+        <div className="bg-white rounded-[2rem] shadow-premium border border-zinc-100 p-8 flex flex-col justify-between">
+           <div>
+              <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Inventory Risk</h3>
+              <div className="space-y-4">
+                 <div className="p-5 bg-zinc-50 rounded-3xl border border-zinc-100 flex items-center justify-between group hover:bg-zinc-950 transition-all cursor-pointer">
+                    <div className="flex items-center gap-4">
+                       <AlertCircle className="text-amber-500 group-hover:text-amber-400 transition-colors" size={20} />
+                       <span className="text-sm font-bold text-zinc-900 group-hover:text-white transition-colors">Awaiting Confirm</span>
+                    </div>
+                    <span className="text-lg font-bold text-zinc-950 group-hover:text-white transition-colors">{orders.filter(o => o.status === 'pending').length}</span>
+                 </div>
+                 <div className="p-5 bg-zinc-50 rounded-3xl border border-zinc-100 flex items-center justify-between group hover:bg-zinc-950 transition-all cursor-pointer">
+                    <div className="flex items-center gap-4">
+                       <ShoppingCart className="text-emerald-500 group-hover:text-emerald-400 transition-colors" size={20} />
+                       <span className="text-sm font-bold text-zinc-900 group-hover:text-white transition-colors">Manifested</span>
+                    </div>
+                    <span className="text-lg font-bold text-zinc-950 group-hover:text-white transition-colors">{orders.filter(o => o.status === 'confirmed').length}</span>
+                 </div>
               </div>
+           </div>
+           <Link href="/admin/dashboard/orders" className="btn-primary w-full mt-10">
+              Process Flow
+           </Link>
+        </div>
+
+        {/* Matrix Visualization */}
+        <div className="lg:col-span-2 bg-white rounded-[2.5rem] shadow-premium border border-zinc-100 p-8 grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div>
+               <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Performance Matrix</h3>
+               <div className="h-[200px] w-full">
+                 <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={chartData}>
+                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
+                     <XAxis dataKey="name" hide />
+                     <YAxis hide />
+                     <Tooltip cursor={{fill: '#f8f8f8'}} contentStyle={{ borderRadius: '15px', border: 'none' }} />
+                     <Bar dataKey="Revenue" fill="#09090b" radius={[10, 10, 10, 10]} maxBarSize={15} />
+                   </BarChart>
+                 </ResponsiveContainer>
+               </div>
+            </div>
+            <div>
+               <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-8">Size Utilization</h3>
+                <div className="h-[200px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ScatterChart>
+                      <XAxis type="number" dataKey="x" hide />
+                      <YAxis type="number" dataKey="y" hide />
+                      <ZAxis type="number" dataKey="z" range={[100, 600]} />
+                      <Scatter name="Sizes" data={varianceData}>
+                        {varianceData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} strokeWidth={2} stroke="rgba(0,0,0,0.05)" />
+                        ))}
+                      </Scatter>
+                    </ScatterChart>
+                  </ResponsiveContainer>
+                  <div className="flex flex-wrap justify-center gap-4 mt-2">
+                     {varianceData.slice(0, 4).map((v, i) => (
+                       <span key={i} className="flex items-center gap-1.5 text-[9px] font-bold uppercase text-zinc-400">
+                          <div className="w-2 h-2 rounded-full" style={{background: v.fill}}></div>{v.name}
+                       </span>
+                     ))}
+                  </div>
+                </div>
             </div>
         </div>
 
       </div>
     </div>
+  );
+}
   );
 }

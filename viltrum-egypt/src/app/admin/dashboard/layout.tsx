@@ -13,6 +13,7 @@ import {
   ChevronRight,
   BarChart3,
   Users,
+  Mail,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -88,6 +89,12 @@ export default function AdminLayout({
       label: "Customers",
       icon: Users,
       active: pathname === "/admin/dashboard/customers",
+    },
+    {
+      href: "/admin/dashboard/users",
+      label: "Registered Users",
+      icon: Mail,
+      active: pathname === "/admin/dashboard/users",
     },
   ];
 

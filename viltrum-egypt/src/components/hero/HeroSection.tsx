@@ -75,17 +75,17 @@ export default function HeroSection() {
           muted
           playsInline
           className="h-full w-full object-cover opacity-0"
-          style={{ mixBlendMode: "multiply" }}
         />
-        <div className="absolute inset-0 bg-white/50" />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-60" />
 
         {/* Brand Watermark */}
         <div
           ref={brandRef}
           className="absolute inset-0 flex items-center justify-center opacity-0 select-none"
         >
-          <span className="text-[20vw] font-display font-bold text-zinc-900/[0.03] uppercase tracking-tight whitespace-nowrap">
-            Viltrum Egypt
+          <span className="text-[20vw] font-display font-bold text-black/[0.1] uppercase tracking-tighter whitespace-nowrap">
+            VILTRUM
           </span>
         </div>
       </div>
@@ -94,26 +94,26 @@ export default function HeroSection() {
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-6 pb-20 pt-36 text-center">
         <div
           ref={badgeRef}
-          className="inline-flex items-center gap-2 mb-10 px-5 py-2.5 bg-zinc-50 border border-zinc-100 text-zinc-500 rounded-full text-[11px] font-semibold uppercase tracking-[0.35em]"
+          className="inline-flex items-center gap-2 mb-10 px-5 py-2.5 bg-black/[0.03] backdrop-blur-sm border border-black/5 text-zinc-900 rounded-full text-[11px] font-bold uppercase tracking-[0.35em] shadow-sm"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
-          Premium Performance
+          <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
+          Viltrum Egypt Edition
         </div>
 
         <h1
           ref={titleRef}
-          className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight leading-[0.9] text-zinc-900"
+          className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter leading-[0.85] text-zinc-900"
         >
-          <span className="block">Precision.</span>
-          <span className="block text-zinc-300 mt-2">Elegance.</span>
+          <span className="block drop-shadow-2xl">Viltrum.</span>
+          <span className="block text-zinc-300 mt-2 drop-shadow-xl">Egypt.</span>
         </h1>
 
         <p
           ref={subtitleRef}
-          className="mt-10 max-w-xl text-lg sm:text-xl leading-relaxed text-zinc-400 font-light"
+          className="mt-10 max-w-xl text-lg sm:text-xl leading-relaxed text-zinc-500 font-medium tracking-tight"
         >
-          Premium compression wear crafted for athletes who want discipline in
-          performance and confidence in presentation.
+          The ultimate compression performancewear. Forged in strength, 
+          designed for the elite. Experience the Viltrum revolution.
         </p>
 
         <div
