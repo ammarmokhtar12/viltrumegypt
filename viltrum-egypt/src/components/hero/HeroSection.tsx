@@ -1,129 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
-const SLIDES = [
-  {
-    id: 1,
-    badge: "%20 Sell",
-    title: "VILTRUM Performance Collection",
-    description: "Premium athletic gear engineered for maximum utility and aesthetic appeal.",
-    price: "EGP 599",
-    image: "/products/Screenshot 2026-04-09 135734.png",
-  },
-  {
-    id: 2,
-    badge: "%10 Sell",
-    title: "Elite Compression Gear",
-    description: "Experience the next level of comfort and support with our compression line.",
-    price: "EGP 450",
-    image: "/products/Screenshot 2026-04-09 135734.png", // Reusing for concept
-  },
-  {
-    id: 3,
-    badge: "%25 Sell",
-    title: "The Archive Series",
-    description: "Timeless designs that define the intersection of sport and fashion.",
-    price: "EGP 890",
-    image: "/products/Screenshot 2026-04-09 135734.png", // Reusing for concept
-  }
-];
 
 export default function HeroSection() {
-  const [current, setCurrent] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % SLIDES.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const next = () => setCurrent((prev) => (prev + 1) % SLIDES.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
-
   return (
-    <section className="relative w-full h-[85vh] md:h-[90vh] bg-[#fdfdfd] pt-24 overflow-hidden font-sans group">
-      <div className="container mx-auto h-full px-4 sm:px-6 lg:px-8">
-        <div className="relative h-full flex items-center justify-center">
-          
-          {/* Slides */}
-          {SLIDES.map((slide, i) => (
-            <div
-              key={slide.id}
-              className={`absolute inset-0 transition-all duration-1000 ease-in-out flex flex-col items-center justify-center text-center ${
-                i === current ? "opacity-100 translate-x-0" : "opacity-0 translate-x-12 pointer-events-none"
-              }`}
-            >
-              {/* Image Area */}
-              <div className="relative w-full max-w-4xl h-[40vh] md:h-[50vh] mb-8 md:mb-12">
-                <Image
-                  src={slide.image}
-                  alt={slide.title}
-                  fill
-                  className="object-contain"
-                  priority={i === 0}
-                />
-                
-                {/* Floating Content (Furnish Style) */}
-                <div className="absolute top-0 left-0 text-left">
-                  <span className="text-secondary italic text-lg md:text-2xl font-normal block mb-2">{slide.badge}</span>
-                  <h2 className="text-3xl md:text-5xl lg:text-6xl text-foreground font-normal leading-tight max-w-lg">
-                    {slide.title}
-                  </h2>
-                </div>
-              </div>
+    <section className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden font-sans">
+      {/* Background Image - The T-Shirt */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/products/Screenshot 2026-04-09 135734.png"
+          alt="Viltrum Hero"
+          fill
+          className="object-cover object-center opacity-90 scale-105"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/60" />
+      </div>
 
-              {/* Bottom Content */}
-              <div className="max-w-xl animate-fade-in-up">
-                <p className="hidden md:block text-muted text-base mb-4 leading-relaxed">
-                  {slide.description}
-                </p>
-                <div className="text-xl font-bold text-foreground mb-6">
-                  {slide.price}
-                </div>
-                <Link
-                  href="/products"
-                  className="inline-block px-10 py-3 bg-primary text-white text-sm font-medium hover:bg-secondary transition-colors"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
-          ))}
+      {/* Content Overlay */}
+      <div className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center text-center animate-fade-in">
+        {/* Edition Badge */}
+        <div className="flex items-center gap-2 mb-6 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full border border-gray-100 shadow-sm">
+          <span className="text-secondary text-xs">⚡</span>
+          <span className="text-[10px] font-bold tracking-[0.2em] text-muted uppercase">
+            Viltrum Egypt Edition
+          </span>
+        </div>
 
-          {/* Navigation Arrows */}
-          <button
-            onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center border border-border-light hover:bg-primary hover:border-primary hover:text-white transition-all text-muted opacity-0 group-hover:opacity-100 hidden lg:flex"
+        {/* Hero Titles */}
+        <div className="mb-8">
+          <h1 className="text-8xl md:text-9xl font-bold tracking-tighter text-black leading-none uppercase mb-2">
+            VILTRUM
+          </h1>
+          <h2 className="text-6xl md:text-7xl font-bold tracking-tighter text-gray-400/80 leading-none uppercase">
+            EGYPT
+          </h2>
+        </div>
+
+        {/* Description */}
+        <p className="text-base md:text-lg text-gray-600 max-w-xl leading-relaxed mb-10">
+          Premium compression wear forged for warriors who demand excellence. 
+          Pure performance met with uncompromising aesthetics.
+        </p>
+
+        {/* Floating Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <Link
+            href="/products"
+            className="px-10 py-5 bg-[#111] text-white text-[11px] font-bold uppercase tracking-[0.2em] rounded-xl hover:bg-black transition-all hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center"
           >
-            <ChevronLeft size={24} />
-          </button>
-          <button
-            onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center border border-border-light hover:bg-primary hover:border-primary hover:text-white transition-all text-muted opacity-0 group-hover:opacity-100 hidden lg:flex"
+            Shop Collection <span className="ml-2">›</span>
+          </Link>
+          <Link
+            href="/products"
+            className="px-10 py-5 bg-white text-black text-[11px] font-bold uppercase tracking-[0.2em] rounded-xl border border-gray-100 hover:bg-gray-50 transition-all hover:scale-105 shadow-lg flex items-center justify-center"
           >
-            <ChevronRight size={24} />
-          </button>
-
-          {/* Dots Indicator */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2">
-            {SLIDES.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${
-                  i === current ? "bg-primary w-8" : "bg-border-light"
-                }`}
-              />
-            ))}
-          </div>
+            About Brand
+          </Link>
         </div>
       </div>
     </section>
   );
 }
+
 
