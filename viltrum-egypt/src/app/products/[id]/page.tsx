@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Check, Minus, Plus, ArrowLeft } from "lucide-react";
@@ -13,68 +13,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
 
-// Same demo products
-const DEMO_PRODUCTS: Product[] = [
-  {
-    id: "demo-1",
-    title: "Core White Compression",
-    description: "Clean-cut white compression top with a body-contouring fit and premium stretch recovery. Designed for high-intensity sessions with breathable, moisture-wicking fabric that holds its shape rep after rep. The structured cut creates a polished gym look while supporting full range of motion.",
-    price: 450,
-    image_url: "/products/Screenshot 2026-04-09 135734.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "demo-2",
-    title: "Stealth Black Compression",
-    description: "Matte black compression piece with sharp contrast lines and a stronger athletic silhouette. Built with 4-way stretch technology for unrestricted movement. The dark, minimal design pairs effortlessly with any training setup.",
-    price: 450,
-    image_url: "/products/Screenshot 2026-04-09 140204.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "demo-3",
-    title: "White Pro Form",
-    description: "Refined performance layer designed for locked-in sessions and a polished gym look. Features reinforced stitching and a tailored fit that stays put during the most demanding workouts.",
-    price: 500,
-    image_url: "/products/Screenshot 2026-04-09 135833.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "demo-4",
-    title: "Black Elite Form",
-    description: "Premium black essential with a supportive fit, clean structure, and elevated visual finish. The ultimate training companion for athletes who demand both performance and presentation.",
-    price: 500,
-    image_url: "/products/Screenshot 2026-04-09 140240.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "demo-5",
-    title: "Training Essential Tee",
-    description: "Versatile performance tee made to feel sharp, breathable, and ready for everyday training. Lightweight construction with premium cotton-blend fabric for all-day comfort.",
-    price: 400,
-    image_url: "/products/Screenshot 2026-04-09 140043.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
-
 export default function ProductDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const productId = params.id as string;
 
   const [cartOpen, setCartOpen] = useState(false);
@@ -89,8 +29,6 @@ export default function ProductDetailPage() {
   useEffect(() => {
     async function fetchProduct() {
       setLoading(true);
-
-      // Try Supabase first
       try {
         const { data, error } = await supabase
           .from("products")
@@ -100,17 +38,9 @@ export default function ProductDetailPage() {
 
         if (!error && data) {
           setProduct(data);
-          setLoading(false);
-          return;
         }
       } catch {
-        // fall through to demo
-      }
-
-      // Fall back to demo products
-      const demo = DEMO_PRODUCTS.find((p) => p.id === productId);
-      if (demo) {
-        setProduct(demo);
+        console.log("Failed to fetch product");
       }
       setLoading(false);
     }
@@ -159,7 +89,6 @@ export default function ProductDetailPage() {
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
       <main className="min-h-screen bg-white pt-24 sm:pt-28">
-        {/* Back Link */}
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-6">
           <Link
             href="/products"
@@ -170,10 +99,8 @@ export default function ProductDetailPage() {
           </Link>
         </div>
 
-        {/* Product Detail — Split Layout */}
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pb-28 sm:pb-40">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-            {/* Left: Product Image */}
             <div className="relative bg-zinc-50 overflow-hidden" style={{ aspectRatio: "4/5" }}>
               {product.image_url ? (
                 <Image
@@ -191,10 +118,8 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {/* Right: Product Info */}
             <div className="flex flex-col justify-center py-8 lg:py-16">
               <div className="max-w-md">
-                {/* Title & Price */}
                 <div className="space-y-4 mb-10">
                   <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-zinc-900 tracking-wide leading-tight">
                     {product.title}
@@ -204,14 +129,12 @@ export default function ProductDetailPage() {
                   </p>
                 </div>
 
-                {/* Description */}
                 {product.description && (
                   <p className="text-base sm:text-lg leading-relaxed text-zinc-400 mb-12 font-light">
                     {product.description}
                   </p>
                 )}
 
-                {/* Size Selector */}
                 <div className="space-y-4 mb-10">
                   <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
                     Size
@@ -233,7 +156,6 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                {/* Quantity Selector */}
                 <div className="space-y-4 mb-12">
                   <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
                     Quantity
@@ -257,7 +179,6 @@ export default function ProductDetailPage() {
                   </div>
                 </div>
 
-                {/* Add to Cart Button */}
                 <button
                   onClick={handleAddToCart}
                   disabled={!selectedSize || added}
@@ -282,7 +203,6 @@ export default function ProductDetailPage() {
                   )}
                 </button>
 
-                {/* Shipping Info */}
                 <div className="mt-10 pt-10 border-t border-zinc-100 space-y-3">
                   <p className="text-[11px] uppercase tracking-[0.3em] text-zinc-300 font-semibold">
                     Free shipping across Egypt

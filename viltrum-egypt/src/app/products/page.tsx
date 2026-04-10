@@ -8,68 +8,9 @@ import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/products/ProductCard";
 import CartDrawer from "@/components/cart/CartDrawer";
 
-// Same demo products from homepage
-const DEMO_PRODUCTS: Product[] = [
-  {
-    id: "demo-1",
-    title: "Core White Compression",
-    description: "Clean-cut white compression top with a body-contouring fit and premium stretch recovery.",
-    price: 450,
-    image_url: "/products/Screenshot 2026-04-09 135734.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "demo-2",
-    title: "Stealth Black Compression",
-    description: "Matte black compression piece with sharp contrast lines and a stronger athletic silhouette.",
-    price: 450,
-    image_url: "/products/Screenshot 2026-04-09 140204.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "demo-3",
-    title: "White Pro Form",
-    description: "Refined performance layer designed for locked-in sessions and a polished gym look.",
-    price: 500,
-    image_url: "/products/Screenshot 2026-04-09 135833.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "demo-4",
-    title: "Black Elite Form",
-    description: "Premium black essential with a supportive fit, clean structure, and elevated visual finish.",
-    price: 500,
-    image_url: "/products/Screenshot 2026-04-09 140240.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: "demo-5",
-    title: "Training Essential Tee",
-    description: "Versatile performance tee made to feel sharp, breathable, and ready for everyday training.",
-    price: 400,
-    image_url: "/products/Screenshot 2026-04-09 140043.png",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
-
 export default function ProductsPage() {
   const [cartOpen, setCartOpen] = useState(false);
-  const [products, setProducts] = useState<Product[]>(DEMO_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -80,11 +21,11 @@ export default function ProductsPage() {
           .eq("is_active", true)
           .order("created_at", { ascending: false });
 
-        if (!error && data && data.length > 0) {
+        if (!error && data) {
           setProducts(data);
         }
       } catch {
-        console.log("Using demo products");
+        console.log("Failed to fetch products");
       }
     }
     fetchProducts();
@@ -111,11 +52,17 @@ export default function ProductsPage() {
 
         {/* Product Grid */}
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pb-28 sm:pb-40">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12 lg:gap-16">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {products.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-zinc-300 text-lg">No products available yet.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 sm:gap-12 lg:gap-16">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
