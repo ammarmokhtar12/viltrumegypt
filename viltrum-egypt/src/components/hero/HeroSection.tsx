@@ -108,14 +108,6 @@ export default function HeroSection() {
           <span className="mt-2 block text-zinc-400">Egypt.</span>
         </h1>
 
-        <p
-          ref={subtitleRef}
-          className="mt-14 max-w-2xl text-lg font-medium leading-relaxed tracking-tight text-zinc-600 sm:text-xl"
-        >
-          The ultimate compression performancewear. Forged in strength, 
-          designed for the elite. Experience the Viltrum revolution.
-        </p>
-
         <div
           ref={ctaRef}
           className="mt-20 flex w-full max-w-md flex-col justify-center gap-5 sm:max-w-none sm:flex-row"
