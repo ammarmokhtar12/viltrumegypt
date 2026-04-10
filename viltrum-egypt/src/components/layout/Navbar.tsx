@@ -1,7 +1,9 @@
 "use client";
 
-import { ShoppingBag, User } from "lucide-react";
+import { ShoppingBag, User, Moon, Sun } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
 import { useAuthStore } from "@/store/auth";
 import { supabase } from "@/lib/supabase";
@@ -14,6 +16,12 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
   const totalItems = useCartStore((s) => s.totalItems);
   const { user } = useAuthStore();
   const itemCount = totalItems();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <nav id="main-navbar" className="sticky top-0 z-50 border-b border-zinc-200/90 bg-slate-50/60 backdrop-blur-md">
@@ -77,11 +85,21 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           >
             <ShoppingBag size={18} />
             {itemCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-bold text-white">
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-background">
                 {itemCount}
               </span>
             )}
           </button>
+          
+          {mounted && (
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full bg-background text-foreground transition-colors hover:bg-secondary border border-border-light ml-2"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          )}
         </div>
       </div>
     </nav>

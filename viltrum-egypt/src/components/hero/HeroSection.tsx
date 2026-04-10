@@ -76,54 +76,44 @@ export default function HeroSection() {
           playsInline
           className="h-full w-full object-cover opacity-0"
         />
-        <div className="absolute inset-0 bg-white/30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white/35 via-transparent to-white/20" />
-
-        {/* Brand Watermark */}
-        <div
-          ref={brandRef}
-          className="absolute inset-0 flex items-center justify-center opacity-0 select-none"
-        >
-          <span className="text-[20vw] font-display font-bold text-black/[0.04] uppercase tracking-tighter whitespace-nowrap">
-            VILTRUM
-          </span>
-        </div>
+        <div className="absolute inset-0 bg-background/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/20" />
       </div>
 
       {/* Content */}
       <div className="relative z-10 mx-auto mt-14 flex w-full max-w-6xl flex-col items-center px-6 pb-36 pt-56 text-center sm:mt-24 sm:pb-44 sm:pt-72">
         <div
           ref={badgeRef}
-          className="mb-12 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white/85 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.35em] text-zinc-600 backdrop-blur-sm"
+          className="mb-10 inline-flex items-center gap-2 rounded-full border border-border-light bg-background/80 px-5 py-2 text-[11px] font-bold uppercase tracking-[0.35em] text-foreground backdrop-blur-sm"
         >
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-900" />
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
           Viltrum Egypt Edition
         </div>
 
         <h1
           ref={titleRef}
-          className="text-7xl font-extrabold leading-[0.86] tracking-tighter text-zinc-900 sm:text-8xl md:text-[9rem]"
+          className="font-display font-normal text-6xl sm:text-7xl md:text-8xl tracking-widest text-foreground uppercase"
         >
-          <span className="block">Viltrum.</span>
-          <span className="mt-2 block text-zinc-400">Egypt.</span>
+          <span className="block drop-shadow-md">Viltrum</span>
+          <span className="mt-2 block text-secondary drop-shadow-sm text-4xl sm:text-5xl md:text-6xl">Egypt</span>
         </h1>
 
         <div
           ref={ctaRef}
-          className="mt-24 flex w-full max-w-md flex-col justify-center gap-5 sm:max-w-none sm:flex-row"
+          className="mt-16 flex w-full max-w-md flex-col justify-center gap-5 sm:max-w-none sm:flex-row"
         >
           <Link
             href="/products"
             className="btn-primary group inline-flex items-center justify-center px-10"
           >
-            <span>View All Products</span>
+            <span className="tracking-widest">View Collection</span>
             <ChevronRight
               size={18}
               className="ml-2 transition-transform duration-300 group-hover:translate-x-1"
             />
           </Link>
           <a href="#about" className="btn-outline inline-flex items-center justify-center px-10">
-            About Viltrum
+            About Brand
           </a>
         </div>
       </div>

@@ -561,28 +561,45 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-5">
-              {/* Title */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                  className="viltrum-input"
-                  placeholder="Product name"
-                  required
-                />
+            <form onSubmit={handleSubmit} className="p-8 space-y-7 bg-zinc-50 border-t border-zinc-100">
+              {/* Title & Price Row */}
+              <div className="grid grid-cols-2 gap-5">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 ml-1">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, title: e.target.value }))
+                    }
+                    className="w-full h-12 px-4 bg-white border border-transparent focus:border-zinc-300 rounded-lg shadow-sm transition-all text-sm outline-none font-medium"
+                    placeholder="E.g. Viltrum Core Compression"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 ml-1">
+                    Price (EGP)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, price: e.target.value }))
+                    }
+                    className="w-full h-12 px-4 bg-white border border-transparent focus:border-zinc-300 rounded-lg shadow-sm transition-all text-sm outline-none font-medium"
+                    placeholder="999"
+                    required
+                  />
+                </div>
               </div>
 
               {/* Description */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
-                  Description
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 ml-1">
+                  Short Desc
                 </label>
                 <textarea
                   value={formData.description}
@@ -592,28 +609,9 @@ export default function AdminProductsPage() {
                       description: e.target.value,
                     }))
                   }
-                  rows={3}
-                  className="viltrum-input resize-none"
-                  placeholder="Product description"
-                />
-              </div>
-
-              {/* Price */}
-              <div className="space-y-2">
-                <label className="text-[11px] font-semibold uppercase tracking-[0.35em] text-zinc-400 block">
-                  Price (EGP) *
-                </label>
-                <input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, price: e.target.value }))
-                  }
-                  className="viltrum-input"
-                  placeholder="0"
-                  min="0"
-                  step="0.01"
-                  required
+                  rows={2}
+                  className="w-full p-4 bg-white border border-transparent focus:border-zinc-300 rounded-lg shadow-sm transition-all text-sm outline-none font-medium resize-none"
+                  placeholder="High-performance fabric..."
                 />
               </div>
 

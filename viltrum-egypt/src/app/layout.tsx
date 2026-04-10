@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Bebas_Neue } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+const bebasNeue = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-bebas",
   display: "swap",
 });
 
@@ -38,15 +45,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={inter.variable}
+      className={`${inter.variable} ${bebasNeue.variable}`}
       data-scroll-behavior="smooth"
+      suppressHydrationWarning
     >
-      <body className="font-sans antialiased bg-background text-foreground">
+      <body className="font-sans antialiased bg-background text-foreground transition-colors duration-300">
         <AuthProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
-            forcedTheme="light"
             enableSystem={false}
             disableTransitionOnChange
           >
