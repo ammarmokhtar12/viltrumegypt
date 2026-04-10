@@ -209,7 +209,7 @@ export default function CheckoutPage() {
                     </div>
                     
                     <span className="text-sm font-medium text-foreground">
-                      E£{item.price.toLocaleString()}.00
+                      {formatPrice(item.price)}
                     </span>
                   </div>
                 ))}
@@ -219,19 +219,19 @@ export default function CheckoutPage() {
               <div className="mt-10 border-t border-zinc-200/60 pt-6 space-y-3">
                 <div className="flex justify-between items-center text-sm font-medium">
                   <span className="text-foreground/70">Subtotal</span>
-                  <span className="text-foreground">E£{cartTotal.toLocaleString()}.00</span>
+                  <span className="text-foreground">{formatPrice(cartTotal)}</span>
                 </div>
 
                 <div className="flex justify-between items-center text-sm font-medium">
                   <span className="text-foreground/70">Shipping</span>
-                  <span className="text-foreground">E£118.00</span>
+                  <span className="text-emerald-600">FREE</span>
                 </div>
 
                 <div className="flex justify-between items-center pt-4">
                   <span className="text-lg font-bold text-foreground font-display tracking-tight">Total</span>
                   <div className="flex items-baseline gap-1.5 text-foreground font-bold">
                     <span className="text-[10px] opacity-40 uppercase tracking-widest">EGP</span>
-                    <span className="text-2xl font-display leading-none">E£{(cartTotal + 118).toLocaleString()}.00</span>
+                    <span className="text-2xl font-display leading-none">{formatPrice(cartTotal)}</span>
                   </div>
                 </div>
               </div>

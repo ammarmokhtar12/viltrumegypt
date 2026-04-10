@@ -68,8 +68,8 @@ export default function CheckoutForm({
       <div className="space-y-6">
         <h2 className="text-lg font-bold text-foreground">Shipping method</h2>
         <div className="radio-card radio-card-selected group">
-           <span className="text-sm font-medium text-foreground">قياسي</span>
-           <span className="text-sm font-bold text-foreground">E£118.00</span>
+           <span className="text-sm font-medium text-foreground">Free Shipping</span>
+           <span className="text-sm font-bold text-emerald-600">FREE</span>
         </div>
       </div>
 
@@ -121,7 +121,7 @@ export default function CheckoutForm({
               )}
            </div>
 
-           {/* Option 2: InstaPay */}
+           {/* Option 2: Vodafone Cash / InstaPay */}
            <div 
              onClick={() => {
                 onPaymentMethodChange("instapay");
@@ -133,11 +133,11 @@ export default function CheckoutForm({
                  <div className={`radio-circle ${paymentMethod === "instapay" ? 'border-primary bg-primary' : ''}`}>
                     <div className={`radio-dot ${paymentMethod === "instapay" ? 'scale-100' : ''}`} />
                  </div>
-                 <span className="text-sm font-medium text-foreground">فودافون كاش / انستا باي</span>
+                 <span className="text-sm font-medium text-foreground">Vodafone Cash / InstaPay</span>
               </div>
               {paymentMethod === "instapay" && (
                 <div className="mt-4 pt-4 border-t border-primary/10 animate-in fade-in slide-in-from-top-1 space-y-3">
-                   <p className="text-sm text-secondary">يرجى تحويل المبلغ وتحصيل صورة للتحويل:</p>
+                   <p className="text-sm text-secondary">Please transfer the amount to the following number and upload a screenshot:</p>
                    <p className="text-xl font-bold font-display tracking-widest text-primary">01031429229</p>
                 </div>
               )}
