@@ -60,7 +60,7 @@ export default function HeroSection() {
             src="/products/Screenshot 2026-04-09 135734.png"
             alt="Viltrum Campaign"
             fill
-            className="object-cover object-center mix-blend-multiply opacity-90 grayscale blur-[2px] transition-all hover:blur-none"
+            className="object-cover object-center"
             priority
          />
       </div>

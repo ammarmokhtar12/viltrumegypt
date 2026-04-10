@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Truck } from "lucide-react";
 
 interface CheckoutFormProps {
   onSubmit: (data: {
@@ -12,7 +11,6 @@ interface CheckoutFormProps {
   }) => void;
   paymentMethod: "vodafone_cash" | "instapay";
   onPaymentMethodChange: (method: "vodafone_cash" | "instapay") => void;
-  usePillStyle?: boolean;
 }
 
 export default function CheckoutForm({
@@ -20,147 +18,114 @@ export default function CheckoutForm({
   paymentMethod,
   onPaymentMethodChange,
 }: CheckoutFormProps) {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  const handleChange = (field: string, value: string) => {
-    const updated = {
-      name: field === "name" ? value : name,
-      phone: field === "phone" ? value : phone,
-      address: field === "address" ? value : address,
-      paymentMethod,
-    };
-    onSubmit(updated);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+     // Optional internal state update could go here, 
+     // but we assume the parent captures the direct input or we update contextually.
   };
 
   return (
-    <div className="space-y-12">
-      {/* Contact Info */}
-      <div className="space-y-6">
-        <h2 className="text-lg font-bold text-foreground">Contact</h2>
-        <div className="space-y-4">
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              handleChange("name", e.target.value);
-            }}
-            placeholder="Full Name"
-            className="viltrum-input !bg-white !rounded-lg !min-h-[3rem]"
-          />
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => {
-              setPhone(e.target.value);
-              handleChange("phone", e.target.value);
-            }}
-            placeholder="Phone Number (e.g. 010...)"
-            className="viltrum-input !bg-white !rounded-lg !min-h-[3rem]"
-          />
+    <form className="space-y-10 font-sans" onSubmit={(e) => e.preventDefault()}>
+      {/* Contact Section */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-[#000]">Contact Information</h2>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+             <label className="text-sm font-medium text-[#444] mb-1.5 block">Full Name</label>
+             <input
+               type="text"
+               name="name"
+               required
+               placeholder="Your Name"
+               onChange={(e) => onSubmit({ name: e.target.value, phone: (document.getElementById('phone') as HTMLInputElement).value, address: (document.getElementById('address') as HTMLInputElement).value, paymentMethod })}
+               className="w-full px-4 py-3 rounded-lg border border-[#e5e5e5] bg-white text-base text-[#000] focus:outline-none focus:ring-2 focus:ring-[#000] transition-shadow placeholder:text-[#999]"
+             />
+          </div>
+          <div>
+             <label className="text-sm font-medium text-[#444] mb-1.5 block">Phone Number</label>
+             <input
+               id="phone"
+               type="tel"
+               name="phone"
+               required
+               placeholder="01xxxxxxxxx"
+               onChange={(e) => onSubmit({ name: (document.querySelector('input[name="name"]') as HTMLInputElement).value, phone: e.target.value, address: (document.getElementById('address') as HTMLInputElement).value, paymentMethod })}
+               className="w-full px-4 py-3 rounded-lg border border-[#e5e5e5] bg-white text-base text-[#000] focus:outline-none focus:ring-2 focus:ring-[#000] transition-shadow placeholder:text-[#999]"
+             />
+          </div>
         </div>
       </div>
 
-      {/* Shipping Method */}
-      <div className="space-y-6">
-        <h2 className="text-lg font-bold text-foreground">Shipping method</h2>
-        <div className="radio-card radio-card-selected group">
-           <span className="text-sm font-medium text-foreground">Free Shipping</span>
-           <span className="text-sm font-bold text-emerald-600">FREE</span>
-        </div>
-      </div>
-
-      {/* Delivery Address */}
-      <div className="space-y-6">
-        <h2 className="text-lg font-bold text-foreground">Delivery</h2>
-        <input
-          type="text"
-          value={address}
-          onChange={(e) => {
-            setAddress(e.target.value);
-            handleChange("address", e.target.value);
-          }}
-          placeholder="Detailed Delivery Address (City, Area, Street...)"
-          className="viltrum-input !bg-white !rounded-lg !min-h-[3rem]"
-        />
-      </div>
-
-      {/* Payment */}
-      <div className="space-y-6">
-        <div className="space-y-1">
-          <h2 className="text-lg font-bold text-foreground">Payment</h2>
-          <p className="text-xs text-muted">All transactions are secure and encrypted.</p>
+      {/* Shipping Section */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-[#000]">Shipping Address</h2>
+        <div>
+           <label className="text-sm font-medium text-[#444] mb-1.5 block">Detailed Address</label>
+           <input
+             id="address"
+             type="text"
+             name="address"
+             required
+             placeholder="City, Area, Street, Building..."
+             onChange={(e) => onSubmit({ name: (document.querySelector('input[name="name"]') as HTMLInputElement).value, phone: (document.getElementById('phone') as HTMLInputElement).value, address: e.target.value, paymentMethod })}
+             className="w-full px-4 py-3 rounded-lg border border-[#e5e5e5] bg-white text-base text-[#000] focus:outline-none focus:ring-2 focus:ring-[#000] transition-shadow placeholder:text-[#999]"
+           />
         </div>
         
-        <div className="space-y-0.5 border border-border-light rounded-xl overflow-hidden">
-           {/* Option 1: Cash on Delivery */}
-           <div 
-             onClick={() => {
-                onPaymentMethodChange("vodafone_cash");
-                onSubmit({ name, phone, address, paymentMethod: "vodafone_cash" });
-             }}
-             className={`p-4 cursor-pointer transition-all ${paymentMethod === "vodafone_cash" ? 'bg-primary/5' : 'bg-white hover:bg-zinc-50'}`}
-           >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                   <div className={`radio-circle ${paymentMethod === "vodafone_cash" ? 'border-primary bg-primary' : ''}`}>
-                      <div className={`radio-dot ${paymentMethod === "vodafone_cash" ? 'scale-100' : ''}`} />
-                   </div>
-                   <span className="text-sm font-medium text-foreground">Cash on Delivery (COD)</span>
-                </div>
-              </div>
-              {paymentMethod === "vodafone_cash" && (
-                <div className="mt-4 pt-4 border-t border-primary/10 animate-in fade-in slide-in-from-top-1">
-                   <p className="text-sm text-secondary leading-relaxed rtl">
-                      ادفع براحتك وقت الاستلام! تقدر تعاين النظارة وتتأكد من جودتها قبل ما تدفع للمندوب
-                   </p>
-                </div>
-              )}
-           </div>
-
-           {/* Option 2: Vodafone Cash / InstaPay */}
-           <div 
-             onClick={() => {
-                onPaymentMethodChange("instapay");
-                onSubmit({ name, phone, address, paymentMethod: "instapay" });
-             }}
-             className={`p-4 cursor-pointer border-t border-border-light transition-all ${paymentMethod === "instapay" ? 'bg-primary/5' : 'bg-white hover:bg-zinc-50'}`}
-           >
+        {/* Shipping Method UI (No action required) */}
+        <div className="pt-2">
+           <div className="flex items-center justify-between p-4 rounded-lg border-2 border-[#000] bg-[#fafafa]">
               <div className="flex items-center gap-3">
-                 <div className={`radio-circle ${paymentMethod === "instapay" ? 'border-primary bg-primary' : ''}`}>
-                    <div className={`radio-dot ${paymentMethod === "instapay" ? 'scale-100' : ''}`} />
-                 </div>
-                 <span className="text-sm font-medium text-foreground">Vodafone Cash / InstaPay</span>
+                 <Truck size={18} className="text-[#000]" />
+                 <span className="font-semibold text-[#000]">Standard Shipping</span>
               </div>
-              {paymentMethod === "instapay" && (
-                <div className="mt-4 pt-4 border-t border-primary/10 animate-in fade-in slide-in-from-top-1 space-y-3">
-                   <p className="text-sm text-secondary">Please transfer the amount to the following number and upload a screenshot:</p>
-                   <p className="text-xl font-bold font-display tracking-widest text-primary">01031429229</p>
-                </div>
-              )}
+              <span className="font-bold text-[#000]">FREE</span>
            </div>
         </div>
       </div>
 
-      {/* Billing Address */}
-      <div className="space-y-6">
-        <h2 className="text-lg font-bold text-foreground">Billing address</h2>
-        <div className="space-y-0.5 border border-border-light rounded-xl overflow-hidden">
-           <div className="p-4 bg-primary/5 flex items-center gap-3">
-              <div className="radio-circle border-primary bg-primary">
-                 <div className="radio-dot scale-100" />
+      {/* Payment Section */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-[#000]">Payment Method</h2>
+        <p className="text-sm text-[#666] mb-4">All transactions are secure and encrypted.</p>
+        
+        <div className="flex flex-col rounded-lg border border-[#e5e5e5] overflow-hidden bg-white">
+           {/* Vodafone Cash */}
+           <label className={`flex items-center p-4 border-b border-[#e5e5e5] cursor-pointer transition-colors ${paymentMethod === 'vodafone_cash' ? 'bg-[#f8f9fa]' : 'hover:bg-[#f8f9fa]'} `}>
+              <div className="flex items-center flex-1 gap-3">
+                 <input 
+                   type="radio" 
+                   name="payment" 
+                   checked={paymentMethod === 'vodafone_cash'}
+                   onChange={() => onPaymentMethodChange('vodafone_cash')}
+                   className="w-4 h-4 text-[#000] focus:ring-[#000] accent-[#000]"
+                 />
+                 <span className="font-medium text-[#000]">Cash on Delivery</span>
               </div>
-              <span className="text-sm font-medium text-foreground">Same as shipping address</span>
-           </div>
-           <div className="p-4 bg-white hover:bg-zinc-50 border-t border-border-light flex items-center gap-3 cursor-not-allowed opacity-60">
-              <div className="radio-circle" />
-              <span className="text-sm font-medium text-foreground">Use a different billing address</span>
-           </div>
+           </label>
+           
+           {/* InstaPay */}
+           <label className={`flex flex-col p-4 cursor-pointer transition-colors ${paymentMethod === 'instapay' ? 'bg-[#f8f9fa]' : 'hover:bg-[#f8f9fa]'}`}>
+              <div className="flex items-center flex-1 gap-3">
+                 <input 
+                   type="radio" 
+                   name="payment" 
+                   checked={paymentMethod === 'instapay'}
+                   onChange={() => onPaymentMethodChange('instapay')}
+                   className="w-4 h-4 text-[#000] focus:ring-[#000] accent-[#000]"
+                 />
+                 <span className="font-medium text-[#000]">InstaPay / Vodafone Cash Transfer</span>
+              </div>
+              
+              {paymentMethod === 'instapay' && (
+                 <div className="ml-7 mt-3 p-4 bg-white rounded-md border border-[#e5e5e5] shadow-sm">
+                    <p className="text-sm text-[#444] mb-2">Please transfer exactly the total amount to:</p>
+                    <p className="text-lg font-bold tracking-wider text-[#000] font-sans">01031429229</p>
+                    <p className="text-xs text-[#666] mt-2">You will be required to upload a screenshot proof after checkout.</p>
+                 </div>
+              )}
+           </label>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
