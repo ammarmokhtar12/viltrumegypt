@@ -131,23 +131,31 @@ export default function AdminDashboardPage() {
   });
   const chartData = Array.from(revenueDataMap.values());
 
-  // If not enough data, pad it for nice visuals
-  if (chartData.length < 5) {
-      chartData.unshift(
-          { name: "Jan", Revenue: 12000, Profit: 4800 },
-          { name: "Feb", Revenue: 19000, Profit: 7600 },
-          { name: "Mar", Revenue: 15000, Profit: 6000 }
-      );
-  }
-
   // --- Bubble Chart Data (Variance equivalent) ---
-  const varianceData = [
-    { name: 'S', x: 10, y: 30, z: 200, fill: '#fda4af' },
-    { name: 'M', x: 30, y: 80, z: 400, fill: '#fcd34d' },
-    { name: 'L', x: 50, y: 40, z: 300, fill: '#6ee7b7' },
-    { name: 'XL', x: 70, y: 60, z: 250, fill: '#93c5fd' },
-    { name: 'XXL', x: 90, y: 20, z: 150, fill: '#c4b5fd' },
-  ];
+  // Calculate size counts from all order items
+  const sizeMap = new Map<string, number>();
+  orders.forEach(o => {
+    o.items?.forEach(item => {
+      if (item.size) {
+        const current = sizeMap.get(item.size) || 0;
+        sizeMap.set(item.size, current + item.quantity);
+      }
+    });
+  });
+
+  const colors = ['#fda4af', '#fcd34d', '#6ee7b7', '#93c5fd', '#c4b5fd'];
+  const varianceData = Array.from(sizeMap.entries()).map(([size, count], index) => ({
+    name: size,
+    x: (index + 1) * 20, // arbitrary x spread
+    y: count * 10,       // arbitrary y mapping
+    z: Math.max(100, count * 50), // bubble size based on count
+    fill: colors[index % colors.length]
+  }));
+
+  // if no data yet, provide a single generic bubble to prevent chart crash
+  if (varianceData.length === 0) {
+    varianceData.push({ name: 'N/A', x: 50, y: 50, z: 100, fill: '#f4f4f5' });
+  }
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto bg-[#f4f5f7] min-h-screen p-4 sm:p-6 lg:p-8 rounded-xl font-sans">

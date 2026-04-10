@@ -117,19 +117,25 @@ export default function AdminLayout({
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-[250px] z-40 bg-white border-r border-zinc-100 transform transition-transform duration-500 ease-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 h-full w-64 z-50 bg-white border-r border-zinc-100 transform transition-transform duration-500 ease-out lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         }`}
       >
         {/* Brand */}
-        <div className="h-16 px-6 flex items-center gap-3 border-b border-zinc-100">
-          <div className="w-8 h-8 bg-zinc-900 text-white flex items-center justify-center rounded-sm">
-            <span className="font-display font-bold text-xs">V</span>
+        <div className="h-16 px-6 flex items-center justify-between border-b border-zinc-100">
+          <div className="flex items-center gap-3">
+             <div className="w-8 h-8 bg-zinc-900 text-white flex items-center justify-center rounded-sm">
+               <span className="font-display font-bold text-xs">V</span>
+             </div>
+             <div>
+               <p className="font-display text-sm tracking-[0.15em] text-zinc-900 leading-none">VILTRUM</p>
+               <p className="text-[9px] text-zinc-400 tracking-wider mt-0.5">Admin Panel</p>
+             </div>
           </div>
-          <div>
-            <p className="font-display text-sm tracking-[0.15em] text-zinc-900 leading-none">VILTRUM</p>
-            <p className="text-[9px] text-zinc-400 tracking-wider mt-0.5">Admin Panel</p>
-          </div>
+          {/* Close button for mobile/tablet when open */}
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-zinc-400 hover:text-zinc-900">
+             <X size={20} />
+          </button>
         </div>
 
         {/* Nav */}
@@ -178,13 +184,13 @@ export default function AdminLayout({
       {/* Mobile Backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/20 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main Content */}
-      <main className="lg:ml-[250px] min-h-screen pt-14 lg:pt-0">
+      <main className="lg:ml-64 min-h-screen pt-14 lg:pt-0">
         <div className="p-5 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>
