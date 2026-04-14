@@ -10,6 +10,7 @@ import { formatPrice, generateOrderWhatsAppUrl } from "@/lib/utils";
 import CheckoutForm from "@/components/checkout/CheckoutForm";
 import PaymentUpload from "@/components/checkout/PaymentUpload";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function CheckoutPage() {
     address: string;
     paymentMethod: "vodafone_cash" | "instapay";
   } | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<string | number | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -95,8 +98,19 @@ export default function CheckoutPage() {
       );
 
       clearCart();
-      window.open(whatsappUrl, "_blank");
-      router.push("/");
+      toast.success("Order Confirmed! Your package is being prepared.", {
+         description: `Order #${data.order_number} has been successfully recorded.`,
+         duration: 5000,
+      });
+
+      setOrderNumber(data.order_number);
+      setIsSuccess(true);
+      
+      // Delay opening WhatsApp slightly for a better visual transition
+      setTimeout(() => {
+        window.open(whatsappUrl, "_blank");
+      }, 2000);
+
     } catch (err) {
       console.error("Order error:", err);
       alert("Failed to submit order.");
@@ -104,6 +118,44 @@ export default function CheckoutPage() {
       setSubmitting(false);
     }
   };
+
+  if (isSuccess) {
+    return (
+      <main className="min-h-screen bg-white flex items-center justify-center px-6">
+        <div className="max-w-md w-full text-center space-y-8 animate-in fade-in zoom-in duration-700">
+          <div className="mx-auto w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-2xl shadow-emerald-200">
+             <Check size={48} strokeWidth={3} />
+          </div>
+          
+          <div className="space-y-4">
+            <h1 className="text-4xl font-display font-bold uppercase tracking-tight text-foreground">
+              Your Order is Confirmed
+            </h1>
+            <p className="text-secondary font-medium leading-relaxed">
+              We've received your order <span className="text-foreground font-bold">#{orderNumber}</span>. 
+              Our team is now preparing your compression gear for battle.
+            </p>
+          </div>
+
+          <div className="pt-8 flex flex-col gap-4">
+             <div className="p-4 bg-[#fafafa] rounded-xl border border-border-light text-left">
+                <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Next Step</p>
+                <p className="text-xs text-secondary leading-relaxed">
+                   We are opening WhatsApp to finalize shipping details with our logistics team. Please keep the chat open.
+                </p>
+             </div>
+             
+             <Link 
+               href="/products" 
+               className="h-14 bg-foreground text-background rounded-xl flex items-center justify-center font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-xl shadow-black/5"
+             >
+                Continue Shopping
+             </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-white text-[#000] font-sans selection:bg-[#000] selection:text-white pb-24">
