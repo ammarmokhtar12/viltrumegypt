@@ -31,12 +31,12 @@ export default function ProductGrid({ products }: ProductGridProps) {
         <div className="mb-12 md:mb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-4xl">
              <div className="flex-1">
-                <h2 className="text-3xl md:text-5xl lg:text-5xl text-foreground font-normal leading-tight mb-4">
-                  Our Favourite Collection
-                </h2>
-                <p className="text-muted text-base md:text-lg leading-relaxed max-w-2xl">
-                  We are inspired by the realities of life today, in which traditional divides between personal and professional wear are more fluid.
-                </p>
+                 <h2 className="text-4xl md:text-6xl text-foreground mb-4">
+                   The Archive
+                 </h2>
+                 <p className="text-accent text-[10px] uppercase font-bold tracking-[0.4em] leading-relaxed max-w-2xl">
+                   Forged for the relentless. Built for the elite. 
+                 </p>
              </div>
           </div>
         </div>

@@ -52,13 +52,15 @@ export default function HeroSection() {
         </div>
 
         {/* Hero Titles */}
-        <div className="mb-8">
-          <h1 ref={title1Ref} className="text-6xl md:text-9xl font-bold tracking-tighter text-black leading-none uppercase mb-2 opacity-0">
-            VILTRUM
+        <div className="mb-12">
+          <h1 ref={title1Ref} className="text-[15vw] md:text-[12vw] font-bebas leading-[0.8] text-black tracking-tight opacity-0">
+             VILTRUM
           </h1>
-          <h2 ref={title2Ref} className="text-4xl md:text-7xl font-bold tracking-tighter text-gray-400/80 leading-none uppercase opacity-0">
-            EGYPT
-          </h2>
+          <div ref={title2Ref} className="flex items-center justify-center gap-4 opacity-0 -mt-2">
+             <div className="h-[1px] flex-1 bg-black/10" />
+             <h2 className="text-2xl md:text-5xl font-bebas tracking-[0.5em] text-accent">EGYPT</h2>
+             <div className="h-[1px] flex-1 bg-black/10" />
+          </div>
         </div>
 
         {/* Description */}
@@ -68,18 +70,18 @@ export default function HeroSection() {
         </p>
 
         {/* Floating Buttons */}
-        <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto opacity-0">
+        <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto opacity-0">
           <Link
             href="/products"
-            className="px-8 py-4 bg-[#111] text-white text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl hover:bg-black transition-all hover:scale-105 shadow-xl hover:shadow-2xl flex items-center justify-center"
+            className="btn-primary"
           >
-            Shop Collection <span className="ml-2">›</span>
+            Explore Collection
           </Link>
           <Link
             href="/products"
-            className="px-8 py-4 bg-white text-black text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl border border-gray-100 hover:bg-gray-50 transition-all hover:scale-105 shadow-lg flex items-center justify-center"
+            className="btn-secondary"
           >
-            About Brand
+            Our Philosophy
           </Link>
         </div>
       </div>

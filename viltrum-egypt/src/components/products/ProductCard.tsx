@@ -51,13 +51,6 @@ export default function ProductCard({ product, index }: ProductCardProps) {
       <Link 
         href={`/products/${product.id}`} 
         className="block"
-        onMouseEnter={() => videoRef.current?.play()}
-        onMouseLeave={() => {
-          if (videoRef.current) {
-            videoRef.current.pause();
-            videoRef.current.currentTime = 0;
-          }
-        }}
       >
         {/* Image Container */}
         <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-white border border-border-light shadow-sm transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-black/5 group-hover:-translate-y-4">
@@ -67,13 +60,14 @@ export default function ProductCard({ product, index }: ProductCardProps) {
                 src={product.image_url}
                 alt={product.title}
                 fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-110 group-hover:opacity-0"
+                className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-0"
                 loading="lazy"
               />
               <video
                 ref={videoRef}
                 src="/products/product-360.mp4"
-                className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 pointer-events-none"
+                autoPlay
                 muted
                 loop
                 playsInline

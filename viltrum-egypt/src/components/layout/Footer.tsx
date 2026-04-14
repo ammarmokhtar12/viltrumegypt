@@ -29,21 +29,20 @@ export default function Footer() {
         {/* Top Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 border-b border-gray-800 pb-12 gap-8">
           <div>
-            <Link href="/" className="flex flex-col leading-tight">
-              <span className="text-[12px] font-bold tracking-[0.2rem] text-white">VILTRUM</span>
-              <span className="text-[12px] font-medium tracking-[0.1rem] text-gray-500">COLLECTION</span>
+            <Link href="/" className="flex flex-col leading-none">
+              <span className="text-2xl font-bebas tracking-[0.1em] text-white">VILTRUM</span>
+              <span className="text-[8px] font-bold tracking-[0.4em] text-accent mt-1">EST. 2024</span>
             </Link>
           </div>
-          <nav className="flex flex-wrap gap-x-8 gap-y-4">
-            <Link href="/" className="text-sm font-normal text-gray-400 hover:text-white transition-colors">Home</Link>
-            <Link href="/products" className="text-sm font-normal text-gray-400 hover:text-white transition-colors">Products</Link>
-            <Link href="/checkout" className="text-sm font-normal text-gray-400 hover:text-white transition-colors">Checkout</Link>
-            <Link href="/login" className="text-sm font-normal text-gray-400 hover:text-white transition-colors">Login</Link>
+          <nav className="flex flex-wrap gap-x-12 gap-y-4 uppercase text-[9px] font-bold tracking-[0.2em]">
+            <Link href="/" className="text-gray-400 hover:text-white transition-colors">The Home</Link>
+            <Link href="/products" className="text-gray-400 hover:text-white transition-colors">The Archive</Link>
+            <Link href="/checkout" className="text-gray-400 hover:text-white transition-colors">Checkout</Link>
             <a 
-               href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
-               className="text-sm font-normal text-gray-400 hover:text-white transition-colors"
+               href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201017326887"}`}
+               className="text-gray-400 hover:text-white transition-colors"
             >
-              Contact
+              Concierge
             </a>
           </nav>
         </div>

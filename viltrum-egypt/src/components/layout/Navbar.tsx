@@ -30,38 +30,37 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
   return (
     <nav
       id="main-navbar"
-      className={`fixed top-0 w-full z-50 transition-all duration-300 font-sans ${
+      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-white shadow-sm py-3"
-          : "bg-white py-6"
+          ? "premium-blur py-3 shadow-lg"
+          : "bg-transparent py-6"
       }`}
     >
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 uppercase">
         {/* Brand - Left */}
         <div className="flex-shrink-0">
-          <Link href="/" className="flex flex-col leading-tight">
-            <span className="text-[10px] font-bold tracking-[0.2rem] text-primary">VILTRUM</span>
-            <span className="text-[10px] font-medium tracking-[0.1rem] text-muted">COLLECTION</span>
+          <Link href="/" className="flex flex-col leading-none">
+            <span className="text-3xl font-bebas tracking-[0.1em] text-primary">VILTRUM</span>
+            <span className="text-[8px] font-bold tracking-[0.5em] text-accent mt-1 ml-0.5">EST. 2024</span>
           </Link>
         </div>
 
         {/* Links - Center (Desktop) */}
-        <div className="hidden lg:flex items-center gap-8 lowercase first-letter:uppercase">
-          <Link href="/" className="text-sm font-medium text-foreground hover:text-secondary transition-colors">
-            Home
+        <div className="hidden lg:flex items-center gap-12 uppercase tracking-[0.2em] text-[10px] font-bold">
+          <Link href="/" className="text-foreground hover:text-accent transition-colors">
+            Collections
           </Link>
-          <Link href="/products" className="text-sm font-medium text-foreground hover:text-secondary transition-colors">
-            Products
+          <Link href="/products" className="text-foreground hover:text-accent transition-colors">
+            Archive
           </Link>
           <a
-             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
+             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201017326887"}`}
              target="_blank"
              rel="noopener noreferrer"
-             className="text-sm font-medium text-foreground hover:text-secondary transition-colors"
+             className="text-foreground hover:text-accent transition-colors"
           >
-            Contact
+            Concierge
           </a>
-
         </div>
 
         {/* Actions - Right */}

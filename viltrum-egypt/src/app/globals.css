@@ -6,12 +6,14 @@
   --font-display: "Poppins", sans-serif;
 
   --color-primary: #000000;
-  --color-secondary: #52525b; /* Zinc/Gray tone replacing orange */
-  --color-muted: #837a6d;
-  --color-surface: #f6f5f4;
-  --color-border-light: #ecebe9;
+  --color-secondary: #4b4b4b;
+  --color-muted: #94A3B8;
+  --color-surface: #F8FAFC;
+  --color-border-light: #F1F5F9;
   --color-background: #ffffff;
-  --color-foreground: #211f1c;
+  --color-foreground: #020617;
+  --color-accent: #64748B; /* Elegant Slate accent */
+}
 }
 
 @layer base {
@@ -25,22 +27,29 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-weight: 400;
-    @apply font-sans tracking-normal;
+    @apply font-bebas tracking-wider uppercase;
+  }
+
+  ::selection {
+    @apply bg-black text-white;
   }
 }
 
 @layer utilities {
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-black text-white px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] transition-all hover:bg-gray-900 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center bg-black text-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] transition-all hover:bg-zinc-900 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center bg-white text-black border border-gray-100 px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center bg-white text-black border border-black/10 px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] transition-all hover:bg-zinc-50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-none;
   }
 
-  .text-shadow-sm {
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  .premium-blur {
+    @apply backdrop-blur-xl bg-white/70 border border-white/20;
+  }
+  
+  .luxury-shadow {
+    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.1);
   }
 }
 
