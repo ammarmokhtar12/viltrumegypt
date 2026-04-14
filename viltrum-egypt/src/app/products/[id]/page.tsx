@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Check, Minus, Plus, ArrowLeft, Truck, ShieldCheck, ArrowRight } from "lucide-react";
+import { ShoppingBag, Check, Minus, Plus, ArrowLeft, Truck, ShieldCheck, ArrowRight, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Product } from "@/types";
 import { formatPrice } from "@/lib/utils";
@@ -23,6 +23,7 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [activeMedia, setActiveMedia] = useState<{ type: 'image' | 'video', url: string } | null>(null);
 
   const addItem = useCartStore((s) => s.addItem);
 
@@ -38,6 +39,14 @@ export default function ProductDetailPage() {
 
         if (!error && data) {
           setProduct(data);
+          // Set initial media
+          if (data.image_url) {
+            setActiveMedia({ type: 'image', url: data.image_url });
+          } else if (data.gallery_urls?.length > 0) {
+            setActiveMedia({ type: 'image', url: data.gallery_urls[0] });
+          } else if (data.video_url) {
+            setActiveMedia({ type: 'video', url: data.video_url });
+          }
         }
       } catch {
         console.log("Failed to fetch product");
@@ -107,11 +116,20 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start">
             
             {/* Gallery Section */}
-            <div className="lg:col-span-7">
+            <div className="lg:col-span-7 space-y-6">
               <div className="relative overflow-hidden rounded-[2.5rem] bg-surface border border-border-light shadow-2xl group" style={{ aspectRatio: "4/5" }}>
-                {product.image_url ? (
+                {activeMedia?.type === 'video' ? (
+                   <video
+                     src={activeMedia.url}
+                     className="w-full h-full object-cover"
+                     autoPlay
+                     muted
+                     loop
+                     playsInline
+                   />
+                ) : activeMedia?.type === 'image' ? (
                   <Image
-                    src={product.image_url}
+                    src={activeMedia.url}
                     alt={product.title}
                     fill
                     className="object-cover object-center group-hover:scale-105 transition-transform duration-1000"
@@ -128,6 +146,47 @@ export default function ProductDetailPage() {
                 <div className="absolute top-8 left-8 bg-background/80 backdrop-blur-md px-4 py-2 rounded-xl border border-border-light shadow-sm">
                    <p className="text-[10px] font-bold text-foreground uppercase tracking-widest">In Stock · Guaranteed</p>
                 </div>
+              </div>
+
+              {/* Thumbnails */}
+              <div className="flex flex-wrap gap-4 pt-2">
+                 {/* Main Image Thumbnail */}
+                 {product.image_url && (
+                   <button
+                     onClick={() => setActiveMedia({ type: 'image', url: product.image_url! })}
+                     className={`relative w-20 h-24 rounded-xl overflow-hidden border-2 transition-all ${
+                       activeMedia?.url === product.image_url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
+                     }`}
+                   >
+                      <Image src={product.image_url} alt="Main" fill className="object-cover" />
+                   </button>
+                 )}
+
+                 {/* Gallery Thumbnails */}
+                 {product.gallery_urls?.map((url, i) => (
+                   <button
+                     key={i}
+                     onClick={() => setActiveMedia({ type: 'image', url })}
+                     className={`relative w-20 h-24 rounded-xl overflow-hidden border-2 transition-all ${
+                       activeMedia?.url === url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
+                     }`}
+                   >
+                      <Image src={url} alt={`Gallery ${i}`} fill className="object-cover" />
+                   </button>
+                 ))}
+
+                 {/* Video Thumbnail */}
+                 {product.video_url && (
+                   <button
+                     onClick={() => setActiveMedia({ type: 'video', url: product.video_url! })}
+                     className={`relative w-20 h-24 rounded-xl overflow-hidden border-2 flex flex-col items-center justify-center transition-all bg-surface ${
+                       activeMedia?.type === 'video' ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
+                     }`}
+                   >
+                      <ImageIcon size={20} className="text-primary mb-1" />
+                      <span className="text-[8px] font-bold uppercase">360 View</span>
+                   </button>
+                 )}
               </div>
             </div>
 

@@ -15,6 +15,8 @@ CREATE TABLE products (
   description TEXT,
   price DECIMAL(10, 2) NOT NULL,
   image_url TEXT,
+  gallery_urls TEXT[] DEFAULT ARRAY[]::TEXT[],
+  video_url TEXT,
   sizes TEXT[] DEFAULT ARRAY['S', 'M', 'L', 'XL', 'XXL'],
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),

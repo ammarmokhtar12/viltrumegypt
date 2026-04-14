@@ -6,6 +6,8 @@ export interface Product {
   image_url: string | null;
   sizes: string[];
   is_active: boolean;
+  gallery_urls: string[];
+  video_url: string | null;
   created_at: string;
   updated_at: string;
 }

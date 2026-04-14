@@ -33,6 +33,8 @@ export default function AdminProductsPage() {
     description: "",
     price: "",
     image_url: "",
+    gallery_urls: [] as string[],
+    video_url: "",
     sizes: ["S", "M", "L", "XL", "XXL"],
     is_active: true,
   });
@@ -66,6 +68,8 @@ export default function AdminProductsPage() {
       description: "",
       price: "",
       image_url: "",
+      gallery_urls: [],
+      video_url: "",
       sizes: ["S", "M", "L", "XL", "XXL"],
       is_active: true,
     });
@@ -79,6 +83,8 @@ export default function AdminProductsPage() {
       description: product.description || "",
       price: String(product.price),
       image_url: product.image_url || "",
+      gallery_urls: product.gallery_urls || [],
+      video_url: product.video_url || "",
       sizes: product.sizes || ["S", "M", "L", "XL", "XXL"],
       is_active: product.is_active,
     });
@@ -86,27 +92,34 @@ export default function AdminProductsPage() {
     setShowForm(true);
   };
 
-  const handleImageUpload = async (file: File) => {
+  const handleFileUpload = async (file: File, type: 'main' | 'gallery' | 'video') => {
     setUploading(true);
     try {
       const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const ext = file.name.split(".").pop();
       const filePath = `${fileName}.${ext}`;
+      const bucket = "product-images";
 
       const { error: uploadError } = await supabase.storage
-        .from("product-images")
+        .from(bucket)
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       const {
         data: { publicUrl },
-      } = supabase.storage.from("product-images").getPublicUrl(filePath);
+      } = supabase.storage.from(bucket).getPublicUrl(filePath);
 
-      setFormData((prev) => ({ ...prev, image_url: publicUrl }));
+      if (type === 'main') {
+        setFormData((prev) => ({ ...prev, image_url: publicUrl }));
+      } else if (type === 'gallery') {
+        setFormData((prev) => ({ ...prev, gallery_urls: [...prev.gallery_urls, publicUrl] }));
+      } else if (type === 'video') {
+        setFormData((prev) => ({ ...prev, video_url: publicUrl }));
+      }
     } catch (err) {
-      console.error("Image upload error:", err);
-      alert("Failed to upload image");
+      console.error("Upload error:", err);
+      alert("Failed to upload file");
     } finally {
       setUploading(false);
     }
@@ -123,6 +136,8 @@ export default function AdminProductsPage() {
         description: formData.description || null,
         price: parseFloat(formData.price),
         image_url: formData.image_url || null,
+        gallery_urls: formData.gallery_urls,
+        video_url: formData.video_url || null,
         sizes: formData.sizes,
         is_active: formData.is_active,
       };
@@ -474,27 +489,107 @@ export default function AdminProductsPage() {
               <div className="space-y-6">
                  <label className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted ml-1">Visual Matrix</label>
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div 
-                      onClick={() => fileInputRef.current?.click()}
-                      className="aspect-[4/5] border-2 border-dashed border-border-light rounded-2xl flex flex-col items-center justify-center group cursor-pointer hover:border-primary transition-all p-6 text-center"
-                    >
-                       {formData.image_url ? (
-                         <div className="relative w-full h-full rounded-xl overflow-hidden shadow-inner bg-surface">
-                           <img src={formData.image_url} className="w-full h-full object-cover" />
-                           <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <Upload className="text-background" size={24} />
-                           </div>
-                         </div>
-                       ) : (
-                         <>
-                           <Upload className="text-muted group-hover:text-primary transition-colors mb-4" size={32} />
-                           <p className="text-xs font-bold text-foreground">Upload Frame</p>
-                           <p className="text-[10px] text-muted mt-2">JPG, PNG up to 5MB</p>
-                         </>
-                       )}
+                    <div className="space-y-4">
+                       <div 
+                         onClick={() => fileInputRef.current?.click()}
+                         className="aspect-[4/5] border-2 border-dashed border-border-light rounded-2xl flex flex-col items-center justify-center group cursor-pointer hover:border-primary transition-all p-6 text-center"
+                       >
+                          {formData.image_url ? (
+                            <div className="relative w-full h-full rounded-xl overflow-hidden shadow-inner bg-surface">
+                              <img src={formData.image_url} className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                 <Upload className="text-background" size={24} />
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="text-muted group-hover:text-primary transition-colors mb-4" size={32} />
+                              <p className="text-xs font-bold text-foreground">Main Image</p>
+                              <p className="text-[10px] text-muted mt-2">Required for grid</p>
+                            </>
+                          )}
+                       </div>
+                       
+                       {/* Video Upload Section */}
+                       <div className="space-y-3">
+                          <p className="text-[10px] font-bold text-muted uppercase tracking-widest ml-1">Motion (360 Video)</p>
+                          <div 
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'video/*';
+                              input.onchange = (e) => {
+                                const file = (e.target as HTMLInputElement).files?.[0];
+                                if (file) handleFileUpload(file, 'video');
+                              };
+                              input.click();
+                            }}
+                            className={`h-24 border-2 border-dashed rounded-2xl flex items-center gap-4 px-6 cursor-pointer transition-all ${
+                              formData.video_url ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-border-light hover:border-primary'
+                            }`}
+                          >
+                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${formData.video_url ? 'bg-emerald-500 text-white' : 'bg-surface text-muted'}`}>
+                                <ImageIcon size={20} />
+                             </div>
+                             <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-bold text-foreground">
+                                   {formData.video_url ? 'Asset Embedded' : 'Upload 360 Video'}
+                                </p>
+                                <p className="text-[10px] text-muted truncate">
+                                   {formData.video_url ? 'Click to replace' : 'MP4 recommended'}
+                                </p>
+                             </div>
+                             {formData.video_url && (
+                               <button 
+                                 type="button"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   setFormData(prev => ({ ...prev, video_url: '' }));
+                                 }}
+                                 className="p-2 text-muted hover:text-red-500 transition-colors"
+                               >
+                                 <X size={16} />
+                               </button>
+                             )}
+                          </div>
+                       </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
+                       <div className="space-y-3">
+                          <p className="text-[10px] font-bold text-muted uppercase tracking-widest ml-1">Visual Archive (Gallery)</p>
+                          <div className="grid grid-cols-2 gap-3 mb-3">
+                             {formData.gallery_urls.map((url, idx) => (
+                               <div key={idx} className="relative aspect-square rounded-xl overflow-hidden group border border-border-light">
+                                 <img src={url} className="w-full h-full object-cover" />
+                                 <button
+                                   type="button"
+                                   onClick={() => setFormData(p => ({ ...p, gallery_urls: p.gallery_urls.filter((_, i) => i !== idx) }))}
+                                   className="absolute top-1 right-1 p-1 bg-background/80 backdrop-blur-sm text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                 >
+                                   <X size={14} />
+                                 </button>
+                               </div>
+                             ))}
+                             <button
+                               type="button"
+                               onClick={() => {
+                                 const input = document.createElement('input');
+                                 input.type = 'file';
+                                 input.accept = 'image/*';
+                                 input.onchange = (e) => {
+                                   const file = (e.target as HTMLInputElement).files?.[0];
+                                   if (file) handleFileUpload(file, 'gallery');
+                                 };
+                                 input.click();
+                               }}
+                               className="aspect-square border-2 border-dashed border-border-light rounded-xl flex flex-col items-center justify-center text-muted hover:text-primary hover:border-primary transition-all"
+                             >
+                                <Plus size={20} />
+                                <span className="text-[9px] font-bold uppercase mt-1">Add</span>
+                             </button>
+                          </div>
+                       </div>
                        <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Global Sizes</p>
                        <div className="flex flex-wrap gap-2">
                          {["S", "M", "L", "XL", "XXL"].map((size) => (
@@ -539,7 +634,7 @@ export default function AdminProductsPage() {
                    accept="image/*"
                    onChange={(e) => {
                      const file = e.target.files?.[0];
-                     if (file) handleImageUpload(file);
+                     if (file) handleFileUpload(file, 'main');
                    }}
                    className="hidden"
                  />
