@@ -61,9 +61,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           >
             Contact
           </a>
-          <Link href="/admin" className="text-sm font-medium text-foreground hover:text-secondary transition-colors">
-            Account
-          </Link>
+
         </div>
 
         {/* Actions - Right */}
@@ -114,9 +112,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           >
             Contact
           </a>
-          <Link href="/login" onClick={() => setMobileOpen(false)} className="text-lg font-medium text-foreground border-b border-gray-50 pb-2">
-            {user ? "Dashboard" : "Login"}
-          </Link>
+
           <div className="flex items-center gap-3 pt-4 font-bold text-secondary">
             <Phone size={20} />
             <span>+201031429229</span>
