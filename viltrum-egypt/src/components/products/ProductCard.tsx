@@ -65,7 +65,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
               />
               <video
                 ref={videoRef}
-                src="/products/product-360.mp4"
+                src={product.video_url || "/products/product-360.mp4"}
                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 pointer-events-none"
                 autoPlay
                 muted

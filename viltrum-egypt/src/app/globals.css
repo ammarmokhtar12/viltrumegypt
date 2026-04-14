@@ -2,8 +2,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Poppins", sans-serif;
-  --font-display: "Poppins", sans-serif;
+  --font-sans: var(--font-inter), "Poppins", sans-serif;
+  --font-bebas: var(--font-bebas), sans-serif;
+  --font-display: var(--font-bebas), sans-serif;
 
   --color-primary: #000000;
   --color-secondary: #4b4b4b;
@@ -13,7 +14,6 @@
   --color-background: #ffffff;
   --color-foreground: #020617;
   --color-accent: #64748B; /* Elegant Slate accent */
-}
 }
 
 @layer base {
