@@ -58,13 +58,13 @@ export default function HeroSection() {
           </h1>
           <div ref={title2Ref} className="flex items-center justify-center gap-4 opacity-0 -mt-2">
              <div className="h-[1px] flex-1 bg-black/10" />
-             <h2 className="text-2xl md:text-5xl font-bebas tracking-[0.5em] text-accent">EGYPT</h2>
+             <h2 className="text-2xl md:text-5xl font-serif tracking-widest text-accent italic">Egypt</h2>
              <div className="h-[1px] flex-1 bg-black/10" />
           </div>
         </div>
 
         {/* Description */}
-        <p ref={descRef} className="text-sm md:text-lg text-gray-600 max-w-xl leading-relaxed mb-10 opacity-0">
+        <p ref={descRef} className="text-sm md:text-lg text-gray-500 font-serif italic max-w-xl leading-relaxed mb-10 opacity-0">
           Premium compression wear forged for warriors who demand excellence. 
           Pure performance met with uncompromising aesthetics.
         </p>

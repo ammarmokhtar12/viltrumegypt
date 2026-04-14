@@ -72,7 +72,7 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-sm text-gray-500 italic">
-            &copy; {new Date().getFullYear()} Viltrum Egypt. Engineered by Antigravity.
+            &copy; {new Date().getFullYear()} Viltrum Egypt. Engineered by Ammar Mokhtar.
           </p>
           <div className="flex items-center gap-6">
             <button 

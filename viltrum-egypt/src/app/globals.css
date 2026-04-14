@@ -4,7 +4,8 @@
 @theme {
   --font-sans: var(--font-inter), "Poppins", sans-serif;
   --font-bebas: var(--font-bebas), sans-serif;
-  --font-display: var(--font-bebas), sans-serif;
+  --font-serif: var(--font-playfair), serif;
+  --font-display: var(--font-playfair), serif;
 
   --color-primary: #000000;
   --color-secondary: #4b4b4b;
