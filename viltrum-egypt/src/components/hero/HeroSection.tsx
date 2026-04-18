@@ -29,16 +29,19 @@ export default function HeroSection() {
 
   return (
     <section ref={containerRef} className="relative w-full h-screen min-h-[700px] flex items-center justify-center overflow-hidden font-sans">
-      {/* Background Image - The T-Shirt */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="/products/Screenshot 2026-04-09 135734.png"
-          alt="Viltrum Hero"
-          fill
-          className="object-cover object-center opacity-90 scale-105"
-          priority
+      {/* Background Video */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <video
+          src="/videos/hero-video.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute min-w-full min-h-full object-cover opacity-80 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/60" />
+        {/* Cinematic Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-white/70" />
+        <div className="absolute inset-0 bg-black/10" />
       </div>
 
       {/* Content Overlay */}
