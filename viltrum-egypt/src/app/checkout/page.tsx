@@ -105,6 +105,26 @@ export default function CheckoutPage() {
 
       setOrderNumber(data.order_number);
       setIsSuccess(true);
+
+      // Send Email Notification
+      try {
+        await fetch('/api/orders/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderNumber: data.order_number,
+            customerName: formData.name,
+            customerPhone: formData.phone,
+            customerAddress: formData.address,
+            paymentMethod: formData.paymentMethod,
+            items: orderItems,
+            total: cartTotal,
+          }),
+        });
+      } catch (emailErr) {
+        console.error("Failed to send notification email:", emailErr);
+        // We don't want to block the success UI if the email fails
+      }
       
       // Delay opening WhatsApp slightly for a better visual transition
       setTimeout(() => {
