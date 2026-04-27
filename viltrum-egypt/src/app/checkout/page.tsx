@@ -110,7 +110,10 @@ export default function CheckoutPage() {
       try {
         await fetch('/api/orders/notify', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-internal-secret': process.env.NEXT_PUBLIC_INTERNAL_API_SECRET || 'fallback-secret-123'
+          },
           body: JSON.stringify({
             orderNumber: data.order_number,
             customerName: formData.name,
