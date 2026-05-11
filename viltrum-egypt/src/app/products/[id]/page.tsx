@@ -306,7 +306,7 @@ export default function ProductDetailPage() {
                       </div>
                       <div>
                          <p className="text-[10px] font-bold text-foreground uppercase tracking-widest">Logistics</p>
-                         <p className="text-[11px] text-muted font-medium mt-1 leading-relaxed">Free secure delivery across Egypt.</p>
+                         <p className="text-[11px] text-muted font-medium mt-1 leading-relaxed">Delivery costs calculated via WhatsApp.</p>
                       </div>
                    </div>
                    <div className="flex items-start gap-4">
