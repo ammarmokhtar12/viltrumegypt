@@ -25,7 +25,7 @@ export function generateOrderWhatsAppUrl(
     )
     .join("%0A");
 
-  const message = `🔴 *VILTRUM EGYPT — New Order*%0A%0A📋 *Order #${orderNumber}*%0A👤 ${customerName}%0A💳 ${paymentMethod === "vodafone_cash" ? "Vodafone Cash" : "InstaPay"}%0A%0A📦 *Items:*%0A${itemLines}%0A%0A💰 *Total: EGP ${total}*%0A%0A✅ Payment screenshot uploaded.`;
+  const message = `🔴 *VILTRUM EGYPT — New Order*%0A%0A📋 *Order #${orderNumber}*%0A👤 ${customerName}%0A💳 ${paymentMethod === "vodafone_cash" ? "Vodafone Cash" : "InstaPay"}%0A%0A📦 *Items:*%0A${itemLines}%0A%0A💰 *Total: EGP ${total}*%0A🚚 *Shipping:* Calculated on WhatsApp%0A%0A✅ Payment screenshot uploaded.`;
 
   return `https://wa.me/${phoneNumber}?text=${message}`;
 }

@@ -268,7 +268,7 @@ export default function CheckoutPage() {
                      </div>
                      <div className="flex justify-between text-sm text-[#444]">
                         <span>Shipping</span>
-                        <span className="font-semibold text-[#000]">FREE</span>
+                        <span className="font-semibold text-[#000]">TBD ON WHATSAPP</span>
                      </div>
                   </div>
 

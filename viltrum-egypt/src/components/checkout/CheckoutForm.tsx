@@ -78,7 +78,7 @@ export default function CheckoutForm({
                  <Truck size={18} className="text-[#000]" />
                  <span className="font-semibold text-[#000]">Standard Shipping</span>
               </div>
-              <span className="font-bold text-[#000]">FREE</span>
+              <span className="font-bold text-[#000]">TBD ON WHATSAPP</span>
            </div>
         </div>
       </div>
