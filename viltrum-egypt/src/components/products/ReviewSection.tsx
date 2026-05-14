@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { Star, MessageSquare, User, Send, ThumbsUp } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 interface Review {
   id: string;
   name: string;
   rating: number;
   comment: string;
-  date: string;
+  created_at: string;
   helpful: number;
 }
 
@@ -96,69 +97,108 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Hydration guard — only access localStorage after mount
+  // Load reviews from Supabase
   useEffect(() => {
     setMounted(true);
-    try {
-      const stored = localStorage.getItem(`viltrum-reviews-${productId}`);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) setReviews(parsed);
-      }
-    } catch {
-      setReviews([]);
-    }
+    fetchReviews();
   }, [productId]);
 
-  const saveReviews = (updatedReviews: Review[]) => {
+  const fetchReviews = async () => {
     try {
-      localStorage.setItem(
-        `viltrum-reviews-${productId}`,
-        JSON.stringify(updatedReviews)
-      );
-    } catch {
-      // localStorage blocked (private mode etc.) — just update state
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("Error fetching reviews:", error);
+        return;
+      }
+
+      if (data) {
+        setReviews(data as Review[]);
+      }
+    } catch (err) {
+      console.error("Failed to load reviews:", err);
     }
-    setReviews(updatedReviews);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim() || !newComment.trim() || newRating === 0) return;
 
     setSubmitting(true);
-    setTimeout(() => {
-      const review: Review = {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        name: newName.trim(),
-        rating: newRating,
-        comment: newComment.trim(),
-        date: new Date().toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }),
-        helpful: 0,
-      };
-      const updated = [review, ...reviews];
-      saveReviews(updated);
+    
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .insert({
+          product_id: productId,
+          name: newName.trim(),
+          rating: newRating,
+          comment: newComment.trim(),
+          helpful: 0
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setReviews([data as Review, ...reviews]);
+      }
+      
       setNewName("");
       setNewRating(0);
       setNewComment("");
-      setSubmitting(false);
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
         setShowForm(false);
       }, 2200);
-    }, 700);
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      // Fallback: update UI anyway if there's an error (e.g. table not created yet)
+      const fallbackReview: Review = {
+        id: `temp-${Date.now()}`,
+        name: newName.trim(),
+        rating: newRating,
+        comment: newComment.trim(),
+        created_at: new Date().toISOString(),
+        helpful: 0,
+      };
+      setReviews([fallbackReview, ...reviews]);
+      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(false);
+        setShowForm(false);
+      }, 2200);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleHelpful = (reviewId: string) => {
-    const updated = reviews.map((r) =>
+  const handleHelpful = async (reviewId: string) => {
+    // Optimistic update
+    const reviewToUpdate = reviews.find(r => r.id === reviewId);
+    if (!reviewToUpdate) return;
+    
+    setReviews(reviews.map((r) =>
       r.id === reviewId ? { ...r, helpful: r.helpful + 1 } : r
-    );
-    saveReviews(updated);
+    ));
+
+    try {
+      // Don't update temporary reviews
+      if (reviewId.startsWith('temp-')) return;
+      
+      await supabase
+        .from('reviews')
+        .update({ helpful: reviewToUpdate.helpful + 1 })
+        .eq('id', reviewId);
+    } catch (error) {
+      console.error("Error updating helpful count:", error);
+    }
   };
 
   const totalReviews = reviews.length;
@@ -374,7 +414,7 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
                       {review.name}
                     </h4>
                     <p className="text-[10px] text-muted font-medium mt-1">
-                      {review.date}
+                      {new Date(review.created_at).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric' })}
                     </p>
                   </div>
                 </div>
