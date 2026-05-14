@@ -8,10 +8,12 @@ import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/hero/HeroSection";
 import ProductGrid from "@/components/products/ProductGrid";
 import CartDrawer from "@/components/cart/CartDrawer";
+import ViltrumLoader from "@/components/layout/ViltrumLoader";
 
 export default function HomePage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -27,6 +29,8 @@ export default function HomePage() {
         }
       } catch {
         console.log("Failed to fetch products");
+      } finally {
+        setLoading(false);
       }
     }
     fetchProducts();
@@ -34,6 +38,7 @@ export default function HomePage() {
 
   return (
     <>
+      {loading && <ViltrumLoader />}
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
       <main className="bg-background">

@@ -12,6 +12,8 @@ import { useCartStore } from "@/store/cart";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
+import ReviewSection from "@/components/products/ReviewSection";
+import ViltrumLoader from "@/components/layout/ViltrumLoader";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -72,14 +74,7 @@ export default function ProductDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-           <div className="w-8 h-8 border-2 border-border-light border-t-foreground rounded-full animate-spin" />
-           <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Retrieving Asset</span>
-        </div>
-      </div>
-    );
+    return <ViltrumLoader />;
   }
 
   if (!product) {
@@ -323,6 +318,11 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
+          </div>
+
+          {/* Reviews Section */}
+          <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 pb-16">
+            <ReviewSection productId={productId} />
           </div>
         </div>
       </main>

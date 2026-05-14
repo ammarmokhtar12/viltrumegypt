@@ -7,6 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/products/ProductCard";
 import CartDrawer from "@/components/cart/CartDrawer";
+import ViltrumLoader from "@/components/layout/ViltrumLoader";
 
 export default function ProductsPage() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -57,10 +58,7 @@ export default function ProductsPage() {
         {/* Product Grid */}
         <div className="mx-auto max-w-7xl px-5 pb-32 sm:px-8 sm:pb-44 lg:px-12">
           {loading ? (
-            <div className="py-20 text-center flex flex-col items-center gap-4">
-               <div className="w-8 h-8 border-2 border-border-light border-t-foreground rounded-full animate-spin" />
-               <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Syncing Inventory</span>
-            </div>
+            <ViltrumLoader />
           ) : products.length === 0 ? (
             <div className="py-32 text-center rounded-[3rem] bg-surface border border-border-light">
               <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted">Archive is currently empty</p>
