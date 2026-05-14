@@ -15,11 +15,14 @@ import CartDrawer from "@/components/cart/CartDrawer";
 import ReviewSection from "@/components/products/ReviewSection";
 import ViltrumLoader from "@/components/layout/ViltrumLoader";
 
+import SizeGuideModal from "@/components/products/SizeGuideModal";
+
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
 
   const [cartOpen, setCartOpen] = useState(false);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string>("");
@@ -95,6 +98,7 @@ export default function ProductDetailPage() {
     <>
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      <SizeGuideModal isOpen={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} />
 
       <main className="min-h-screen bg-background pt-32 sm:pt-44">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-8">
@@ -222,7 +226,12 @@ export default function ProductDetailPage() {
                       <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
                         Select Fit
                       </label>
-                      <button className="text-[10px] font-bold text-primary uppercase tracking-widest underline underline-offset-4">Size Guide</button>
+                      <button 
+                        onClick={() => setSizeGuideOpen(true)}
+                        className="text-[10px] font-bold text-primary uppercase tracking-widest underline underline-offset-4 hover:opacity-70 transition-opacity"
+                      >
+                        Size Guide
+                      </button>
                    </div>
                   <div className="flex flex-wrap gap-2.5">
                     {availableSizes.map((size) => (

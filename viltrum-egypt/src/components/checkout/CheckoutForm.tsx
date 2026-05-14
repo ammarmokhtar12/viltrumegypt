@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { CreditCard, Truck } from "lucide-react";
 
 interface CheckoutFormProps {
@@ -18,9 +19,26 @@ export default function CheckoutForm({
   paymentMethod,
   onPaymentMethodChange,
 }: CheckoutFormProps) {
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    address: ""
+  });
+
+  // Call onSubmit whenever form data or payment method changes
+  useEffect(() => {
+    onSubmit({
+      ...formData,
+      paymentMethod
+    });
+  }, [formData, paymentMethod, onSubmit]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-     // Optional internal state update could go here, 
-     // but we assume the parent captures the direct input or we update contextually.
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
@@ -36,20 +54,21 @@ export default function CheckoutForm({
                name="name"
                required
                placeholder="Your Name"
-               onChange={(e) => onSubmit({ name: e.target.value, phone: (document.getElementById('phone') as HTMLInputElement).value, address: (document.getElementById('address') as HTMLInputElement).value, paymentMethod })}
-               className="w-full px-4 py-3 rounded-lg border border-[#e5e5e5] bg-white text-base text-[#000] focus:outline-none focus:ring-2 focus:ring-[#000] transition-shadow placeholder:text-[#999]"
+               value={formData.name}
+               onChange={handleChange}
+               className="viltrum-input"
              />
           </div>
           <div>
              <label className="text-sm font-medium text-[#444] mb-1.5 block">Phone Number</label>
              <input
-               id="phone"
                type="tel"
                name="phone"
                required
                placeholder="01xxxxxxxxx"
-               onChange={(e) => onSubmit({ name: (document.querySelector('input[name="name"]') as HTMLInputElement).value, phone: e.target.value, address: (document.getElementById('address') as HTMLInputElement).value, paymentMethod })}
-               className="w-full px-4 py-3 rounded-lg border border-[#e5e5e5] bg-white text-base text-[#000] focus:outline-none focus:ring-2 focus:ring-[#000] transition-shadow placeholder:text-[#999]"
+               value={formData.phone}
+               onChange={handleChange}
+               className="viltrum-input"
              />
           </div>
         </div>
@@ -61,24 +80,24 @@ export default function CheckoutForm({
         <div>
            <label className="text-sm font-medium text-[#444] mb-1.5 block">Detailed Address</label>
            <input
-             id="address"
              type="text"
              name="address"
              required
              placeholder="City, Area, Street, Building..."
-             onChange={(e) => onSubmit({ name: (document.querySelector('input[name="name"]') as HTMLInputElement).value, phone: (document.getElementById('phone') as HTMLInputElement).value, address: e.target.value, paymentMethod })}
-             className="w-full px-4 py-3 rounded-lg border border-[#e5e5e5] bg-white text-base text-[#000] focus:outline-none focus:ring-2 focus:ring-[#000] transition-shadow placeholder:text-[#999]"
+             value={formData.address}
+             onChange={handleChange}
+             className="viltrum-input"
            />
         </div>
         
         {/* Shipping Method UI (No action required) */}
         <div className="pt-2">
-           <div className="flex items-center justify-between p-4 rounded-lg border-2 border-[#000] bg-[#fafafa]">
+           <div className="flex items-center justify-between p-4 rounded-xl border border-border-light bg-surface">
               <div className="flex items-center gap-3">
-                 <Truck size={18} className="text-[#000]" />
-                 <span className="font-semibold text-[#000]">Standard Shipping</span>
+                 <Truck size={18} className="text-foreground" />
+                 <span className="font-semibold text-sm text-foreground">Standard Shipping</span>
               </div>
-              <span className="font-bold text-[#000]">TBD ON WHATSAPP</span>
+              <span className="font-bold text-[10px] tracking-widest text-foreground uppercase">TBD ON WHATSAPP</span>
            </div>
         </div>
       </div>
@@ -86,41 +105,41 @@ export default function CheckoutForm({
       {/* Payment Section */}
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-[#000]">Payment Method</h2>
-        <p className="text-sm text-[#666] mb-4">All transactions are secure and encrypted.</p>
+        <p className="text-sm text-muted mb-4">All transactions are secure and encrypted.</p>
         
-        <div className="flex flex-col rounded-lg border border-[#e5e5e5] overflow-hidden bg-white">
+        <div className="flex flex-col rounded-xl border border-border-light overflow-hidden bg-background">
            {/* Vodafone Cash */}
-           <label className={`flex items-center p-4 border-b border-[#e5e5e5] cursor-pointer transition-colors ${paymentMethod === 'vodafone_cash' ? 'bg-[#f8f9fa]' : 'hover:bg-[#f8f9fa]'} `}>
+           <label className={`flex items-center p-4 border-b border-border-light cursor-pointer transition-colors ${paymentMethod === 'vodafone_cash' ? 'bg-surface' : 'hover:bg-surface'} `}>
               <div className="flex items-center flex-1 gap-3">
                  <input 
                    type="radio" 
                    name="payment" 
                    checked={paymentMethod === 'vodafone_cash'}
                    onChange={() => onPaymentMethodChange('vodafone_cash')}
-                   className="w-4 h-4 text-[#000] focus:ring-[#000] accent-[#000]"
+                   className="w-4 h-4 text-primary focus:ring-primary accent-primary"
                  />
-                 <span className="font-medium text-[#000]">Cash on Delivery</span>
+                 <span className="font-medium text-sm text-foreground">Cash on Delivery</span>
               </div>
            </label>
            
            {/* InstaPay */}
-           <label className={`flex flex-col p-4 cursor-pointer transition-colors ${paymentMethod === 'instapay' ? 'bg-[#f8f9fa]' : 'hover:bg-[#f8f9fa]'}`}>
+           <label className={`flex flex-col p-4 cursor-pointer transition-colors ${paymentMethod === 'instapay' ? 'bg-surface' : 'hover:bg-surface'}`}>
               <div className="flex items-center flex-1 gap-3">
                  <input 
                    type="radio" 
                    name="payment" 
                    checked={paymentMethod === 'instapay'}
                    onChange={() => onPaymentMethodChange('instapay')}
-                   className="w-4 h-4 text-[#000] focus:ring-[#000] accent-[#000]"
+                   className="w-4 h-4 text-primary focus:ring-primary accent-primary"
                  />
-                 <span className="font-medium text-[#000]">InstaPay / Vodafone Cash Transfer</span>
+                 <span className="font-medium text-sm text-foreground">InstaPay / Vodafone Cash Transfer</span>
               </div>
               
               {paymentMethod === 'instapay' && (
-                 <div className="ml-7 mt-3 p-4 bg-white rounded-md border border-[#e5e5e5] shadow-sm">
-                    <p className="text-sm text-[#444] mb-2">Please transfer exactly the total amount to:</p>
-                    <p className="text-lg font-bold tracking-wider text-[#000] font-sans">01031429229</p>
-                    <p className="text-xs text-[#666] mt-2">You will be required to upload a screenshot proof after checkout.</p>
+                 <div className="ml-7 mt-3 p-4 bg-background rounded-lg border border-border-light shadow-sm">
+                    <p className="text-xs text-secondary mb-2">Please transfer exactly the total amount to:</p>
+                    <p className="text-lg font-bold tracking-wider text-foreground font-sans">01031429229</p>
+                    <p className="text-[10px] font-medium text-muted mt-2">You will be required to upload a screenshot proof after checkout.</p>
                  </div>
               )}
            </label>
