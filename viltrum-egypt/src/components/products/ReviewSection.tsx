@@ -16,7 +16,6 @@ interface ReviewSectionProps {
   productId: string;
 }
 
-// Star Rating Component
 function StarRating({
   rating,
   onRate,
@@ -40,18 +39,19 @@ function StarRating({
           onClick={() => onRate?.(star)}
           onMouseEnter={() => interactive && setHovered(star)}
           onMouseLeave={() => interactive && setHovered(0)}
-          className={`transition-all duration-200 ${
+          className={`transition-all duration-150 ${
             interactive
               ? "cursor-pointer hover:scale-125 active:scale-90"
               : "cursor-default"
           }`}
+          aria-label={interactive ? `Rate ${star} stars` : `${star} stars`}
         >
           <Star
             size={size}
-            className={`transition-colors duration-200 ${
+            className={`transition-colors duration-150 ${
               star <= (hovered || rating)
                 ? "fill-amber-400 text-amber-400"
-                : "fill-transparent text-gray-300"
+                : "fill-transparent text-gray-200"
             }`}
           />
         </button>
@@ -60,7 +60,6 @@ function StarRating({
   );
 }
 
-// Rating Distribution Bar
 function RatingBar({
   stars,
   count,
@@ -72,8 +71,8 @@ function RatingBar({
 }) {
   const percentage = total > 0 ? (count / total) * 100 : 0;
   return (
-    <div className="flex items-center gap-3 group">
-      <span className="text-[11px] font-bold text-muted w-8 text-right">
+    <div className="flex items-center gap-3">
+      <span className="text-[11px] font-bold text-muted w-8 text-right shrink-0">
         {stars}★
       </span>
       <div className="flex-1 h-2 bg-surface border border-border-light rounded-full overflow-hidden">
@@ -82,12 +81,13 @@ function RatingBar({
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <span className="text-[10px] font-bold text-muted w-8">{count}</span>
+      <span className="text-[10px] font-bold text-muted w-6 shrink-0">{count}</span>
     </div>
   );
 }
 
 export default function ReviewSection({ productId }: ReviewSectionProps) {
+  const [mounted, setMounted] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [newName, setNewName] = useState("");
@@ -96,24 +96,29 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Load reviews from localStorage
+  // Hydration guard — only access localStorage after mount
   useEffect(() => {
-    const stored = localStorage.getItem(`viltrum-reviews-${productId}`);
-    if (stored) {
-      try {
-        setReviews(JSON.parse(stored));
-      } catch {
-        setReviews([]);
+    setMounted(true);
+    try {
+      const stored = localStorage.getItem(`viltrum-reviews-${productId}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setReviews(parsed);
       }
+    } catch {
+      setReviews([]);
     }
   }, [productId]);
 
-  // Save reviews to localStorage
   const saveReviews = (updatedReviews: Review[]) => {
-    localStorage.setItem(
-      `viltrum-reviews-${productId}`,
-      JSON.stringify(updatedReviews)
-    );
+    try {
+      localStorage.setItem(
+        `viltrum-reviews-${productId}`,
+        JSON.stringify(updatedReviews)
+      );
+    } catch {
+      // localStorage blocked (private mode etc.) — just update state
+    }
     setReviews(updatedReviews);
   };
 
@@ -122,11 +127,9 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
     if (!newName.trim() || !newComment.trim() || newRating === 0) return;
 
     setSubmitting(true);
-
-    // Simulate network delay for premium feel
     setTimeout(() => {
-      const newReview: Review = {
-        id: Date.now().toString(),
+      const review: Review = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
         name: newName.trim(),
         rating: newRating,
         comment: newComment.trim(),
@@ -137,10 +140,8 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
         }),
         helpful: 0,
       };
-
-      const updated = [newReview, ...reviews];
+      const updated = [review, ...reviews];
       saveReviews(updated);
-
       setNewName("");
       setNewRating(0);
       setNewComment("");
@@ -149,8 +150,8 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
       setTimeout(() => {
         setSubmitted(false);
         setShowForm(false);
-      }, 2000);
-    }, 800);
+      }, 2200);
+    }, 700);
   };
 
   const handleHelpful = (reviewId: string) => {
@@ -160,7 +161,6 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
     saveReviews(updated);
   };
 
-  // Calculate stats
   const totalReviews = reviews.length;
   const averageRating =
     totalReviews > 0
@@ -170,9 +170,24 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
     (stars) => reviews.filter((r) => r.rating === stars).length
   );
 
+  const ratingLabels = ["", "Poor", "Fair", "Good", "Very Good", "Excellent"];
+
+  // Skeleton while not mounted to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <section className="border-t border-border-light pt-16 mt-16">
+        <div className="h-10 w-48 bg-surface rounded-xl animate-pulse mb-12" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div className="h-40 bg-surface rounded-2xl animate-pulse" />
+          <div className="h-40 bg-surface rounded-2xl animate-pulse" />
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="border-t border-border-light pt-16 mt-16">
-      {/* Section Header */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 mb-12">
         <div>
           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted opacity-60 block mb-3">
@@ -183,29 +198,30 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
           </h2>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            setShowForm((v) => !v);
+            setSubmitted(false);
+          }}
           className="flex items-center gap-2 px-6 py-3 bg-primary text-white text-[11px] font-bold uppercase tracking-[0.15em] rounded-xl transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-primary/10"
         >
           <MessageSquare size={14} />
-          Write a Review
+          {showForm ? "Cancel" : "Write a Review"}
         </button>
       </div>
 
-      {/* Stats Overview */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        {/* Average Rating */}
-        <div className="bg-surface border border-border-light rounded-2xl p-8 text-center">
-          <div className="text-6xl font-bold text-foreground mb-2">
+        <div className="bg-surface border border-border-light rounded-2xl p-8 text-center flex flex-col items-center justify-center gap-3">
+          <div className="text-6xl font-bold text-foreground tabular-nums">
             {averageRating > 0 ? averageRating.toFixed(1) : "—"}
           </div>
           <StarRating rating={Math.round(averageRating)} size={22} />
-          <p className="text-[11px] font-bold text-muted uppercase tracking-widest mt-3">
+          <p className="text-[11px] font-bold text-muted uppercase tracking-widest">
             {totalReviews} {totalReviews === 1 ? "Review" : "Reviews"}
           </p>
         </div>
 
-        {/* Rating Distribution */}
-        <div className="bg-surface border border-border-light rounded-2xl p-8 flex flex-col justify-center gap-2.5">
+        <div className="bg-surface border border-border-light rounded-2xl p-8 flex flex-col justify-center gap-3">
           {[5, 4, 3, 2, 1].map((stars, i) => (
             <RatingBar
               key={stars}
@@ -219,14 +235,14 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
 
       {/* Write Review Form */}
       {showForm && (
-        <div className="mb-12 bg-surface border border-border-light rounded-2xl p-8 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="mb-12 bg-surface border border-border-light rounded-2xl p-8">
           <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted mb-6">
             Share Your Experience
           </h3>
 
           {submitted ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center py-10">
+              <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
                 <Star size={28} className="text-white fill-white" />
               </div>
               <p className="text-lg font-bold text-foreground">
@@ -238,61 +254,70 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Rating Selection */}
+              {/* Stars */}
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block mb-3">
-                  Your Rating
+                  Your Rating <span className="text-red-400">*</span>
                 </label>
                 <StarRating
                   rating={newRating}
                   onRate={setNewRating}
                   interactive
-                  size={28}
+                  size={32}
                 />
                 {newRating > 0 && (
                   <span className="text-xs text-amber-500 font-bold mt-2 block">
-                    {
-                      [
-                        "",
-                        "Poor",
-                        "Fair",
-                        "Good",
-                        "Very Good",
-                        "Excellent",
-                      ][newRating]
-                    }
+                    {ratingLabels[newRating]}
+                  </span>
+                )}
+                {newRating === 0 && (
+                  <span className="text-[10px] text-muted/60 mt-1 block">
+                    Click a star to rate
                   </span>
                 )}
               </div>
 
               {/* Name */}
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block mb-2">
-                  Your Name
+                <label
+                  htmlFor="review-name"
+                  className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block mb-2"
+                >
+                  Your Name <span className="text-red-400">*</span>
                 </label>
                 <input
+                  id="review-name"
                   type="text"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="e.g. Ahmed M."
-                  className="w-full px-4 py-3 bg-background border border-border-light rounded-xl text-sm text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                  maxLength={60}
+                  className="w-full px-4 py-3 bg-background border border-border-light rounded-xl text-sm text-foreground placeholder:text-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
                   required
                 />
               </div>
 
               {/* Comment */}
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block mb-2">
-                  Your Review
+                <label
+                  htmlFor="review-comment"
+                  className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block mb-2"
+                >
+                  Your Review <span className="text-red-400">*</span>
                 </label>
                 <textarea
+                  id="review-comment"
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Tell us about your experience with this product..."
+                  placeholder="How was the quality, fit, and feel? Share your honest experience..."
                   rows={4}
-                  className="w-full px-4 py-3 bg-background border border-border-light rounded-xl text-sm text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all resize-none"
+                  maxLength={500}
+                  className="w-full px-4 py-3 bg-background border border-border-light rounded-xl text-sm text-foreground placeholder:text-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all resize-none"
                   required
                 />
+                <p className="text-[10px] text-muted/50 text-right mt-1">
+                  {newComment.length}/500
+                </p>
               </div>
 
               {/* Submit */}
@@ -326,51 +351,46 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
       {/* Reviews List */}
       {totalReviews === 0 ? (
         <div className="text-center py-16 bg-surface border border-border-light rounded-2xl">
-          <MessageSquare
-            size={40}
-            className="text-muted/30 mx-auto mb-4"
-          />
+          <MessageSquare size={40} className="text-muted/20 mx-auto mb-4" />
           <p className="text-sm font-bold text-muted">No reviews yet</p>
-          <p className="text-xs text-muted/60 mt-1">
-            Be the first to share your warrior experience.
+          <p className="text-xs text-muted/50 mt-1">
+            Be the first warrior to share your experience.
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-5">
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="bg-background border border-border-light rounded-2xl p-6 sm:p-8 transition-all hover:shadow-lg hover:shadow-black/[0.03] group"
+              className="bg-background border border-border-light rounded-2xl p-6 sm:p-8 hover:shadow-md hover:shadow-black/[0.04] transition-all"
             >
               <div className="flex items-start justify-between gap-4 mb-4">
-                <div className="flex items-center gap-4">
-                  {/* Avatar */}
-                  <div className="w-11 h-11 bg-gradient-to-br from-primary/10 to-primary/5 border border-border-light rounded-xl flex items-center justify-center flex-shrink-0">
-                    <User size={18} className="text-primary/60" />
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary/10 to-primary/5 border border-border-light rounded-xl flex items-center justify-center flex-shrink-0">
+                    <User size={16} className="text-primary/50" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-foreground">
+                    <h4 className="text-sm font-bold text-foreground leading-none">
                       {review.name}
                     </h4>
-                    <p className="text-[10px] text-muted font-medium mt-0.5">
+                    <p className="text-[10px] text-muted font-medium mt-1">
                       {review.date}
                     </p>
                   </div>
                 </div>
-                <StarRating rating={review.rating} size={14} />
+                <StarRating rating={review.rating} size={13} />
               </div>
 
-              <p className="text-sm text-secondary leading-relaxed font-medium pl-[60px]">
+              <p className="text-sm text-secondary leading-relaxed font-medium ml-[52px]">
                 {review.comment}
               </p>
 
-              {/* Helpful Button */}
-              <div className="pl-[60px] mt-4">
+              <div className="ml-[52px] mt-4">
                 <button
                   onClick={() => handleHelpful(review.id)}
                   className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-muted hover:text-foreground transition-colors"
                 >
-                  <ThumbsUp size={12} />
+                  <ThumbsUp size={11} />
                   Helpful{review.helpful > 0 && ` (${review.helpful})`}
                 </button>
               </div>
