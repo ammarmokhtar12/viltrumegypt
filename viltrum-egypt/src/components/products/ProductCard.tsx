@@ -53,7 +53,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
         className="block"
       >
         {/* Image Container */}
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-white border border-border-light shadow-sm transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-black/5 group-hover:-translate-y-4">
+        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-white border-2 border-border-light shadow-sm transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-black/5 group-hover:-translate-y-4">
           {product.image_url ? (
             <>
               <Image

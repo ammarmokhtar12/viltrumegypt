@@ -92,7 +92,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const availableSizes = product.sizes || ["S", "M", "L", "XL", "XXL"];
+  const availableSizes = product.title === "Thragg Edition" ? ["L", "XL", "XXL"] : (product.sizes || ["S", "M", "L", "XL", "XXL"]);
 
   return (
     <>
@@ -229,7 +229,7 @@ export default function ProductDetailPage() {
                       <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Status: Under Design</p>
                     </div>
                     <p className="text-lg font-bold text-foreground">تحت مرحله التصميم</p>
-                    <p className="text-sm text-secondary leading-relaxed">بري اوردر يورز واول ما يتعمل هيتبعتلك علي طول</p>
+                    <p className="text-sm text-secondary leading-relaxed">Pre-order yours واول ما يتعمل هيتبعتلك علي طول</p>
                   </div>
                 )}
 
