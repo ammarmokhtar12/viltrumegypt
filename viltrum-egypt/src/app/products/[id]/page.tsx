@@ -46,11 +46,12 @@ export default function ProductDetailPage() {
           setProduct(data);
           // Set initial media
           if (data.image_url) {
-            setActiveMedia({ type: 'image', url: data.image_url });
-          } else if (data.gallery_urls?.length > 0) {
-            setActiveMedia({ type: 'image', url: data.gallery_urls[0] });
-          } else if (data.video_url) {
-            setActiveMedia({ type: 'video', url: data.video_url });
+              setActiveMedia({ type: 'image', url: data.image_url });
+            } else if (data.gallery_urls?.length > 0) {
+              setActiveMedia({ type: 'image', url: data.gallery_urls[0] });
+            } else if (data.video_url) {
+              setActiveMedia({ type: 'video', url: data.video_url });
+            }
           }
         }
       } catch {
@@ -210,11 +211,26 @@ export default function ProductDetailPage() {
                 </div>
 
                 {/* Description */}
-                {product.description && (
+                {product.description && product.title !== "Thragg Edition" && (
                   <div className="space-y-4">
                      <p className="text-base sm:text-lg leading-relaxed text-secondary font-medium italic">
                         &ldquo;{product.description}&rdquo;
                      </p>
+                  </div>
+                )}
+
+                {product.title === "Thragg Edition" && (
+                  <div className="bg-surface border border-primary/20 p-6 rounded-2xl space-y-3 relative overflow-hidden mb-6">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                      </span>
+                      <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Status: Under Design</p>
+                    </div>
+                    <p className="text-lg font-bold text-foreground">تحت مرحله التصميم</p>
+                    <p className="text-sm text-secondary leading-relaxed">بري اوردر يورز واول ما يتعمل هيتبعتلك علي طول</p>
                   </div>
                 )}
 

@@ -80,9 +80,19 @@ export default function ProductCard({ product, index }: ProductCardProps) {
           )}
           
           {/* Chic Floating Tag */}
-          <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-md text-black text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border border-gray-100 shadow-sm tracking-widest">
-            New Arrival
+          <div className={`absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border shadow-sm tracking-widest ${
+            product.title === "Thragg Edition" 
+              ? "bg-black/90 text-white border-white/10" 
+              : "bg-white/90 text-black border-gray-100"
+          }`}>
+            {product.title === "Thragg Edition" ? "Coming Soon" : "New Arrival"}
           </div>
+
+          {product.title === "Thragg Edition" && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors duration-500">
+              <span className="text-white text-xl font-bold uppercase tracking-[0.3em] border-y border-white/20 py-2 px-4 backdrop-blur-sm">Coming Soon</span>
+            </div>
+          )}
 
           {/* Hover Explore Button */}
           <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
