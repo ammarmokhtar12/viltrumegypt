@@ -46,15 +46,14 @@ export default function ProductDetailPage() {
           setProduct(data);
           // Set initial media
           if (data.image_url) {
-              setActiveMedia({ type: 'image', url: data.image_url });
-            } else if (data.gallery_urls?.length > 0) {
-              setActiveMedia({ type: 'image', url: data.gallery_urls[0] });
-            } else if (data.video_url) {
-              setActiveMedia({ type: 'video', url: data.video_url });
-            }
+            setActiveMedia({ type: 'image', url: data.image_url });
+          } else if (data.gallery_urls?.length > 0) {
+            setActiveMedia({ type: 'image', url: data.gallery_urls[0] });
+          } else if (data.video_url) {
+            setActiveMedia({ type: 'video', url: data.video_url });
           }
         }
-      } catch {
+      } catch (error) {
         console.log("Failed to fetch product");
       }
       setLoading(false);
