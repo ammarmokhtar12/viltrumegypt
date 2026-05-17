@@ -229,7 +229,7 @@ export default function ProductDetailPage() {
                       <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Status: Under Design</p>
                     </div>
                     <p className="text-lg font-bold text-foreground">تحت مرحله التصميم</p>
-                    <p className="text-sm text-secondary leading-relaxed">Pre-order yours واول ما يتعمل هيتبعتلك علي طول</p>
+                    <p className="text-sm text-secondary leading-relaxed">Pre-order yours and it will be sent to you as soon as it is made.</p>
                   </div>
                 )}
 
