@@ -115,9 +115,9 @@ export default function AdminProductsPage() {
       } else if (type === 'video') {
         setFormData((prev) => ({ ...prev, video_url: publicUrl }));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Upload error:", err);
-      alert("Failed to upload file");
+      alert(`Failed to upload file: ${err.message || err}`);
     } finally {
       setUploading(false);
     }
