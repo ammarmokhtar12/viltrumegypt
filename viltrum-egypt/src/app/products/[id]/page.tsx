@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Check, Minus, Plus, ArrowLeft, Truck, ShieldCheck, ArrowRight, Image as ImageIcon } from "lucide-react";
+import { ShoppingBag, Check, Minus, Plus, ArrowLeft, Truck, ShieldCheck, ArrowRight, Image as ImageIcon, Heart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Product } from "@/types";
 import { formatPrice } from "@/lib/utils";
@@ -14,6 +14,8 @@ import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
 import ReviewSection from "@/components/products/ReviewSection";
 import ViltrumLoader from "@/components/layout/ViltrumLoader";
+import { toast } from "sonner";
+import { trackTikTokEvent } from "@/lib/tiktok";
 
 import SizeGuideModal from "@/components/products/SizeGuideModal";
 
@@ -28,6 +30,7 @@ export default function ProductDetailPage() {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [wishlistAdded, setWishlistAdded] = useState(false);
   const [activeMedia, setActiveMedia] = useState<{ type: 'image' | 'video', url: string } | null>(null);
 
   const addItem = useCartStore((s) => s.addItem);
@@ -52,6 +55,22 @@ export default function ProductDetailPage() {
           } else if (data.video_url) {
             setActiveMedia({ type: 'video', url: data.video_url });
           }
+
+          // Track ViewContent event
+          trackTikTokEvent("ViewContent", {
+            content_type: "product",
+            content_id: data.id,
+            content_name: data.title,
+            value: data.price,
+            currency: "EGP",
+            contents: [{
+              content_id: data.id,
+              content_type: "product",
+              content_name: data.title,
+              quantity: 1,
+              price: data.price,
+            }],
+          });
         }
       } catch (error) {
         console.log("Failed to fetch product");
@@ -74,6 +93,46 @@ export default function ProductDetailPage() {
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+
+    // Track AddToCart event
+    trackTikTokEvent("AddToCart", {
+      content_type: "product",
+      content_id: product.id,
+      content_name: product.title,
+      value: product.price * quantity,
+      currency: "EGP",
+      contents: [{
+        content_id: product.id,
+        content_type: "product",
+        content_name: product.title,
+        quantity,
+        price: product.price,
+      }],
+    });
+  };
+
+  const handleAddToWishlist = () => {
+    if (!product) return;
+    setWishlistAdded(true);
+    toast.success("Added to Wishlist!", {
+      description: `${product.title} has been added to your wishlist.`,
+    });
+
+    // Track AddToWishlist event
+    trackTikTokEvent("AddToWishlist", {
+      content_type: "product",
+      content_id: product.id,
+      content_name: product.title,
+      value: product.price,
+      currency: "EGP",
+      contents: [{
+        content_id: product.id,
+        content_type: "product",
+        content_name: product.title,
+        quantity: 1,
+        price: product.price,
+      }],
+    });
   };
 
   if (loading) {
@@ -290,11 +349,11 @@ export default function ProductDetailPage() {
                 </div>
 
                 {/* Main Action */}
-                <div className="pt-4">
+                <div className="pt-4 flex gap-3">
                   <button
                     onClick={handleAddToCart}
                     disabled={!selectedSize || added}
-                    className={`flex items-center justify-center gap-3 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 w-full group ${
+                    className={`flex-1 flex items-center justify-center gap-3 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 group ${
                       added
                         ? "bg-emerald-600 text-white"
                         : !selectedSize
@@ -314,6 +373,20 @@ export default function ProductDetailPage() {
                         {selectedSize ? `Add to Cart — ${formatPrice(product.price * quantity)}` : "Identify Your Size"}
                       </>
                     )}
+                  </button>
+
+                  <button
+                    onClick={handleAddToWishlist}
+                    disabled={wishlistAdded}
+                    className={`w-16 flex items-center justify-center rounded-2xl border transition-all duration-500 ${
+                      wishlistAdded
+                        ? "bg-rose-50 border-rose-200 text-rose-600"
+                        : "bg-surface border-border-light text-secondary hover:text-rose-600 hover:border-rose-300"
+                    }`}
+                    style={{ minHeight: "4rem" }}
+                    title="Add to Wishlist"
+                  >
+                    <Heart size={20} className={wishlistAdded ? "fill-rose-600 text-rose-600" : ""} />
                   </button>
                 </div>
 

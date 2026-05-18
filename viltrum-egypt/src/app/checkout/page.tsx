@@ -11,6 +11,7 @@ import CheckoutForm from "@/components/checkout/CheckoutForm";
 import PaymentUpload from "@/components/checkout/PaymentUpload";
 import Image from "next/image";
 import { toast } from "sonner";
+import { trackTikTokEvent } from "@/lib/tiktok";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -48,6 +49,22 @@ export default function CheckoutPage() {
 
   const handleFormSubmit = (data: any) => {
     setFormData(data);
+  };
+
+  const handlePaymentMethodChange = (method: "vodafone_cash" | "instapay") => {
+    setPaymentMethod(method);
+    trackTikTokEvent("AddPaymentInfo", {
+      content_type: "product",
+      contents: cartItems.map((item) => ({
+        content_id: item.product_id,
+        content_type: "product",
+        content_name: item.title,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      value: cartTotal,
+      currency: "EGP",
+    });
   };
 
   const handleFinalSubmit = async () => {
@@ -96,6 +113,25 @@ export default function CheckoutPage() {
         formData.name,
         formData.paymentMethod
       );
+
+      const trackingProps = {
+        content_type: "product",
+        contents: orderItems.map((item) => ({
+          content_id: item.product_id,
+          content_type: "product",
+          content_name: item.title,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        value: cartTotal,
+        currency: "EGP",
+      };
+      const userData = {
+        phone: formData.phone,
+      };
+
+      trackTikTokEvent("PlaceAnOrder", trackingProps, userData, `ord_${data.order_number}_place`);
+      trackTikTokEvent("Purchase", trackingProps, userData, `ord_${data.order_number}_purch`);
 
       clearCart();
       toast.success("Order Confirmed! Your package is being prepared.", {
@@ -208,7 +244,7 @@ export default function CheckoutPage() {
                <CheckoutForm
                   onSubmit={handleFormSubmit}
                   paymentMethod={paymentMethod}
-                  onPaymentMethodChange={setPaymentMethod}
+                  onPaymentMethodChange={handlePaymentMethodChange}
                />
 
                {/* Upload area conditionally rendered dynamically */}

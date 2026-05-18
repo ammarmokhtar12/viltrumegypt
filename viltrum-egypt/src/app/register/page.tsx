@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Mail, Lock, User, CheckCircle } from "lucide-react";
+import { trackTikTokEvent } from "@/lib/tiktok";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -45,6 +46,9 @@ export default function RegisterPage() {
         setError("Account with this email already exists.");
         return;
       }
+
+      // Track CompleteRegistration event
+      trackTikTokEvent("CompleteRegistration", { currency: "EGP" }, { email });
 
       setSuccess(true);
       setTimeout(() => {

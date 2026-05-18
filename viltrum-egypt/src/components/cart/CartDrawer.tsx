@@ -6,6 +6,7 @@ import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 import CartItem from "./CartItem";
 import Link from "next/link";
+import { trackTikTokEvent } from "@/lib/tiktok";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -38,6 +39,22 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const cartTotal = totalPrice();
   const cartCount = totalItems();
 
+  const handleCheckoutClick = () => {
+    trackTikTokEvent("InitiateCheckout", {
+      content_type: "product",
+      contents: cartItems.map((item) => ({
+        content_id: item.product_id,
+        content_type: "product",
+        content_name: item.title,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      value: cartTotal,
+      currency: "EGP",
+    });
+    onClose();
+  };
+
   return (
     <>
       {/* Backdrop */}
@@ -59,7 +76,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           {/* Header */}
           <div className="flex items-center justify-between px-8 py-6 border-b border-border-light bg-white">
             <div className="flex items-center gap-3">
-              <ShoppingBag size={20} className="text-black" />
+               <ShoppingBag size={20} className="text-black" />
               <h2 className="text-[13px] font-bold text-black uppercase tracking-[0.2em]">
                 Your Cart
                 {cartCount > 0 && (
@@ -117,7 +134,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <div className="space-y-3">
                 <Link
                   href="/checkout"
-                  onClick={onClose}
+                  onClick={handleCheckoutClick}
                   className="btn-primary w-full shadow-2xl shadow-black/10 flex items-center justify-center gap-3 py-5 rounded-2xl"
                 >
                   Proceed to Checkout
