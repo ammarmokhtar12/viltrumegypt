@@ -95,20 +95,18 @@ export default function AdminProductsPage() {
   const handleFileUpload = async (file: File, type: 'main' | 'gallery' | 'video') => {
     setUploading(true);
     try {
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const ext = file.name.split(".").pop();
-      const filePath = `${fileName}.${ext}`;
-      const bucket = "product-images";
+      const formData = new FormData();
+      formData.append("file", file);
 
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file);
+      const response = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-      if (uploadError) throw uploadError;
+      const result = await response.json();
+      if (!result.success) throw new Error(result.error || "Failed to upload file");
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from(bucket).getPublicUrl(filePath);
+      const publicUrl = result.url;
 
       if (type === 'main') {
         setFormData((prev) => ({ ...prev, image_url: publicUrl }));
