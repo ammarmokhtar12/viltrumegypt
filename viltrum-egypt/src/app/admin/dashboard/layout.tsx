@@ -13,6 +13,7 @@ import {
   Users,
   Home,
   DollarSign,
+  Database,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -77,6 +78,12 @@ export default function AdminLayout({
       label: "Products",
       icon: Package,
       active: pathname === "/admin/dashboard/products",
+    },
+    {
+      href: "/admin/dashboard/inventory",
+      label: "Inventory",
+      icon: Database,
+      active: pathname.startsWith("/admin/dashboard/inventory"),
     },
     {
       href: "/admin/dashboard/customers",

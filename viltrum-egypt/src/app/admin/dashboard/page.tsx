@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Order } from "@/types";
-import { DollarSign, ShoppingCart, Users, Package, TrendingUp, TrendingDown, Percent } from "lucide-react";
+import { DollarSign, ShoppingCart, Users, Package, TrendingUp, TrendingDown, Percent, CheckCircle, AlertTriangle } from "lucide-react";
 import {
   AreaChart,
   Area,
@@ -11,28 +11,38 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell,
 } from "recharts";
 
 export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [productCount, setProductCount] = useState(0);
+  const [products, setProducts] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
+  const [inventory, setInventory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
       try {
-        const [ordersRes, productsRes, expensesRes] = await Promise.all([
+        const [ordersRes, productsRes, expensesRes, inventoryRes] = await Promise.all([
           supabase.from("orders").select("*").order("created_at", { ascending: true }),
-          supabase.from("products").select("id", { count: "exact" }),
+          supabase.from("products").select("id, title, is_active"),
           supabase.from("expenses").select("*"),
+          supabase.from("inventory").select("*"),
         ]);
 
         if (ordersRes.data) setOrders(ordersRes.data);
-        if (productsRes.count !== null) setProductCount(productsRes.count);
+        if (productsRes.data) {
+          setProducts(productsRes.data);
+          setProductCount(productsRes.data.filter(p => p.is_active).length);
+        }
         if (expensesRes.data) setExpenses(expensesRes.data);
+        if (inventoryRes.data) setInventory(inventoryRes.data);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
       } finally {
@@ -58,6 +68,7 @@ export default function AdminDashboardPage() {
   const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
   const uniqueCustomers = new Set(orders.map((o) => o.customer_phone)).size;
 
+  // Chart 1: Revenue Stream over time
   const revenueDataMap = new Map();
   orders.forEach(o => {
     if (o.status === 'cancelled') return; // Skip cancelled orders in chart
@@ -69,6 +80,44 @@ export default function AdminDashboardPage() {
     current.Revenue += o.total;
   });
   const chartData = Array.from(revenueDataMap.values());
+
+  // Chart 2: Expenses by Category
+  const expenseCategories = {
+    fabric: { name: "Fabric (قماش)", value: 0, color: "#3b82f6" },
+    pattern: { name: "Pattern (باترون)", value: 0, color: "#a855f7" },
+    printing: { name: "Printing (طباعة)", value: 0, color: "#ec4899" },
+    designer: { name: "Designer (ديزاينر)", value: 0, color: "#6366f1" },
+    transport: { name: "Transport (مواصلات)", value: 0, color: "#f59e0b" },
+    production: { name: "Production (إنتاج)", value: 0, color: "#10b981" },
+    marketing: { name: "Marketing (تسويق)", value: 0, color: "#ef4444" },
+    packaging: { name: "Packaging (تغليف)", value: 0, color: "#14b8a6" },
+    other: { name: "Other (أخرى)", value: 0, color: "#64748b" },
+  };
+
+  expenses.forEach((e) => {
+    const cat = e.category as keyof typeof expenseCategories;
+    if (expenseCategories[cat]) {
+      expenseCategories[cat].value += Number(e.amount);
+    } else if (expenseCategories.other) {
+      expenseCategories.other.value += Number(e.amount);
+    }
+  });
+
+  const expenseChartData = Object.values(expenseCategories).filter((item) => item.value > 0);
+
+  // Stock Alerts list: inventory items with quantity <= 3
+  const lowStockItems = inventory
+    .filter((item) => item.quantity <= 3)
+    .map((item) => {
+      const prod = products.find((p) => p.id === item.product_id);
+      return {
+        id: `${item.product_id}-${item.size}`,
+        title: prod ? prod.title : "Unknown Product",
+        size: item.size,
+        quantity: item.quantity,
+      };
+    })
+    .slice(0, 5);
 
   const recentOrders = [...orders].reverse().slice(0, 5);
 
@@ -160,11 +209,11 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-semibold text-black">Revenue Stream</h3>
-          </div>
+      {/* Analytics Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Chart 1: Revenue Stream */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-semibold text-black mb-6">Revenue Stream</h3>
           <div className="h-[300px] w-full">
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -186,6 +235,39 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* Chart 2: Expenses Breakdown */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h3 className="font-semibold text-black mb-6">Expenses Breakdown by Category</h3>
+          <div className="h-[300px] w-full">
+            {expenseChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={expenseChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#6B7280' }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    formatter={(val) => [`${Number(val || 0).toLocaleString()} EGP`, "Cost"]}
+                  />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    {expenseChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                No expenses logged yet.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Operational Logs Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent Orders */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col">
           <h3 className="font-semibold text-black mb-6">Recent Orders</h3>
           <div className="flex-1 overflow-y-auto pr-2">
@@ -209,6 +291,33 @@ export default function AdminDashboardPage() {
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400 text-sm">
                 No orders found.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Low Stock Alerts */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col">
+          <h3 className="font-semibold text-black mb-6">Low Stock Warnings</h3>
+          <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+            {lowStockItems.length > 0 ? (
+              lowStockItems.map((item) => (
+                <div key={item.id} className="flex items-center justify-between border-b border-b-gray-100 pb-4 last:border-0 last:pb-0">
+                  <div>
+                    <p className="font-medium text-black text-sm">{item.title}</p>
+                    <p className="text-xs text-gray-500 mt-1">Size: {item.size}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`inline-block px-2.5 py-1 text-[10px] font-bold rounded-lg border ${item.quantity === 0 ? 'bg-red-50 text-red-700 border-red-200 animate-pulse' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                      {item.quantity === 0 ? 'Out of Stock' : `${item.quantity} Left`}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-emerald-500 text-sm font-semibold py-12 gap-2">
+                <CheckCircle size={32} />
+                <span>All stock levels are optimal!</span>
               </div>
             )}
           </div>

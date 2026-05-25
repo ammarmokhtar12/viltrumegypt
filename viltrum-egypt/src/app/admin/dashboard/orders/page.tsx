@@ -76,6 +76,24 @@ export default function AdminOrdersPage() {
         setOrders((prev) =>
           prev.map((o) => (o.id === orderId ? { ...o, status: newStatus as Order["status"] } : o))
         );
+
+        // If the order was cancelled, restore the stock of all its items
+        if (newStatus === "cancelled") {
+          const orderToCancel = orders.find(o => o.id === orderId);
+          if (orderToCancel && Array.isArray(orderToCancel.items)) {
+            try {
+              for (const item of orderToCancel.items) {
+                await supabase.rpc("increment_stock", {
+                  p_product_id: item.product_id,
+                  p_size: item.size,
+                  p_quantity: item.quantity,
+                });
+              }
+            } catch (stockErr) {
+              console.error("Failed to restore stock after cancellation:", stockErr);
+            }
+          }
+        }
       } else {
         console.error("Failed to update status:", error);
         alert(`Failed to update status: ${error.message}. \n\nIf you see a "violates check constraint" error, please run the SQL migration script 'add-cancelled-and-expenses.sql' in your Supabase SQL Editor.`);

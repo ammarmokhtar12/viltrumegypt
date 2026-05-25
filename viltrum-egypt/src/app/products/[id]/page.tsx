@@ -26,6 +26,7 @@ export default function ProductDetailPage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
+  const [inventory, setInventory] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
@@ -56,6 +57,24 @@ export default function ProductDetailPage() {
             setActiveMedia({ type: 'video', url: data.video_url });
           }
 
+          // Fetch size stock levels
+          try {
+            const { data: invData } = await supabase
+              .from("inventory")
+              .select("size, quantity")
+              .eq("product_id", productId);
+
+            if (invData) {
+              const invMap: Record<string, number> = {};
+              invData.forEach((row: any) => {
+                invMap[row.size] = row.quantity;
+              });
+              setInventory(invMap);
+            }
+          } catch (e) {
+            console.warn("Failed to fetch inventory:", e);
+          }
+
           // Track ViewContent event
           trackTikTokEvent("ViewContent", {
             content_type: "product",
@@ -83,6 +102,13 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!product || !selectedSize) return;
+
+    // Double check stock quantity (prevent override if stock is loaded)
+    const stock = inventory[selectedSize];
+    if (stock !== undefined && stock <= 0) {
+      toast.error("Size is currently out of stock.");
+      return;
+    }
     addItem({
       product_id: product.id,
       title: product.title,
@@ -297,9 +323,25 @@ export default function ProductDetailPage() {
                 {/* Configuration: Size */}
                 <div className="space-y-5">
                    <div className="flex justify-between items-center">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">
-                        Select Fit
-                      </label>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block">
+                          Select Fit
+                        </label>
+                        {/* Stock Level Warning Notice */}
+                        {selectedSize && inventory[selectedSize] !== undefined && (
+                          <div className="text-[10px] font-bold uppercase tracking-wider">
+                            {inventory[selectedSize] > 0 ? (
+                              inventory[selectedSize] <= 3 ? (
+                                <span className="text-amber-600 animate-pulse">🔥 Only {inventory[selectedSize]} left in stock!</span>
+                              ) : (
+                                <span className="text-emerald-600">✓ In Stock ({inventory[selectedSize]} available)</span>
+                              )
+                            ) : (
+                              <span className="text-red-500 font-extrabold animate-pulse">✗ Out of Stock (نفذت الكمية)</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <button 
                         onClick={() => setSizeGuideOpen(true)}
                         className="text-[10px] font-bold text-primary uppercase tracking-widest underline underline-offset-4 hover:opacity-70 transition-opacity"
@@ -308,19 +350,28 @@ export default function ProductDetailPage() {
                       </button>
                    </div>
                   <div className="flex flex-wrap gap-2.5">
-                    {availableSizes.map((size) => (
-                      <button
-                        key={size}
-                        onClick={() => setSelectedSize(size)}
-                        className={`flex h-12 w-16 items-center justify-center rounded-xl text-xs font-bold transition-all duration-300 ${
-                          selectedSize === size
-                            ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105"
-                            : "bg-surface border border-border-light text-secondary hover:text-foreground hover:border-secondary"
-                        }`}
-                      >
-                        {size}
-                      </button>
-                    ))}
+                    {availableSizes.map((size) => {
+                      const isOutOfStock = inventory[size] !== undefined && inventory[size] <= 0;
+                      return (
+                        <button
+                          key={size}
+                          disabled={isOutOfStock}
+                          onClick={() => setSelectedSize(size)}
+                          className={`flex h-12 w-16 items-center justify-center rounded-xl text-xs font-bold transition-all duration-300 relative ${
+                            selectedSize === size
+                              ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105"
+                              : isOutOfStock
+                              ? "bg-surface border border-border-light text-muted/30 cursor-not-allowed line-through"
+                              : "bg-surface border border-border-light text-secondary hover:text-foreground hover:border-secondary"
+                          }`}
+                        >
+                          {size}
+                          {isOutOfStock && (
+                            <span className="absolute bottom-1 text-[7px] text-red-500 font-bold uppercase scale-75">OUT</span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -352,11 +403,11 @@ export default function ProductDetailPage() {
                 <div className="pt-4 flex gap-3">
                   <button
                     onClick={handleAddToCart}
-                    disabled={!selectedSize || added}
+                    disabled={!selectedSize || added || (selectedSize && inventory[selectedSize] !== undefined ? inventory[selectedSize] <= 0 : false)}
                     className={`flex-1 flex items-center justify-center gap-3 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 group ${
                       added
                         ? "bg-emerald-600 text-white"
-                        : !selectedSize
+                        : (!selectedSize || (selectedSize && inventory[selectedSize] !== undefined ? inventory[selectedSize] <= 0 : false))
                         ? "cursor-not-allowed bg-surface border border-border-light text-muted opacity-50"
                         : "bg-primary text-background hover:opacity-90 shadow-2xl shadow-primary/10"
                     }`}
@@ -366,6 +417,10 @@ export default function ProductDetailPage() {
                       <>
                         <Check size={18} />
                         Successfully Added
+                      </>
+                    ) : selectedSize && inventory[selectedSize] !== undefined && inventory[selectedSize] <= 0 ? (
+                      <>
+                        Out of Stock (نفذت الكمية)
                       </>
                     ) : (
                       <>

@@ -106,6 +106,19 @@ export default function CheckoutPage() {
 
       if (error) throw error;
 
+      // Decrement stock for each item in the order
+      try {
+        for (const item of orderItems) {
+          await supabase.rpc("decrement_stock", {
+            p_product_id: item.product_id,
+            p_size: item.size,
+            p_quantity: item.quantity,
+          });
+        }
+      } catch (stockErr) {
+        console.error("Failed to update inventory during checkout:", stockErr);
+      }
+
       const whatsappUrl = generateOrderWhatsAppUrl(
         data.order_number,
         orderItems,
