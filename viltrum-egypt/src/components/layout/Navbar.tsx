@@ -36,12 +36,18 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           : "bg-transparent"
       }`}
     >
-      {/* Eid Offer Announcement Banner */}
-      <div className="eid-banner text-center py-3 px-4 text-xs sm:text-sm font-bold uppercase tracking-wider relative z-50 flex items-center justify-center gap-2 border-b border-border-light select-none">
-        <span className="animate-pulse inline-block w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_rgba(100,116,139,0.5)]"></span>
-        <span className="font-sans tracking-[0.05em] flex items-center gap-1.5 select-none">
-          ⚡ <span className="eid-glow-text text-foreground">EID OFFERS | العيد اوفرز</span> · استنوا أقوى عروض العيد من VILTRUM - خصومات دمار شامل وتصاميم حصرية قريباً! ⚡
-        </span>
+      {/* Eid Offer Announcement Banner (Marquee) */}
+      <div className="eid-banner overflow-hidden py-3.5 border-b border-border-light relative z-50 select-none">
+        <div className="marquee-container flex whitespace-nowrap">
+          <div className="marquee-content flex gap-16 text-sm sm:text-base font-bold uppercase tracking-wider">
+            <span className="eid-glow-text">
+              ⚡ EID OFFERS — ANTICIPATE THE ULTIMATE EID COLLECTION BY VILTRUM · EXCLUSIVE DESIGNS & INSANE DISCOUNTS COMING SOON! ⚡
+            </span>
+            <span className="eid-glow-text">
+              ⚡ EID OFFERS — ANTICIPATE THE ULTIMATE EID COLLECTION BY VILTRUM · EXCLUSIVE DESIGNS & INSANE DISCOUNTS COMING SOON! ⚡
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className={`mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 uppercase transition-all duration-500 ${
