@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Users,
   Home,
+  DollarSign,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -82,6 +83,12 @@ export default function AdminLayout({
       label: "Customers",
       icon: Users,
       active: pathname === "/admin/dashboard/customers",
+    },
+    {
+      href: "/admin/dashboard/expenses",
+      label: "Expenses",
+      icon: DollarSign,
+      active: pathname.startsWith("/admin/dashboard/expenses"),
     },
     {
       href: "/admin/dashboard/users",

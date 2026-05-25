@@ -44,10 +44,10 @@ export default function HeroSection() {
       {/* Content Overlay */}
       <div className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center text-center">
         {/* Edition Badge */}
-        <div ref={badgeRef} className="flex items-center gap-2 mb-6 bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full border border-gray-100 shadow-sm opacity-0">
-          <span className="text-secondary text-xs">⚡</span>
-          <span className="text-[10px] font-bold tracking-[0.2em] text-muted uppercase">
-            Viltrum Egypt Edition
+        <div ref={badgeRef} className="flex items-center gap-2 mb-6 bg-black text-white px-5 py-2 rounded-full border border-zinc-800 shadow-md opacity-0 select-none">
+          <span className="text-amber-400 animate-pulse">💥</span>
+          <span className="text-[10px] font-bold tracking-[0.25em] text-amber-400 uppercase font-sans">
+            انتظروا كولكشن العيد الكبير قريباً جداً
           </span>
         </div>
 
@@ -67,6 +67,9 @@ export default function HeroSection() {
         <p ref={descRef} className="text-sm md:text-lg text-gray-500 font-serif italic max-w-xl leading-relaxed mb-10 opacity-0">
           Premium compression wear forged for warriors who demand excellence. 
           Pure performance met with uncompromising aesthetics.
+          <span className="text-red-600 font-extrabold block mt-3 text-base md:text-lg font-sans not-italic animate-pulse">
+            🔥 ترقبوا تصاميم العيد الثورية بخصومات دمار شامل! 🔥
+          </span>
         </p>
 
         {/* Floating Buttons */}

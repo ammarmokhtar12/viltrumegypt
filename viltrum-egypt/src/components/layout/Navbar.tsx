@@ -32,11 +32,23 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
       id="main-navbar"
       className={`fixed top-0 w-full z-50 transition-all duration-500 ${
         scrolled
-          ? "premium-blur py-3 shadow-lg"
-          : "bg-transparent py-6"
+          ? "premium-blur shadow-lg"
+          : "bg-transparent"
       }`}
     >
-      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 uppercase">
+      {/* Eid Offer Announcement Banner */}
+      <div className="eid-banner text-white text-center py-2.5 px-4 text-xs font-bold uppercase tracking-widest relative z-50 flex items-center justify-center gap-2 border-b border-white/10 select-none">
+        <span className="animate-pulse inline-block w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_#fbbf24]"></span>
+        <span className="font-sans text-[10px] sm:text-xs tracking-[0.05em] text-white/95 flex items-center gap-1 select-none">
+          🔥 <span className="eid-glow-text">استنوا أقوى عروض العيد من VILTRUM</span> · خصومات دمار شامل وتصاميم حصرية قريباً! 🔥
+        </span>
+      </div>
+
+      <div className={`mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 uppercase transition-all duration-500 ${
+        scrolled
+          ? "py-3"
+          : "py-6"
+      }`}>
         {/* Brand - Left */}
         <div className="flex-shrink-0">
           <Link href="/" className="flex flex-col leading-none">

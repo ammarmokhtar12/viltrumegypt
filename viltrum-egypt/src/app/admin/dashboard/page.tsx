@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Order } from "@/types";
-import { DollarSign, ShoppingCart, Users, Package, TrendingUp } from "lucide-react";
+import { DollarSign, ShoppingCart, Users, Package, TrendingUp, TrendingDown, Percent } from "lucide-react";
 import {
   AreaChart,
   Area,
@@ -17,19 +17,22 @@ import {
 export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [productCount, setProductCount] = useState(0);
+  const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
       try {
-        const [ordersRes, productsRes] = await Promise.all([
+        const [ordersRes, productsRes, expensesRes] = await Promise.all([
           supabase.from("orders").select("*").order("created_at", { ascending: true }),
           supabase.from("products").select("id", { count: "exact" }),
+          supabase.from("expenses").select("*"),
         ]);
 
         if (ordersRes.data) setOrders(ordersRes.data);
         if (productsRes.count !== null) setProductCount(productsRes.count);
+        if (expensesRes.data) setExpenses(expensesRes.data);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
       } finally {
@@ -47,11 +50,17 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
+  // Filter out cancelled orders from revenue calculations
+  const completedOrders = orders.filter(o => o.status !== 'cancelled');
+  const totalRevenue = completedOrders.reduce((sum, o) => sum + o.total, 0);
+  const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  const netProfit = totalRevenue - totalExpenses;
+  const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
   const uniqueCustomers = new Set(orders.map((o) => o.customer_phone)).size;
 
   const revenueDataMap = new Map();
   orders.forEach(o => {
+    if (o.status === 'cancelled') return; // Skip cancelled orders in chart
     const date = new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     if (!revenueDataMap.has(date)) {
       revenueDataMap.set(date, { name: date, Revenue: 0 });
@@ -70,44 +79,83 @@ export default function AdminDashboardPage() {
         <p className="text-gray-500 text-sm mt-1">Here is what is happening with your store today.</p>
       </div>
 
+      {/* Financial KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between">
+        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-500">Total Revenue</h3>
-            <DollarSign size={20} className="text-gray-400" />
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Revenue</h3>
+            <DollarSign size={18} className="text-gray-400" />
           </div>
           <div>
             <p className="text-2xl font-bold text-black">{totalRevenue.toLocaleString()} EGP</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between">
+        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-500">Total Orders</h3>
-            <ShoppingCart size={20} className="text-gray-400" />
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Expenses</h3>
+            <TrendingDown size={18} className="text-red-400" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-red-500">{totalExpenses.toLocaleString()} EGP</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Net Profit</h3>
+            <TrendingUp size={18} className={netProfit >= 0 ? "text-emerald-400" : "text-red-400"} />
+          </div>
+          <div>
+            <p className={`text-2xl font-bold ${netProfit >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+              {netProfit.toLocaleString()} EGP
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Profit Margin</h3>
+            <Percent size={18} className="text-slate-400" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-black">{profitMargin.toFixed(1)}%</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Operational KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Orders</h3>
+            <ShoppingCart size={18} className="text-slate-400" />
           </div>
           <div>
             <p className="text-2xl font-bold text-black">{orders.length}</p>
+            <span className="text-[10px] text-gray-400 font-medium">Includes {orders.filter(o => o.status === 'cancelled').length} cancelled</span>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-500">Active Products</h3>
-            <Package size={20} className="text-gray-400" />
+        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Products</h3>
+            <Package size={18} className="text-slate-400" />
           </div>
           <div>
             <p className="text-2xl font-bold text-black">{productCount}</p>
+            <span className="text-[10px] text-gray-400 font-medium">Catalog collection total</span>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-500">Total Customers</h3>
-            <Users size={20} className="text-gray-400" />
+        <div className="bg-white p-6 rounded-xl border border-gray-200 flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Customers</h3>
+            <Users size={18} className="text-slate-400" />
           </div>
           <div>
             <p className="text-2xl font-bold text-black">{uniqueCustomers}</p>
+            <span className="text-[10px] text-gray-400 font-medium">Unique purchase entities</span>
           </div>
         </div>
       </div>
@@ -144,7 +192,7 @@ export default function AdminDashboardPage() {
             {recentOrders.length > 0 ? (
               <div className="space-y-4">
                 {recentOrders.map(order => (
-                  <div key={order.id} className="flex items-center justify-between border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                  <div key={order.id} className="flex items-center justify-between border-b border-b-gray-100 pb-4 last:border-0 last:pb-0">
                     <div>
                       <p className="font-medium text-black text-sm">{order.customer_name}</p>
                       <p className="text-xs text-gray-500 mt-1">#{order.order_number}</p>

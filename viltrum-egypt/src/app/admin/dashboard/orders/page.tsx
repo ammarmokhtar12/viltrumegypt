@@ -33,7 +33,7 @@ const STATUS_CONFIG = {
   cancelled: { label: "Cancelled", bg: "bg-red-500/10", border: "border-red-500/20", text: "text-red-500", icon: XCircle },
 };
 
-const STATUSES = ["pending", "confirmed", "shipped", "delivered"] as const;
+const STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -76,9 +76,13 @@ export default function AdminOrdersPage() {
         setOrders((prev) =>
           prev.map((o) => (o.id === orderId ? { ...o, status: newStatus as Order["status"] } : o))
         );
+      } else {
+        console.error("Failed to update status:", error);
+        alert(`Failed to update status: ${error.message}. \n\nIf you see a "violates check constraint" error, please run the SQL migration script 'add-cancelled-and-expenses.sql' in your Supabase SQL Editor.`);
       }
     } catch (err) {
       console.error("Failed to update status:", err);
+      alert("An unexpected error occurred while updating the status.");
     }
   };
 
@@ -333,6 +337,20 @@ export default function AdminOrdersPage() {
                                 >
                                   <PackageCheck size={16} />
                                   Confirm Delivery
+                                </button>
+                              )}
+
+                              {order.status !== "cancelled" && order.status !== "delivered" && (
+                                <button
+                                  onClick={() => {
+                                    if (confirm("Executing protocol override. Confirm cancellation of this order?")) {
+                                      updateStatus(order.id, "cancelled");
+                                    }
+                                  }}
+                                  className="h-12 px-6 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-2"
+                                >
+                                  <XCircle size={16} />
+                                  Cancel Order
                                 </button>
                               )}
 

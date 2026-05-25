@@ -118,3 +118,57 @@
 .btn-outline {
   @apply inline-flex items-center justify-center border border-border-light bg-surface text-foreground px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl transition-all hover:border-secondary hover:bg-background active:scale-95;
 }
+
+/* ==========================================
+   EID OFFER ANNOUNCEMENT STYLES
+   ========================================== */
+@keyframes goldGlow {
+  0%, 100% {
+    text-shadow: 0 0 2px rgba(251, 191, 36, 0.4), 0 0 6px rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+  }
+  50% {
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.8), 0 0 15px rgba(251, 191, 36, 0.4);
+    color: #fff;
+  }
+}
+
+@keyframes bannerShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.eid-glow-text {
+  animation: goldGlow 2.5s ease-in-out infinite;
+  font-weight: 800;
+}
+
+.eid-banner {
+  background: linear-gradient(135deg, #000000, #7f1d1d, #b91c1c, #7c2d12, #000000);
+  background-size: 300% 300%;
+  animation: bannerShimmer 12s ease infinite;
+}
+
+/* ==========================================
+   PREMIUM ADMIN TABLE STYLES
+   ========================================== */
+.admin-table {
+  @apply w-full text-left border-collapse;
+}
+.admin-table th {
+  @apply px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted border-b border-border-light bg-surface select-none;
+}
+.admin-table td {
+  @apply px-6 py-4 text-xs border-b border-border-light align-middle text-foreground;
+}
+.admin-table tr {
+  @apply transition-colors hover:bg-surface/30;
+}
+
