@@ -66,6 +66,9 @@ export default function AdminOrdersPage() {
   };
 
   const updateStatus = async (orderId: string, newStatus: string) => {
+    // Capture order data BEFORE state mutation to avoid stale closure read
+    const orderToCancel = newStatus === "cancelled" ? orders.find(o => o.id === orderId) : null;
+
     try {
       const { error } = await supabase
         .from("orders")
@@ -78,20 +81,17 @@ export default function AdminOrdersPage() {
         );
 
         // If the order was cancelled, restore the stock of all its items
-        if (newStatus === "cancelled") {
-          const orderToCancel = orders.find(o => o.id === orderId);
-          if (orderToCancel && Array.isArray(orderToCancel.items)) {
-            try {
-              for (const item of orderToCancel.items) {
-                await supabase.rpc("increment_stock", {
-                  p_product_id: item.product_id,
-                  p_size: item.size,
-                  p_quantity: item.quantity,
-                });
-              }
-            } catch (stockErr) {
-              console.error("Failed to restore stock after cancellation:", stockErr);
+        if (newStatus === "cancelled" && orderToCancel && Array.isArray(orderToCancel.items)) {
+          try {
+            for (const item of orderToCancel.items) {
+              await supabase.rpc("increment_stock", {
+                p_product_id: item.product_id,
+                p_size: item.size,
+                p_quantity: item.quantity,
+              });
             }
+          } catch (stockErr) {
+            console.error("Failed to restore stock after cancellation:", stockErr);
           }
         }
       } else {
@@ -177,13 +177,13 @@ export default function AdminOrdersPage() {
           />
         </div>
         <div className="flex gap-2 p-1 bg-surface border border-border-light rounded-xl overflow-x-auto w-full lg:w-auto">
-          {["all", "pending", "confirmed", "shipped", "delivered"].map((s) => (
+          {["all", "pending", "confirmed", "shipped", "delivered", "cancelled"].map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
               className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap ${
                 statusFilter === s
-                  ? "bg-primary text-white shadow-md shadow-primary/10"
+                  ? s === "cancelled" ? "bg-red-500 text-white shadow-md shadow-red-500/10" : "bg-primary text-white shadow-md shadow-primary/10"
                   : "text-muted hover:text-foreground"
               }`}
             >

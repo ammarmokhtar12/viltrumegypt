@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CreditCard, Truck } from "lucide-react";
 
 interface CheckoutFormProps {
@@ -25,13 +25,17 @@ export default function CheckoutForm({
     address: ""
   });
 
-  // Call onSubmit whenever form data or payment method changes
+  // Use a ref to always have the latest onSubmit without causing re-renders
+  const onSubmitRef = useRef(onSubmit);
+  onSubmitRef.current = onSubmit;
+
+  // Sync form data to parent whenever it changes — stable deps, no infinite loop
   useEffect(() => {
-    onSubmit({
+    onSubmitRef.current({
       ...formData,
       paymentMethod
     });
-  }, [formData, paymentMethod, onSubmit]);
+  }, [formData, paymentMethod]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

@@ -103,10 +103,14 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (!product || !selectedSize) return;
 
-    // Double check stock quantity (prevent override if stock is loaded)
+    // Validate stock quantity before adding
     const stock = inventory[selectedSize];
     if (stock !== undefined && stock <= 0) {
       toast.error("Size is currently out of stock.");
+      return;
+    }
+    if (stock !== undefined && quantity > stock) {
+      toast.error(`Only ${stock} units available. Please reduce quantity.`);
       return;
     }
     addItem({
@@ -391,8 +395,12 @@ export default function ProductDetailPage() {
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="flex h-10 w-10 items-center justify-center text-muted transition-colors hover:text-foreground hover:bg-background rounded-lg"
+                      onClick={() => {
+                        const maxStock = selectedSize && inventory[selectedSize] !== undefined ? inventory[selectedSize] : Infinity;
+                        setQuantity(Math.min(quantity + 1, maxStock));
+                      }}
+                      disabled={selectedSize ? (inventory[selectedSize] !== undefined && quantity >= inventory[selectedSize]) : false}
+                      className="flex h-10 w-10 items-center justify-center text-muted transition-colors hover:text-foreground hover:bg-background rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       <Plus size={14} />
                     </button>

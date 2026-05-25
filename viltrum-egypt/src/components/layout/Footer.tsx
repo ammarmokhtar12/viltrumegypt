@@ -39,10 +39,10 @@ export default function Footer() {
             <Link href="/products" className="text-gray-400 hover:text-white transition-colors">The Archive</Link>
             <Link href="/checkout" className="text-gray-400 hover:text-white transition-colors">Checkout</Link>
             <a 
-               href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201017326887"}`}
+               href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
                className="text-gray-400 hover:text-white transition-colors"
             >
-              Concierge
+              Contact With Us
             </a>
           </nav>
         </div>

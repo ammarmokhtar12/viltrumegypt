@@ -146,14 +146,27 @@
 }
 
 .eid-glow-text {
-  animation: goldGlow 2.5s ease-in-out infinite;
   font-weight: 800;
+  letter-spacing: 0.05em;
+  background: linear-gradient(90deg, #000000, #52525b, #000000);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: textShimmer 3s linear infinite;
+}
+
+@keyframes textShimmer {
+  to {
+    background-position: 200% center;
+  }
 }
 
 .eid-banner {
-  background: linear-gradient(135deg, #000000, #7f1d1d, #b91c1c, #7c2d12, #000000);
-  background-size: 300% 300%;
-  animation: bannerShimmer 12s ease infinite;
+  background: linear-gradient(90deg, #ffffff, #f4f4f5, #e4e4e7, #f4f4f5, #ffffff);
+  background-size: 200% auto;
+  animation: bannerShimmer 8s linear infinite;
+  color: #27272a;
 }
 
 /* ==========================================

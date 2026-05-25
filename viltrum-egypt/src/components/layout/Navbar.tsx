@@ -37,10 +37,10 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
       }`}
     >
       {/* Eid Offer Announcement Banner */}
-      <div className="eid-banner text-white text-center py-2.5 px-4 text-xs font-bold uppercase tracking-widest relative z-50 flex items-center justify-center gap-2 border-b border-white/10 select-none">
-        <span className="animate-pulse inline-block w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_#fbbf24]"></span>
-        <span className="font-sans text-[10px] sm:text-xs tracking-[0.05em] text-white/95 flex items-center gap-1 select-none">
-          🔥 <span className="eid-glow-text">استنوا أقوى عروض العيد من VILTRUM</span> · خصومات دمار شامل وتصاميم حصرية قريباً! 🔥
+      <div className="eid-banner text-center py-3 px-4 text-xs sm:text-sm font-bold uppercase tracking-wider relative z-50 flex items-center justify-center gap-2 border-b border-border-light select-none">
+        <span className="animate-pulse inline-block w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_rgba(100,116,139,0.5)]"></span>
+        <span className="font-sans tracking-[0.05em] flex items-center gap-1.5 select-none">
+          ⚡ <span className="eid-glow-text text-foreground">EID OFFERS | العيد اوفرز</span> · استنوا أقوى عروض العيد من VILTRUM - خصومات دمار شامل وتصاميم حصرية قريباً! ⚡
         </span>
       </div>
 
@@ -66,12 +66,12 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             Archive
           </Link>
           <a
-             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201017326887"}`}
+             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
              target="_blank"
              rel="noopener noreferrer"
              className="text-foreground hover:text-accent transition-colors"
           >
-            Concierge
+            Contact With Us
           </a>
         </div>
 

@@ -138,9 +138,9 @@ export default function AdminExpensesPage() {
 
   // Calculations
   const filteredExpenses = expenses.filter((e) => {
-    const matchesSearch = e.description
-      ? e.description.toLowerCase().includes(searchQuery.toLowerCase())
-      : searchQuery === "";
+    const matchesSearch = searchQuery === ""
+      ? true
+      : (e.description || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === "all" || e.category === categoryFilter;
 
     // Date filtering

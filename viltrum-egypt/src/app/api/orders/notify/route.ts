@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   try {
     // Verify this is an internal request
     const authHeader = req.headers.get('x-internal-secret');
-    const internalSecret = process.env.NEXT_PUBLIC_INTERNAL_API_SECRET || 'fallback-secret-123';
+    const internalSecret = process.env.INTERNAL_API_SECRET || 'fallback-secret-123';
 
     if (authHeader !== internalSecret) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
