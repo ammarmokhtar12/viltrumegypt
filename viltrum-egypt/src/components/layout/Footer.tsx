@@ -30,7 +30,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 border-b border-gray-800 pb-12 gap-8">
           <div>
             <Link href="/" className="flex flex-col leading-none">
-              <span className="text-2xl font-bebas tracking-[0.1em] text-white">VILTRUM</span>
+              <span className="text-2xl font-serif tracking-[-0.06em] font-medium text-white">VILTRUM</span>
               <span className="text-[8px] font-bold tracking-[0.4em] text-accent mt-1">EST. 2024</span>
             </Link>
           </div>

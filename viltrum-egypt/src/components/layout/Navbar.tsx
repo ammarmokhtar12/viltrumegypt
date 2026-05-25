@@ -58,7 +58,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         {/* Brand - Left */}
         <div className="flex-shrink-0">
           <Link href="/" className="flex flex-col leading-none">
-            <span className="text-3xl font-bebas tracking-[0.1em] text-primary">VILTRUM</span>
+            <span className="text-3xl font-serif tracking-[-0.06em] font-medium text-primary">VILTRUM</span>
             <span className="text-[8px] font-bold tracking-[0.5em] text-accent mt-1 ml-0.5">EST. 2024</span>
           </Link>
         </div>
