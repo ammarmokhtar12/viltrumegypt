@@ -12,6 +12,7 @@ import PaymentUpload from "@/components/checkout/PaymentUpload";
 import Image from "next/image";
 import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
+import { sendOrderNotification } from "@/app/actions/notify";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -157,21 +158,14 @@ export default function CheckoutPage() {
 
       // Send Email Notification
       try {
-        await fetch('/api/orders/notify', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'x-internal-secret': process.env.NEXT_PUBLIC_INTERNAL_API_SECRET || 'fallback-secret-123'
-          },
-          body: JSON.stringify({
-            orderNumber: data.order_number,
-            customerName: formData.name,
-            customerPhone: formData.phone,
-            customerAddress: formData.address,
-            paymentMethod: formData.paymentMethod,
-            items: orderItems,
-            total: cartTotal,
-          }),
+        await sendOrderNotification({
+          orderNumber: Number(data.order_number),
+          customerName: formData.name,
+          customerPhone: formData.phone,
+          customerAddress: formData.address,
+          paymentMethod: formData.paymentMethod,
+          items: orderItems,
+          total: cartTotal,
         });
       } catch (emailErr) {
         console.error("Failed to send notification email:", emailErr);

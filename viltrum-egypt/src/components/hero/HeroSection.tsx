@@ -67,9 +67,6 @@ export default function HeroSection() {
         <p ref={descRef} className="text-sm md:text-lg text-gray-500 font-serif italic max-w-xl leading-relaxed mb-10 opacity-0">
           Premium compression wear forged for warriors who demand excellence. 
           Pure performance met with uncompromising aesthetics.
-          <span className="text-red-600 font-extrabold block mt-3 text-lg md:text-xl font-sans not-italic animate-pulse">
-            🔥 REVOLUTIONARY EID DESIGNS & INSANE DISCOUNTS COMING SOON! 🔥
-          </span>
         </p>
 
         {/* Floating Buttons */}
