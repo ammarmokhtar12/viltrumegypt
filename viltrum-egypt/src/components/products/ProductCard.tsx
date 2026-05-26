@@ -104,7 +104,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
 
         {/* Content Section */}
         <div className="mt-8 text-center px-4 space-y-3">
-          <h3 className="text-sm font-black text-foreground uppercase tracking-[0.25em] group-hover:text-black transition-colors">
+          <h3 className="text-[15px] font-serif font-semibold text-foreground uppercase tracking-[0.15em] group-hover:text-neutral-600 transition-colors">
             {product.title}
           </h3>
           

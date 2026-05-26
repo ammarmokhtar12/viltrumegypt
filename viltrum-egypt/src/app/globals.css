@@ -1,11 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'CleanNumbers';
+  src: local('Inter'), local('system-ui'), local('-apple-system'), local('Segoe UI'), local('Roboto'), local('Arial');
+  unicode-range: U+0030-0039;
+  font-display: swap;
+}
+
 @theme {
-  --font-sans: var(--font-playfair), serif;
-  --font-bebas: var(--font-playfair), serif;
-  --font-serif: var(--font-playfair), serif;
-  --font-display: var(--font-playfair), serif;
+  --font-sans: 'CleanNumbers', var(--font-playfair), serif;
+  --font-bebas: 'CleanNumbers', var(--font-playfair), serif;
+  --font-serif: 'CleanNumbers', var(--font-playfair), serif;
+  --font-display: 'CleanNumbers', var(--font-playfair), serif;
 
   --color-primary: #000000;
   --color-secondary: #4b4b4b;
