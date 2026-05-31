@@ -83,7 +83,7 @@ export default function PaymentUpload({
   return (
     <div className="space-y-5">
       {preview ? (
-        <div className="relative rounded-2xl bg-white border border-zinc-200 p-4 overflow-hidden">
+        <div className="relative rounded-2xl bg-white border border-border-light p-4 overflow-hidden">
           <img
             src={preview}
             alt="Payment proof"
@@ -91,12 +91,12 @@ export default function PaymentUpload({
           />
 
           {uploaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-50/80">
+            <div className="absolute inset-0 flex items-center justify-center bg-surface/85">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center">
                   <CheckCircle size={20} />
                 </div>
-                <p className="text-[11px] font-semibold text-zinc-900 uppercase tracking-[0.2em]">
+                <p className="text-[11px] font-semibold text-primary uppercase tracking-[0.2em]">
                   Uploaded
                 </p>
               </div>
@@ -106,17 +106,17 @@ export default function PaymentUpload({
           {!uploaded && !uploading && (
             <button
               onClick={clearPreview}
-              className="absolute top-5 right-5 rounded-xl bg-slate-50 p-2 text-zinc-900 transition-colors hover:bg-zinc-900 hover:text-white"
+              className="absolute top-5 right-5 rounded-xl bg-surface p-2 text-primary transition-colors hover:bg-primary hover:text-white"
             >
               <X size={14} />
             </button>
           )}
 
           {uploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-50/90">
+            <div className="absolute inset-0 flex items-center justify-center bg-surface/90">
               <div className="text-center space-y-3">
-                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
-                <span className="text-[11px] font-semibold text-zinc-900 uppercase tracking-[0.2em]">
+                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-border-light border-t-primary" />
+                <span className="text-[11px] font-semibold text-primary uppercase tracking-[0.2em]">
                   Uploading...
                 </span>
               </div>
@@ -132,22 +132,22 @@ export default function PaymentUpload({
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`cursor-pointer border border-dashed p-14 text-center transition-all duration-300 group ${
+          className={`cursor-pointer border border-dashed rounded-2xl p-14 text-center transition-all duration-300 group ${
             dragOver
-              ? "border-zinc-400 bg-white"
-              : "border-zinc-200 bg-slate-50 hover:border-zinc-400 hover:bg-white"
+              ? "border-primary bg-white"
+              : "border-border-light bg-surface hover:border-primary hover:bg-white"
           }`}
         >
           <div className="flex flex-col items-center space-y-4">
             <Upload
               size={24}
-              className="text-zinc-600 group-hover:text-zinc-900 transition-colors duration-300"
+              className="text-secondary group-hover:text-primary transition-colors duration-300"
             />
             <div className="space-y-2">
-              <p className="text-base font-medium text-zinc-700">
+              <p className="text-base font-medium text-primary">
                 Click or drag to upload
               </p>
-              <p className="text-[11px] font-semibold text-zinc-500">
+              <p className="text-[11px] font-semibold text-muted">
                 JPG, PNG — Max 5MB
               </p>
             </div>

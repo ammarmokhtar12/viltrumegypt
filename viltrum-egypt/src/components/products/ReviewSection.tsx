@@ -282,7 +282,7 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
 
           {submitted ? (
             <div className="text-center py-10">
-              <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
+              <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-600/10">
                 <Star size={28} className="text-white fill-white" />
               </div>
               <p className="text-lg font-bold text-foreground">

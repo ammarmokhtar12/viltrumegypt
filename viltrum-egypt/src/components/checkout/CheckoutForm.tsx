@@ -49,10 +49,10 @@ export default function CheckoutForm({
     <form className="space-y-10 font-sans" onSubmit={(e) => e.preventDefault()}>
       {/* Contact Section */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-[#000]">Contact Information</h2>
+        <h2 className="text-xl font-bold text-primary">Contact Information</h2>
         <div className="grid grid-cols-1 gap-4">
           <div>
-             <label className="text-sm font-medium text-[#444] mb-1.5 block">Full Name</label>
+             <label className="text-sm font-medium text-secondary mb-1.5 block">Full Name</label>
              <input
                type="text"
                name="name"
@@ -64,7 +64,7 @@ export default function CheckoutForm({
              />
           </div>
           <div>
-             <label className="text-sm font-medium text-[#444] mb-1.5 block">Phone Number</label>
+             <label className="text-sm font-medium text-secondary mb-1.5 block">Phone Number</label>
              <input
                type="tel"
                name="phone"
@@ -80,9 +80,9 @@ export default function CheckoutForm({
 
       {/* Shipping Section */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-[#000]">Shipping Address</h2>
+        <h2 className="text-xl font-bold text-primary">Shipping Address</h2>
         <div>
-           <label className="text-sm font-medium text-[#444] mb-1.5 block">Detailed Address</label>
+           <label className="text-sm font-medium text-secondary mb-1.5 block">Detailed Address</label>
            <input
              type="text"
              name="address"
@@ -108,7 +108,7 @@ export default function CheckoutForm({
 
       {/* Payment Section */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-[#000]">Payment Method</h2>
+        <h2 className="text-xl font-bold text-primary">Payment Method</h2>
         <p className="text-sm text-muted mb-4">All transactions are secure and encrypted.</p>
         
         <div className="flex flex-col rounded-xl border border-border-light overflow-hidden bg-background">

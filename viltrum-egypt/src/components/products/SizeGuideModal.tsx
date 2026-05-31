@@ -117,7 +117,7 @@ export default function SizeGuideModal({ isOpen, onClose }: SizeGuideModalProps)
         className="relative z-10 w-full max-w-2xl px-4 pointer-events-none"
       >
         {/* Premium Box Design */}
-        <div className="bg-surface border border-border-light shadow-2xl rounded-3xl overflow-hidden pointer-events-auto luxury-shadow">
+        <div className="bg-surface border border-border-light shadow-2xl rounded-2xl overflow-hidden pointer-events-auto luxury-shadow">
           
           {/* Header */}
           <div className="flex items-center justify-between px-8 py-5 border-b border-border-light bg-background/50 backdrop-blur-md">

@@ -38,15 +38,15 @@ export default function HeroSection() {
           className="object-cover object-center opacity-90 scale-105"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-transparent to-white" />
       </div>
 
       {/* Content Overlay */}
       <div className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center text-center">
         {/* Edition Badge */}
-        <div ref={badgeRef} className="flex items-center gap-2 mb-6 bg-black text-white px-5 py-2.5 rounded-full border border-zinc-800 shadow-md opacity-0 select-none">
-          <span className="text-amber-400 animate-pulse">💥</span>
-          <span className="text-[11px] sm:text-xs font-bold tracking-[0.25em] text-amber-400 uppercase font-sans">
+        <div ref={badgeRef} className="flex items-center gap-2 mb-6 bg-white/80 backdrop-blur-sm text-primary px-5 py-2 rounded-full border border-border-light shadow-sm opacity-0 select-none">
+          <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+          <span className="text-[10px] sm:text-xs font-bold tracking-[0.25em] text-foreground uppercase font-sans">
             ANTICIPATE THE GRAND EID COLLECTION SOON
           </span>
         </div>
@@ -64,7 +64,7 @@ export default function HeroSection() {
         </div>
 
         {/* Description */}
-        <p ref={descRef} className="text-sm md:text-lg text-gray-500 font-serif italic max-w-xl leading-relaxed mb-10 opacity-0">
+        <p ref={descRef} className="text-sm md:text-lg text-secondary font-serif italic max-w-xl leading-relaxed mb-10 opacity-0">
           Premium compression wear forged for warriors who demand excellence. 
           Pure performance met with uncompromising aesthetics.
         </p>

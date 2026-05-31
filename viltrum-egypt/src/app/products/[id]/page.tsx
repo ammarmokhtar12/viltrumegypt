@@ -205,7 +205,7 @@ export default function ProductDetailPage() {
             
             {/* Gallery Section */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="relative overflow-hidden rounded-[2.5rem] bg-surface border border-border-light shadow-2xl group" style={{ aspectRatio: "4/5" }}>
+              <div className="relative overflow-hidden rounded-2xl bg-surface border border-border-light shadow-2xl group" style={{ aspectRatio: "4/5" }}>
                 {activeMedia?.type === 'video' ? (
                    <video
                      src={activeMedia.url}
@@ -417,7 +417,7 @@ export default function ProductDetailPage() {
                         ? "bg-emerald-600 text-white"
                         : (!selectedSize || (selectedSize && inventory[selectedSize] !== undefined ? inventory[selectedSize] <= 0 : false))
                         ? "cursor-not-allowed bg-surface border border-border-light text-muted opacity-50"
-                        : "bg-primary text-background hover:opacity-90 shadow-2xl shadow-primary/10"
+                        : "bg-primary text-white hover:opacity-90 shadow-2xl shadow-primary/10"
                     }`}
                     style={{ minHeight: "4rem" }}
                   >

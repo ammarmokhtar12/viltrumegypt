@@ -39,9 +39,9 @@ export default function CheckoutPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-[#fafafa]">
-        <h1 className="text-2xl font-bold text-[#000] mb-4">Your cart is empty</h1>
-        <Link href="/products" className="px-6 py-3 bg-[#000] text-white rounded-lg hover:bg-[#333] transition-colors font-medium">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-surface">
+        <h1 className="text-2xl font-bold text-primary mb-4">Your cart is empty</h1>
+        <Link href="/products" className="btn-primary">
           Continue Shopping
         </Link>
       </div>
@@ -187,10 +187,10 @@ export default function CheckoutPage() {
 
   if (isSuccess) {
     return (
-      <main className="min-h-screen bg-white flex items-center justify-center px-6">
+      <main className="min-h-screen bg-background flex items-center justify-center px-6">
         <div className="max-w-md w-full text-center space-y-8 animate-in fade-in zoom-in duration-700">
-          <div className="mx-auto w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-2xl shadow-emerald-200">
-             <Check size={48} strokeWidth={3} />
+          <div className="mx-auto w-20 h-20 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-600/10">
+             <Check size={36} strokeWidth={3} />
           </div>
           
           <div className="space-y-4">
@@ -204,7 +204,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="pt-8 flex flex-col gap-4">
-             <div className="p-4 bg-[#fafafa] rounded-xl border border-border-light text-left">
+             <div className="p-4 bg-surface rounded-xl border border-border-light text-left">
                 <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-1">Next Step</p>
                 <p className="text-xs text-secondary leading-relaxed">
                    We are opening WhatsApp to finalize shipping details with our logistics team. Please keep the chat open.
@@ -213,7 +213,7 @@ export default function CheckoutPage() {
              
              <Link 
                href="/products" 
-               className="h-14 bg-foreground text-background rounded-xl flex items-center justify-center font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-xl shadow-black/5"
+               className="btn-primary w-full h-14 shadow-lg shadow-black/5"
              >
                 Continue Shopping
              </Link>
@@ -224,11 +224,11 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white text-[#000] font-sans selection:bg-[#000] selection:text-white pb-24">
+    <main className="min-h-screen bg-background text-primary font-sans selection:bg-primary selection:text-white pb-24">
       {/* Checkout Navbar */}
-      <header className="border-b border-[#e5e5e5] bg-white py-4 px-6 md:px-12 flex items-center justify-between z-10 relative">
-         <Link href="/" className="text-2xl font-display font-bold uppercase tracking-tight">VILTRUM</Link>
-         <Link href="/products" className="text-sm font-medium flex items-center gap-2 hover:opacity-70 transition-opacity">
+      <header className="border-b border-border-light bg-background py-4 px-6 md:px-12 flex items-center justify-between z-10 relative">
+         <Link href="/" className="text-2xl font-display font-bold uppercase tracking-tight text-primary">VILTRUM</Link>
+         <Link href="/products" className="text-sm font-medium flex items-center gap-2 hover:text-accent transition-colors">
             <ArrowLeft size={16} /> Return to Cart
          </Link>
       </header>
@@ -240,12 +240,12 @@ export default function CheckoutPage() {
             <div className="order-2 lg:order-1 max-w-xl">
                
                {/* Breadcrumbs */}
-               <div className="text-xs text-[#666] flex items-center gap-2 mb-10">
-                  <span className="font-semibold text-[#000]">Information</span>
+               <div className="text-xs text-muted flex items-center gap-2 mb-10">
+                  <span className="font-semibold text-primary">Information</span>
                   <ChevronRight size={12} />
-                  <span className="font-semibold text-[#000]">Shipping</span>
+                  <span className="font-semibold text-primary">Shipping</span>
                   <ChevronRight size={12} />
-                  <span className="font-semibold text-[#000]">Payment</span>
+                  <span className="font-semibold text-primary">Payment</span>
                </div>
 
                <CheckoutForm
@@ -256,15 +256,15 @@ export default function CheckoutPage() {
 
                {/* Upload area conditionally rendered dynamically */}
                <div className={`transition-all duration-500 overflow-hidden ${paymentMethod === 'instapay' ? 'max-h-[500px] opacity-100 mt-10' : 'max-h-0 opacity-0 mt-0'}`}>
-                  <h2 className="text-xl font-bold text-[#000] mb-4">Payment Verification</h2>
+                  <h2 className="text-xl font-bold text-primary mb-4">Payment Verification</h2>
                   <PaymentUpload onUploadComplete={setScreenshotUrl} uploaded={!!screenshotUrl} />
                </div>
 
-               <div className="mt-12 pt-8 border-t border-[#e5e5e5]">
+               <div className="mt-12 pt-8 border-t border-border-light">
                   <button
                      onClick={handleFinalSubmit}
                      disabled={submitting}
-                     className="w-full h-14 bg-[#000] text-white rounded-lg flex items-center justify-center gap-2 font-bold text-base hover:bg-[#222] transition-colors disabled:opacity-50"
+                     className="btn-primary w-full h-14 text-sm"
                   >
                      {submitting ? "Processing Securely..." : (
                         <>
@@ -277,49 +277,49 @@ export default function CheckoutPage() {
 
             {/* Right side: Summary */}
             <div className="order-1 lg:order-2">
-               <div className="lg:sticky lg:top-10 bg-[#fafafa] p-8 md:p-10 rounded-2xl border border-[#e5e5e5]">
-                  <h3 className="font-semibold text-[#000] mb-6">Order Summary</h3>
+               <div className="lg:sticky lg:top-10 bg-surface p-8 md:p-10 rounded-2xl border border-border-light">
+                  <h3 className="font-semibold text-primary mb-6">Order Summary</h3>
 
                   <div className="space-y-6 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
                      {cartItems.map(item => (
                         <div key={`${item.product_id}-${item.size}`} className="flex items-center gap-4">
-                           <div className="relative w-16 h-16 rounded-lg bg-white border border-[#e5e5e5] overflow-hidden flex-shrink-0">
-                              <span className="absolute -top-1 -right-1 bg-gray-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full z-10 font-bold border-2 border-white">
+                           <div className="relative w-16 h-16 rounded-lg bg-white border border-border-light overflow-hidden flex-shrink-0">
+                              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full z-10 font-bold border-2 border-white">
                                  {item.quantity}
                               </span>
                               {item.image_url ? (
                                  <Image src={item.image_url} alt={item.title} fill className="object-cover" />
                               ) : (
-                                 <div className="w-full h-full bg-[#f0f0f0]" />
+                                 <div className="w-full h-full bg-surface" />
                               )}
                            </div>
                            <div className="flex-1">
-                              <p className="text-sm font-semibold text-[#000] truncate">{item.title}</p>
-                              <p className="text-xs text-[#666] mt-0.5">Size: {item.size}</p>
+                              <p className="text-sm font-semibold text-primary truncate">{item.title}</p>
+                              <p className="text-xs text-muted mt-0.5">Size: {item.size}</p>
                            </div>
-                           <div className="font-medium text-[#000] text-sm">
+                           <div className="font-medium text-primary text-sm">
                               {formatPrice(item.price * item.quantity)}
                            </div>
                         </div>
                      ))}
                   </div>
 
-                  <div className="mt-8 space-y-4 pt-6 border-t border-[#e5e5e5]">
-                     <div className="flex justify-between text-sm text-[#444]">
+                  <div className="mt-8 space-y-4 pt-6 border-t border-border-light">
+                     <div className="flex justify-between text-sm text-secondary">
                         <span>Subtotal</span>
-                        <span className="font-medium text-[#000]">{formatPrice(cartTotal)}</span>
+                        <span className="font-medium text-primary">{formatPrice(cartTotal)}</span>
                      </div>
-                     <div className="flex justify-between text-sm text-[#444]">
+                     <div className="flex justify-between text-sm text-secondary">
                         <span>Shipping</span>
-                        <span className="font-semibold text-[#000]">TBD ON WHATSAPP</span>
+                        <span className="font-semibold text-primary">TBD ON WHATSAPP</span>
                      </div>
                   </div>
 
-                  <div className="mt-6 pt-6 border-t border-[#e5e5e5] flex justify-between items-baseline">
-                     <span className="font-semibold text-[#000]">Total</span>
+                  <div className="mt-6 pt-6 border-t border-border-light flex justify-between items-baseline">
+                     <span className="font-semibold text-primary">Total</span>
                      <div className="flex items-baseline gap-2">
-                        <span className="text-xs text-[#666] font-medium tracking-wide">EGP</span>
-                        <span className="text-3xl font-bold text-[#000] tracking-tight">{formatPrice(cartTotal)}</span>
+                        <span className="text-xs text-muted font-medium tracking-wide">EGP</span>
+                        <span className="text-3xl font-bold text-primary tracking-tight">{formatPrice(cartTotal)}</span>
                      </div>
                   </div>
                </div>

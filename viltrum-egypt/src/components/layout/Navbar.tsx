@@ -37,14 +37,14 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
       }`}
     >
       {/* Eid Offer Announcement Banner (Marquee) */}
-      <div className="eid-banner overflow-hidden py-3.5 border-b border-border-light relative z-50 select-none">
+      <div className="eid-banner overflow-hidden py-2.5 border-b border-border-light relative z-50 select-none">
         <div className="marquee-container flex whitespace-nowrap">
-          <div className="marquee-content flex gap-16 text-sm sm:text-base font-bold uppercase tracking-wider">
+          <div className="marquee-content flex gap-16 text-[10px] font-semibold uppercase tracking-[0.25em]">
             <span className="eid-glow-text">
-              ⚡ EID OFFERS — ANTICIPATE THE ULTIMATE EID COLLECTION BY VILTRUM · EXCLUSIVE DESIGNS & INSANE DISCOUNTS COMING SOON! ⚡
+              EID OFFERS — ANTICIPATE THE ULTIMATE EID COLLECTION BY VILTRUM · EXCLUSIVE DESIGNS & SPECIAL DISCOUNTS COMING SOON
             </span>
             <span className="eid-glow-text">
-              ⚡ EID OFFERS — ANTICIPATE THE ULTIMATE EID COLLECTION BY VILTRUM · EXCLUSIVE DESIGNS & INSANE DISCOUNTS COMING SOON! ⚡
+              EID OFFERS — ANTICIPATE THE ULTIMATE EID COLLECTION BY VILTRUM · EXCLUSIVE DESIGNS & SPECIAL DISCOUNTS COMING SOON
             </span>
           </div>
         </div>
@@ -113,7 +113,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
 
       {/* Mobile Menu Overlay */}
       {mobileOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-border-light shadow-xl px-4 py-8 flex flex-col gap-6 selection:bg-secondary selection:text-white">
+        <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-border-light shadow-xl px-4 py-8 flex flex-col gap-6 selection:bg-secondary selection:text-white animate-mobile-menu">
           <Link href="/" onClick={() => setMobileOpen(false)} className="text-lg font-medium text-foreground border-b border-gray-50 pb-2">
             Home
           </Link>

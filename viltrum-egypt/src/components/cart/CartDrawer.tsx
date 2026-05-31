@@ -76,8 +76,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           {/* Header */}
           <div className="flex items-center justify-between px-8 py-6 border-b border-border-light bg-white">
             <div className="flex items-center gap-3">
-               <ShoppingBag size={20} className="text-black" />
-              <h2 className="text-[13px] font-bold text-black uppercase tracking-[0.2em]">
+               <ShoppingBag size={20} className="text-primary" />
+              <h2 className="text-[13px] font-bold text-primary uppercase tracking-[0.2em]">
                 Your Cart
                 {cartCount > 0 && (
                   <span className="ml-2 text-muted font-medium">({cartCount})</span>
@@ -86,7 +86,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             </div>
             <button
               onClick={onClose}
-              className="w-10 h-10 flex items-center justify-center rounded-full text-muted hover:text-black hover:bg-surface transition-all active:scale-90"
+              className="w-10 h-10 flex items-center justify-center rounded-full text-muted hover:text-foreground hover:bg-surface transition-all active:scale-90"
               aria-label="Close cart"
             >
               <X size={20} />
@@ -135,7 +135,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <Link
                   href="/checkout"
                   onClick={handleCheckoutClick}
-                  className="btn-primary w-full shadow-2xl shadow-black/10 flex items-center justify-center gap-3 py-5 rounded-2xl"
+                  className="btn-primary w-full shadow-lg shadow-black/5 flex items-center justify-center gap-3"
                 >
                   Proceed to Checkout
                   <ArrowRight size={16} />

@@ -14,20 +14,23 @@
   --font-serif: 'CleanNumbers', var(--font-playfair), serif;
   --font-display: 'CleanNumbers', var(--font-playfair), serif;
 
-  --color-primary: #000000;
-  --color-secondary: #4b4b4b;
-  --color-muted: #94A3B8;
-  --color-surface: #F8FAFC;
-  --color-border-light: #F1F5F9;
+  --color-primary: #1a1a1a;
+  --color-secondary: #6b7280;
+  --color-muted: #9ca3af;
+  --color-surface: #f7f7f8;
+  --color-border-light: #ebebed;
   --color-background: #ffffff;
-  --color-foreground: #020617;
-  --color-accent: #64748B; /* Elegant Slate accent */
+  --color-foreground: #111111;
+  --color-accent: #71717a;
 }
 
 @layer base {
   :root {
     --background: #ffffff;
-    --foreground: #211f1c;
+    --foreground: #111111;
+    --surface: #f7f7f8;
+    --muted: #9ca3af;
+    --primary: #1a1a1a;
   }
 
   body {
@@ -39,31 +42,31 @@
   }
 
   ::selection {
-    @apply bg-black text-white;
+    @apply bg-primary/90 text-white;
   }
 }
 
 @layer utilities {
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-black text-white px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] transition-all hover:bg-zinc-900 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-none;
+    @apply inline-flex items-center justify-center bg-primary text-white px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] transition-all hover:bg-foreground active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center bg-white text-black border border-black/10 px-10 py-5 text-[10px] font-bold uppercase tracking-[0.3em] transition-all hover:bg-zinc-50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed rounded-none;
+    @apply inline-flex items-center justify-center bg-white text-primary border border-border-light px-8 py-4 text-[11px] font-bold uppercase tracking-[0.2em] transition-all hover:bg-surface active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg;
   }
 
   .premium-blur {
-    @apply backdrop-blur-xl bg-white/70 border border-white/20;
+    @apply backdrop-blur-xl bg-white/80 border-b border-border-light;
   }
   
   .luxury-shadow {
-    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.1);
+    box-shadow: 0 24px 64px -16px rgba(0,0,0,0.08);
   }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -116,9 +119,25 @@
   animation: viltrumPulseRing 2s ease-in-out infinite;
 }
 
+/* Mobile Menu Animation */
+@keyframes mobileMenuSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-mobile-menu {
+  animation: mobileMenuSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Input utility used across login, register, admin pages */
 .viltrum-input {
-  @apply w-full px-4 py-3 rounded-xl border border-border-light bg-background text-sm text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all;
+  @apply w-full px-4 py-3 rounded-xl border border-border-light bg-background text-sm text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/20 transition-all;
 }
 
 /* btn-outline used in admin orders page */
@@ -127,19 +146,8 @@
 }
 
 /* ==========================================
-   EID OFFER ANNOUNCEMENT STYLES
+   ANNOUNCEMENT BANNER STYLES
    ========================================== */
-@keyframes goldGlow {
-  0%, 100% {
-    text-shadow: 0 0 2px rgba(251, 191, 36, 0.4), 0 0 6px rgba(251, 191, 36, 0.2);
-    color: #fbbf24;
-  }
-  50% {
-    text-shadow: 0 0 8px rgba(251, 191, 36, 0.8), 0 0 15px rgba(251, 191, 36, 0.4);
-    color: #fff;
-  }
-}
-
 @keyframes bannerShimmer {
   0% {
     background-position: 0% 50%;
@@ -152,28 +160,28 @@
   }
 }
 
-.eid-glow-text {
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  background: linear-gradient(90deg, #000000, #52525b, #000000);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-size: 200% auto;
-  animation: textShimmer 3s linear infinite;
-}
-
 @keyframes textShimmer {
   to {
     background-position: 200% center;
   }
 }
 
-.eid-banner {
-  background: linear-gradient(90deg, #ffffff, #f4f4f5, #e4e4e7, #f4f4f5, #ffffff);
+.eid-glow-text {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: linear-gradient(90deg, #1a1a1a, #71717a, #1a1a1a);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   background-size: 200% auto;
-  animation: bannerShimmer 8s linear infinite;
-  color: #27272a;
+  animation: textShimmer 4s linear infinite;
+}
+
+.eid-banner {
+  background: linear-gradient(90deg, #ffffff, #f7f7f8, #ebebed, #f7f7f8, #ffffff);
+  background-size: 200% auto;
+  animation: bannerShimmer 10s linear infinite;
+  color: #1a1a1a;
 }
 
 .marquee-container {
@@ -209,6 +217,5 @@
   @apply px-6 py-4 text-xs border-b border-border-light align-middle text-foreground;
 }
 .admin-table tr {
-  @apply transition-colors hover:bg-surface/30;
+  @apply transition-colors hover:bg-surface/50;
 }
-
