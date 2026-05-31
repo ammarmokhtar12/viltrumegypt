@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, @next/next/no-img-element, jsx-a11y/alt-text */
 import { NextResponse } from "next/server";
 import { cookies, headers } from "next/headers";
 

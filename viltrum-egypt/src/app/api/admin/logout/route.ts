@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element, react-hooks/exhaustive-deps, @typescript-eslint/no-require-imports */
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

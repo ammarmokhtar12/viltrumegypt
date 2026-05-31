@@ -15,7 +15,7 @@ export async function sendOrderNotification(orderData: {
   customerPhone: string;
   customerAddress: string;
   paymentMethod: string;
-  items: any[];
+  items: {title: string; size: string; quantity: number; price: number}[];
   total: number;
 }) {
   try {
@@ -30,7 +30,7 @@ export async function sendOrderNotification(orderData: {
     const safeAddress = escapeHtml(customerAddress);
     const safePayment = escapeHtml(paymentMethod);
 
-    const itemsHtml = items.map((item: any) => `
+    const itemsHtml = items.map((item: {title: string; size: string; quantity: number; price: number}) => `
       <li>
         <strong>${escapeHtml(item.title)}</strong> (Size: ${escapeHtml(item.size)}) - ${Number(item.quantity)} x ${Number(item.price)} EGP
       </li>
@@ -81,8 +81,8 @@ export async function sendOrderNotification(orderData: {
     }
 
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Notification Action Error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }

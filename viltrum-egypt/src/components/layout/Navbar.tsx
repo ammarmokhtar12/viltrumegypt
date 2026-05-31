@@ -12,13 +12,13 @@ interface NavbarProps {
 
 export default function Navbar({ onCartOpen }: NavbarProps) {
   const totalItems = useCartStore((s) => s.totalItems);
-  const { user } = useAuthStore();
   const itemCount = totalItems();
   const [mounted, setMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });

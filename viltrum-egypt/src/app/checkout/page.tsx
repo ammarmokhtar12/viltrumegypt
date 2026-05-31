@@ -15,7 +15,6 @@ import { trackTikTokEvent } from "@/lib/tiktok";
 import { sendOrderNotification } from "@/app/actions/notify";
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const { items, totalPrice, clearCart } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"vodafone_cash" | "instapay">("vodafone_cash");
@@ -48,7 +47,12 @@ export default function CheckoutPage() {
     );
   }
 
-  const handleFormSubmit = (data: any) => {
+  const handleFormSubmit = (data: {
+    name: string;
+    phone: string;
+    address: string;
+    paymentMethod: "vodafone_cash" | "instapay";
+  }) => {
     setFormData(data);
   };
 
@@ -198,7 +202,7 @@ export default function CheckoutPage() {
               Your Order is Confirmed
             </h1>
             <p className="text-secondary font-medium leading-relaxed">
-              We've received your order <span className="text-foreground font-bold">#{orderNumber}</span>. 
+              We&apos;ve received your order <span className="text-foreground font-bold">#{orderNumber}</span>. 
               Our team is now preparing your compression gear for battle.
             </p>
           </div>
