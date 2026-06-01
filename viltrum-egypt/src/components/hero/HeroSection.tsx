@@ -28,32 +28,26 @@ export default function HeroSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full min-h-screen min-h-[700px] flex items-center justify-center overflow-hidden bg-background"
+      className="relative w-full min-h-screen min-h-[700px] flex items-center justify-center overflow-hidden font-sans"
     >
-      {/* Background — Al Ahlam front, cropped to chest / t-shirt */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 overflow-hidden">
-          <Image
-            src="/hero/ahlam-front.png"
-            alt="Viltrum compression shirt — Al Ahlam collection"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_22%] scale-[1.35] min-h-full min-w-full"
-          />
-        </div>
-
-        {/* Light wash so typography stays readable */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-white/40" />
+        <Image
+          src="/products/hero-original.png"
+          alt="Viltrum Hero"
+          fill
+          className="object-cover object-center opacity-90 scale-105"
+          priority
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-transparent to-white" />
       </div>
 
       <div className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center text-center pt-32 pb-20">
         <div
           ref={badgeRef}
-          className="flex items-center gap-2 mb-6 bg-white/90 backdrop-blur-md text-primary px-5 py-2 rounded-full border border-border-light shadow-sm opacity-0 select-none"
+          className="flex items-center gap-2 mb-6 bg-white/80 backdrop-blur-sm text-primary px-5 py-2 rounded-full border border-border-light shadow-sm opacity-0 select-none"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
           <span className="type-eyebrow !text-foreground">
             Anticipate the Grand Eid Collection Soon
           </span>
@@ -62,16 +56,16 @@ export default function HeroSection() {
         <div className="mb-12">
           <h1
             ref={title1Ref}
-            className="text-[15vw] md:text-[12vw] type-brand leading-[0.85] opacity-0 text-primary drop-shadow-sm"
+            className="text-[15vw] md:text-[12vw] type-brand leading-[0.85] opacity-0 text-primary"
           >
             VILTRUM
           </h1>
           <div ref={title2Ref} className="flex items-center justify-center gap-4 opacity-0 -mt-2">
-            <div className="h-px flex-1 max-w-[100px] bg-border-light" />
+            <div className="h-px flex-1 max-w-[100px] bg-black/10" />
             <h2 className="text-2xl md:text-5xl font-serif tracking-[0.2em] text-accent italic font-normal">
               Egypt
             </h2>
-            <div className="h-px flex-1 max-w-[100px] bg-border-light" />
+            <div className="h-px flex-1 max-w-[100px] bg-black/10" />
           </div>
         </div>
 
