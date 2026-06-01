@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Mail, Lock, User, CheckCircle } from "lucide-react";
+import BrandLogo from "@/components/layout/BrandLogo";
 import { trackTikTokEvent } from "@/lib/tiktok";
 
 export default function RegisterPage() {
@@ -70,12 +71,8 @@ export default function RegisterPage() {
           Back to Store
         </Link>
         
-        {/* Brand */}
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-background font-display text-lg">V</span>
-          </div>
-          <span className="text-sm font-bold tracking-[0.15em] text-foreground">VILTRUM</span>
+        <div className="mb-10">
+          <BrandLogo size="sm" showTagline={false} />
         </div>
 
         {success ? (

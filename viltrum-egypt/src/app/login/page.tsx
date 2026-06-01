@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, Mail, Lock } from "lucide-react";
+import BrandLogo from "@/components/layout/BrandLogo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -42,16 +43,12 @@ export default function LoginPage() {
           Back to Store
         </Link>
         
-        {/* Brand */}
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-background font-display text-lg">V</span>
-          </div>
-          <span className="text-sm font-bold tracking-[0.15em] text-foreground">VILTRUM</span>
+        <div className="mb-10">
+          <BrandLogo size="sm" showTagline={false} />
         </div>
 
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-1">Welcome back</h1>
+          <h1 className="text-2xl type-headline mb-1">Welcome back</h1>
           <p className="text-sm text-secondary">Sign in to your account to continue.</p>
         </div>
 

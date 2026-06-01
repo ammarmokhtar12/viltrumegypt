@@ -55,7 +55,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
           )}
           
           {/* Chic Floating Tag */}
-          <div className={`absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border shadow-sm tracking-widest ${
+          <div className={`absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-semibold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans ${
             product.title === "Thragg Edition" 
               ? "bg-primary text-white border-white/10" 
               : "bg-white/90 text-primary border-border-light"
@@ -79,7 +79,7 @@ export default function ProductCard({ product, index }: ProductCardProps) {
 
         {/* Content Section */}
         <div className="mt-8 text-center px-4 space-y-3">
-          <h3 className="text-[15px] font-serif font-semibold text-foreground uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
+          <h3 className="text-[15px] font-serif font-medium text-foreground uppercase tracking-[0.12em] group-hover:text-accent transition-colors">
             {product.title}
           </h3>
           

@@ -198,7 +198,7 @@ export default function CheckoutPage() {
           </div>
           
           <div className="space-y-4">
-            <h1 className="text-4xl font-display font-bold uppercase tracking-tight text-foreground">
+            <h1 className="text-4xl type-headline uppercase tracking-tight">
               Your Order is Confirmed
             </h1>
             <p className="text-secondary font-medium leading-relaxed">
@@ -231,7 +231,9 @@ export default function CheckoutPage() {
     <main className="min-h-screen bg-background text-primary font-sans selection:bg-primary selection:text-white pb-24">
       {/* Checkout Navbar */}
       <header className="border-b border-border-light bg-background py-4 px-6 md:px-12 flex items-center justify-between z-10 relative">
-         <Link href="/" className="text-2xl font-display font-bold uppercase tracking-tight text-primary">VILTRUM</Link>
+         <Link href="/" className="inline-block">
+           <Image src="/viltrum-logo.png" alt="Viltrum Egypt" width={48} height={48} className="object-contain" />
+         </Link>
          <Link href="/products" className="text-sm font-medium flex items-center gap-2 hover:text-accent transition-colors">
             <ArrowLeft size={16} /> Return to Cart
          </Link>

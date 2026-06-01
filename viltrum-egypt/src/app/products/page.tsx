@@ -62,19 +62,15 @@ export default function ProductsPage() {
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
 
       <main className="min-h-screen bg-background">
-        {/* Page Header - High Impact */}
-        <div className="px-5 pb-16 pt-44 text-center sm:pb-24 sm:pt-56 animate-fade-in">
-          <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-muted block mb-4 opacity-60">
-            Curation
-          </span>
-          <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-7xl lg:text-8xl leading-none">
+        <div className="px-5 pb-12 pt-44 text-center sm:pb-20 sm:pt-56 bg-surface/50 border-b border-border-light">
+          <p className="type-eyebrow mb-4">Curation</p>
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl type-headline leading-none">
             The Archive
           </h1>
-          <p className="mt-8 text-base sm:text-lg text-secondary max-w-xl mx-auto leading-relaxed font-medium italic">
+          <p className="mt-8 text-base sm:text-lg text-secondary max-w-xl mx-auto leading-relaxed font-serif italic font-normal">
             A comprehensive anthology of the Viltrum collection. Engineered for those who demand precision.
           </p>
 
-          {/* Search Bar */}
           <form onSubmit={handleSearchSubmit} className="mt-12 max-w-md mx-auto relative">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-muted">
               <Search size={18} />
@@ -84,24 +80,23 @@ export default function ProductsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search compression gear..."
-              className="w-full h-14 pl-12 pr-24 rounded-2xl bg-surface border border-border-light text-foreground text-sm focus:outline-none focus:border-primary transition-colors shadow-sm"
+              className="viltrum-input !h-14 !pl-12 !pr-28 shadow-sm"
             />
             <button
               type="submit"
-              className="absolute right-2 top-2 bottom-2 px-5 bg-primary text-background text-xs font-bold uppercase tracking-widest rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center"
+              className="absolute right-2 top-2 bottom-2 px-5 bg-primary text-white text-[10px] font-semibold uppercase tracking-widest rounded-lg hover:bg-foreground transition-colors flex items-center justify-center font-sans"
             >
               Search
             </button>
           </form>
         </div>
 
-        {/* Product Grid */}
-        <div className="mx-auto max-w-7xl px-5 pb-32 sm:px-8 sm:pb-44 lg:px-12">
+        <div className="mx-auto max-w-7xl px-5 pb-32 sm:px-8 sm:pb-44 lg:px-12 pt-12">
           {loading ? (
             <ViltrumLoader />
           ) : filteredProducts.length === 0 ? (
-            <div className="py-32 text-center rounded-[3rem] bg-surface border border-border-light">
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted">
+            <div className="py-32 text-center rounded-3xl bg-surface border border-border-light">
+              <p className="type-eyebrow">
                 {searchQuery ? `No results found for "${searchQuery}"` : "Archive is currently empty"}
               </p>
             </div>

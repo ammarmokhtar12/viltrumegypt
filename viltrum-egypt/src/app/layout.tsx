@@ -1,27 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, Bebas_Neue, Playfair_Display } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "sonner";
 import "./globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const bebasNeue = Bebas_Neue({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-bebas",
-  display: "swap",
-});
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "VILTRUM EGYPT — Forged in Strength",
@@ -34,11 +14,16 @@ export const metadata: Metadata = {
     "gym wear",
     "fitness apparel",
   ],
+  icons: {
+    icon: "/viltrum-logo.png",
+    apple: "/viltrum-logo.png",
+  },
   openGraph: {
     title: "VILTRUM EGYPT — Forged in Strength",
     description:
       "Premium compression shirts built for warriors. Shop now.",
     type: "website",
+    images: [{ url: "/viltrum-logo.png", width: 512, height: 512, alt: "Viltrum Egypt" }],
   },
 };
 
@@ -52,12 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${bebasNeue.variable} ${playfair.variable}`}
-      data-scroll-behavior="smooth"
-      suppressHydrationWarning
-    >
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <Script id="tiktok-pixel" strategy="afterInteractive">
           {`
@@ -73,7 +53,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className="font-sans antialiased bg-background text-foreground transition-colors duration-300">
+      <body className="font-sans antialiased bg-background text-foreground">
         <AuthProvider>
           <ThemeProvider
             attribute="class"

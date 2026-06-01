@@ -41,7 +41,7 @@ export default function HomePage() {
       {loading && <ViltrumLoader />}
       <Navbar onCartOpen={() => setCartOpen(true)} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-      <main className="bg-background">
+      <main className="bg-background min-h-screen">
         <HeroSection />
         <ProductGrid products={products} />
       </main>

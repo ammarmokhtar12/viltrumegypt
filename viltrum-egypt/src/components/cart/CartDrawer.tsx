@@ -77,7 +77,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           <div className="flex items-center justify-between px-8 py-6 border-b border-border-light bg-white">
             <div className="flex items-center gap-3">
                <ShoppingBag size={20} className="text-primary" />
-              <h2 className="text-[13px] font-bold text-primary uppercase tracking-[0.2em]">
+              <h2 className="text-[13px] font-sans font-semibold text-primary uppercase tracking-[0.2em]">
                 Your Cart
                 {cartCount > 0 && (
                   <span className="ml-2 text-muted font-medium">({cartCount})</span>
