@@ -3,10 +3,10 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   const title1Ref = useRef<HTMLHeadingElement>(null);
   const title2Ref = useRef<HTMLDivElement>(null);
@@ -25,37 +25,27 @@ export default function HeroSection() {
     return () => ctx.revert();
   }, []);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.play().catch(() => {});
-  }, []);
-
   return (
     <section
       ref={containerRef}
       className="relative w-full min-h-screen min-h-[700px] flex items-center justify-center overflow-hidden bg-background"
     >
+      {/* Background — Al Ahlam front, cropped to chest / t-shirt */}
       <div className="absolute inset-0 z-0">
-        {/* Soft base — white/gray brand */}
-        <div className="absolute inset-0 bg-gradient-to-b from-surface via-background to-background" />
+        <div className="absolute inset-0 overflow-hidden">
+          <Image
+            src="/hero/ahlam-front.png"
+            alt="Viltrum compression shirt — Al Ahlam collection"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[center_22%] scale-[1.35] min-h-full min-w-full"
+          />
+        </div>
 
-        {/* Subtle motion (not a full product poster) */}
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          className="absolute inset-0 h-full w-full object-cover object-center scale-110 opacity-[0.22] blur-[2px] motion-reduce:hidden"
-          aria-hidden
-        >
-          <source src="/products/white-shirt.mp4" type="video/mp4" />
-        </video>
-
-        <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/88 to-background" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_30%,rgba(247,247,248,0.9)_0%,transparent_70%)]" />
+        {/* Light wash so typography stays readable */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/75 via-white/55 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-white/40" />
       </div>
 
       <div className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center text-center pt-32 pb-20">
@@ -72,7 +62,7 @@ export default function HeroSection() {
         <div className="mb-12">
           <h1
             ref={title1Ref}
-            className="text-[15vw] md:text-[12vw] type-brand leading-[0.85] opacity-0 text-primary"
+            className="text-[15vw] md:text-[12vw] type-brand leading-[0.85] opacity-0 text-primary drop-shadow-sm"
           >
             VILTRUM
           </h1>
