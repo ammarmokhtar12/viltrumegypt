@@ -60,7 +60,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         </div>
 
         <div className="hidden lg:flex items-center gap-12 uppercase tracking-[0.2em] text-[10px] font-semibold">
-          <Link href="/" className={linkClass}>
+          <Link href="/#products" className={linkClass}>
             Collections
           </Link>
           <Link href="/products" className={linkClass}>
@@ -114,7 +114,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
       {mobileOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-border-light shadow-xl px-6 py-8 flex flex-col gap-5 animate-mobile-menu">
           <Link
-            href="/"
+            href="/#products"
             onClick={() => setMobileOpen(false)}
             className="font-sans text-sm font-medium text-foreground border-b border-border-light pb-3 hover:text-accent transition-colors"
           >

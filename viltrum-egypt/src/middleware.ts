@@ -9,10 +9,12 @@ export function middleware(request: NextRequest) {
     // Basic check if cookie exists.
     // The actual signature verification happens in the /api/admin/check route or layout,
     // but this middleware stops obvious unauthorized access at the edge.
-    if (!session || !session.value) {
+    if (!session?.value) {
       return NextResponse.redirect(new URL('/admin', request.url));
     }
   }
+
+  return NextResponse.next();
 }
 
 export const config = {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Check, Lock, ChevronRight } from "lucide-react";
 import { useCartStore } from "@/store/cart";

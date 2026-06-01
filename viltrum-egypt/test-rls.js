@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element, react-hooks/exhaustive-deps, @typescript-eslint/no-require-imports */
 const { createClient } = require('@supabase/supabase-js');
 
 // Use the ANON key (same as the dashboard uses)

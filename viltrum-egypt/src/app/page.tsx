@@ -1,39 +1,36 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 import { Product } from "@/types";
+import { fetchActiveProducts } from "@/lib/products";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/hero/HeroSection";
 import ProductGrid from "@/components/products/ProductGrid";
 import CartDrawer from "@/components/cart/CartDrawer";
 import ViltrumLoader from "@/components/layout/ViltrumLoader";
+import StoreDataAlert from "@/components/store/StoreDataAlert";
 
 export default function HomePage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const { data, error } = await supabase
-          .from("products")
-          .select("*")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false });
-
-        if (!error && data) {
-          setProducts(data);
-        }
-      } catch {
-        console.log("Failed to fetch products");
-      } finally {
-        setLoading(false);
+    async function load() {
+      setLoading(true);
+      setFetchError(null);
+      const result = await fetchActiveProducts();
+      if (result.ok) {
+        setProducts(result.products);
+      } else {
+        setFetchError(result.message);
+        setProducts([]);
       }
+      setLoading(false);
     }
-    fetchProducts();
+    load();
   }, []);
 
   return (
@@ -43,7 +40,15 @@ export default function HomePage() {
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
       <main className="bg-background min-h-screen">
         <HeroSection />
-        <ProductGrid products={products} />
+        {fetchError && !loading && (
+          <div className="px-4 pb-8 -mt-4">
+            <StoreDataAlert
+              message={fetchError}
+              variant={fetchError.includes("not connected") ? "warning" : "error"}
+            />
+          </div>
+        )}
+        <ProductGrid products={products} fetchError={fetchError} />
       </main>
       <Footer />
     </>

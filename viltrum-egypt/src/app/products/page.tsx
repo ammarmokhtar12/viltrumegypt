@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 import { Product } from "@/types";
+import { fetchActiveProducts } from "@/lib/products";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/products/ProductCard";
 import CartDrawer from "@/components/cart/CartDrawer";
 import ViltrumLoader from "@/components/layout/ViltrumLoader";
+import StoreDataAlert from "@/components/store/StoreDataAlert";
 import { Search } from "lucide-react";
 import { trackTikTokEvent } from "@/lib/tiktok";
 
@@ -15,28 +16,23 @@ export default function ProductsPage() {
   const [cartOpen, setCartOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    async function fetchProducts() {
+    async function load() {
       setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from("products")
-          .select("*")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false });
-
-        if (!error && data) {
-          setProducts(data);
-        }
-      } catch {
-        console.log("Failed to fetch products");
-      } finally {
-        setLoading(false);
+      setFetchError(null);
+      const result = await fetchActiveProducts();
+      if (result.ok) {
+        setProducts(result.products);
+      } else {
+        setFetchError(result.message);
+        setProducts([]);
       }
+      setLoading(false);
     }
-    fetchProducts();
+    load();
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -94,6 +90,8 @@ export default function ProductsPage() {
         <div className="mx-auto max-w-7xl px-5 pb-32 sm:px-8 sm:pb-44 lg:px-12 pt-12">
           {loading ? (
             <ViltrumLoader />
+          ) : fetchError ? (
+            <StoreDataAlert message={fetchError} variant="error" />
           ) : filteredProducts.length === 0 ? (
             <div className="py-32 text-center rounded-3xl bg-surface border border-border-light">
               <p className="type-eyebrow">
@@ -102,8 +100,8 @@ export default function ProductsPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12 lg:gap-16">
-              {filteredProducts.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}

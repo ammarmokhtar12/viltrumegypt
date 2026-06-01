@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, @next/next/no-img-element, jsx-a11y/alt-text */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Check, Minus, Plus, ArrowLeft, Truck, ShieldCheck, ArrowRight, Image as ImageIcon, Heart } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Product } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
@@ -40,6 +40,11 @@ export default function ProductDetailPage() {
   useEffect(() => {
     async function fetchProduct() {
       setLoading(true);
+      if (!isSupabaseConfigured) {
+        toast.error("Store database is not connected.");
+        setLoading(false);
+        return;
+      }
       try {
         const { data, error } = await supabase
           .from("products")
@@ -91,9 +96,11 @@ export default function ProductDetailPage() {
               price: data.price,
             }],
           });
+        } else if (error) {
+          toast.error("Could not load this product.");
         }
-      } catch (error) {
-        console.log("Failed to fetch product");
+      } catch {
+        toast.error("Could not load this product.");
       }
       setLoading(false);
     }
