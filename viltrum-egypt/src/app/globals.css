@@ -230,7 +230,7 @@ body {
 }
 
 /* Minimum touch target size per Apple HIG */
-button, a, [role="button"] {
+button, a:not(.block), [role="button"] {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
