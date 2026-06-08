@@ -208,3 +208,69 @@
 .admin-table tr {
   @apply transition-colors hover:bg-surface/50;
 }
+
+/* ─── Apple-quality Mobile Enhancements ─── */
+
+/* Smooth momentum scrolling on iOS */
+html {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Remove tap highlight (we add custom focus styles) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Better font rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Minimum touch target size per Apple HIG */
+button, a, [role="button"] {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Override for inline text links that shouldn't have min-height */
+p a, .text-link {
+  min-height: unset;
+  display: inline;
+}
+
+/* Safe area padding for notch/home bar */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Prevent text size adjust on orientation change */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Better focus rings that look premium */
+:focus-visible {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Product card hover — disable on touch, only enable on pointer devices */
+@media (hover: none) {
+  .group:hover .group-hover\:scale-105 {
+    transform: none;
+  }
+  .hover\:shadow-md:hover {
+    box-shadow: none;
+  }
+}

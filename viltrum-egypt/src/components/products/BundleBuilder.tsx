@@ -284,10 +284,10 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
               <h3 className="text-xl font-serif font-bold text-foreground">Double Compression Pack</h3>
               <p className="text-xs text-secondary leading-relaxed">Choose any 2 premium T-shirts with mixed sizes.</p>
               
-              <div className="pt-4 flex items-baseline gap-3">
+              <div className="pt-4 flex items-baseline gap-2 flex-wrap">
                 <span className="text-2xl font-bold text-primary">{formatPrice(799)}</span>
-                <span className="text-xs text-muted line-through">EGP 998</span>
-                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Save EGP 199</span>
+                <span className="text-xs text-muted line-through">EGP 1,000</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save EGP 200</span>
               </div>
             </div>
           </button>
@@ -312,10 +312,10 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
               <h3 className="text-xl font-serif font-bold text-foreground">Triple Compression Pack</h3>
               <p className="text-xs text-secondary leading-relaxed">Choose any 3 premium T-shirts with custom sizes.</p>
 
-              <div className="pt-4 flex items-baseline gap-3">
+              <div className="pt-4 flex items-baseline gap-2 flex-wrap">
                 <span className="text-2xl font-bold text-primary">{formatPrice(1150)}</span>
-                <span className="text-xs text-muted line-through">EGP 1,497</span>
-                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Save EGP 347</span>
+                <span className="text-xs text-muted line-through">EGP 1,500</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save EGP 350</span>
               </div>
             </div>
           </button>
