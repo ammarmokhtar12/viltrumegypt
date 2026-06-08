@@ -6,6 +6,7 @@ import type { ProductsFetchResult } from "@/lib/products";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/hero/HeroSection";
+import PromoCountdownBanner from "@/components/products/PromoCountdownBanner";
 import ProductGrid from "@/components/products/ProductGrid";
 import CartDrawer from "@/components/cart/CartDrawer";
 import StoreDataAlert from "@/components/store/StoreDataAlert";
@@ -33,6 +34,7 @@ export default function HomePageClient({ initial }: HomePageClientProps) {
             />
           </div>
         )}
+        <PromoCountdownBanner products={products} />
         <ProductGrid products={products} fetchError={fetchError} />
       </main>
       <Footer />

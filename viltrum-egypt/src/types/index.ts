@@ -19,6 +19,8 @@ export interface CartItem {
   size: string;
   quantity: number;
   image_url: string | null;
+  bundle_id?: string;
+  bundle_label?: string;
 }
 
 export interface OrderItem {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, Lock, ChevronRight } from "lucide-react";
+import { ArrowLeft, Check, Lock, ChevronRight, Sparkles } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { supabase } from "@/lib/supabase";
 import { formatPrice, generateOrderWhatsAppUrl } from "@/lib/utils";
@@ -91,6 +91,8 @@ export default function CheckoutPage() {
         size: item.size,
         quantity: item.quantity,
         price: item.price,
+        bundle_id: item.bundle_id,
+        bundle_label: item.bundle_label,
       }));
 
       const { data, error } = await supabase
@@ -102,7 +104,7 @@ export default function CheckoutPage() {
           payment_method: formData.paymentMethod,
           payment_screenshot_url: screenshotUrl,
           items: orderItems,
-          total: cartTotal,
+          total: cartTotal + 80,
           status: "pending",
         })
         .select("order_number")
@@ -126,7 +128,7 @@ export default function CheckoutPage() {
       const whatsappUrl = generateOrderWhatsAppUrl(
         data.order_number,
         orderItems,
-        cartTotal,
+        cartTotal + 80,
         formData.name,
         formData.paymentMethod
       );
@@ -140,7 +142,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price: item.price,
         })),
-        value: cartTotal,
+        value: cartTotal + 80,
         currency: "EGP",
       };
       const userData = {
@@ -168,7 +170,7 @@ export default function CheckoutPage() {
           customerAddress: formData.address,
           paymentMethod: formData.paymentMethod,
           items: orderItems,
-          total: cartTotal,
+          total: cartTotal + 80,
         });
       } catch (emailErr) {
         console.error("Failed to send notification email:", emailErr);
@@ -286,27 +288,101 @@ export default function CheckoutPage() {
                   <h3 className="font-semibold text-primary mb-6">Order Summary</h3>
 
                   <div className="space-y-6 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
-                     {cartItems.map(item => (
-                        <div key={`${item.product_id}-${item.size}`} className="flex items-center gap-4">
-                           <div className="relative w-16 h-16 rounded-lg bg-white border border-border-light overflow-hidden flex-shrink-0">
-                              <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full z-10 font-bold border-2 border-white">
-                                 {item.quantity}
-                              </span>
-                              {item.image_url ? (
-                                 <Image src={item.image_url} alt={item.title} fill className="object-cover" />
-                              ) : (
-                                 <div className="w-full h-full bg-surface" />
-                              )}
-                           </div>
-                           <div className="flex-1">
-                              <p className="text-sm font-semibold text-primary truncate">{item.title}</p>
-                              <p className="text-xs text-muted mt-0.5">Size: {item.size}</p>
-                           </div>
-                           <div className="font-medium text-primary text-sm">
-                              {formatPrice(item.price * item.quantity)}
-                           </div>
-                        </div>
-                     ))}
+                     {(() => {
+                        const groupedCheckoutItems: Array<
+                          | { type: "single"; item: typeof cartItems[0] }
+                          | { type: "bundle"; bundleId: string; bundleLabel: string; items: typeof cartItems; price: number }
+                        > = [];
+
+                        const checkoutBundlesMap: Record<string, { bundleLabel: string; items: typeof cartItems; price: number }> = {};
+
+                        cartItems.forEach((item) => {
+                          if (item.bundle_id) {
+                            if (!checkoutBundlesMap[item.bundle_id]) {
+                              checkoutBundlesMap[item.bundle_id] = {
+                                bundleLabel: item.bundle_label || "Bundle Offer",
+                                items: [],
+                                price: 0,
+                              };
+                            }
+                            checkoutBundlesMap[item.bundle_id].items.push(item);
+                            checkoutBundlesMap[item.bundle_id].price += item.price * item.quantity;
+                          } else {
+                            groupedCheckoutItems.push({ type: "single", item });
+                          }
+                        });
+
+                        Object.entries(checkoutBundlesMap).forEach(([bundleId, data]) => {
+                          groupedCheckoutItems.push({
+                            type: "bundle",
+                            bundleId,
+                            bundleLabel: data.bundleLabel,
+                            items: data.items,
+                            price: data.price,
+                          });
+                        });
+
+                        return groupedCheckoutItems.map((grouped) => {
+                           if (grouped.type === "single") {
+                              const item = grouped.item;
+                              return (
+                                 <div key={`${item.product_id}-${item.size}`} className="flex items-center gap-4">
+                                    <div className="relative w-16 h-16 rounded-lg bg-white border border-border-light overflow-hidden flex-shrink-0">
+                                       <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full z-10 font-bold border-2 border-white">
+                                          {item.quantity}
+                                       </span>
+                                       {item.image_url ? (
+                                          <Image src={item.image_url} alt={item.title} fill className="object-cover" />
+                                       ) : (
+                                          <div className="w-full h-full bg-surface" />
+                                       )}
+                                    </div>
+                                    <div className="flex-1">
+                                       <p className="text-sm font-semibold text-primary truncate">{item.title}</p>
+                                       <p className="text-xs text-muted mt-0.5">Size: {item.size}</p>
+                                    </div>
+                                    <div className="font-medium text-primary text-sm">
+                                       {formatPrice(item.price * item.quantity)}
+                                    </div>
+                                 </div>
+                              );
+                           } else {
+                              return (
+                                 <div key={grouped.bundleId} className="p-4 rounded-xl bg-white border border-border-light space-y-4 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
+                                    <div className="flex justify-between items-center">
+                                       <div className="flex items-center gap-2">
+                                          <Sparkles size={12} className="text-primary animate-pulse" />
+                                          <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-primary">
+                                             {grouped.bundleLabel}
+                                          </span>
+                                       </div>
+                                       <span className="font-bold text-primary text-sm">
+                                          {formatPrice(grouped.price)}
+                                       </span>
+                                    </div>
+                                    <div className="space-y-3 pl-3 border-l-2 border-primary/20">
+                                       {grouped.items.map((subItem, index) => (
+                                          <div key={`${subItem.product_id}-${subItem.size}-${index}`} className="flex items-center gap-3">
+                                             <div className="relative w-10 h-10 rounded bg-surface border border-border-light overflow-hidden flex-shrink-0">
+                                                {subItem.image_url ? (
+                                                   <Image src={subItem.image_url} alt={subItem.title} fill className="object-cover" />
+                                                ) : (
+                                                   <div className="w-full h-full bg-surface" />
+                                                )}
+                                             </div>
+                                             <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-semibold text-primary truncate">{subItem.title}</p>
+                                                <p className="text-[10px] text-muted mt-0.5">Size: {subItem.size}</p>
+                                             </div>
+                                          </div>
+                                       ))}
+                                    </div>
+                                 </div>
+                              );
+                           }
+                        });
+                     })()}
                   </div>
 
                   <div className="mt-8 space-y-4 pt-6 border-t border-border-light">
@@ -316,7 +392,7 @@ export default function CheckoutPage() {
                      </div>
                      <div className="flex justify-between text-sm text-secondary">
                         <span>Shipping</span>
-                        <span className="font-semibold text-primary">TBD ON WHATSAPP</span>
+                        <span className="font-semibold text-primary">{formatPrice(80)}</span>
                      </div>
                   </div>
 
@@ -324,7 +400,7 @@ export default function CheckoutPage() {
                      <span className="font-semibold text-primary">Total</span>
                      <div className="flex items-baseline gap-2">
                         <span className="text-xs text-muted font-medium tracking-wide">EGP</span>
-                        <span className="text-3xl font-bold text-primary tracking-tight">{formatPrice(cartTotal)}</span>
+                        <span className="text-3xl font-bold text-primary tracking-tight">{formatPrice(cartTotal + 80)}</span>
                      </div>
                   </div>
                </div>

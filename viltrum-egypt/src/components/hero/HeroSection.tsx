@@ -32,7 +32,7 @@ export default function HeroSection() {
     >
       <div className="absolute inset-0 z-0">
         <Image
-          src="/products/hero-original.png"
+          src="/hero-bg.png"
           alt="Viltrum Hero"
           fill
           className="object-cover object-center opacity-90 scale-105"

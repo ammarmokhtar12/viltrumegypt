@@ -6,6 +6,7 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { Product } from "@/types";
 import { ArrowUpRight } from "lucide-react";
+import { useCountdown } from "@/lib/useCountdown";
 
 interface ProductCardProps {
   product: Product;
@@ -13,9 +14,11 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [videoFailed, setVideoFailed] = useState(false);
+  const timeLeft = useCountdown();
   const hasImage = Boolean(product.image_url);
   const hasVideo = Boolean(product.video_url) && !videoFailed;
   const originalPrice = product.price * 1.25;
+  const isPromo = product.title.toUpperCase() === "LIMITED OFFER";
 
   return (
     <div className="group relative font-sans will-change-transform">
@@ -52,15 +55,22 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          <div
-            className={`absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-semibold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans ${
-              product.title === "Thragg Edition"
-                ? "bg-primary text-white border-white/10"
-                : "bg-white/90 text-primary border-border-light"
-            }`}
-          >
-            {product.title === "Thragg Edition" ? "Coming Soon" : "New Arrival"}
-          </div>
+          {isPromo ? (
+            <div className="absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans bg-primary text-white border-white/10 flex items-center gap-1.5 animate-pulse">
+              <span className="w-1 h-1 rounded-full bg-white animate-ping" />
+              <span>Ends in {timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes.toString().padStart(2, '0')}:{timeLeft.seconds.toString().padStart(2, '0')}</span>
+            </div>
+          ) : (
+            <div
+              className={`absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-semibold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans ${
+                product.title === "Thragg Edition"
+                  ? "bg-primary text-white border-white/10"
+                  : "bg-white/90 text-primary border-border-light"
+              }`}
+            >
+              {product.title === "Thragg Edition" ? "Coming Soon" : "New Arrival"}
+            </div>
+          )}
 
           {product.title === "Thragg Edition" && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors duration-500">

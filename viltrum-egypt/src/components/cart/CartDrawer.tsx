@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import { X, ShoppingBag, ArrowRight } from "lucide-react";
+import { X, ShoppingBag, ArrowRight, Trash2, Sparkles } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 import CartItem from "./CartItem";
 import Link from "next/link";
+import Image from "next/image";
 import { trackTikTokEvent } from "@/lib/tiktok";
+import { CartItem as CartItemType } from "@/types";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -14,7 +16,7 @@ interface CartDrawerProps {
 }
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-  const { items, totalPrice, totalItems } = useCartStore();
+  const { items, totalPrice, totalItems, removeBundle } = useCartStore();
   const drawerRef = useRef<HTMLDivElement>(null);
   const isHydrated = useSyncExternalStore(
     () => () => {},
@@ -54,6 +56,40 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     });
     onClose();
   };
+
+  // Group items by bundle_id
+  const groupedItems: Array<
+    | { type: "single"; item: CartItemType }
+    | { type: "bundle"; bundleId: string; bundleLabel: string; items: CartItemType[]; price: number }
+  > = [];
+
+  const bundlesMap: Record<string, { bundleLabel: string; items: CartItemType[]; price: number }> = {};
+
+  cartItems.forEach((item) => {
+    if (item.bundle_id) {
+      if (!bundlesMap[item.bundle_id]) {
+        bundlesMap[item.bundle_id] = {
+          bundleLabel: item.bundle_label || "Bundle Offer",
+          items: [],
+          price: 0,
+        };
+      }
+      bundlesMap[item.bundle_id].items.push(item);
+      bundlesMap[item.bundle_id].price += item.price * item.quantity;
+    } else {
+      groupedItems.push({ type: "single", item });
+    }
+  });
+
+  Object.entries(bundlesMap).forEach(([bundleId, data]) => {
+    groupedItems.push({
+      type: "bundle",
+      bundleId,
+      bundleLabel: data.bundleLabel,
+      items: data.items,
+      price: data.price,
+    });
+  });
 
   return (
     <>
@@ -95,7 +131,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
           {/* Items */}
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-            {cartItems.length === 0 ? (
+            {groupedItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
                 <div className="w-14 h-14 bg-surface border border-border-light rounded-xl flex items-center justify-center">
                   <ShoppingBag size={22} className="text-muted" />
@@ -111,12 +147,75 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </button>
               </div>
             ) : (
-              cartItems.map((item) => (
-                <CartItem
-                  key={`${item.product_id}-${item.size}`}
-                  item={item}
-                />
-              ))
+              groupedItems.map((grouped) => {
+                if (grouped.type === "single") {
+                  return (
+                    <CartItem
+                      key={`${grouped.item.product_id}-${grouped.item.size}`}
+                      item={grouped.item}
+                    />
+                  );
+                } else {
+                  return (
+                    <div
+                      key={grouped.bundleId}
+                      className="p-4 rounded-xl bg-surface border border-border-light space-y-4 shadow-sm relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
+                      
+                      {/* Header */}
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <Sparkles size={12} className="text-primary animate-pulse" />
+                          <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-primary">
+                            {grouped.bundleLabel}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => removeBundle(grouped.bundleId)}
+                          className="text-muted hover:text-red-500 transition-colors p-1"
+                          aria-label="Remove bundle"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+
+                      {/* Items List */}
+                      <div className="space-y-3">
+                        {grouped.items.map((subItem, index) => (
+                          <div key={`${subItem.product_id}-${subItem.size}-${index}`} className="flex gap-3 items-center">
+                            <div className="relative w-10 h-12 rounded-lg overflow-hidden bg-white border border-border-light flex-shrink-0">
+                              {subItem.image_url ? (
+                                <Image
+                                  src={subItem.image_url}
+                                  alt={subItem.title}
+                                  fill
+                                  className="object-cover"
+                                  sizes="40px"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-surface flex items-center justify-center">
+                                  <span className="text-[10px] text-muted">V</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-primary truncate">{subItem.title}</p>
+                              <span className="text-[10px] text-muted block mt-0.5">Size: {subItem.size}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Bundle Price */}
+                      <div className="pt-3 border-t border-border-light flex justify-between items-center text-xs font-bold text-primary">
+                        <span className="text-[9px] text-muted uppercase tracking-wider font-semibold">Bundle Price:</span>
+                        <span>{formatPrice(grouped.price)}</span>
+                      </div>
+                    </div>
+                  );
+                }
+              })
             )}
           </div>
 
