@@ -143,13 +143,22 @@ function PrintSheet({ pendingOrders }: { pendingOrders: Order[] }) {
             size: A4 portrait;
             margin: 5mm;
           }
-          body * { visibility: hidden !important; }
-          #print-sheet, #print-sheet * { visibility: visible !important; }
+          html, body {
+            height: auto !important;
+            overflow: visible !important;
+            visibility: hidden !important;
+          }
           #print-sheet {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+            visibility: visible !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          #print-sheet * {
+            visibility: visible !important;
           }
           .print-page {
             width: 200mm;
@@ -168,12 +177,12 @@ function PrintSheet({ pendingOrders }: { pendingOrders: Order[] }) {
           .p-card {
             border: 1.5px solid #222;
             border-radius: 3mm;
-            padding: 5mm 6mm;
+            padding: 4mm 5mm;
             display: flex;
             flex-direction: column;
-            gap: 2.5mm;
-            overflow: hidden;
+            gap: 1.5mm;
             background: #fff;
+            box-sizing: border-box;
           }
           .p-card-empty {
             border: 1px dashed #ddd;
@@ -185,37 +194,37 @@ function PrintSheet({ pendingOrders }: { pendingOrders: Order[] }) {
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #ccc;
-            padding-bottom: 2mm;
+            padding-bottom: 1.5mm;
           }
-          .p-order-num { font-weight: 900; font-size: 13pt; color: #111; }
+          .p-order-num { font-weight: 900; font-size: 12pt; color: #111; }
           .p-date { font-size: 7.5pt; color: #777; font-weight: 600; }
           .p-label { font-size: 6pt; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.06em; display: block; }
-          .p-value-lg { font-weight: 800; font-size: 10.5pt; color: #111; margin-top: 0.5mm; }
-          .p-value-md { font-weight: 700; font-size: 9pt; color: #111; margin-top: 0.5mm; }
-          .p-value-sm { font-weight: 600; font-size: 8pt; color: #333; margin-top: 0.5mm; line-height: 1.3; }
+          .p-value-lg { font-weight: 800; font-size: 9.5pt; color: #111; margin-top: 0.5mm; }
+          .p-value-md { font-weight: 700; font-size: 8.5pt; color: #111; margin-top: 0.5mm; }
+          .p-value-sm { font-weight: 600; font-size: 7.5pt; color: #333; margin-top: 0.5mm; line-height: 1.2; }
           .p-divider { border: none; border-top: 1px dashed #ccc; margin: 1mm 0; }
-          .p-items { flex: 1; display: flex; flex-direction: column; gap: 1.5mm; }
+          .p-items { flex: 1; display: flex; flex-direction: column; gap: 1mm; }
           .p-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #f4f4f4;
             border-radius: 1.5mm;
-            padding: 2mm 3mm;
+            padding: 1.5mm 2mm;
           }
-          .p-item-name { font-weight: 700; font-size: 8.5pt; color: #111; }
-          .p-item-size { font-size: 7.5pt; color: #666; margin-left: 2mm; }
-          .p-item-price { font-weight: 700; font-size: 8pt; color: #333; white-space: nowrap; }
+          .p-item-name { font-weight: 700; font-size: 7.5pt; color: #111; }
+          .p-item-size { font-size: 7pt; color: #666; margin-left: 2mm; }
+          .p-item-price { font-weight: 700; font-size: 7.5pt; color: #333; white-space: nowrap; }
           .p-total-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-top: 2px solid #111;
-            padding-top: 2mm;
+            padding-top: 1.5mm;
             margin-top: auto;
           }
           .p-total-label { font-size: 7pt; font-weight: 700; color: #666; text-transform: uppercase; }
-          .p-total-val { font-weight: 900; font-size: 14pt; color: #111; }
+          .p-total-val { font-weight: 900; font-size: 13pt; color: #111; }
         }
       `}</style>
 
@@ -251,7 +260,7 @@ function PrintSheet({ pendingOrders }: { pendingOrders: Order[] }) {
 
                 <div>
                   <span className="p-label">Order Details</span>
-                  <div className="p-items" style={{ marginTop: "1.5mm" }}>
+                  <div className="p-items" style={{ marginTop: "1mm" }}>
                     {items.map((item, i) => (
                       <div key={i} className="p-item">
                         <div>
