@@ -161,13 +161,15 @@ function PrintSheet({ pendingOrders }: { pendingOrders: Order[] }) {
             visibility: visible !important;
           }
           .print-page {
-            width: 200mm;
-            height: 287mm;
+            width: 100%;
+            height: 275mm;
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(3, 1fr);
             gap: 3mm;
             page-break-after: always;
+            page-break-inside: avoid;
+            break-inside: avoid;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
           }
@@ -177,12 +179,15 @@ function PrintSheet({ pendingOrders }: { pendingOrders: Order[] }) {
           .p-card {
             border: 1.5px solid #222;
             border-radius: 3mm;
-            padding: 4mm 5mm;
+            padding: 3.5mm 4.5mm;
             display: flex;
             flex-direction: column;
             gap: 1.5mm;
             background: #fff;
             box-sizing: border-box;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            overflow: hidden;
           }
           .p-card-empty {
             border: 1px dashed #ddd;
@@ -196,14 +201,30 @@ function PrintSheet({ pendingOrders }: { pendingOrders: Order[] }) {
             border-bottom: 1px solid #ccc;
             padding-bottom: 1.5mm;
           }
-          .p-order-num { font-weight: 900; font-size: 12pt; color: #111; }
+          .p-order-num { font-weight: 900; font-size: 11.5pt; color: #111; }
           .p-date { font-size: 7.5pt; color: #777; font-weight: 600; }
           .p-label { font-size: 6pt; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.06em; display: block; }
-          .p-value-lg { font-weight: 800; font-size: 9.5pt; color: #111; margin-top: 0.5mm; }
+          .p-value-lg { font-weight: 800; font-size: 9pt; color: #111; margin-top: 0.5mm; }
           .p-value-md { font-weight: 700; font-size: 8.5pt; color: #111; margin-top: 0.5mm; }
-          .p-value-sm { font-weight: 600; font-size: 7.5pt; color: #333; margin-top: 0.5mm; line-height: 1.2; }
-          .p-divider { border: none; border-top: 1px dashed #ccc; margin: 1mm 0; }
-          .p-items { flex: 1; display: flex; flex-direction: column; gap: 1mm; }
+          .p-value-sm { 
+            font-weight: 600; 
+            font-size: 7.5pt; 
+            color: #333; 
+            margin-top: 0.5mm; 
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+          .p-divider { border: none; border-top: 1px dashed #ccc; margin: 0.5mm 0; }
+          .p-items { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 1mm; 
+            overflow: hidden; 
+          }
           .p-item {
             display: flex;
             justify-content: space-between;
@@ -224,7 +245,7 @@ function PrintSheet({ pendingOrders }: { pendingOrders: Order[] }) {
             margin-top: auto;
           }
           .p-total-label { font-size: 7pt; font-weight: 700; color: #666; text-transform: uppercase; }
-          .p-total-val { font-weight: 900; font-size: 13pt; color: #111; }
+          .p-total-val { font-weight: 900; font-size: 12.5pt; color: #111; }
         }
       `}</style>
 
