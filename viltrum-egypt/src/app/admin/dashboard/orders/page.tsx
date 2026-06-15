@@ -334,6 +334,94 @@ const PRINT_STYLES = `
     }
     .p-total-label { font-size: 6.5pt; font-weight: 700; color: #666; text-transform: uppercase; }
     .p-total-val { font-weight: 900; font-size: 11pt; color: #111; }
+
+    /* Print Analysis Page Styles */
+    .print-analysis-page {
+      width: 200mm !important;
+      min-height: 277mm !important;
+      background: #fff;
+      border: 2px solid #111;
+      border-radius: 4mm;
+      padding: 8mm 10mm;
+      box-sizing: border-box;
+      page-break-before: always;
+      display: flex;
+      flex-direction: column;
+      gap: 5mm;
+      font-family: Arial, sans-serif;
+    }
+    .print-analysis-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid #111;
+      padding-bottom: 3mm;
+    }
+    .print-analysis-title {
+      font-size: 18pt;
+      font-weight: 900;
+      color: #111;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .print-analysis-meta {
+      text-align: right;
+      font-size: 9pt;
+      color: #555;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .print-analysis-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 4mm;
+    }
+    .print-analysis-item {
+      border: 1px solid #222;
+      border-radius: 2mm;
+      background: #fff;
+      overflow: hidden;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .print-analysis-item-header {
+      background: #f0f0f0;
+      padding: 2.5mm 4mm;
+      font-size: 10pt;
+      font-weight: 800;
+      color: #111;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #222;
+    }
+    .print-analysis-sizes-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3mm;
+      padding: 3mm 4mm;
+    }
+    .print-analysis-size-tag {
+      border: 1px solid #aaa;
+      border-radius: 1.5mm;
+      padding: 2mm 3.5mm;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 14mm;
+      background: #fafafa;
+    }
+    .print-analysis-size-label {
+      font-size: 7pt;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+    }
+    .print-analysis-size-qty {
+      font-size: 13pt;
+      font-weight: 900;
+      color: #111;
+      margin-top: 0.5mm;
+    }
   }
 `;
 
@@ -407,6 +495,31 @@ function PrintSheet({ pendingOrders, printMode }: { pendingOrders: Order[]; prin
   const sheetId = printMode === "pending" ? "print-sheet-pending" : "print-sheet-confirmed";
   const cardClass = printMode === "confirmed" ? "p-card-confirmed" : "";
 
+  // Calculate aggregation for the print-friendly list at the end
+  const map: Record<string, number> = {};
+  pendingOrders.forEach((order) => {
+    const items = Array.isArray(order.items) ? order.items : [];
+    items.forEach((item) => {
+      const key = `${item.title}|||${item.size}`;
+      map[key] = (map[key] || 0) + item.quantity;
+    });
+  });
+
+  const rows = Object.entries(map)
+    .map(([key, qty]) => {
+      const [title, size] = key.split("|||");
+      return { title, size, qty };
+    })
+    .sort((a, b) => b.qty - a.qty);
+
+  const byProduct: Record<string, { size: string; qty: number }[]> = {};
+  rows.forEach(({ title, size, qty }) => {
+    if (!byProduct[title]) byProduct[title] = [];
+    byProduct[title].push({ size, qty });
+  });
+
+  const totalUnits = rows.reduce((s, r) => s + r.qty, 0);
+
   return (
     <div id={sheetId} className="hidden print:block print-sheet-active">
       <style>{PRINT_STYLES}</style>
@@ -422,6 +535,57 @@ function PrintSheet({ pendingOrders, printMode }: { pendingOrders: Order[]; prin
             ))}
         </div>
       ))}
+
+      {/* Analysis page at the end of print document */}
+      {rows.length > 0 && (
+        <div className="print-analysis-page">
+          <div className="print-analysis-header">
+            <div>
+              <h1 className="print-analysis-title">
+                {printMode === "pending" ? "Production List (Pending)" : "Picking List (Confirmed)"}
+              </h1>
+              <p style={{ fontSize: "8.5pt", color: "#666", marginTop: "1mm", fontWeight: 700 }}>
+                Viltrum Egypt Operations Protocol
+              </p>
+            </div>
+            <div className="print-analysis-meta">
+              <p>Date: {new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+              <p>Total Orders: {pendingOrders.length}</p>
+              <p>Total Units: {totalUnits}</p>
+            </div>
+          </div>
+
+          <div className="print-analysis-grid">
+            {Object.entries(byProduct).map(([title, sizes]) => {
+              const productTotal = sizes.reduce((s, r) => s + r.qty, 0);
+              return (
+                <div key={title} className="print-analysis-item">
+                  <div className="print-analysis-item-header">
+                    <span>{title}</span>
+                    <span style={{ fontWeight: 900 }}>{productTotal} Units</span>
+                  </div>
+                  <div className="print-analysis-sizes-row">
+                    {sizes
+                      .sort((a, b) => {
+                        const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL"];
+                        const ai = sizeOrder.indexOf(a.size.toUpperCase());
+                        const bi = sizeOrder.indexOf(b.size.toUpperCase());
+                        if (ai !== -1 && bi !== -1) return ai - bi;
+                        return a.size.localeCompare(b.size);
+                      })
+                      .map(({ size, qty }) => (
+                        <div key={size} className="print-analysis-size-tag">
+                          <span className="print-analysis-size-label">{size}</span>
+                          <span className="print-analysis-size-qty">{qty}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
