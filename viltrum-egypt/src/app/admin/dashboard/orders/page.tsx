@@ -255,15 +255,16 @@ const PRINT_STYLES = `
     .p-card {
       border: 1.5px solid #222;
       border-radius: 3mm;
-      padding: 3.5mm 4.5mm;
+      padding: 2.5mm 3.5mm;
       display: flex;
       flex-direction: column;
-      gap: 1.5mm;
+      gap: 1mm;
       background: #fff;
       box-sizing: border-box;
       page-break-inside: avoid;
       break-inside: avoid;
       overflow: hidden;
+      height: 100%;
     }
     .p-card-confirmed {
       border-color: #3b82f6;
@@ -278,39 +279,38 @@ const PRINT_STYLES = `
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid #ccc;
-      padding-bottom: 1.5mm;
+      padding-bottom: 1mm;
     }
     .p-status-badge {
-      font-size: 6.5pt;
+      font-size: 6pt;
       font-weight: 800;
-      padding: 0.5mm 2mm;
+      padding: 0.3mm 1.5mm;
       border-radius: 1mm;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
     .p-status-confirmed { background: #dbeafe; color: #1d4ed8; }
-    .p-order-num { font-weight: 900; font-size: 11.5pt; color: #111; }
-    .p-date { font-size: 7.5pt; color: #777; font-weight: 600; }
-    .p-label { font-size: 6pt; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.06em; display: block; }
-    .p-value-lg { font-weight: 800; font-size: 9pt; color: #111; margin-top: 0.5mm; }
-    .p-value-md { font-weight: 700; font-size: 8.5pt; color: #111; margin-top: 0.5mm; }
+    .p-order-num { font-weight: 900; font-size: 10pt; color: #111; }
+    .p-date { font-size: 7pt; color: #777; font-weight: 600; }
+    .p-label { font-size: 5.5pt; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.06em; display: block; }
+    .p-value-lg { font-weight: 800; font-size: 8.5pt; color: #111; margin-top: 0.2mm; line-height: 1.1; }
+    .p-value-md { font-weight: 700; font-size: 8pt; color: #111; margin-top: 0.2mm; }
     .p-value-sm { 
       font-weight: 600; 
-      font-size: 7.5pt; 
+      font-size: 7pt; 
       color: #333; 
-      margin-top: 0.5mm; 
-      line-height: 1.2;
+      margin-top: 0.2mm; 
+      line-height: 1.15;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .p-divider { border: none; border-top: 1px dashed #ccc; margin: 0.5mm 0; }
+    .p-divider { border: none; border-top: 1px dashed #ccc; margin: 0.3mm 0; }
     .p-items { 
-      flex: 1; 
       display: flex; 
       flex-direction: column; 
-      gap: 1mm; 
+      gap: 0.8mm; 
       overflow: hidden; 
     }
     .p-item {
@@ -318,22 +318,22 @@ const PRINT_STYLES = `
       justify-content: space-between;
       align-items: center;
       background: #f4f4f4;
-      border-radius: 1.5mm;
-      padding: 1.5mm 2mm;
+      border-radius: 1mm;
+      padding: 0.8mm 1.5mm;
     }
-    .p-item-name { font-weight: 700; font-size: 7.5pt; color: #111; }
-    .p-item-size { font-size: 7pt; color: #666; margin-left: 2mm; }
-    .p-item-price { font-weight: 700; font-size: 7.5pt; color: #333; white-space: nowrap; }
+    .p-item-name { font-weight: 700; font-size: 7pt; color: #111; }
+    .p-item-size { font-size: 6.5pt; color: #666; margin-left: 1.5mm; }
+    .p-item-price { font-weight: 700; font-size: 7pt; color: #333; white-space: nowrap; }
     .p-total-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-top: 2px solid #111;
-      padding-top: 1.5mm;
+      border-top: 1.5px solid #111;
+      padding-top: 1mm;
       margin-top: auto;
     }
-    .p-total-label { font-size: 7pt; font-weight: 700; color: #666; text-transform: uppercase; }
-    .p-total-val { font-weight: 900; font-size: 12.5pt; color: #111; }
+    .p-total-label { font-size: 6.5pt; font-weight: 700; color: #666; text-transform: uppercase; }
+    .p-total-val { font-weight: 900; font-size: 11pt; color: #111; }
   }
 `;
 
@@ -354,31 +354,32 @@ function PrintOrderCard({ order, cardClass = "" }: { order: Order; cardClass?: s
         </div>
       </div>
 
-      <div>
-        <span className="p-label">Name</span>
-        <p className="p-value-lg">{order.customer_name}</p>
-      </div>
-
-      <div>
-        <span className="p-label">Phone</span>
-        <p className="p-value-md">{order.customer_phone}</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "3mm" }}>
+        <div>
+          <span className="p-label">Name</span>
+          <p className="p-value-lg" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{order.customer_name}</p>
+        </div>
+        <div>
+          <span className="p-label">Phone</span>
+          <p className="p-value-md" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{order.customer_phone}</p>
+        </div>
       </div>
 
       <div>
         <span className="p-label">Address</span>
-        <p className="p-value-sm">{order.customer_address}</p>
+        <p className="p-value-sm" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{order.customer_address}</p>
       </div>
 
       <hr className="p-divider" />
 
-      <div>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
         <span className="p-label">Order Details</span>
-        <div className="p-items" style={{ marginTop: "1mm" }}>
+        <div className="p-items" style={{ marginTop: "0.5mm", display: "flex", flexDirection: "column", gap: "0.8mm", flex: 1, overflow: "hidden" }}>
           {items.map((item, i) => (
             <div key={i} className="p-item">
-              <div>
-                <span className="p-item-name">{item.title}</span>
-                <span className="p-item-size">{item.size} × {item.quantity}</span>
+              <div style={{ display: "flex", alignItems: "center", minWidth: 0, flex: 1 }}>
+                <span className="p-item-name" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</span>
+                <span className="p-item-size" style={{ flexShrink: 0 }}>{item.size} × {item.quantity}</span>
               </div>
               <span className="p-item-price">{(item.price * item.quantity).toLocaleString()}</span>
             </div>
