@@ -484,6 +484,7 @@ function PrintOrderCard({ order, cardClass = "" }: { order: Order; cardClass?: s
 }
 
 // ─── Print Sheet (hidden, only for @media print) ───────────────────────────────
+// Vercel webhook trigger comment
 // A4 ورق طابعة عادي — 2 عمود × 3 صفوف = 6 أوردرات في الصفحة
 function PrintSheet({ pendingOrders, printMode }: { pendingOrders: Order[]; printMode: "pending" | "confirmed" }) {
   const PER_PAGE = 6;
