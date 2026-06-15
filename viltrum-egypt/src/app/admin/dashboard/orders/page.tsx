@@ -264,7 +264,7 @@ const PRINT_STYLES = `
       page-break-inside: avoid;
       break-inside: avoid;
       overflow: hidden;
-      height: 100%;
+      height: auto;
     }
     .p-card-confirmed {
       border-color: #3b82f6;
@@ -330,7 +330,7 @@ const PRINT_STYLES = `
       align-items: center;
       border-top: 1.5px solid #111;
       padding-top: 1mm;
-      margin-top: auto;
+      margin-top: 1.5mm;
     }
     .p-total-label { font-size: 6.5pt; font-weight: 700; color: #666; text-transform: uppercase; }
     .p-total-val { font-weight: 900; font-size: 11pt; color: #111; }
@@ -372,9 +372,9 @@ function PrintOrderCard({ order, cardClass = "" }: { order: Order; cardClass?: s
 
       <hr className="p-divider" />
 
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0, overflow: "hidden" }}>
+      <div>
         <span className="p-label">Order Details</span>
-        <div className="p-items" style={{ marginTop: "0.5mm", display: "flex", flexDirection: "column", gap: "0.8mm", flex: 1, overflow: "hidden" }}>
+        <div className="p-items" style={{ marginTop: "0.5mm", display: "flex", flexDirection: "column", gap: "0.8mm" }}>
           {items.map((item, i) => (
             <div key={i} className="p-item">
               <div style={{ display: "flex", alignItems: "center", minWidth: 0, flex: 1 }}>
