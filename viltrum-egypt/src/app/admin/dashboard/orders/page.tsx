@@ -229,7 +229,7 @@ const PRINT_STYLES = `
       position: absolute !important;
       left: 0 !important;
       top: 0 !important;
-      width: 100% !important;
+      width: 200mm !important;
       margin: 0 !important;
       padding: 0 !important;
     }
@@ -237,8 +237,8 @@ const PRINT_STYLES = `
       visibility: visible !important;
     }
     .print-page {
-      width: 100%;
-      height: 275mm;
+      width: 200mm !important;
+      height: 277mm !important;
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: repeat(3, 1fr);
