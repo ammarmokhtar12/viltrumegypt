@@ -407,7 +407,7 @@ function PrintSheet({ pendingOrders, printMode }: { pendingOrders: Order[]; prin
   const cardClass = printMode === "confirmed" ? "p-card-confirmed" : "";
 
   return (
-    <div id={sheetId} className="hidden print:block">
+    <div id={sheetId} className="hidden print:block print-sheet-active">
       <style>{PRINT_STYLES}</style>
 
       {pages.map((pageOrders, pi) => (
