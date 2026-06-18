@@ -33,6 +33,109 @@ export default function CheckoutPage() {
 
   if (!mounted) return null;
 
+  const handleCopyOrderNumber = () => {
+    if (orderNumber) {
+      navigator.clipboard.writeText(String(orderNumber));
+      setCopied(true);
+      toast.success("Order number copied to clipboard!");
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  if (isSuccess) {
+    const contactPhone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229";
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center px-6 py-12 relative overflow-hidden">
+        {/* Subtle decorative background gradient */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-radial from-surface to-transparent opacity-50 blur-3xl -z-10" />
+
+        <div className="max-w-xl w-full bg-surface border border-border-light rounded-3xl p-8 md:p-12 space-y-8 shadow-2xl shadow-black/[0.02] animate-in fade-in zoom-in duration-700">
+          
+          {/* Animated success checkmark badge */}
+          <div className="flex justify-center">
+            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/10 animate-bounce">
+              <Check size={28} strokeWidth={2.5} />
+            </div>
+          </div>
+
+          <div className="space-y-4 text-center">
+            <span className="type-eyebrow text-accent">Order Confirmed</span>
+            <h1 className="text-3xl md:text-4xl type-headline uppercase tracking-tight leading-tight">
+              Order Registered Successfully!
+            </h1>
+            <p className="text-secondary text-sm md:text-base max-w-md mx-auto leading-relaxed">
+              Thank you for shopping with us. Your order details have been successfully recorded in our system.
+            </p>
+          </div>
+
+          {/* Order Number Box */}
+          <div className="bg-background border border-border-light rounded-2xl p-6 text-center space-y-3 relative group">
+            <p className="text-[10px] font-sans font-bold uppercase tracking-widest text-muted">
+              Your Order Number
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-3xl md:text-4xl font-mono font-black text-primary tracking-wider">
+                #{orderNumber}
+              </span>
+              <button
+                onClick={handleCopyOrderNumber}
+                className="p-2.5 rounded-xl border border-border-light bg-surface text-secondary hover:text-primary hover:bg-border-light active:scale-95 transition-all cursor-pointer"
+                title="Copy order number"
+              >
+                {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
+              </button>
+            </div>
+            
+            <p className="text-xs text-muted font-medium pt-2 border-t border-border-light/50">
+              ⚠️ Please <span className="text-primary font-bold">save your order number</span> to inquire about your order status.
+            </p>
+          </div>
+
+          {/* Logistics / Support Info Card */}
+          <div className="bg-primary/[0.02] border border-border-light rounded-2xl p-6 flex gap-4 items-start text-left">
+            <div className="w-10 h-10 rounded-xl bg-primary/5 flex-shrink-0 flex items-center justify-center text-primary mt-0.5">
+              <Clock size={18} />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-bold text-primary">What happens next?</h4>
+              <p className="text-xs text-secondary leading-relaxed">
+                Our team will contact you within the next <span className="text-primary font-bold">24 hours</span> to verify your order and complete the details.
+              </p>
+            </div>
+          </div>
+
+          {/* Shipping finalization notice */}
+          <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl text-center">
+            <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Action Required</p>
+            <p className="text-xs text-secondary leading-relaxed mt-1">
+              We are opening WhatsApp to finalize shipping details with our logistics team. Please keep the chat open.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-2 space-y-3">
+            <Link 
+              href="/products" 
+              className="btn-primary w-full h-14 shadow-lg shadow-black/5 flex items-center justify-center"
+            >
+              Continue Shopping
+            </Link>
+            
+            <a 
+              href={`https://wa.me/${contactPhone}?text=Hello,%20I'm%20inquiring%20about%20my%20order%20%23${orderNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary w-full h-14 flex items-center justify-center gap-2"
+            >
+              Need Instant Help? Chat Now
+            </a>
+          </div>
+
+        </div>
+      </main>
+    );
+  }
+
   const cartTotal = totalPrice();
   const cartItems = items;
 
@@ -191,108 +294,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleCopyOrderNumber = () => {
-    if (orderNumber) {
-      navigator.clipboard.writeText(String(orderNumber));
-      setCopied(true);
-      toast.success("Order number copied to clipboard!");
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
 
-  if (isSuccess) {
-    const contactPhone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229";
-    return (
-      <main className="min-h-screen bg-background flex items-center justify-center px-6 py-12 relative overflow-hidden">
-        {/* Subtle decorative background gradient */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-radial from-surface to-transparent opacity-50 blur-3xl -z-10" />
-
-        <div className="max-w-xl w-full bg-surface border border-border-light rounded-3xl p-8 md:p-12 space-y-8 shadow-2xl shadow-black/[0.02] animate-in fade-in zoom-in duration-700">
-          
-          {/* Animated success checkmark badge */}
-          <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/10 animate-bounce">
-              <Check size={28} strokeWidth={2.5} />
-            </div>
-          </div>
-
-          <div className="space-y-4 text-center">
-            <span className="type-eyebrow text-accent">Order Confirmed</span>
-            <h1 className="text-3xl md:text-4xl type-headline uppercase tracking-tight leading-tight">
-              Order Registered Successfully!
-            </h1>
-            <p className="text-secondary text-sm md:text-base max-w-md mx-auto leading-relaxed">
-              Thank you for shopping with us. Your order details have been successfully recorded in our system.
-            </p>
-          </div>
-
-          {/* Order Number Box */}
-          <div className="bg-background border border-border-light rounded-2xl p-6 text-center space-y-3 relative group">
-            <p className="text-[10px] font-sans font-bold uppercase tracking-widest text-muted">
-              Your Order Number
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-3xl md:text-4xl font-mono font-black text-primary tracking-wider">
-                #{orderNumber}
-              </span>
-              <button
-                onClick={handleCopyOrderNumber}
-                className="p-2.5 rounded-xl border border-border-light bg-surface text-secondary hover:text-primary hover:bg-border-light active:scale-95 transition-all cursor-pointer"
-                title="Copy order number"
-              >
-                {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
-              </button>
-            </div>
-            
-            <p className="text-xs text-muted font-medium pt-2 border-t border-border-light/50">
-              ⚠️ Please <span className="text-primary font-bold">save your order number</span> to inquire about your order status.
-            </p>
-          </div>
-
-          {/* Logistics / Support Info Card */}
-          <div className="bg-primary/[0.02] border border-border-light rounded-2xl p-6 flex gap-4 items-start text-left">
-            <div className="w-10 h-10 rounded-xl bg-primary/5 flex-shrink-0 flex items-center justify-center text-primary mt-0.5">
-              <Clock size={18} />
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-bold text-primary">What happens next?</h4>
-              <p className="text-xs text-secondary leading-relaxed">
-                Our team will contact you within the next <span className="text-primary font-bold">24 hours</span> to verify your order and complete the details.
-              </p>
-            </div>
-          </div>
-
-          {/* Shipping finalization notice */}
-          <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl text-center">
-            <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Action Required</p>
-            <p className="text-xs text-secondary leading-relaxed mt-1">
-              We are opening WhatsApp to finalize shipping details with our logistics team. Please keep the chat open.
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="pt-2 space-y-3">
-            <Link 
-              href="/products" 
-              className="btn-primary w-full h-14 shadow-lg shadow-black/5 flex items-center justify-center"
-            >
-              Continue Shopping
-            </Link>
-            
-            <a 
-              href={`https://wa.me/${contactPhone}?text=Hello,%20I'm%20inquiring%20about%20my%20order%20%23${orderNumber}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary w-full h-14 flex items-center justify-center gap-2"
-            >
-              Need Instant Help? Chat Now
-            </a>
-          </div>
-
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="min-h-screen bg-background text-primary font-sans selection:bg-primary selection:text-white pb-24">
