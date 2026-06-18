@@ -45,78 +45,114 @@ export default function CheckoutPage() {
   if (isSuccess) {
     const contactPhone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229";
     return (
-      <main className="min-h-screen bg-background flex items-center justify-center px-6 py-12 relative overflow-hidden">
-        {/* Subtle decorative background gradient */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-radial from-surface to-transparent opacity-50 blur-3xl -z-10" />
+      <main className="min-h-screen bg-[#fafafa] flex items-center justify-center px-6 py-16 relative overflow-hidden font-sans">
+        {/* Editorial Background Glows */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-radial from-neutral-200/40 to-transparent blur-3xl -z-10" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-radial from-neutral-200/30 to-transparent blur-3xl -z-10" />
 
-        <div className="max-w-xl w-full bg-surface border border-border-light rounded-3xl p-8 md:p-12 space-y-8 shadow-2xl shadow-black/[0.02] animate-in fade-in zoom-in duration-700">
+        <div className="max-w-lg w-full bg-white border border-neutral-100 rounded-[2.5rem] p-8 md:p-12 space-y-10 shadow-[0_32px_96px_-16px_rgba(0,0,0,0.06)] relative animate-in fade-in slide-in-from-bottom-8 duration-1000">
           
-          {/* Animated success checkmark badge */}
-          <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/10 animate-bounce">
-              <Check size={28} strokeWidth={2.5} />
+          {/* Header Section */}
+          <div className="text-center space-y-6">
+            {/* Elegant Ring Badge */}
+            <div className="flex justify-center">
+              <div className="relative flex items-center justify-center">
+                {/* Double pulse rings */}
+                <div className="absolute inset-0 rounded-full bg-neutral-100 scale-150 animate-pulse" />
+                <div className="absolute inset-0 rounded-full bg-neutral-50 scale-125" />
+                <div className="relative w-16 h-16 rounded-full bg-neutral-900 flex items-center justify-center text-white shadow-lg z-10">
+                  <Check size={28} strokeWidth={2.5} className="animate-in zoom-in duration-500 delay-300" />
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-4 text-center">
-            <span className="type-eyebrow text-accent">Order Confirmed</span>
-            <h1 className="text-3xl md:text-4xl type-headline uppercase tracking-tight leading-tight">
-              Order Registered Successfully!
-            </h1>
-            <p className="text-secondary text-sm md:text-base max-w-md mx-auto leading-relaxed">
-              Thank you for shopping with us. Your order details have been successfully recorded in our system.
-            </p>
-          </div>
-
-          {/* Order Number Box */}
-          <div className="bg-background border border-border-light rounded-2xl p-6 text-center space-y-3 relative group">
-            <p className="text-[10px] font-sans font-bold uppercase tracking-widest text-muted">
-              Your Order Number
-            </p>
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-3xl md:text-4xl font-mono font-black text-primary tracking-wider">
-                #{orderNumber}
-              </span>
-              <button
-                onClick={handleCopyOrderNumber}
-                className="p-2.5 rounded-xl border border-border-light bg-surface text-secondary hover:text-primary hover:bg-border-light active:scale-95 transition-all cursor-pointer"
-                title="Copy order number"
-              >
-                {copied ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
-              </button>
-            </div>
-            
-            <p className="text-xs text-muted font-medium pt-2 border-t border-border-light/50">
-              ⚠️ Please <span className="text-primary font-bold">save your order number</span> to inquire about your order status.
-            </p>
-          </div>
-
-          {/* Logistics / Support Info Card */}
-          <div className="bg-primary/[0.02] border border-border-light rounded-2xl p-6 flex gap-4 items-start text-left">
-            <div className="w-10 h-10 rounded-xl bg-primary/5 flex-shrink-0 flex items-center justify-center text-primary mt-0.5">
-              <Clock size={18} />
-            </div>
-            <div className="space-y-1">
-              <h4 className="text-sm font-bold text-primary">What happens next?</h4>
-              <p className="text-xs text-secondary leading-relaxed">
-                Our team will contact you within the next <span className="text-primary font-bold">24 hours</span> to verify your order and complete the details.
+            <div className="space-y-3 pt-2">
+              <p className="text-[10px] font-sans font-bold uppercase tracking-[0.25em] text-neutral-400">
+                Fulfillment Protocol initiated
+              </p>
+              <h1 className="text-3xl md:text-4xl font-serif text-neutral-900 tracking-tight leading-tight">
+                Order Registered
+              </h1>
+              <p className="text-neutral-500 text-sm max-w-sm mx-auto leading-relaxed">
+                Thank you. Your order has been successfully logged into the Viltrum Egypt directory.
               </p>
             </div>
           </div>
 
-          {/* Shipping finalization notice */}
-          <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl text-center">
-            <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Action Required</p>
-            <p className="text-xs text-secondary leading-relaxed mt-1">
-              We are opening WhatsApp to finalize shipping details with our logistics team. Please keep the chat open.
-            </p>
+          {/* Premium Order Receipt Block */}
+          <div className="bg-[#fcfcfd] border border-neutral-200/60 rounded-2xl p-6 relative overflow-hidden space-y-4">
+            {/* Top decorative receipt line */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-neutral-300 via-neutral-900 to-neutral-300" />
+            
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Reference ID</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">Secure</span>
+            </div>
+
+            <div className="flex items-center justify-between gap-4 pt-1">
+              <span className="text-3xl font-mono font-black text-neutral-900 tracking-wider">
+                #{orderNumber}
+              </span>
+              <button
+                onClick={handleCopyOrderNumber}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-xs font-semibold uppercase tracking-wider text-neutral-700 hover:text-neutral-900 hover:bg-neutral-50 active:scale-95 transition-all cursor-pointer shadow-sm"
+              >
+                {copied ? (
+                  <>
+                    <Check size={14} className="text-emerald-600" />
+                    <span>Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={14} />
+                    <span>Copy ID</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Instruction Warning */}
+            <div className="pt-3 border-t border-dashed border-neutral-200 text-left">
+              <p className="text-xs text-neutral-600 leading-relaxed flex items-start gap-2.5">
+                <span className="text-neutral-800 text-base leading-none">⚠️</span>
+                <span>
+                  Please <strong className="text-neutral-950 font-bold">save this order number</strong>. You will need it to track your order status or request updates.
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {/* Information Timeline */}
+          <div className="space-y-4">
+            {[
+              {
+                icon: <Clock size={16} />,
+                title: "Logistics Contact (24 Hours)",
+                desc: "Our dispatch managers will contact you within 24 hours to confirm your address and schedule delivery."
+              },
+              {
+                icon: <Sparkles size={16} />,
+                title: "WhatsApp Dispatch Message",
+                desc: "We are opening a WhatsApp window to finalize shipping. Please keep the session active to proceed."
+              }
+            ].map((step, idx) => (
+              <div key={idx} className="flex gap-4 items-start text-left p-4 rounded-2xl hover:bg-neutral-50 transition-colors duration-300">
+                <div className="w-9 h-9 rounded-xl bg-neutral-100 flex-shrink-0 flex items-center justify-center text-neutral-800 mt-0.5">
+                  {step.icon}
+                </div>
+                <div className="space-y-0.5">
+                  <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider">{step.title}</h4>
+                  <p className="text-xs text-neutral-500 leading-relaxed">{step.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Action Buttons */}
           <div className="pt-2 space-y-3">
             <Link 
               href="/products" 
-              className="btn-primary w-full h-14 shadow-lg shadow-black/5 flex items-center justify-center"
+              className="w-full h-14 bg-neutral-950 text-white rounded-xl text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-neutral-800 active:scale-[0.98] transition-all flex items-center justify-center shadow-lg shadow-neutral-900/5 cursor-pointer animate-pulse"
             >
               Continue Shopping
             </Link>
@@ -125,9 +161,9 @@ export default function CheckoutPage() {
               href={`https://wa.me/${contactPhone}?text=Hello,%20I'm%20inquiring%20about%20my%20order%20%23${orderNumber}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary w-full h-14 flex items-center justify-center gap-2"
+              className="w-full h-14 bg-white text-neutral-900 border border-neutral-200 rounded-xl text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-neutral-50 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
-              Need Instant Help? Chat Now
+              Contact Support
             </a>
           </div>
 
