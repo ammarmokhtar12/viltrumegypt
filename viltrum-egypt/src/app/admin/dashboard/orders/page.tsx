@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { Order } from "@/types";
+import { Order, Product } from "@/types";
 import {
   Clock,
   CheckCircle,
@@ -26,6 +26,10 @@ import {
   Trash2,
   Printer,
   BarChart2,
+  Edit2,
+  MessageSquare,
+  RotateCcw,
+  Save,
 } from "lucide-react";
 
 const STATUS_CONFIG = {
@@ -636,6 +640,23 @@ export default function AdminOrdersPage() {
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
   const [printMode, setPrintMode] = useState<"pending" | "confirmed">("pending");
 
+  // ─── Edit Order state ────────────────────────────────────────────────────────
+  const [editModal, setEditModal] = useState<Order | null>(null);
+  const [editForm, setEditForm] = useState({ customer_name: "", customer_phone: "", customer_address: "" });
+  const [editSaving, setEditSaving] = useState(false);
+  // ─── Replacement Request state ────────────────────────────────────────────────
+  const [replacementModal, setReplacementModal] = useState<Order | null>(null);
+  const [replacementReason, setReplacementReason] = useState("");
+  const [replacementItems, setReplacementItems] = useState<
+    { product_id: string; title: string; size: string; quantity: number; image_url: string | null }[]
+  >([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [replacementSaving, setReplacementSaving] = useState(false);
+  // ─── Admin Comment state ──────────────────────────────────────────────────────
+  const [savingCommentId, setSavingCommentId] = useState<string | null>(null);
+  const [commentDraft, setCommentDraft] = useState<Record<string, string>>({});
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -707,6 +728,155 @@ export default function AdminOrdersPage() {
       console.error("Failed to update status:", err);
       alert("An unexpected error occurred while updating the status.");
     }
+  };
+
+  // ─── Edit Order helpers ───────────────────────────────────────────────────
+  const openEdit = (order: Order) => {
+    setEditForm({
+      customer_name: order.customer_name,
+      customer_phone: order.customer_phone,
+      customer_address: order.customer_address,
+    });
+    setEditModal(order);
+  };
+
+  const saveEdit = async () => {
+    if (!editModal) return;
+    setEditSaving(true);
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        customer_name: editForm.customer_name,
+        customer_phone: editForm.customer_phone,
+        customer_address: editForm.customer_address,
+      })
+      .eq("id", editModal.id);
+    if (!error) {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === editModal.id ? { ...o, ...editForm } : o))
+      );
+      setEditModal(null);
+    }
+    setEditSaving(false);
+  };
+
+  // ─── Replacement Request helpers ─────────────────────────────────────────
+  const openReplacement = async (order: Order) => {
+    // Parse existing replacement items if any
+    let existingItems: typeof replacementItems = [];
+    try {
+      if (order.replacement_note) {
+        const parsed = JSON.parse(order.replacement_note);
+        if (parsed.items) existingItems = parsed.items;
+      }
+    } catch { /* not JSON — old plain text note, ignore */ }
+
+    setReplacementReason(
+      (() => {
+        try { const p = JSON.parse(order.replacement_note || ""); return p.reason || ""; } catch { return order.replacement_note || ""; }
+      })()
+    );
+    setReplacementItems(existingItems);
+    setReplacementModal(order);
+
+    // Fetch products if not loaded yet
+    if (allProducts.length === 0) {
+      setProductsLoading(true);
+      const { data } = await supabase
+        .from("products")
+        .select("id, title, sizes, image_url, is_active")
+        .eq("is_active", true)
+        .order("title");
+      if (data) setAllProducts(data as Product[]);
+      setProductsLoading(false);
+    }
+  };
+
+  const toggleReplacement = async (order: Order) => {
+    if (!order.replacement_requested) {
+      openReplacement(order);
+    } else {
+      const { error } = await supabase
+        .from("orders")
+        .update({ replacement_requested: false, replacement_note: null })
+        .eq("id", order.id);
+      if (!error) {
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === order.id ? { ...o, replacement_requested: false, replacement_note: null } : o
+          )
+        );
+      }
+    }
+  };
+
+  const addReplacementItem = () => {
+    if (allProducts.length === 0) return;
+    const first = allProducts[0];
+    setReplacementItems((prev) => [
+      ...prev,
+      { product_id: first.id, title: first.title, size: first.sizes[0] || "", quantity: 1, image_url: first.image_url },
+    ]);
+  };
+
+  const updateReplacementItem = (
+    idx: number,
+    field: "product_id" | "size" | "quantity",
+    value: string | number
+  ) => {
+    setReplacementItems((prev) =>
+      prev.map((item, i) => {
+        if (i !== idx) return item;
+        if (field === "product_id") {
+          const prod = allProducts.find((p) => p.id === value);
+          return prod
+            ? { ...item, product_id: prod.id, title: prod.title, size: prod.sizes[0] || "", image_url: prod.image_url }
+            : item;
+        }
+        return { ...item, [field]: value };
+      })
+    );
+  };
+
+  const removeReplacementItem = (idx: number) => {
+    setReplacementItems((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const saveReplacement = async () => {
+    if (!replacementModal) return;
+    setReplacementSaving(true);
+    const notePayload = JSON.stringify({ reason: replacementReason, items: replacementItems });
+    const { error } = await supabase
+      .from("orders")
+      .update({ replacement_requested: true, replacement_note: notePayload })
+      .eq("id", replacementModal.id);
+    if (!error) {
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.id === replacementModal.id
+            ? { ...o, replacement_requested: true, replacement_note: notePayload }
+            : o
+        )
+      );
+      setReplacementModal(null);
+    }
+    setReplacementSaving(false);
+  };
+
+  // ─── Admin Comment helper ────────────────────────────────────────────────
+  const saveComment = async (orderId: string) => {
+    const comment = commentDraft[orderId] ?? "";
+    setSavingCommentId(orderId);
+    const { error } = await supabase
+      .from("orders")
+      .update({ admin_comment: comment })
+      .eq("id", orderId);
+    if (!error) {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, admin_comment: comment } : o))
+      );
+    }
+    setSavingCommentId(null);
   };
 
   // Filtered orders
@@ -913,6 +1083,18 @@ export default function AdminOrdersPage() {
                           <div className={`px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg border ${config.bg} ${config.text} ${config.border}`}>
                             {config.label}
                           </div>
+                          {order.replacement_requested && (
+                            <div className="px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg border bg-orange-500/10 text-orange-500 border-orange-500/20 flex items-center gap-1">
+                              <RotateCcw size={9} />
+                              Replace
+                            </div>
+                          )}
+                          {order.admin_comment && (
+                            <div className="px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg border bg-blue-500/10 text-blue-500 border-blue-500/20 flex items-center gap-1">
+                              <MessageSquare size={9} />
+                              Note
+                            </div>
+                          )}
                         </div>
                         <p className="text-xs font-bold text-muted mt-1 truncate uppercase tracking-widest">
                           {order.customer_name} · {new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
@@ -1073,6 +1255,60 @@ export default function AdminOrdersPage() {
                                 </button>
                               )}
 
+                              {/* Edit Order */}
+                              <button
+                                onClick={() => openEdit(order)}
+                                className="h-12 px-6 bg-surface border border-border-light text-foreground font-bold text-xs uppercase tracking-widest rounded-xl hover:border-secondary transition-all flex items-center gap-2"
+                              >
+                                <Edit2 size={16} />
+                                Edit Order
+                              </button>
+
+                              {/* Replacement Request */}
+                              <button
+                                onClick={() => toggleReplacement(order)}
+                                className={`h-12 px-6 font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 ${
+                                  order.replacement_requested
+                                    ? "bg-orange-500 text-white hover:opacity-90 shadow-md shadow-orange-500/20"
+                                    : "bg-surface border border-border-light text-foreground hover:border-orange-500/50"
+                                }`}
+                              >
+                                <RotateCcw size={16} />
+                                {order.replacement_requested ? "Cancel Replace" : "Request Replace"}
+                              </button>
+
+                              {/* Replacement note display */}
+                              {order.replacement_requested && order.replacement_note && (
+                                <div className="w-full p-3 bg-orange-500/5 border border-orange-500/20 rounded-xl text-xs text-orange-500 font-semibold flex items-start gap-2">
+                                  <RotateCcw size={11} className="mt-0.5 flex-shrink-0" />
+                                  <span>
+                                    {(() => {
+                                      try {
+                                        const p = JSON.parse(order.replacement_note);
+                                        return p.reason || "No reason specified";
+                                      } catch { return order.replacement_note; }
+                                    })()}
+                                    {(() => {
+                                      try {
+                                        const p = JSON.parse(order.replacement_note);
+                                        if (p.items && p.items.length > 0) {
+                                          return (
+                                            <span className="block mt-1 text-orange-400">
+                                              {p.items.map((it: { title: string; size: string; quantity: number }, i: number) => (
+                                                <span key={i} className="inline-block mr-2">
+                                                  {it.quantity}× {it.title} ({it.size})
+                                                </span>
+                                              ))}
+                                            </span>
+                                          );
+                                        }
+                                      } catch { /* ignore */ }
+                                      return null;
+                                    })()}
+                                  </span>
+                                </div>
+                              )}
+
                               <div className="h-10 w-px bg-border-light mx-2"></div>
 
                               {/* Universal Toggles */}
@@ -1108,6 +1344,31 @@ export default function AdminOrdersPage() {
                               </button>
                             </div>
                           </div>
+
+                          {/* Admin Notes */}
+                          <div className="pt-6 border-t border-border-light">
+                            <h4 className="text-[10px] font-bold text-muted uppercase tracking-[0.25em] mb-3 flex items-center gap-2">
+                              <MessageSquare size={12} />
+                              Admin Notes
+                            </h4>
+                            <textarea
+                              value={commentDraft[order.id] ?? order.admin_comment ?? ""}
+                              onChange={(e) =>
+                                setCommentDraft((prev) => ({ ...prev, [order.id]: e.target.value }))
+                              }
+                              placeholder="Add internal notes about this order..."
+                              className="viltrum-input w-full min-h-[80px] resize-y text-sm"
+                              rows={3}
+                            />
+                            <button
+                              onClick={() => saveComment(order.id)}
+                              disabled={savingCommentId === order.id}
+                              className="mt-2 h-9 px-5 bg-surface border border-border-light text-foreground font-bold text-[10px] uppercase tracking-widest rounded-xl hover:border-secondary transition-all flex items-center gap-2 disabled:opacity-50"
+                            >
+                              <Save size={12} />
+                              {savingCommentId === order.id ? "Saving..." : "Save Note"}
+                            </button>
+                          </div>
                         </div>
 
                       </div>
@@ -1116,6 +1377,246 @@ export default function AdminOrdersPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Edit Order Modal */}
+        {editModal && (
+          <div
+            className="fixed inset-0 z-[110] bg-primary/40 backdrop-blur-xl flex items-center justify-center p-4 animate-fade-in"
+            onClick={() => setEditModal(null)}
+          >
+            <div
+              className="bg-background max-w-lg w-full rounded-3xl border border-secondary shadow-2xl animate-in zoom-in-95 duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="h-16 px-6 flex items-center justify-between border-b border-border-light">
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-widest flex items-center gap-2">
+                  <Edit2 size={14} className="text-primary" />
+                  Edit Order #{editModal.order_number}
+                </h3>
+                <button
+                  onClick={() => setEditModal(null)}
+                  className="p-2 text-muted hover:text-foreground hover:bg-surface rounded-xl transition-all"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-6 space-y-5">
+                <div>
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-widest block mb-2">
+                    Customer Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.customer_name}
+                    onChange={(e) => setEditForm((p) => ({ ...p, customer_name: e.target.value }))}
+                    className="viltrum-input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-widest block mb-2">
+                    Phone
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.customer_phone}
+                    onChange={(e) => setEditForm((p) => ({ ...p, customer_phone: e.target.value }))}
+                    className="viltrum-input w-full"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-widest block mb-2">
+                    Address
+                  </label>
+                  <textarea
+                    value={editForm.customer_address}
+                    onChange={(e) => setEditForm((p) => ({ ...p, customer_address: e.target.value }))}
+                    className="viltrum-input w-full min-h-[80px] resize-y"
+                    rows={3}
+                  />
+                </div>
+              </div>
+              <div className="px-6 pb-6 flex gap-3 justify-end border-t border-border-light pt-4">
+                <button
+                  onClick={() => setEditModal(null)}
+                  className="h-11 px-6 bg-surface border border-border-light text-muted font-bold text-xs uppercase tracking-widest rounded-xl hover:text-foreground transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveEdit}
+                  disabled={editSaving}
+                  className="h-11 px-6 bg-primary text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all disabled:opacity-50 flex items-center gap-2"
+                >
+                  <Save size={14} />
+                  {editSaving ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Replacement Request Modal */}
+        {replacementModal && (
+          <div
+            className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-fade-in"
+            onClick={() => setReplacementModal(null)}
+          >
+            <div
+              className="bg-background w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl border border-orange-500/30 shadow-2xl shadow-orange-500/10 animate-in zoom-in-95 duration-300 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="h-16 px-6 flex items-center justify-between border-b border-border-light bg-orange-500/5 flex-shrink-0">
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-widest flex items-center gap-2">
+                  <RotateCcw size={14} className="text-orange-500" />
+                  طلب استبدال — أوردر #{replacementModal.order_number}
+                </h3>
+                <button
+                  onClick={() => setReplacementModal(null)}
+                  className="p-2 text-muted hover:text-foreground hover:bg-surface rounded-xl transition-all"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto flex-1 p-6 space-y-6">
+
+                {/* Original Order Items */}
+                <div>
+                  <p className="text-[10px] font-bold text-muted uppercase tracking-[0.25em] mb-3">الأيتمز الأصلية في الأوردر</p>
+                  <div className="space-y-2">
+                    {(Array.isArray(replacementModal.items) ? replacementModal.items : []).map((item, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 bg-surface border border-border-light rounded-xl">
+                        <div>
+                          <p className="text-sm font-bold text-foreground">{item.title}</p>
+                          <p className="text-[10px] text-muted font-bold uppercase tracking-widest mt-0.5">Size {item.size} · {item.quantity} Units</p>
+                        </div>
+                        <span className="text-[10px] font-bold text-muted bg-background border border-border-light px-3 py-1 rounded-lg">
+                          {item.quantity}×
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Replacement Products */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[10px] font-bold text-muted uppercase tracking-[0.25em]">المنتجات البديلة</p>
+                    <button
+                      onClick={addReplacementItem}
+                      disabled={productsLoading || allProducts.length === 0}
+                      className="h-8 px-4 bg-orange-500 text-white font-bold text-[10px] uppercase tracking-widest rounded-xl hover:opacity-90 transition-all disabled:opacity-40 flex items-center gap-1.5"
+                    >
+                      + أضف منتج
+                    </button>
+                  </div>
+
+                  {productsLoading ? (
+                    <div className="py-6 text-center text-muted text-xs font-bold tracking-widest">Loading products...</div>
+                  ) : replacementItems.length === 0 ? (
+                    <div className="py-6 text-center border border-dashed border-border-light rounded-2xl text-muted text-xs font-bold tracking-widest">
+                      اضغط &quot;أضف منتج&quot; لتحديد المنتجات البديلة
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {replacementItems.map((item, idx) => {
+                        const selectedProduct = allProducts.find((p) => p.id === item.product_id);
+                        return (
+                          <div key={idx} className="p-4 bg-surface border border-orange-500/20 rounded-2xl space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest">منتج {idx + 1}</span>
+                              <button
+                                onClick={() => removeReplacementItem(idx)}
+                                className="p-1 text-muted hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+
+                            {/* Product Select */}
+                            <div>
+                              <label className="text-[9px] font-bold text-muted uppercase tracking-widest block mb-1.5">المنتج</label>
+                              <select
+                                value={item.product_id}
+                                onChange={(e) => updateReplacementItem(idx, "product_id", e.target.value)}
+                                className="viltrum-input w-full text-sm"
+                              >
+                                {allProducts.map((p) => (
+                                  <option key={p.id} value={p.id}>{p.title}</option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              {/* Size Select */}
+                              <div>
+                                <label className="text-[9px] font-bold text-muted uppercase tracking-widest block mb-1.5">المقاس</label>
+                                <select
+                                  value={item.size}
+                                  onChange={(e) => updateReplacementItem(idx, "size", e.target.value)}
+                                  className="viltrum-input w-full text-sm"
+                                >
+                                  {(selectedProduct?.sizes || []).map((s) => (
+                                    <option key={s} value={s}>{s}</option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              {/* Quantity */}
+                              <div>
+                                <label className="text-[9px] font-bold text-muted uppercase tracking-widest block mb-1.5">الكمية</label>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  max={20}
+                                  value={item.quantity}
+                                  onChange={(e) => updateReplacementItem(idx, "quantity", parseInt(e.target.value) || 1)}
+                                  className="viltrum-input w-full text-sm"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Reason */}
+                <div>
+                  <label className="text-[10px] font-bold text-muted uppercase tracking-[0.25em] block mb-3">سبب الاستبدال</label>
+                  <textarea
+                    value={replacementReason}
+                    onChange={(e) => setReplacementReason(e.target.value)}
+                    placeholder="مثال: مقاس غلط، منتج به عيب، شكوى عميل..."
+                    className="viltrum-input w-full min-h-[80px] resize-y text-sm"
+                    rows={3}
+                  />
+                </div>
+
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 flex gap-3 justify-end border-t border-border-light bg-background/50 flex-shrink-0">
+                <button
+                  onClick={() => setReplacementModal(null)}
+                  className="h-11 px-6 bg-surface border border-border-light text-muted font-bold text-xs uppercase tracking-widest rounded-xl hover:text-foreground transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveReplacement}
+                  disabled={replacementSaving}
+                  className="h-11 px-6 bg-orange-500 text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:opacity-90 transition-all disabled:opacity-50 flex items-center gap-2"
+                >
+                  <RotateCcw size={14} />
+                  {replacementSaving ? "Submitting..." : "Submit Request"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
