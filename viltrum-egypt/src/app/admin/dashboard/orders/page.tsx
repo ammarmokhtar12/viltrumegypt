@@ -659,6 +659,13 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     fetchOrders();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const search = params.get("search");
+      if (search) {
+        setSearchQuery(search);
+      }
+    }
   }, []);
 
   // Ctrl+P → print pending orders
@@ -1027,7 +1034,7 @@ export default function AdminOrdersPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search identity, phone or order code..."
+              placeholder="البحث باسم العميل، رقم التليفون أو رقم الأوردر... | Search by name, phone or order number..."
               className="viltrum-input pl-11 !min-h-[2.75rem]"
             />
           </div>
@@ -1096,8 +1103,12 @@ export default function AdminOrdersPage() {
                             </div>
                           )}
                         </div>
-                        <p className="text-xs font-bold text-muted mt-1 truncate uppercase tracking-widest">
-                          {order.customer_name} · {new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                        <p className="text-xs font-bold text-muted mt-1 truncate uppercase tracking-widest flex items-center gap-1.5 flex-wrap">
+                          <span>{order.customer_name}</span>
+                          <span className="opacity-40">·</span>
+                          <span className="text-primary/80 font-mono select-all bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10">{order.customer_phone}</span>
+                          <span className="opacity-40">·</span>
+                          <span>{new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span>
                         </p>
                       </div>
                     </div>
