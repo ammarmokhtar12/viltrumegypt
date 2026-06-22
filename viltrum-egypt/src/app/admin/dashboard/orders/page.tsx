@@ -1016,7 +1016,7 @@ export default function AdminOrdersPage() {
           {[
             { label: "Total Flow", value: orders.length, color: "text-foreground" },
             { label: "Critical (Pending)", value: pendingCount, color: "text-amber-500" },
-            { label: "Total Volume", value: `${orders.reduce((sum, o) => sum + o.total, 0).toLocaleString()} EGP`, color: "text-foreground" },
+            { label: "Total Volume (Delivered)", value: `${orders.filter(o => o.status === "delivered").reduce((sum, o) => sum + o.total, 0).toLocaleString()} EGP`, color: "text-foreground" },
             { label: "Fulfillment", value: `${orders.length > 0 ? ((orders.filter(o => o.status === 'delivered').length / orders.length) * 100).toFixed(0) : 0}%`, color: "text-emerald-500" },
           ].map((s, i) => (
             <div key={i} className="bg-surface border border-border-light p-6 rounded-2xl">
