@@ -69,6 +69,11 @@ export default function AdminDashboardPage() {
   const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
   const uniqueCustomers = new Set(orders.map((o) => o.customer_phone)).size;
 
+  // Delivered-only revenue
+  const deliveredOrders = orders.filter(o => o.status === 'delivered');
+  const deliveredRevenue = deliveredOrders.reduce((sum, o) => sum + o.total, 0);
+  const avgDeliveredOrder = deliveredOrders.length > 0 ? deliveredRevenue / deliveredOrders.length : 0;
+
   // Chart 1: Revenue Stream over time
   const revenueDataMap = new Map();
   orders.forEach(o => {
@@ -127,6 +132,30 @@ export default function AdminDashboardPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-black">Dashboard Overview</h1>
         <p className="text-gray-500 text-sm mt-1">Here is what is happening with your store today.</p>
+      </div>
+
+      {/* Delivered Revenue Section */}
+      <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-6 shadow-lg">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle size={20} className="text-emerald-200" />
+              <span className="text-emerald-100 text-xs font-bold uppercase tracking-widest">Delivered Revenue</span>
+            </div>
+            <p className="text-4xl font-bold text-white">{deliveredRevenue.toLocaleString()} <span className="text-xl font-medium text-emerald-200">EGP</span></p>
+            <p className="text-emerald-200 text-sm mt-1">Cash collected from delivered orders only</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-white">{deliveredOrders.length}</p>
+              <p className="text-emerald-200 text-[11px] font-semibold uppercase tracking-wider mt-1">Delivered Orders</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+              <p className="text-2xl font-bold text-white">{avgDeliveredOrder.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+              <p className="text-emerald-200 text-[11px] font-semibold uppercase tracking-wider mt-1">Avg. Order (EGP)</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Financial KPIs */}

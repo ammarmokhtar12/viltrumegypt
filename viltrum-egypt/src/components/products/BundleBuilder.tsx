@@ -111,8 +111,20 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
     return Math.max(0, totalStock - selectedElsewhere);
   };
 
+  // Helper: detect if a product is a long sleeve
+  const isLongSleeve = (product: Product) =>
+    product.title.toLowerCase().includes("long");
+
   // Assign product to the slot index
   const handleSelectProduct = (slotIdx: number, product: Product) => {
+    // Guard: blocked cards should never fire (UI already prevents it)
+    if (isLongSleeve(product)) {
+      const otherSlotsHaveLongSleeve = slots.some(
+        (s, i) => i !== slotIdx && s.product && isLongSleeve(s.product)
+      );
+      if (otherSlotsHaveLongSleeve) return;
+    }
+
     setSlots((prev) => {
       const next = [...prev];
       next[slotIdx] = { product, size: "" }; // Clear size when changing product
@@ -175,6 +187,17 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
     }
 
     setIsAdding(true);
+
+    // Final validation: only 1 long sleeve allowed
+    const longSleeveCount = slots.filter(s => s.product && isLongSleeve(s.product)).length;
+    if (longSleeveCount > 1) {
+      toast.error("قاعدة العرض: تيشرت Long Sleeve واحد بس في الباقة", {
+        description: "برجاء إزالة أحد منتجات الـ Long Sleeve والاستعاضة عنه بـ Short Sleeve.",
+        duration: 5000,
+      });
+      setIsAdding(false);
+      return;
+    }
 
     const bundleItems: CartItem[] = slots.map((s) => ({
       product_id: s.product!.id,
@@ -478,14 +501,22 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                 // Check if any size is available
                 const hasSizesAvailable = p.sizes?.some((sz) => getAvailableStock(p.id, sz, activeSelectIndex) > 0);
 
+                // Check if selecting this product would violate the 1-long-sleeve rule
+                const wouldViolateLongSleeveRule = isLongSleeve(p) &&
+                  slots.some((s, i) => i !== activeSelectIndex && s.product && isLongSleeve(s.product));
+
+                const isDisabled = !hasSizesAvailable || wouldViolateLongSleeveRule;
+
                 return (
                   <div
                     key={p.id}
-                    onClick={() => hasSizesAvailable && handleSelectProduct(activeSelectIndex, p)}
-                    className={`group relative flex flex-col bg-surface rounded-2xl border p-3 cursor-pointer transition-all ${
-                      !hasSizesAvailable
+                    onClick={() => !isDisabled && handleSelectProduct(activeSelectIndex, p)}
+                    className={`group relative flex flex-col bg-surface rounded-2xl border p-3 transition-all ${
+                      wouldViolateLongSleeveRule
+                        ? "cursor-not-allowed border-border-light"
+                        : !hasSizesAvailable
                         ? "opacity-40 grayscale cursor-not-allowed border-border-light"
-                        : "border-border-light hover:border-muted hover:bg-white hover:shadow-md"
+                        : "cursor-pointer border-border-light hover:border-muted hover:bg-white hover:shadow-md"
                     }`}
                   >
                     <div className="relative aspect-[4/5] bg-white rounded-xl overflow-hidden mb-3">
@@ -503,10 +534,22 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                         </div>
                       )}
 
-                      {!hasSizesAvailable && (
+                      {!hasSizesAvailable && !wouldViolateLongSleeveRule && (
                         <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center">
                           <span className="text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 bg-black/60 rounded">
                             Sold Out
+                          </span>
+                        </div>
+                      )}
+
+                      {wouldViolateLongSleeveRule && (
+                        <div className="absolute inset-0 backdrop-blur-md bg-black/50 flex flex-col items-center justify-center gap-2 rounded-xl">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                          </svg>
+                          <span className="text-white text-[9px] font-extrabold uppercase tracking-widest text-center leading-snug px-3 flex flex-col items-center gap-0.5">
+                            <span>You Must Choose</span>
+                            <span>1 Long Sleeve</span>
                           </span>
                         </div>
                       )}
