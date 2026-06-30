@@ -60,8 +60,12 @@ export default function HeroSection() {
         <div className="mb-10 sm:mb-12">
           <h1
             ref={title1Ref}
-            className="type-brand leading-[0.85] opacity-0 text-white font-extrabold tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
-            style={{ fontSize: "clamp(4rem, 18vw, 12rem)" }}
+            className="type-brand leading-[0.85] opacity-0 font-extrabold tracking-tight"
+            style={{
+              fontSize: "clamp(4rem, 18vw, 12rem)",
+              color: "#ffffff",
+              textShadow: "0 4px 24px rgba(0,0,0,0.6)",
+            }}
           >
             VILTRUM
           </h1>
