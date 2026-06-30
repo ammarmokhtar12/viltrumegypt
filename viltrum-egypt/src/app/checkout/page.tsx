@@ -338,7 +338,8 @@ export default function CheckoutPage() {
 
       const netTotal = cartTotal - discountAmount;
       const commissionPct = appliedCoupon ? appliedCoupon.commission_percent : 0;
-      const commissionAmt = appliedCoupon ? Math.round(netTotal * (commissionPct / 100) * 100) / 100 : 0;
+      // Commission amount = base commission percentage + 15 EGP shipping discount difference
+      const commissionAmt = appliedCoupon ? (Math.round(netTotal * (commissionPct / 100) * 100) / 100) + 15 : 0;
 
       const { data, error } = await supabase
         .from("orders")

@@ -63,15 +63,15 @@ BEGIN
     NEW.delivered_at = NOW();
   END IF;
 
-  -- Sync commission status on cancellation
-  IF NEW.status = 'cancelled' AND (OLD.status IS NULL OR OLD.status != 'cancelled') THEN
+  -- Sync commission status on cancellation or return
+  IF (NEW.status = 'cancelled' OR NEW.status = 'returned') AND (OLD.status IS NULL OR (OLD.status != 'cancelled' AND OLD.status != 'returned')) THEN
     UPDATE commissions
     SET status = 'cancelled', updated_at = NOW()
     WHERE order_id = NEW.id;
   END IF;
 
-  -- If status goes back from cancelled, we could revert commission to pending
-  IF NEW.status != 'cancelled' AND OLD.status = 'cancelled' THEN
+  -- If status goes back from cancelled/returned, revert commission to pending
+  IF (NEW.status != 'cancelled' AND NEW.status != 'returned') AND (OLD.status = 'cancelled' OR OLD.status = 'returned') THEN
     UPDATE commissions
     SET status = 'pending', updated_at = NOW()
     WHERE order_id = NEW.id;
