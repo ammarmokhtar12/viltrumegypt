@@ -88,6 +88,7 @@ export default function Footer() {
         <hr className="border-zinc-800 mb-8" />
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          {/* Footer Bottom Row */}
           <p className="text-[11px] text-viltrum-mist/30 tracking-[0.18em] uppercase">
             © {new Date().getFullYear()} VILTRUM EGYPT. Engineered by Ammar Mokhtar.
           </p>
