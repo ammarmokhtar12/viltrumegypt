@@ -61,8 +61,8 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // Filter out cancelled orders from revenue calculations
-  const completedOrders = orders.filter(o => o.status !== 'cancelled');
+  // Filter out cancelled and returned orders from revenue calculations
+  const completedOrders = orders.filter(o => o.status !== 'cancelled' && o.status !== 'returned');
   const totalRevenue = completedOrders.reduce((sum, o) => sum + o.total, 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
   const netProfit = totalRevenue - totalExpenses;
@@ -77,7 +77,7 @@ export default function AdminDashboardPage() {
   // Chart 1: Revenue Stream over time
   const revenueDataMap = new Map();
   orders.forEach(o => {
-    if (o.status === 'cancelled') return; // Skip cancelled orders in chart
+    if (o.status === 'cancelled' || o.status === 'returned') return; // Skip cancelled/returned orders in chart
     const date = new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     if (!revenueDataMap.has(date)) {
       revenueDataMap.set(date, { name: date, Revenue: 0 });
@@ -212,7 +212,7 @@ export default function AdminDashboardPage() {
           </div>
           <div>
             <p className="text-2xl font-bold text-black">{orders.length}</p>
-            <span className="text-[10px] text-gray-400 font-medium">Includes {orders.filter(o => o.status === 'cancelled').length} cancelled</span>
+            <span className="text-[10px] text-gray-400 font-medium">Includes {orders.filter(o => o.status === 'cancelled').length} cancelled & {orders.filter(o => o.status === 'returned').length} returned</span>
           </div>
         </div>
 
@@ -311,7 +311,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-black text-sm">{order.total.toLocaleString()} EGP</p>
-                      <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] font-medium rounded-full ${order.status === 'delivered' ? 'bg-green-100 text-green-700' : order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                      <span className={`inline-block mt-1 px-2 py-0.5 text-[10px] font-medium rounded-full ${order.status === 'delivered' ? 'bg-green-100 text-green-700' : order.status === 'cancelled' ? 'bg-red-100 text-red-700' : order.status === 'returned' ? 'bg-rose-100 text-rose-700' : 'bg-yellow-100 text-yellow-700'}`}>
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </span>
                     </div>

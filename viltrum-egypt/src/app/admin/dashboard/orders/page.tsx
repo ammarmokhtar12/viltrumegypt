@@ -38,9 +38,10 @@ const STATUS_CONFIG = {
   shipped: { label: "Shipped", bg: "bg-purple-500/10", border: "border-purple-500/20", text: "text-purple-500", icon: Truck },
   delivered: { label: "Delivered", bg: "bg-emerald-500/10", border: "border-emerald-500/20", text: "text-emerald-500", icon: PackageCheck },
   cancelled: { label: "Cancelled", bg: "bg-red-500/10", border: "border-red-500/20", text: "text-red-500", icon: XCircle },
+  returned: { label: "Returned (مرتجع)", bg: "bg-rose-500/10", border: "border-rose-500/20", text: "text-rose-500", icon: RotateCcw },
 };
 
-const STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"] as const;
+const STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled", "returned"] as const;
 
 // ─── Pending Analysis ──────────────────────────────────────────────────────────
 function PendingAnalysisPanel({ pendingOrders }: { pendingOrders: Order[] }) {
@@ -700,7 +701,7 @@ export default function AdminOrdersPage() {
 
   const updateStatus = async (orderId: string, newStatus: string) => {
     // Capture order data BEFORE state mutation to avoid stale closure read
-    const orderToCancel = newStatus === "cancelled" ? orders.find(o => o.id === orderId) : null;
+    const orderToCancel = (newStatus === "cancelled" || newStatus === "returned") ? orders.find(o => o.id === orderId) : null;
 
     try {
       const { error } = await supabase
@@ -713,8 +714,15 @@ export default function AdminOrdersPage() {
           prev.map((o) => (o.id === orderId ? { ...o, status: newStatus as Order["status"] } : o))
         );
 
-        // If the order was cancelled, restore the stock of all its items
-        if (newStatus === "cancelled" && orderToCancel && Array.isArray(orderToCancel.items)) {
+        // If the order was cancelled or returned, restore the stock of all its items
+        // (Only if it wasn't already in a cancelled/returned state to avoid double-incrementing)
+        if (
+          (newStatus === "cancelled" || newStatus === "returned") &&
+          orderToCancel &&
+          orderToCancel.status !== "cancelled" &&
+          orderToCancel.status !== "returned" &&
+          Array.isArray(orderToCancel.items)
+        ) {
           try {
             for (const item of orderToCancel.items) {
               await supabase.rpc("increment_stock", {
@@ -724,7 +732,7 @@ export default function AdminOrdersPage() {
               });
             }
           } catch (stockErr) {
-            console.error("Failed to restore stock after cancellation:", stockErr);
+            console.error("Failed to restore stock after cancellation/return:", stockErr);
           }
         }
       } else {
@@ -1039,12 +1047,16 @@ export default function AdminOrdersPage() {
             />
           </div>
           <div className="flex gap-2 p-1 bg-surface border border-border-light rounded-xl overflow-x-auto w-full lg:w-auto">
-            {["all", "pending", "confirmed", "shipped", "delivered", "cancelled"].map((s) => (
+            {["all", "pending", "confirmed", "shipped", "delivered", "cancelled", "returned"].map((s) => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
                 className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap ${statusFilter === s
-                    ? s === "cancelled" ? "bg-red-500 text-white shadow-md shadow-red-500/10" : "bg-primary text-white shadow-md shadow-primary/10"
+                    ? s === "cancelled" 
+                      ? "bg-red-500 text-white shadow-md shadow-red-500/10" 
+                      : s === "returned"
+                        ? "bg-rose-500 text-white shadow-md shadow-rose-500/10"
+                        : "bg-primary text-white shadow-md shadow-primary/10"
                     : "text-muted hover:text-foreground"
                   }`}
               >
@@ -1252,7 +1264,7 @@ export default function AdminOrdersPage() {
                                 </button>
                               )}
 
-                              {order.status !== "cancelled" && order.status !== "delivered" && (
+                              {order.status !== "cancelled" && order.status !== "delivered" && order.status !== "returned" && (
                                 <button
                                   onClick={() => {
                                     if (confirm("Executing protocol override. Confirm cancellation of this order?")) {
@@ -1263,6 +1275,20 @@ export default function AdminOrdersPage() {
                                 >
                                   <XCircle size={16} />
                                   Cancel Order
+                                </button>
+                              )}
+
+                              {(order.status === "delivered" || order.status === "shipped") && (
+                                <button
+                                  onClick={() => {
+                                    if (confirm("تأكيد استلام الأوردر كمرتجع؟ سيتم استعادة المخزون للمنتجات.")) {
+                                      updateStatus(order.id, "returned");
+                                    }
+                                  }}
+                                  className="h-12 px-6 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-2"
+                                >
+                                  <RotateCcw size={16} />
+                                  Mark Returned (مرتجع)
                                 </button>
                               )}
 

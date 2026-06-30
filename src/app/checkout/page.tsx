@@ -265,6 +265,9 @@ export default function CheckoutPage() {
   const cartTotal = totalPrice();
   const cartItems = items;
 
+  // Shipping: 65 EGP with coupon, 80 EGP without
+  const shippingFee = appliedCoupon ? 65 : 80;
+
   // 5% coupon discount on full-price items (no bundle_id)
   const fullPriceSubtotal = cartItems
     .filter((item) => !item.bundle_id)
@@ -346,7 +349,7 @@ export default function CheckoutPage() {
           payment_method: formData.paymentMethod,
           payment_screenshot_url: screenshotUrl,
           items: orderItems,
-          total: finalTotal + 80,
+          total: finalTotal + shippingFee,
           status: "pending",
           coupon_code: appliedCoupon ? appliedCoupon.coupon_code : null,
           influencer_id: appliedCoupon ? appliedCoupon.id : null,
@@ -400,7 +403,7 @@ export default function CheckoutPage() {
       const whatsappUrl = generateOrderWhatsAppUrl(
         data.order_number,
         orderItems,
-        finalTotal + 80,
+        finalTotal + shippingFee,
         formData.name,
         formData.paymentMethod
       );
@@ -414,7 +417,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price: item.price,
         })),
-        value: finalTotal + 80,
+        value: finalTotal + shippingFee,
         currency: "EGP",
       };
       const userData = {
@@ -442,7 +445,7 @@ export default function CheckoutPage() {
           customerAddress: formData.address,
           paymentMethod: formData.paymentMethod,
           items: orderItems,
-          total: finalTotal + 80,
+          total: finalTotal + shippingFee,
         });
       } catch (emailErr) {
         console.error("Failed to send notification email:", emailErr);
@@ -683,7 +686,14 @@ export default function CheckoutPage() {
                      )}
                      <div className="flex justify-between text-sm text-secondary">
                         <span>Shipping</span>
-                        <span className="font-semibold text-primary">{formatPrice(80)}</span>
+                        <span className="font-semibold text-primary">
+                          {formatPrice(shippingFee)}
+                          {appliedCoupon && (
+                            <span className="ml-1.5 text-emerald-600 text-[10px] font-bold line-through decoration-red-400">
+                              {formatPrice(80)}
+                            </span>
+                          )}
+                        </span>
                      </div>
                   </div>
 
@@ -691,7 +701,7 @@ export default function CheckoutPage() {
                      <span className="font-semibold text-primary">Total</span>
                      <div className="flex items-baseline gap-2">
                         <span className="text-xs text-muted font-medium tracking-wide">EGP</span>
-                        <span className="text-3xl font-bold text-primary tracking-tight">{formatPrice(finalTotal + 80)}</span>
+                        <span className="text-3xl font-bold text-primary tracking-tight">{formatPrice(finalTotal + shippingFee)}</span>
                      </div>
                   </div>
                </div>
