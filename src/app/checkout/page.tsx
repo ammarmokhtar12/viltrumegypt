@@ -31,7 +31,11 @@ export default function CheckoutPage() {
 
   // Affiliate / Coupon system state
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<any | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    id: string;
+    coupon_code: string;
+    commission_percent: number;
+  } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
 
@@ -661,7 +665,7 @@ export default function CheckoutPage() {
                      )}
                      {appliedCoupon && (
                         <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                           ✓ Code "{appliedCoupon.coupon_code}" applied! (5% discount on full-price items)
+                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied! (5% discount on full-price items)
                         </p>
                      )}
                   </div>

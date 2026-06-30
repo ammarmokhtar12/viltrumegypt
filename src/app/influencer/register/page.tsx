@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { ArrowLeft, Send, CheckCircle2, Sparkles, Award } from "lucide-react";
-import Image from "next/image";
+import { ArrowLeft, Send, CheckCircle2, Award } from "lucide-react";
 
 export default function InfluencerRegisterPage() {
   const [name, setName] = useState("");
@@ -68,9 +67,9 @@ export default function InfluencerRegisterPage() {
       if (insertError) throw insertError;
 
       setSubmitted(true);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setError(err.message || "An unexpected error occurred. Please try again.");
+      setError((err as any).message || "An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -97,11 +96,11 @@ export default function InfluencerRegisterPage() {
           </div>
 
           <div className="bg-neutral-50 rounded-2xl p-5 border border-neutral-100 text-left space-y-2">
-            <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">What's Next?</p>
+            <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">What&apos;s Next?</p>
             <p className="text-xs text-neutral-600 leading-relaxed">
               1. Our team will verify your contact details and social profiles.<br />
               2. Upon approval, you will receive an activation email.<br />
-              3. Your custom code <strong className="text-neutral-950 font-bold">"{couponCode.toUpperCase()}"</strong> will start granting your audience a 5% discount, and you'll earn a 5% commission.
+              3. Your custom code <strong className="text-neutral-950 font-bold">&ldquo;{couponCode.toUpperCase()}&rdquo;</strong> will start granting your audience a 5% discount, and you&apos;ll earn a 5% commission.
             </p>
           </div>
 

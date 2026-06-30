@@ -46,7 +46,7 @@ export default function InfluencerPage() {
       // Active influencer — save code to sessionStorage and redirect
       sessionStorage.setItem("influencer_code", cleanCode);
       router.push("/influencer/dashboard");
-    } catch (err: any) {
+    } catch (err) {
       setError("حصل خطأ، جرب تاني.");
       console.error(err);
     } finally {
