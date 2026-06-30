@@ -18,6 +18,7 @@ import {
   Clock,
   Download,
   AlertTriangle,
+  ExternalLink,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -613,6 +614,7 @@ export default function AdminAffiliatesPage() {
                   <th className="px-6 py-4 text-right">Sales Volume</th>
                   <th className="px-6 py-4 text-right">Comm. (Pending / Appr. / Paid)</th>
                   <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Password</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -665,6 +667,15 @@ export default function AdminAffiliatesPage() {
                             {inf.status}
                           </span>
                         </td>
+                        <td className="px-6 py-4">
+                          {inf.password ? (
+                            <span className="font-mono text-[11px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-1 rounded select-all">
+                              {inf.password}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300 text-xs">—</span>
+                          )}
+                        </td>
                         <td className="px-6 py-4 text-right space-x-2">
                           {inf.status === "pending" && (
                             <button
@@ -673,6 +684,16 @@ export default function AdminAffiliatesPage() {
                             >
                               Confirm
                             </button>
+                          )}
+                          {inf.status === "active" && (
+                            <a
+                              href={`/influencer/dashboard?admin_preview=${inf.coupon_code}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] uppercase tracking-wider rounded-lg transition-all cursor-pointer border border-blue-200"
+                            >
+                              <ExternalLink size={11} /> View
+                            </a>
                           )}
                           <button
                             onClick={() => openEditModal(inf)}

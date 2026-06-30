@@ -39,8 +39,12 @@ export default function InfluencerDashboard() {
   useEffect(() => {
     const fetchInfluencerData = async () => {
       try {
-        // Read coupon code saved during login
-        const savedCode = sessionStorage.getItem("influencer_code");
+        // Support admin_preview query param for admin to view any influencer dashboard
+        const urlParams = new URLSearchParams(window.location.search);
+        const adminPreviewCode = urlParams.get("admin_preview");
+
+        // Read coupon code: admin preview takes priority over session
+        const savedCode = adminPreviewCode || sessionStorage.getItem("influencer_code");
 
         if (!savedCode) {
           router.push("/influencer");
@@ -48,18 +52,27 @@ export default function InfluencerDashboard() {
         }
 
         // Fetch influencer profile by coupon code
-        const { data: infData, error: infError } = await supabase
+        // If admin preview, skip status check so we can view pending/disabled too
+        let query = supabase
           .from("influencers")
           .select("*")
-          .eq("coupon_code", savedCode)
-          .eq("status", "active")
-          .maybeSingle();
+          .eq("coupon_code", savedCode);
+
+        if (!adminPreviewCode) {
+          query = query.eq("status", "active");
+        }
+
+        const { data: infData, error: infError } = await query.maybeSingle();
 
         if (infError) throw infError;
 
         if (!infData) {
-          sessionStorage.removeItem("influencer_code");
-          router.push("/influencer");
+          if (!adminPreviewCode) {
+            sessionStorage.removeItem("influencer_code");
+            router.push("/influencer");
+          } else {
+            toast.error("Influencer not found for this coupon code.");
+          }
           return;
         }
 
@@ -158,8 +171,16 @@ export default function InfluencerDashboard() {
 
   const chartData = Array.from(monthlyDataMap.values()).reverse();
 
+  const isAdminPreview = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("admin_preview");
+
   return (
     <div className="min-h-screen bg-gray-50 text-black font-sans pb-16">
+      {/* Admin Preview Banner */}
+      {isAdminPreview && (
+        <div className="bg-amber-400 text-amber-950 text-center py-2 px-4 text-xs font-bold uppercase tracking-widest">
+          🔐 Admin Preview Mode — You are viewing {influencer?.name}&apos;s dashboard
+        </div>
+      )}
       {/* Header Banner */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
