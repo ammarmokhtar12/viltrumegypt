@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'CleanNumbers';
+  src: local('Inter'), local('system-ui'), local('-apple-system'), local('Segoe UI'), local('Roboto'), local('Arial');
+  unicode-range: U+0030-0039;
+  font-display: swap;
+}
+
+@theme {
+  /* Inter = UI · Playfair = brand/editorial */
+  --font-sans: 'CleanNumbers', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+
+  --color-primary: #1a1a1a;
+  --color-secondary: #6b7280;
+  --color-muted: #9ca3af;
+  --color-surface: #f7f7f8;
+  --color-border-light: #ebebed;
+  --color-background: #ffffff;
+  --color-foreground: #111111;
+  --color-accent: #71717a;
+}
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #111111;
+    --surface: #f7f7f8;
+    --muted: #9ca3af;
+    --primary: #1a1a1a;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased font-sans text-[15px] leading-relaxed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif text-foreground font-normal;
+  }
+
+  ::selection {
+    @apply bg-primary/90 text-white;
+  }
+}
+
+@layer utilities {
+  /* Eyebrow labels — Inter */
+  .type-eyebrow {
+    @apply font-sans text-[10px] font-semibold uppercase tracking-[0.28em] text-muted;
+  }
+
+  /* Editorial headlines — Playfair */
+  .type-headline {
+    @apply font-serif tracking-tight text-foreground;
+  }
+
+  .type-brand {
+    @apply font-serif tracking-[-0.04em] font-medium text-primary;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center font-sans bg-primary text-white px-8 py-3.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition-all hover:bg-foreground active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center font-sans bg-white text-primary border border-border-light px-8 py-3.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition-all hover:bg-surface active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed rounded-xl;
+  }
+
+  .premium-blur {
+    @apply backdrop-blur-xl bg-white/85 border-b border-border-light;
+  }
+
+  .luxury-shadow {
+    box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+  }
+
+  .viltrum-divider {
+    @apply h-px w-full bg-border-light;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+@keyframes viltrumProgress {
+  0%   { width: 0%; }
+  20%  { width: 15%; }
+  50%  { width: 55%; }
+  80%  { width: 85%; }
+  100% { width: 100%; }
+}
+
+@keyframes viltrumLogoSpin {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(1.04); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes viltrumPulseRing {
+  0%   { transform: scale(0.95); opacity: 0.7; }
+  50%  { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.viltrum-logo-spin {
+  animation: viltrumLogoSpin 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.viltrum-progress-bar {
+  animation: viltrumProgress 1.8s ease-in-out forwards;
+}
+
+.viltrum-pulse-ring {
+  animation: viltrumPulseRing 2s ease-in-out infinite;
+}
+
+@keyframes mobileMenuSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-mobile-menu {
+  animation: mobileMenuSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.viltrum-input {
+  @apply w-full px-4 py-3 rounded-xl border border-border-light bg-background font-sans text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary/8 focus:border-primary/20 transition-all;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center font-sans border border-border-light bg-surface text-foreground px-6 py-2.5 text-[10px] font-semibold uppercase tracking-[0.2em] rounded-xl transition-all hover:border-secondary hover:bg-background active:scale-95;
+}
+
+@keyframes bannerShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes textShimmer {
+  to { background-position: 200% center; }
+}
+
+.eid-glow-text {
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  background: linear-gradient(90deg, #1a1a1a, #71717a, #1a1a1a);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: textShimmer 4s linear infinite;
+}
+
+.eid-banner {
+  background: linear-gradient(90deg, #ffffff, #f7f7f8, #ebebed, #f7f7f8, #ffffff);
+  background-size: 200% auto;
+  animation: bannerShimmer 10s linear infinite;
+  color: #1a1a1a;
+}
+
+.marquee-container {
+  overflow: hidden;
+  width: 100%;
+}
+
+.marquee-content {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.admin-table {
+  @apply w-full text-left border-collapse;
+}
+.admin-table th {
+  @apply px-6 py-4 text-[10px] font-semibold uppercase tracking-wider text-muted border-b border-border-light bg-surface select-none font-sans;
+}
+.admin-table td {
+  @apply px-6 py-4 text-xs border-b border-border-light align-middle text-foreground font-sans;
+}
+.admin-table tr {
+  @apply transition-colors hover:bg-surface/50;
+}
+
+/* ─── Apple-quality Mobile Enhancements ─── */
+
+/* Smooth momentum scrolling on iOS */
+html {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Remove tap highlight (we add custom focus styles) */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Better font rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Minimum touch target size per Apple HIG */
+button, a:not(.block), [role="button"] {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Override for inline text links that shouldn't have min-height */
+p a, .text-link {
+  min-height: unset;
+  display: inline;
+}
+
+/* Safe area padding for notch/home bar */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Prevent text size adjust on orientation change */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Better focus rings that look premium */
+:focus-visible {
+  outline: 2px solid #1a1a1a;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Product card hover — disable on touch, only enable on pointer devices */
+@media (hover: none) {
+  .group:hover .group-hover\:scale-105 {
+    transform: none;
+  }
+  .hover\:shadow-md:hover {
+    box-shadow: none;
+  }
+}
