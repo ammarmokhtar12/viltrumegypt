@@ -6,7 +6,7 @@
 -- 1. UPDATE ORDERS TABLE CONSTRAINT FOR 'cancelled' STATUS
 -- We drop the existing check constraint on status and re-add it to include 'cancelled'.
 ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check;
-ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status IN ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled'));
+ALTER TABLE orders ADD CONSTRAINT orders_status_check CHECK (status IN ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'returned'));
 
 -- 2. CREATE EXPENSES TABLE
 CREATE TABLE IF NOT EXISTS expenses (
