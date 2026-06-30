@@ -1,0 +1,50 @@
+export interface Product {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  image_url: string | null;
+  sizes: string[];
+  is_active: boolean;
+  gallery_urls: string[];
+  video_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CartItem {
+  product_id: string;
+  title: string;
+  price: number;
+  size: string;
+  quantity: number;
+  image_url: string | null;
+  bundle_id?: string;
+  bundle_label?: string;
+}
+
+export interface OrderItem {
+  product_id: string;
+  title: string;
+  size: string;
+  quantity: number;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  order_number: number;
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  payment_method: "vodafone_cash" | "instapay";
+  payment_screenshot_url: string | null;
+  items: OrderItem[];
+  total: number;
+  status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+  created_at: string;
+  updated_at: string;
+  admin_comment?: string | null;
+  replacement_requested?: boolean;
+  replacement_note?: string | null;
+}
