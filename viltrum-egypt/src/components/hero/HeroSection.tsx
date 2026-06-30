@@ -27,7 +27,7 @@ export default function HeroSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden font-sans"
+      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden font-sans bg-black"
       style={{ minHeight: "100svh" }}
     >
       {/* Background — uses CSS background so we can fine-tune position on every breakpoint */}
@@ -37,21 +37,21 @@ export default function HeroSection() {
           backgroundImage: "url('/hero-bg.png')",
           backgroundSize: "cover",
           /* On mobile: shift right to centre on the key visual area of the image */
-          backgroundPosition: "60% center",
+          backgroundPosition: "center center",
         }}
       >
-        {/* Responsive gradient overlay — lighter on desktop, stronger on mobile for legibility */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/20 to-white sm:from-white/55 sm:via-transparent sm:to-white" />
+      {/* Premium dark gradient overlay — lighter so gym image shows through clearly */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-white" />
       </div>
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-8 flex flex-col items-center text-center pt-32 pb-20 sm:pt-40 sm:pb-24">
         {/* Badge */}
         <div
           ref={badgeRef}
-          className="flex items-center gap-2 mb-6 bg-white/85 backdrop-blur-md text-primary px-4 py-2 sm:px-5 rounded-full border border-border-light shadow-sm opacity-0 select-none"
+          className="flex items-center gap-2 mb-6 bg-white/10 backdrop-blur-md text-white px-4 py-2 sm:px-5 rounded-full border border-white/10 shadow-sm opacity-0 select-none"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse flex-shrink-0" />
-          <span className="type-eyebrow !text-foreground text-[9px] sm:text-[10px]">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+          <span className="type-eyebrow !text-zinc-200 text-[9px] sm:text-[10px] tracking-[0.25em]">
             Anticipate the Grand Eid Collection Soon
           </span>
         </div>
@@ -60,24 +60,24 @@ export default function HeroSection() {
         <div className="mb-10 sm:mb-12">
           <h1
             ref={title1Ref}
-            className="type-brand leading-[0.85] opacity-0 text-primary"
+            className="type-brand leading-[0.85] opacity-0 text-white font-extrabold tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
             style={{ fontSize: "clamp(4rem, 18vw, 12rem)" }}
           >
             VILTRUM
           </h1>
           <div ref={title2Ref} className="flex items-center justify-center gap-3 sm:gap-4 opacity-0 -mt-1 sm:-mt-2">
-            <div className="h-px flex-1 max-w-[60px] sm:max-w-[100px] bg-black/10" />
-            <h2 className="text-xl sm:text-3xl md:text-5xl font-serif tracking-[0.2em] text-accent italic font-normal">
+            <div className="h-px flex-1 max-w-[60px] sm:max-w-[100px] bg-white/20" />
+            <h2 className="text-xl sm:text-3xl md:text-5xl font-serif tracking-[0.2em] text-zinc-300 italic font-normal drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
               Egypt
             </h2>
-            <div className="h-px flex-1 max-w-[60px] sm:max-w-[100px] bg-black/10" />
+            <div className="h-px flex-1 max-w-[60px] sm:max-w-[100px] bg-white/20" />
           </div>
         </div>
 
         {/* Description */}
         <p
           ref={descRef}
-          className="text-sm sm:text-base md:text-lg text-secondary font-serif italic max-w-xs sm:max-w-xl leading-relaxed mb-8 sm:mb-10 opacity-0 font-normal"
+          className="text-sm sm:text-base md:text-lg text-zinc-300 font-serif italic max-w-xs sm:max-w-xl leading-relaxed mb-8 sm:mb-10 opacity-0 font-normal drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
         >
           Premium compression wear forged for warriors who demand excellence.
           Pure performance met with uncompromising aesthetics.
@@ -87,13 +87,13 @@ export default function HeroSection() {
         <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto opacity-0 px-2 sm:px-0">
           <Link
             href="/products"
-            className="btn-primary w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] shadow-xl shadow-black/10 active:scale-[0.97]"
+            className="btn-primary w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] bg-white text-black hover:bg-zinc-200 border-none shadow-xl shadow-black/25 active:scale-[0.97]"
           >
             Explore Collection
           </Link>
           <Link
             href="/products"
-            className="btn-secondary w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] active:scale-[0.97]"
+            className="btn-secondary w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm active:scale-[0.97]"
           >
             Our Philosophy
           </Link>

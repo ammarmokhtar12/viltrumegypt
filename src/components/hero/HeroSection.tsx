@@ -40,8 +40,8 @@ export default function HeroSection() {
           backgroundPosition: "center center",
         }}
       >
-        {/* Premium dark gradient overlay for gym background contrast, fading to white at the bottom to transition smoothly */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-white" />
+      {/* Premium dark gradient overlay — lighter so gym image shows through clearly */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-white" />
       </div>
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-8 flex flex-col items-center text-center pt-32 pb-20 sm:pt-40 sm:pb-24">
