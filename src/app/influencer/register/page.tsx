@@ -61,7 +61,7 @@ export default function InfluencerRegisterPage() {
           phone: phone.trim(),
           coupon_code: code,
           password: password.trim(),
-          commission_percent: 5.00,
+          commission_percent: 7.00,
           status: "pending",
           user_id: userId,
         });
@@ -194,7 +194,7 @@ export default function InfluencerRegisterPage() {
                 className="viltrum-input uppercase font-semibold"
               />
               <p className="text-[9px] text-muted mt-1 leading-relaxed">
-                This is the code your followers will use to get 5% off, and that attributes commissions to you.
+                This is the code your followers will use to get 7% off, and that attributes commissions to you.
               </p>
             </div>
 

@@ -268,12 +268,12 @@ export default function CheckoutPage() {
   // Shipping: 65 EGP with coupon, 80 EGP without
   const shippingFee = appliedCoupon ? 65 : 80;
 
-  // 5% coupon discount on full-price items (no bundle_id)
+  // 7% coupon discount on full-price items (no bundle_id)
   const fullPriceSubtotal = cartItems
     .filter((item) => !item.bundle_id)
     .reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const discountAmount = appliedCoupon ? Math.round(fullPriceSubtotal * 0.05) : 0;
+  const discountAmount = appliedCoupon ? Math.round(fullPriceSubtotal * 0.07) : 0;
   const finalTotal = cartTotal - discountAmount;
 
   if (cartItems.length === 0) {
@@ -669,7 +669,7 @@ export default function CheckoutPage() {
                      )}
                      {appliedCoupon && (
                         <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied! (5% discount on full-price items)
+                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied! (7% discount on full-price items)
                         </p>
                      )}
                   </div>

@@ -53,7 +53,7 @@ export default function AdminAffiliatesPage() {
     email: "",
     phone: "",
     coupon_code: "",
-    commission_percent: 5,
+    commission_percent: 7,
     status: "active",
     password: "",
   });
@@ -319,7 +319,7 @@ export default function AdminAffiliatesPage() {
       email: "",
       phone: "",
       coupon_code: "",
-      commission_percent: 5,
+      commission_percent: 7,
       status: "active",
       password: "",
     });
