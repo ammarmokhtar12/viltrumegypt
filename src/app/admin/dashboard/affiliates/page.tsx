@@ -55,6 +55,7 @@ export default function AdminAffiliatesPage() {
     coupon_code: "",
     commission_percent: 5,
     status: "active",
+    password: "",
   });
 
   useEffect(() => {
@@ -104,6 +105,7 @@ export default function AdminAffiliatesPage() {
           coupon_code: code,
           commission_percent: Number(formData.commission_percent),
           status: formData.status,
+          password: formData.password.trim(),
         })
         .select()
         .single();
@@ -135,6 +137,7 @@ export default function AdminAffiliatesPage() {
           coupon_code: code,
           commission_percent: Number(formData.commission_percent),
           status: formData.status,
+          password: formData.password.trim(),
         })
         .eq("id", selectedInfluencer.id)
         .select()
@@ -165,6 +168,27 @@ export default function AdminAffiliatesPage() {
     } catch (err: any) {
       console.error(err);
       toast.error(`Delete failed: ${err.message}`);
+    }
+  };
+
+  const handleApproveInfluencerDirect = async (influencer: any) => {
+    try {
+      const { data, error } = await supabase
+        .from("influencers")
+        .update({ status: "active" })
+        .eq("id", influencer.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setInfluencers((prev) =>
+        prev.map((item) => (item.id === influencer.id ? data : item))
+      );
+      toast.success(`Approved and activated coupon code ${influencer.coupon_code}!`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`Approval failed: ${err.message}`);
     }
   };
 
@@ -284,6 +308,7 @@ export default function AdminAffiliatesPage() {
       coupon_code: influencer.coupon_code,
       commission_percent: Number(influencer.commission_percent),
       status: influencer.status,
+      password: influencer.password || "",
     });
     setIsEditModalOpen(true);
   };
@@ -296,6 +321,7 @@ export default function AdminAffiliatesPage() {
       coupon_code: "",
       commission_percent: 5,
       status: "active",
+      password: "",
     });
     setSelectedInfluencer(null);
   };
@@ -640,6 +666,14 @@ export default function AdminAffiliatesPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right space-x-2">
+                          {inf.status === "pending" && (
+                            <button
+                              onClick={() => handleApproveInfluencerDirect(inf)}
+                              className="px-2.5 py-1.5 bg-green-600 hover:bg-green-700 text-white font-bold text-[10px] uppercase tracking-wider rounded-lg transition-all cursor-pointer shadow-sm"
+                            >
+                              Confirm
+                            </button>
+                          )}
                           <button
                             onClick={() => openEditModal(inf)}
                             className="inline-flex items-center justify-center p-1.5 text-gray-400 hover:text-black hover:bg-gray-100 rounded-lg cursor-pointer"
@@ -904,6 +938,16 @@ export default function AdminAffiliatesPage() {
                   <option value="disabled">Disabled</option>
                 </select>
               </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Password (كلمة المرور للداشبورد)</label>
+                <input
+                  type="password"
+                  placeholder="اتركه فارغ لو مفيش"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="viltrum-input"
+                />
+              </div>
 
               <div className="flex gap-2 pt-2">
                 <button
@@ -1006,6 +1050,16 @@ export default function AdminAffiliatesPage() {
                   <option value="pending">Pending</option>
                   <option value="disabled">Disabled</option>
                 </select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1.5">Password (كلمة المرور للداشبورد)</label>
+                <input
+                  type="password"
+                  placeholder="اتركه فارغ لو مفيش"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="viltrum-input"
+                />
               </div>
 
               <div className="flex gap-2 pt-2">

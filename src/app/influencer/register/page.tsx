@@ -10,6 +10,7 @@ export default function InfluencerRegisterPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [couponCode, setCouponCode] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +60,7 @@ export default function InfluencerRegisterPage() {
           email: email.trim().toLowerCase(),
           phone: phone.trim(),
           coupon_code: code,
+          password: password.trim(),
           commission_percent: 5.00,
           status: "pending",
           user_id: userId,
@@ -194,6 +196,18 @@ export default function InfluencerRegisterPage() {
               <p className="text-[9px] text-muted mt-1 leading-relaxed">
                 This is the code your followers will use to get 5% off, and that attributes commissions to you.
               </p>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block mb-1.5">Password (كلمة المرور لحماية حسابك)</label>
+              <input
+                type="password"
+                required
+                placeholder="******"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="viltrum-input"
+              />
             </div>
 
             <button

@@ -4,11 +4,12 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Award, ArrowRight, KeyRound, AlertTriangle } from "lucide-react";
+import { Award, ArrowRight, KeyRound, AlertTriangle, Lock } from "lucide-react";
 
 export default function InfluencerPage() {
   const router = useRouter();
   const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +23,7 @@ export default function InfluencerPage() {
     try {
       const { data, error: dbError } = await supabase
         .from("influencers")
-        .select("id, status, coupon_code")
+        .select("id, status, coupon_code, password")
         .eq("coupon_code", cleanCode)
         .maybeSingle();
 
@@ -30,6 +31,12 @@ export default function InfluencerPage() {
 
       if (!data) {
         setError("الكود غلط أو غير موجود.");
+        return;
+      }
+
+      // Check password (only if password exists in db, otherwise pass if empty)
+      if (data.password && data.password.trim() !== password.trim()) {
+        setError("كلمة المرور غير صحيحة.");
         return;
       }
 
@@ -95,6 +102,26 @@ export default function InfluencerPage() {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   className="viltrum-input pl-10 uppercase font-bold tracking-widest"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block mb-1.5">
+                كلمة المرور
+              </label>
+              <div className="relative">
+                <Lock
+                  size={15}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none"
+                />
+                <input
+                  type="password"
+                  required
+                  placeholder="******"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="viltrum-input pl-10 font-bold"
                 />
               </div>
             </div>
