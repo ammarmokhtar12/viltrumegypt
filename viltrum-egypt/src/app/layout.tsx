@@ -39,6 +39,7 @@ export const metadata: Metadata = {
 import AuthProvider from "@/components/providers/AuthProvider";
 import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
+import ReferralTracker from "@/components/providers/ReferralTracker";
 
 export default function RootLayout({
   children,
@@ -71,6 +72,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <ReferralTracker />
             <Toaster position="top-center" expand={true} richColors closeButton />
             <Analytics />
           </ThemeProvider>

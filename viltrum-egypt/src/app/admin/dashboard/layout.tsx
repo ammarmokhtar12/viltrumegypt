@@ -14,6 +14,7 @@ import {
   Home,
   DollarSign,
   Database,
+  Percent,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -96,6 +97,12 @@ export default function AdminLayout({
       label: "Expenses",
       icon: DollarSign,
       active: pathname.startsWith("/admin/dashboard/expenses"),
+    },
+    {
+      href: "/admin/dashboard/affiliates",
+      label: "Affiliates",
+      icon: Percent,
+      active: pathname.startsWith("/admin/dashboard/affiliates"),
     },
     {
       href: "/admin/dashboard/users",

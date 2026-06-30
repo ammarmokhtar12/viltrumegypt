@@ -29,7 +29,97 @@ export default function CheckoutPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | number | null>(null);
 
-  useEffect(() => setMounted(true), []);
+  // Affiliate / Coupon system state
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    id: string;
+    coupon_code: string;
+    commission_percent: number;
+  } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // Read from cookie or localStorage
+    if (typeof window !== "undefined") {
+      const refCode = localStorage.getItem("viltrum_ref") || (() => {
+        const match = document.cookie.match(/(?:^|; )viltrum_ref=([^;]*)/);
+        return match ? decodeURIComponent(match[1]) : null;
+      })();
+      
+      if (refCode) {
+        autoApplyCoupon(refCode);
+      }
+    }
+  }, []);
+
+  const autoApplyCoupon = async (code: string) => {
+    setValidatingCoupon(true);
+    try {
+      const cleanCode = code.trim().toUpperCase();
+      const { data, error } = await supabase
+        .from("influencers")
+        .select("*")
+        .eq("coupon_code", cleanCode)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (!error && data) {
+        setAppliedCoupon(data);
+        setCouponCode(cleanCode);
+      }
+    } catch (err) {
+      console.error("Failed to auto-apply referral coupon:", err);
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  const handleApplyCoupon = async (code: string) => {
+    if (!code.trim()) return;
+    setValidatingCoupon(true);
+    setCouponError(null);
+    try {
+      const cleanCode = code.trim().toUpperCase();
+      
+      const { data: influencer, error } = await supabase
+        .from("influencers")
+        .select("*")
+        .eq("coupon_code", cleanCode)
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (error) {
+        setCouponError("Failed to validate coupon. Please try again.");
+        return;
+      }
+
+      if (!influencer) {
+        setCouponError("Invalid or inactive coupon code.");
+        return;
+      }
+
+      // Check self-referral using phone number
+      if (formData && formData.phone) {
+        const cleanCustomerPhone = formData.phone.replace(/\D/g, "");
+        const cleanInfluencerPhone = influencer.phone.replace(/\D/g, "");
+        
+        if (cleanCustomerPhone && cleanInfluencerPhone && cleanCustomerPhone === cleanInfluencerPhone) {
+          setCouponError("You cannot use your own influencer coupon code.");
+          return;
+        }
+      }
+
+      setAppliedCoupon(influencer);
+      toast.success(`Coupon "${cleanCode}" applied!`);
+    } catch (err) {
+      setCouponError("Error checking coupon code.");
+      console.error(err);
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
 
   if (!mounted) return null;
 
@@ -175,6 +265,14 @@ export default function CheckoutPage() {
   const cartTotal = totalPrice();
   const cartItems = items;
 
+  // 5% coupon discount on full-price items (no bundle_id)
+  const fullPriceSubtotal = cartItems
+    .filter((item) => !item.bundle_id)
+    .reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const discountAmount = appliedCoupon ? Math.round(fullPriceSubtotal * 0.05) : 0;
+  const finalTotal = cartTotal - discountAmount;
+
   if (cartItems.length === 0) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-surface">
@@ -206,7 +304,7 @@ export default function CheckoutPage() {
         quantity: item.quantity,
         price: item.price,
       })),
-      value: cartTotal,
+      value: finalTotal,
       currency: "EGP",
     });
   };
@@ -235,6 +333,10 @@ export default function CheckoutPage() {
         bundle_label: item.bundle_label,
       }));
 
+      const netTotal = cartTotal - discountAmount;
+      const commissionPct = appliedCoupon ? appliedCoupon.commission_percent : 0;
+      const commissionAmt = appliedCoupon ? Math.round(netTotal * (commissionPct / 100) * 100) / 100 : 0;
+
       const { data, error } = await supabase
         .from("orders")
         .insert({
@@ -244,13 +346,43 @@ export default function CheckoutPage() {
           payment_method: formData.paymentMethod,
           payment_screenshot_url: screenshotUrl,
           items: orderItems,
-          total: cartTotal + 80,
+          total: finalTotal + 80,
           status: "pending",
+          coupon_code: appliedCoupon ? appliedCoupon.coupon_code : null,
+          influencer_id: appliedCoupon ? appliedCoupon.id : null,
+          discount_amount: discountAmount,
+          commission_amount: commissionAmt,
         })
-        .select("order_number")
+        .select("id, order_number")
         .single();
 
       if (error) throw error;
+
+      // Create commission record if influencer coupon is used
+      if (appliedCoupon) {
+        const { error: commError } = await supabase
+          .from("commissions")
+          .insert({
+            influencer_id: appliedCoupon.id,
+            order_id: data.id,
+            order_number: data.order_number,
+            coupon_code: appliedCoupon.coupon_code,
+            order_total_before_discount: cartTotal,
+            discount_amount: discountAmount,
+            net_amount: netTotal,
+            commission_percent: commissionPct,
+            commission_amount: commissionAmt,
+            status: "pending"
+          });
+
+        if (commError) {
+          console.error("Failed to create commission record:", commError);
+        }
+
+        // Clear referral after successful order
+        document.cookie = "viltrum_ref=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        localStorage.removeItem("viltrum_ref");
+      }
 
       // Decrement stock for each item in the order
       try {
@@ -268,7 +400,7 @@ export default function CheckoutPage() {
       const whatsappUrl = generateOrderWhatsAppUrl(
         data.order_number,
         orderItems,
-        cartTotal + 80,
+        finalTotal + 80,
         formData.name,
         formData.paymentMethod
       );
@@ -282,7 +414,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price: item.price,
         })),
-        value: cartTotal + 80,
+        value: finalTotal + 80,
         currency: "EGP",
       };
       const userData = {
@@ -310,7 +442,7 @@ export default function CheckoutPage() {
           customerAddress: formData.address,
           paymentMethod: formData.paymentMethod,
           items: orderItems,
-          total: cartTotal + 80,
+          total: finalTotal + 80,
         });
       } catch (emailErr) {
         console.error("Failed to send notification email:", emailErr);
@@ -489,11 +621,66 @@ export default function CheckoutPage() {
                      })()}
                   </div>
 
+                  {/* Coupon Code Input */}
+                  <div className="mt-8 pt-6 border-t border-border-light space-y-2">
+                     <label className="text-[11px] font-bold uppercase tracking-wider text-muted block">Discount Coupon</label>
+                     <div className="flex gap-2">
+                        <input
+                           type="text"
+                           placeholder="ENTER COUPON CODE"
+                           value={couponCode}
+                           onChange={(e) => {
+                              setCouponCode(e.target.value);
+                              setCouponError(null);
+                           }}
+                           disabled={!!appliedCoupon || validatingCoupon}
+                           className="viltrum-input flex-1 uppercase h-11 text-xs"
+                        />
+                        {appliedCoupon ? (
+                           <button
+                              onClick={() => {
+                                 setAppliedCoupon(null);
+                                 setCouponCode("");
+                                 // clear coupon cookies
+                                 document.cookie = "viltrum_ref=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                                 localStorage.removeItem("viltrum_ref");
+                                 toast.info("Coupon removed.");
+                              }}
+                              className="px-4 h-11 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                           >
+                              Remove
+                           </button>
+                        ) : (
+                           <button
+                              onClick={() => handleApplyCoupon(couponCode)}
+                              disabled={validatingCoupon || !couponCode.trim()}
+                              className="btn-primary px-6 h-11 text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                           >
+                              {validatingCoupon ? "Checking..." : "Apply"}
+                           </button>
+                        )}
+                     </div>
+                     {couponError && (
+                        <p className="text-xs text-red-500 font-medium">{couponError}</p>
+                     )}
+                     {appliedCoupon && (
+                        <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied! (5% discount on full-price items)
+                        </p>
+                     )}
+                  </div>
+
                   <div className="mt-8 space-y-4 pt-6 border-t border-border-light">
                      <div className="flex justify-between text-sm text-secondary">
                         <span>Subtotal</span>
                         <span className="font-medium text-primary">{formatPrice(cartTotal)}</span>
                      </div>
+                     {appliedCoupon && discountAmount > 0 && (
+                        <div className="flex justify-between text-sm text-emerald-600 font-semibold">
+                           <span>Coupon Discount</span>
+                           <span>-{formatPrice(discountAmount)}</span>
+                        </div>
+                     )}
                      <div className="flex justify-between text-sm text-secondary">
                         <span>Shipping</span>
                         <span className="font-semibold text-primary">{formatPrice(80)}</span>
@@ -504,7 +691,7 @@ export default function CheckoutPage() {
                      <span className="font-semibold text-primary">Total</span>
                      <div className="flex items-baseline gap-2">
                         <span className="text-xs text-muted font-medium tracking-wide">EGP</span>
-                        <span className="text-3xl font-bold text-primary tracking-tight">{formatPrice(cartTotal + 80)}</span>
+                        <span className="text-3xl font-bold text-primary tracking-tight">{formatPrice(finalTotal + 80)}</span>
                      </div>
                   </div>
                </div>

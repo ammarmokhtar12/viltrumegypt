@@ -9,6 +9,7 @@ import BrandLogo from "@/components/layout/BrandLogo";
 export default function Footer() {
   const router = useRouter();
   const [clickCount, setClickCount] = useState(0);
+  const [bloggerClickCount, setBloggerClickCount] = useState(0);
 
   const handlePrivacyClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -19,6 +20,18 @@ export default function Footer() {
     } else {
       setClickCount(newCount);
       setTimeout(() => setClickCount(0), 1000);
+    }
+  };
+
+  const handleBloggerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const newCount = bloggerClickCount + 1;
+    if (newCount >= 3) {
+      router.push("/influencer");
+      setBloggerClickCount(0);
+    } else {
+      setBloggerClickCount(newCount);
+      setTimeout(() => setBloggerClickCount(0), 1000);
     }
   };
 
@@ -75,6 +88,7 @@ export default function Footer() {
         <hr className="border-zinc-800 mb-8" />
 
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          {/* Footer Bottom Row */}
           <p className="text-[11px] text-viltrum-mist/30 tracking-[0.18em] uppercase">
             © {new Date().getFullYear()} VILTRUM EGYPT. Engineered by Ammar Mokhtar.
           </p>
@@ -88,6 +102,12 @@ export default function Footer() {
             <Link href="#" className="text-xs text-zinc-500 hover:text-white transition-colors">
               Terms of Service
             </Link>
+            <button
+              onClick={handleBloggerClick}
+              className="text-xs text-zinc-500 hover:text-white transition-colors cursor-pointer"
+            >
+              Bloggers Dashboard
+            </button>
             <Link
               href="/admin"
               className="w-1 h-1 bg-zinc-600 rounded-full opacity-0 hover:opacity-100 transition-opacity"
