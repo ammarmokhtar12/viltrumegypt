@@ -163,7 +163,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
   // Check if everything is selected
   const isBundleComplete = slots.every((s) => s.product && s.size);
 
-  const bundlePrice = tier === 2 ? 799 : 1150;
+  const bundlePrice = tier === 2 ? 850 : 1200;
   const originalPriceSum = slots.reduce((sum, s) => sum + (s.product?.price || 499), 0);
   const discountAmount = Math.max(0, originalPriceSum - bundlePrice);
 
@@ -308,8 +308,8 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
               <p className="text-xs text-secondary leading-relaxed">Choose any 2 premium T-shirts with mixed sizes.</p>
               
               <div className="pt-4 flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl font-bold text-primary">{formatPrice(799)}</span>
-                <span className="text-xs text-muted line-through">EGP 1,000</span>
+                <span className="text-2xl font-bold text-primary">{formatPrice(850)}</span>
+                <span className="text-xs text-muted line-through">EGP 1,050</span>
                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save EGP 200</span>
               </div>
             </div>
@@ -336,9 +336,9 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
               <p className="text-xs text-secondary leading-relaxed">Choose any 3 premium T-shirts with custom sizes.</p>
 
               <div className="pt-4 flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl font-bold text-primary">{formatPrice(1150)}</span>
+                <span className="text-2xl font-bold text-primary">{formatPrice(1200)}</span>
                 <span className="text-xs text-muted line-through">EGP 1,500</span>
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save EGP 350</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save EGP 300</span>
               </div>
             </div>
           </button>
