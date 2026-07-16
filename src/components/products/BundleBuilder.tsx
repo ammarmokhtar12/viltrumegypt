@@ -1,5 +1,8 @@
 "use client";
 
+// --- VILTRUM BUNDLE BUILDER V2 (RESTRUCTURED) ---
+// This component handles the core logic for the 850 EGP and 1200 EGP bundles.
+
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Check, Plus, ShoppingBag, AlertCircle, RefreshCw, X } from "lucide-react";
@@ -40,7 +43,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
 
   // Fetch products and inventory
   useEffect(() => {
-    async function fetchData() {
+    async function fetchBundleData() {
       setLoading(true);
       try {
         const { data: prodData, error: prodError } = await supabase
@@ -51,10 +54,11 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
 
         if (prodError) throw prodError;
 
-        const filtered = (prodData || []).filter(
+        // Hide "LIMITED OFFER" from the selection choices
+        const filteredProducts = (prodData || []).filter(
           (p: Product) => p.title.toUpperCase() !== "LIMITED OFFER"
         );
-        setProducts(filtered);
+        setProducts(filteredProducts);
 
         const { data: invData, error: invError } = await supabase
           .from("inventory")
@@ -68,14 +72,14 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
         });
         setInventory(stockMap);
       } catch (err) {
-        console.error("Error fetching bundle builder data:", err);
+        console.error("Error fetching bundle products:", err);
         toast.error("Failed to load products for bundle builder.");
       } finally {
         setLoading(false);
       }
     }
 
-    fetchData();
+    fetchBundleData();
   }, []);
 
   // Update slots when tier changes
@@ -94,43 +98,42 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
     }
   };
 
-  // Helper to calculate available stock in a slot (subtracting other slots' selections)
-  const getAvailableStock = (productId: string, size: string, slotIdx: number) => {
+  // Calculate remaining stock across all chosen slots
+  const getAvailableStock = (productId: string, size: string, currentSlotIdx: number) => {
     const key = `${productId}_${size}`;
     const totalStock = inventory[key] || 0;
 
-    let selectedElsewhere = 0;
-    slots.forEach((s, i) => {
-      if (i !== slotIdx && s.product?.id === productId && s.size === size) {
-        selectedElsewhere++;
+    let usedStock = 0;
+    slots.forEach((slot, idx) => {
+      if (idx !== currentSlotIdx && slot.product?.id === productId && slot.size === size) {
+        usedStock++;
       }
     });
 
-    return Math.max(0, totalStock - selectedElsewhere);
+    return Math.max(0, totalStock - usedStock);
   };
 
-  // Helper: detect if a product is a long sleeve
+  // Helper: detect long sleeve
   const isLongSleeve = (product: Product) =>
     product.title.toLowerCase().includes("long");
 
-  // Assign product to the slot index
+  // Select Product for a specific slot
   const handleSelectProduct = (slotIdx: number, product: Product) => {
-    // Guard: blocked cards should never fire (UI already prevents it)
+    // Enforcement: Only 1 Long Sleeve allowed
     if (isLongSleeve(product)) {
-      const otherSlotsHaveLongSleeve = slots.some(
+      const hasLongSleeve = slots.some(
         (s, i) => i !== slotIdx && s.product && isLongSleeve(s.product)
       );
-      if (otherSlotsHaveLongSleeve) return;
+      if (hasLongSleeve) return; // Prevent selection
     }
 
     setSlots((prev) => {
       const next = [...prev];
-      next[slotIdx] = { product, size: "" }; // Clear size when changing product
+      next[slotIdx] = { product, size: "" };
       return next;
     });
-    setActiveSelectIndex(null); // Close modal
+    setActiveSelectIndex(null); // Close the modal
 
-    // Track ViewContent for the chosen product
     trackTikTokEvent("ViewContent", {
       content_type: "product",
       content_id: product.id,
@@ -140,7 +143,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
     });
   };
 
-  // Set size for a slot
+  // Set Size for a slot
   const handleSelectSize = (slotIdx: number, size: string) => {
     setSlots((prev) => {
       const next = [...prev];
@@ -158,41 +161,24 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
     });
   };
 
-  // Check if everything is selected
   const isBundleComplete = slots.every((s) => s.product && s.size);
 
+  // Core Pricing Logic
   const bundlePrice = tier === 2 ? 850 : 1200;
-  const originalPriceSum = slots.reduce((sum, s) => sum + (s.product?.price || 499), 0);
+  const originalPriceSum = slots.reduce((sum, s) => sum + (s.product?.price || 500), 0);
   const discountAmount = Math.max(0, originalPriceSum - bundlePrice);
 
   const handleAddToCart = () => {
     if (!isBundleComplete) {
-      // Find missing slots and provide explicit feedback
-      const missingDetails: string[] = [];
-      slots.forEach((s, idx) => {
-        if (!s.product) {
-          missingDetails.push(`اختيار تيشرت في الخانة رقم ${idx + 1}`);
-        } else if (!s.size) {
-          missingDetails.push(`تحديد المقاس للتيشرت في الخانة رقم ${idx + 1}`);
-        }
-      });
-
-      toast.error("برجاء إكمال الباقة أولاً:", {
-        description: missingDetails.join(" و "),
-        duration: 5000
-      });
+      toast.error("Please complete your bundle by selecting all products and sizes.");
       return;
     }
 
     setIsAdding(true);
 
-    // Final validation: only 1 long sleeve allowed
     const longSleeveCount = slots.filter(s => s.product && isLongSleeve(s.product)).length;
     if (longSleeveCount > 1) {
-      toast.error("قاعدة العرض: تيشرت Long Sleeve واحد بس في الباقة", {
-        description: "برجاء إزالة أحد منتجات الـ Long Sleeve والاستعاضة عنه بـ Short Sleeve.",
-        duration: 5000,
-      });
+      toast.error("You can only include 1 Long Sleeve per bundle.");
       setIsAdding(false);
       return;
     }
@@ -206,15 +192,15 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
       image_url: s.product!.image_url,
     }));
 
-    const label = `${tier}-Shirt Bundle Offer`;
+    const label = `Viltrum ${tier}-Shirt Bundle`;
     addBundle(bundleItems, bundlePrice, label);
 
-    toast.success("تم إضافة الباقة بنجاح إلى العربة!");
+    toast.success("Bundle added to cart!");
     
     trackTikTokEvent("AddToCart", {
       content_type: "product",
       content_id: limitedOfferProduct.id,
-      content_name: `${tier}-Shirt Bundle (Limited Offer)`,
+      content_name: label,
       value: bundlePrice,
       currency: "EGP",
       contents: bundleItems.map((item) => ({
@@ -235,7 +221,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
       <div className="flex h-96 items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <RefreshCw className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-xs font-bold uppercase tracking-widest text-muted">Configuring Arsenal...</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-muted">Loading Archive...</p>
         </div>
       </div>
     );
@@ -243,23 +229,17 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
 
   return (
     <div className="space-y-12">
-      {/* Bundle Builder Header */}
+      {/* Banner */}
       <div className="bg-primary text-white border border-primary/20 p-6 rounded-2xl relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-        <div className="space-y-1.5 z-10 text-center">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/80 flex items-center gap-2 justify-center">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
-            </span>
-            Limited Offer Bundle Builder
-          </p>
+        <div className="space-y-1.5 z-10 text-center relative">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/80">Viltrum Bundle Builder</p>
           <p className="text-lg font-serif text-white tracking-wide">Build your custom compression armor set</p>
           <p className="text-[11px] text-white/60">Choose any T-shirts from our active inventory.</p>
         </div>
       </div>
 
-      {/* Step 1: Choose Your Pack Tier */}
+      {/* Tier Selection */}
       <div className="space-y-6">
         <div className="flex items-baseline gap-2">
           <span className="text-[10px] font-bold text-primary bg-primary/5 px-2.5 py-1 rounded-md uppercase tracking-wider">Step 1</span>
@@ -281,16 +261,13 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
               </div>
             )}
             <div className="space-y-2">
-              <span className="inline-block text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Value Pack
-              </span>
+              <span className="inline-block text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider">Value Pack</span>
               <h3 className="text-xl font-serif font-bold text-foreground">Double Compression Pack</h3>
               <p className="text-xs text-secondary leading-relaxed">Choose any 2 premium T-shirts with mixed sizes.</p>
               
               <div className="pt-4 flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl font-bold text-primary">{formatPrice(850)}</span>
-                <span className="text-xs text-muted line-through">EGP 1,050</span>
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save EGP 200</span>
+                <span className="text-2xl font-bold text-primary">850 EGP</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save 200 EGP</span>
               </div>
             </div>
           </button>
@@ -309,23 +286,20 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
               </div>
             )}
             <div className="space-y-2">
-              <span className="inline-block text-[9px] font-bold text-primary bg-primary/5 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                Popular Pack
-              </span>
+              <span className="inline-block text-[9px] font-bold text-primary bg-primary/5 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Popular Pack</span>
               <h3 className="text-xl font-serif font-bold text-foreground">Triple Compression Pack</h3>
               <p className="text-xs text-secondary leading-relaxed">Choose any 3 premium T-shirts with custom sizes.</p>
 
               <div className="pt-4 flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl font-bold text-primary">{formatPrice(1200)}</span>
-                <span className="text-xs text-muted line-through">EGP 1,500</span>
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save EGP 300</span>
+                <span className="text-2xl font-bold text-primary">1,200 EGP</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save 300 EGP</span>
               </div>
             </div>
           </button>
         </div>
       </div>
 
-      {/* Step 2: Configure Slots */}
+      {/* Slots Selection */}
       <div className="space-y-6">
         <div className="flex justify-between items-baseline">
           <div className="flex items-baseline gap-2">
@@ -337,7 +311,6 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
           </span>
         </div>
 
-        {/* Selected Slots Dashboard */}
         <div className={`grid grid-cols-1 gap-6 ${tier === 3 ? "lg:grid-cols-3" : "md:grid-cols-2"}`}>
           {slots.map((slot, index) => {
             const hasProduct = !!slot.product;
@@ -352,7 +325,6 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                     : "border-border-light bg-surface hover:border-muted hover:bg-white cursor-pointer hover:shadow-md"
                 }`}
               >
-                {/* Slot Tag */}
                 <div className="flex justify-between items-center mb-4">
                   <span className={`text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md bg-primary text-white`}>
                     Slot {index + 1}
@@ -362,7 +334,6 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                     <button
                       onClick={(e) => handleClearSlot(index, e)}
                       className="text-muted hover:text-red-500 p-1.5 rounded-full hover:bg-black/5 transition-colors"
-                      title="Clear Selection"
                     >
                       <X size={14} />
                     </button>
@@ -371,39 +342,21 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
 
                 {slot.product ? (
                   <div className="flex gap-4 items-start flex-1">
-                    {/* Thumbnail */}
                     <div className="relative w-16 h-20 rounded-xl overflow-hidden bg-white border border-border-light flex-shrink-0">
-                      {slot.product.image_url ? (
-                        <Image
-                          src={slot.product.image_url}
-                          alt={slot.product.title}
-                          fill
-                          className="object-cover"
-                          sizes="64px"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-surface" />
+                      {slot.product.image_url && (
+                        <Image src={slot.product.image_url} alt={slot.product.title} fill className="object-cover" sizes="64px" />
                       )}
                     </div>
-
-                    {/* Meta */}
                     <div className="space-y-3 flex-1 min-w-0">
                       <div>
-                        <h4 className="text-sm font-semibold text-primary truncate leading-tight">
-                          {slot.product.title}
-                        </h4>
-                        <p className="text-[10px] text-muted font-medium mt-0.5">Original: {formatPrice(slot.product.price)}</p>
+                        <h4 className="text-sm font-semibold text-primary truncate leading-tight">{slot.product.title}</h4>
                       </div>
-
-                      {/* Sizes for this Slot */}
                       <div className="space-y-1.5">
                         <span className="text-[9px] font-bold uppercase tracking-widest text-muted block">Select Size:</span>
                         <div className="flex flex-wrap gap-1.5">
                           {slot.product.sizes?.map((sz) => {
-                            const isSelected = slot.size === sz;
                             const availableStock = getAvailableStock(slot.product!.id, sz, index);
                             const isOutOfStock = availableStock <= 0;
-
                             return (
                               <button
                                 key={sz}
@@ -413,11 +366,11 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                                   handleSelectSize(index, sz);
                                 }}
                                 className={`text-[10px] font-bold px-2.5 py-1.5 rounded-lg border transition-all ${
-                                  isSelected
-                                    ? "bg-primary text-white border-primary shadow-sm scale-105"
+                                  slot.size === sz
+                                    ? "bg-primary text-white border-primary shadow-sm"
                                     : isOutOfStock
                                     ? "bg-surface border-border-light text-muted/30 cursor-not-allowed line-through"
-                                    : "bg-white border-border-light text-secondary hover:border-secondary hover:text-primary"
+                                    : "bg-white border-border-light hover:border-secondary"
                                 }`}
                               >
                                 {sz}
@@ -432,11 +385,9 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                   <div className="flex-1 flex flex-col items-center justify-center text-center p-6 border border-dashed border-muted/30 rounded-xl bg-white/50">
                     <Plus size={20} className="text-muted/60 mb-2" />
                     <p className="text-xs font-semibold text-primary">Select T-Shirt</p>
-                    <p className="text-[10px] text-muted mt-1 leading-relaxed">Click to pick shirt for slot {index + 1}</p>
                   </div>
                 )}
 
-                {/* Status Indicator */}
                 <div className="mt-4 pt-3 border-t border-border-light flex justify-between items-center text-[10px] font-semibold tracking-wider uppercase">
                   <span className="text-muted">Status:</span>
                   {slot.product ? (
@@ -460,31 +411,21 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
       {/* Catalog Selector Modal */}
       {activeSelectIndex !== null && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-border-light animate-in zoom-in-95 duration-300">
-            {/* Modal Header */}
+          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-border-light">
             <div className="px-6 py-5 border-b border-border-light flex justify-between items-center bg-surface">
-              <div>
-                <h3 className="text-lg font-serif font-bold text-primary">Choose T-Shirt for Slot {activeSelectIndex + 1}</h3>
-                <p className="text-xs text-secondary mt-0.5">Pick any premium compression armor from the archive</p>
-              </div>
+              <h3 className="text-lg font-serif font-bold text-primary">Choose T-Shirt for Slot {activeSelectIndex + 1}</h3>
               <button
                 onClick={() => setActiveSelectIndex(null)}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-border-light text-muted hover:text-foreground active:scale-95 transition-all"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-border-light hover:text-foreground"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Modal Body (Scrollable Products list) */}
-            <div className="p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-4 custom-scrollbar">
+            <div className="p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-4">
               {products.map((p) => {
-                // Check if any size is available
                 const hasSizesAvailable = p.sizes?.some((sz) => getAvailableStock(p.id, sz, activeSelectIndex) > 0);
-
-                // Check if selecting this product would violate the 1-long-sleeve rule
-                const wouldViolateLongSleeveRule = isLongSleeve(p) &&
-                  slots.some((s, i) => i !== activeSelectIndex && s.product && isLongSleeve(s.product));
-
+                const wouldViolateLongSleeveRule = isLongSleeve(p) && slots.some((s, i) => i !== activeSelectIndex && s.product && isLongSleeve(s.product));
                 const isDisabled = !hasSizesAvailable || wouldViolateLongSleeveRule;
 
                 return (
@@ -496,49 +437,20 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                         ? "cursor-not-allowed border-border-light"
                         : !hasSizesAvailable
                         ? "opacity-40 grayscale cursor-not-allowed border-border-light"
-                        : "cursor-pointer border-border-light hover:border-muted hover:bg-white hover:shadow-md"
+                        : "cursor-pointer hover:border-muted hover:bg-white hover:shadow-md"
                     }`}
                   >
                     <div className="relative aspect-[4/5] bg-white rounded-xl overflow-hidden mb-3">
-                      {p.image_url ? (
-                        <Image
-                          src={p.image_url}
-                          alt={p.title}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 640px) 50vw, 20vw"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <span className="text-muted/30 font-display text-xl">V</span>
-                        </div>
-                      )}
-
-                      {!hasSizesAvailable && !wouldViolateLongSleeveRule && (
-                        <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center">
-                          <span className="text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 bg-black/60 rounded">
-                            Sold Out
-                          </span>
-                        </div>
-                      )}
-
+                      {p.image_url && <Image src={p.image_url} alt={p.title} fill className="object-cover" sizes="20vw" />}
+                      
                       {wouldViolateLongSleeveRule && (
-                        <div className="absolute inset-0 backdrop-blur-md bg-black/50 flex flex-col items-center justify-center gap-2 rounded-xl">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                          </svg>
-                          <span className="text-white text-[9px] font-extrabold uppercase tracking-widest text-center leading-snug px-3 flex flex-col items-center gap-0.5">
-                            <span>You Must Choose</span>
-                            <span>1 Long Sleeve</span>
-                          </span>
+                        <div className="absolute inset-0 backdrop-blur-md bg-black/50 flex flex-col items-center justify-center gap-2 rounded-xl text-center px-2">
+                          <span className="text-white text-[9px] font-extrabold uppercase tracking-widest leading-snug">Max 1 Long Sleeve</span>
                         </div>
                       )}
                     </div>
-
                     <div className="space-y-1">
-                      <h4 className="text-xs font-serif font-bold text-primary uppercase truncate">
-                        {p.title}
-                      </h4>
+                      <h4 className="text-xs font-serif font-bold text-primary uppercase truncate">{p.title}</h4>
                       <p className="text-[10px] font-bold text-secondary">{formatPrice(p.price)}</p>
                     </div>
                   </div>
@@ -549,24 +461,18 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
         </div>
       )}
 
-      {/* Cart Summary and Actions Sticky Panel */}
+      {/* Cart Summary */}
       <div className="border-t border-border-light bg-surface p-6 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-inner">
         <div className="space-y-2 text-center md:text-left">
           <p className="text-[10px] font-bold text-muted uppercase tracking-[0.2em]">Summary</p>
           <div className="flex items-center gap-3 justify-center md:justify-start flex-wrap">
             <span className="text-xl font-bold text-primary">{formatPrice(bundlePrice)}</span>
-            {isBundleComplete && originalPriceSum > 0 && (
-              <>
-                <span className="text-xs text-muted line-through font-medium">{formatPrice(originalPriceSum)}</span>
-                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md uppercase tracking-wider">
-                  Saved {formatPrice(discountAmount)}!
-                </span>
-              </>
+            {isBundleComplete && (
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md uppercase tracking-wider">
+                Saved {formatPrice(discountAmount)}
+              </span>
             )}
           </div>
-          <p className="text-xs text-secondary font-medium">
-            {tier}-Shirt bundle with custom sizes. Mixed style option enabled.
-          </p>
         </div>
 
         <button
@@ -575,22 +481,10 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
           className={`w-full md:w-auto min-w-[280px] h-16 flex items-center justify-center gap-3 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 shadow-xl ${
             isBundleComplete
               ? "bg-primary text-white hover:opacity-95 shadow-primary/10 hover:shadow-primary/20 scale-[1.02] cursor-pointer"
-              : "bg-surface border border-border-light text-muted/60 hover:bg-surface/80 cursor-pointer"
+              : "bg-surface border border-border-light text-muted/60 cursor-pointer"
           }`}
         >
-          {isAdding ? (
-            <>
-              <RefreshCw className="h-4 w-4 animate-spin" /> Adding Set...
-            </>
-          ) : isBundleComplete ? (
-            <>
-              <ShoppingBag size={16} /> Add Bundle To Cart
-            </>
-          ) : (
-            <>
-              <AlertCircle size={16} /> Select All T-Shirts & Sizes
-            </>
-          )}
+          {isAdding ? <RefreshCw className="h-4 w-4 animate-spin" /> : isBundleComplete ? <><ShoppingBag size={16} /> Add Bundle To Cart</> : <><AlertCircle size={16} /> Complete Selection</>}
         </button>
       </div>
     </div>
