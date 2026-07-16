@@ -10,12 +10,12 @@ interface PromoCountdownBannerProps {
 }
 
 export default function PromoCountdownBanner({ products }: PromoCountdownBannerProps) {
-  // Find the product named "LIMITED OFFER" (case-insensitive)
+  // Find the product named "LIMITED OFFER" (case-insensitive) for the CTA link
   const promoProduct = products.find(
     (p) => p.title.toUpperCase() === "LIMITED OFFER" && p.is_active
   );
 
-  if (!promoProduct) return null;
+  const ctaHref = promoProduct ? `/products/${promoProduct.id}` : "#";
 
   return (
     <section className="w-full py-8 md:py-12 relative overflow-hidden">
@@ -34,9 +34,9 @@ export default function PromoCountdownBanner({ products }: PromoCountdownBannerP
           <div className="h-px flex-1 bg-border-light max-w-[80px]" />
         </div>
 
-        {/* Banner image — clickable → bundle builder */}
+        {/* Banner image */}
         <Link
-          href={`/products/${promoProduct.id}`}
+          href={ctaHref}
           className="block relative w-full rounded-2xl overflow-hidden shadow-xl border border-border-light group transition-all duration-500 hover:shadow-2xl hover:scale-[1.005]"
         >
           <Image
@@ -75,7 +75,7 @@ export default function PromoCountdownBanner({ products }: PromoCountdownBannerP
           </div>
 
           <Link
-            href={`/products/${promoProduct.id}`}
+            href={ctaHref}
             className="btn-primary flex items-center gap-2 group whitespace-nowrap"
           >
             <span>Build Your Bundle</span>
