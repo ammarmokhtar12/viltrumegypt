@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Check, Plus, ShoppingBag, Sparkles, AlertCircle, RefreshCw, X } from "lucide-react";
+import { Check, Plus, ShoppingBag, AlertCircle, RefreshCw, X } from "lucide-react";
 import { Product, CartItem } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
-import { useCountdown } from "@/lib/useCountdown";
 
 interface BundleBuilderProps {
   limitedOfferProduct: Product;
@@ -22,7 +21,6 @@ interface SelectedSlot {
 }
 
 export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: BundleBuilderProps) {
-  const timeLeft = useCountdown();
   const addBundle = useCartStore((s) => s.addBundle);
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -245,11 +243,11 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
 
   return (
     <div className="space-y-12">
-      {/* 24h Countdown Banner */}
-      <div className="bg-primary text-white border border-primary/20 p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
+      {/* Bundle Builder Header */}
+      <div className="bg-primary text-white border border-primary/20 p-6 rounded-2xl relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-        <div className="space-y-1.5 z-10 text-center md:text-left">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/80 flex items-center gap-2 justify-center md:justify-start">
+        <div className="space-y-1.5 z-10 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/80 flex items-center gap-2 justify-center">
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
@@ -257,25 +255,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
             Limited Offer Bundle Builder
           </p>
           <p className="text-lg font-serif text-white tracking-wide">Build your custom compression armor set</p>
-          <p className="text-[11px] text-white/60">Choose any T-shirts from our active inventory. Automatically repeats daily.</p>
-        </div>
-        
-        {/* Countdown timer */}
-        <div className="flex items-center gap-2 z-10 font-mono text-primary select-none">
-          <div className="flex flex-col items-center bg-white/95 backdrop-blur-md rounded-xl p-3 w-16 shadow-md border border-white/20">
-            <span className="text-xl font-bold">{timeLeft.hours.toString().padStart(2, '0')}</span>
-            <span className="text-[8px] font-bold uppercase text-muted tracking-wider mt-0.5">Hours</span>
-          </div>
-          <span className="text-white font-bold text-xl">:</span>
-          <div className="flex flex-col items-center bg-white/95 backdrop-blur-md rounded-xl p-3 w-16 shadow-md border border-white/20">
-            <span className="text-xl font-bold">{timeLeft.minutes.toString().padStart(2, '0')}</span>
-            <span className="text-[8px] font-bold uppercase text-muted tracking-wider mt-0.5">Mins</span>
-          </div>
-          <span className="text-white font-bold text-xl">:</span>
-          <div className="flex flex-col items-center bg-white/95 backdrop-blur-md rounded-xl p-3 w-16 shadow-md border border-white/20">
-            <span className="text-xl font-bold">{timeLeft.seconds.toString().padStart(2, '0')}</span>
-            <span className="text-[8px] font-bold uppercase text-muted tracking-wider mt-0.5">Secs</span>
-          </div>
+          <p className="text-[11px] text-white/60">Choose any T-shirts from our active inventory.</p>
         </div>
       </div>
 
