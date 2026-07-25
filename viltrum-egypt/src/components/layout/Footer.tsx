@@ -36,7 +36,9 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#111111] text-white pt-16 pb-8 font-sans">
+    <footer className="bg-[#0a0a0a] text-white pt-16 pb-8 font-sans relative overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-1 accent-line" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/3 rounded-full blur-[200px] pointer-events-none" />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 border-b border-zinc-800 pb-12 gap-8">
           <BrandLogo variant="light" size="md" />
@@ -62,7 +64,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
           <div>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-tight text-white">
-              We Design for the Modern Warrior.
+              Built for Heroes.<br /><span className="text-accent">Worn by Legends.</span>
             </h2>
           </div>
           <div className="flex flex-col md:items-end gap-6 text-left md:text-right">

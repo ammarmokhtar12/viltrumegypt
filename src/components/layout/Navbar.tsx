@@ -41,10 +41,10 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         <div className="marquee-container flex whitespace-nowrap">
           <div className="marquee-content flex gap-16 text-[10px] font-semibold uppercase tracking-[0.25em] px-4 font-sans">
             <span className="eid-glow-text">
-              EID OFFERS — ANTICIPATE THE ULTIMATE EID COLLECTION BY VILTRUM · EXCLUSIVE DESIGNS & SPECIAL DISCOUNTS COMING SOON
+              VILTRUM ARMORY — COMPRESSION GEAR FORGED FOR HEROES · UNLEASH YOUR INNER VILTRUMITE
             </span>
             <span className="eid-glow-text">
-              EID OFFERS — ANTICIPATE THE ULTIMATE EID COLLECTION BY VILTRUM · EXCLUSIVE DESIGNS & SPECIAL DISCOUNTS COMING SOON
+              VILTRUM ARMORY — COMPRESSION GEAR FORGED FOR HEROES · UNLEASH YOUR INNER VILTRUMITE
             </span>
           </div>
         </div>

@@ -68,7 +68,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   : "bg-white/90 text-primary border-border-light"
               }`}
             >
-              {product.title === "Thragg Edition" ? "Coming Soon" : "New Arrival"}
+              {product.title === "Thragg Edition" ? "Coming Soon" : "Hero Edition"}
             </div>
           )}
 

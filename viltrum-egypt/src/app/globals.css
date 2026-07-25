@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
 @import "tailwindcss";
 
 @font-face {
@@ -9,7 +9,6 @@
 }
 
 @theme {
-  /* Inter = UI · Playfair = brand/editorial */
   --font-sans: 'CleanNumbers', 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
   --font-display: 'Playfair Display', Georgia, serif;
@@ -21,7 +20,8 @@
   --color-border-light: #ebebed;
   --color-background: #ffffff;
   --color-foreground: #111111;
-  --color-accent: #71717a;
+  --color-accent: #c41e3a;
+  --color-accent-glow: #e63950;
 }
 
 @layer base {
@@ -31,6 +31,8 @@
     --surface: #f7f7f8;
     --muted: #9ca3af;
     --primary: #1a1a1a;
+    --accent: #c41e3a;
+    --accent-glow: #e63950;
   }
 
   body {
@@ -42,17 +44,15 @@
   }
 
   ::selection {
-    @apply bg-primary/90 text-white;
+    @apply bg-accent text-white;
   }
 }
 
 @layer utilities {
-  /* Eyebrow labels — Inter */
   .type-eyebrow {
     @apply font-sans text-[10px] font-semibold uppercase tracking-[0.28em] text-muted;
   }
 
-  /* Editorial headlines — Playfair */
   .type-headline {
     @apply font-serif tracking-tight text-foreground;
   }
@@ -79,6 +79,14 @@
 
   .viltrum-divider {
     @apply h-px w-full bg-border-light;
+  }
+
+  .hero-glow {
+    text-shadow: 0 0 80px rgba(196, 30, 58, 0.3), 0 0 160px rgba(196, 30, 58, 0.1);
+  }
+
+  .accent-line {
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
   }
 }
 
@@ -145,7 +153,7 @@
 }
 
 .viltrum-input {
-  @apply w-full px-4 py-3 rounded-xl border border-border-light bg-background font-sans text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-primary/8 focus:border-primary/20 transition-all;
+  @apply w-full px-4 py-3 rounded-xl border border-border-light bg-background font-sans text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent/30 transition-all;
 }
 
 .btn-outline {
@@ -162,10 +170,19 @@
   to { background-position: 200% center; }
 }
 
+@keyframes energyPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.02); }
+}
+
+.energy-pulse {
+  animation: energyPulse 3s ease-in-out infinite;
+}
+
 .eid-glow-text {
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  background: linear-gradient(90deg, #1a1a1a, #71717a, #1a1a1a);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  background: linear-gradient(90deg, #c41e3a, #1a1a1a, #c41e3a);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -174,10 +191,10 @@
 }
 
 .eid-banner {
-  background: linear-gradient(90deg, #ffffff, #f7f7f8, #ebebed, #f7f7f8, #ffffff);
+  background: linear-gradient(90deg, #111111, #1a1a1a, #2a1015, #1a1a1a, #111111);
   background-size: 200% auto;
   animation: bannerShimmer 10s linear infinite;
-  color: #1a1a1a;
+  color: #ffffff;
 }
 
 .marquee-container {
@@ -209,27 +226,21 @@
   @apply transition-colors hover:bg-surface/50;
 }
 
-/* ─── Apple-quality Mobile Enhancements ─── */
-
-/* Smooth momentum scrolling on iOS */
 html {
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
 
-/* Remove tap highlight (we add custom focus styles) */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Better font rendering */
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Minimum touch target size per Apple HIG */
 button, a:not(.block), [role="button"] {
   min-height: 44px;
   display: inline-flex;
@@ -237,13 +248,11 @@ button, a:not(.block), [role="button"] {
   justify-content: center;
 }
 
-/* Override for inline text links that shouldn't have min-height */
 p a, .text-link {
   min-height: unset;
   display: inline;
 }
 
-/* Safe area padding for notch/home bar */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 16px);
 }
@@ -252,20 +261,17 @@ p a, .text-link {
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* Prevent text size adjust on orientation change */
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
-/* Better focus rings that look premium */
 :focus-visible {
-  outline: 2px solid #1a1a1a;
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 6px;
 }
 
-/* Product card hover — disable on touch, only enable on pointer devices */
 @media (hover: none) {
   .group:hover .group-hover\:scale-105 {
     transform: none;

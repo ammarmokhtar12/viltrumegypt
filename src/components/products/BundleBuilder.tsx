@@ -230,11 +230,12 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
   return (
     <div className="space-y-12">
       {/* Banner */}
-      <div className="bg-primary text-white border border-primary/20 p-6 rounded-2xl relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+      <div className="bg-gradient-to-r from-[#0a0a0a] via-[#1a0a0e] to-[#0a0a0a] text-white border border-accent/20 p-6 rounded-2xl relative overflow-hidden shadow-2xl">
+        <div className="absolute top-0 left-0 right-0 h-0.5 accent-line" />
+        <div className="absolute top-0 right-0 w-48 h-48 bg-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
         <div className="space-y-1.5 z-10 text-center relative">
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/80">Viltrum Bundle Builder</p>
-          <p className="text-lg font-serif text-white tracking-wide">Build your custom compression armor set</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent">Viltrum Armory</p>
+          <p className="text-lg font-serif text-white tracking-wide">Assemble your hero compression set</p>
           <p className="text-[11px] text-white/60">Choose any T-shirts from our active inventory.</p>
         </div>
       </div>

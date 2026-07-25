@@ -35,10 +35,10 @@ export default function ProductGrid({ products, fetchError }: ProductGridProps) 
         <div className="mb-12 md:mb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 max-w-4xl">
             <div className="flex-1">
-              <p className="type-eyebrow mb-3">Curated Selection</p>
-              <h2 className="text-4xl md:text-6xl type-headline">The Archive</h2>
+              <p className="type-eyebrow mb-3 !text-accent">Heroes Collection</p>
+              <h2 className="text-4xl md:text-6xl type-headline">The Armory</h2>
               <p className="text-secondary text-sm mt-4 max-w-lg leading-relaxed font-sans">
-                Forged for the relentless. Built for the elite.
+                Every hero needs their armor. Choose your identity.
               </p>
             </div>
           </div>
