@@ -46,9 +46,10 @@ export default function HeroSection() {
       <div className="absolute top-0 left-0 right-0 h-1 accent-line z-20" />
       <div className="absolute bottom-0 left-0 right-0 h-1 accent-line z-20" />
 
-      {/* Red glow orbs */}
+      {/* Dual glow orbs — red + blue */}
       <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-accent/8 rounded-full blur-[120px] energy-pulse pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-accent/5 rounded-full blur-[100px] energy-pulse pointer-events-none" style={{ animationDelay: "1.5s" }} />
+      <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-accent-blue/8 rounded-full blur-[100px] energy-pulse pointer-events-none" style={{ animationDelay: "1.5s" }} />
+      <div className="absolute top-1/2 right-1/3 w-[200px] h-[200px] bg-accent-blue/5 rounded-full blur-[80px] energy-pulse pointer-events-none" style={{ animationDelay: "2.5s" }} />
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-5 sm:px-8 flex flex-col items-center text-center pt-32 pb-20 sm:pt-40 sm:pb-24">
         {/* Badge */}
@@ -75,11 +76,11 @@ export default function HeroSection() {
             VILTRUM
           </h1>
           <div ref={title2Ref} className="flex items-center justify-center gap-3 sm:gap-4 opacity-0 -mt-1 sm:-mt-2">
-            <div className="h-px flex-1 max-w-[60px] sm:max-w-[100px] bg-accent/40" />
+            <div className="h-px flex-1 max-w-[60px] sm:max-w-[100px] bg-accent-blue/50" />
             <h2 className="text-xl sm:text-3xl md:text-5xl font-serif tracking-[0.2em] text-zinc-300 italic font-normal drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
               Egypt
             </h2>
-            <div className="h-px flex-1 max-w-[60px] sm:max-w-[100px] bg-accent/40" />
+            <div className="h-px flex-1 max-w-[60px] sm:max-w-[100px] bg-accent-blue/50" />
           </div>
         </div>
 
@@ -103,7 +104,7 @@ export default function HeroSection() {
           </Link>
           <Link
             href="/products"
-            className="btn-secondary w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm active:scale-[0.97]"
+            className="btn-secondary w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] bg-accent-blue/20 hover:bg-accent-blue/30 text-white border-accent-blue/30 backdrop-blur-sm active:scale-[0.97]"
           >
             Build Your Bundle
           </Link>
