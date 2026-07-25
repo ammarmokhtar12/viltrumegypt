@@ -23,6 +23,7 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState<{
     name: string;
     phone: string;
+    city: string;
     address: string;
     paymentMethod: "vodafone_cash" | "instapay";
   } | null>(null);
@@ -265,8 +266,8 @@ export default function CheckoutPage() {
   const cartTotal = totalPrice();
   const cartItems = items;
 
-  // Shipping: 65 EGP with coupon, 80 EGP without
-  const shippingFee = appliedCoupon ? 65 : 80;
+  const FAR_CITIES = ["أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "البحر الأحمر", "الوادي الجديد", "مطروح", "شمال سيناء", "جنوب سيناء"];
+  const shippingFee = formData?.city && FAR_CITIES.includes(formData.city) ? 90 : 80;
 
   // 7% coupon discount on full-price items (no bundle_id)
   const fullPriceSubtotal = cartItems
@@ -290,6 +291,7 @@ export default function CheckoutPage() {
   const handleFormSubmit = (data: {
     name: string;
     phone: string;
+    city: string;
     address: string;
     paymentMethod: "vodafone_cash" | "instapay";
   }) => {
@@ -313,7 +315,7 @@ export default function CheckoutPage() {
   };
 
   const handleFinalSubmit = async () => {
-    if (!formData || !formData.name || !formData.phone || !formData.address) {
+    if (!formData || !formData.name || !formData.phone || !formData.city || !formData.address) {
        alert("Please fill in all contact and shipping details.");
        return;
     }
@@ -338,15 +340,14 @@ export default function CheckoutPage() {
 
       const netTotal = cartTotal - discountAmount;
       const commissionPct = appliedCoupon ? appliedCoupon.commission_percent : 0;
-      // Commission amount = base commission percentage + 15 EGP shipping discount difference
-      const commissionAmt = appliedCoupon ? (Math.round(netTotal * (commissionPct / 100) * 100) / 100) + 15 : 0;
+      const commissionAmt = appliedCoupon ? Math.round(netTotal * (commissionPct / 100) * 100) / 100 : 0;
 
       const { data, error } = await supabase
         .from("orders")
         .insert({
           customer_name: formData.name,
           customer_phone: formData.phone,
-          customer_address: formData.address,
+          customer_address: `${formData.city} - ${formData.address}`,
           payment_method: formData.paymentMethod,
           payment_screenshot_url: screenshotUrl,
           items: orderItems,
@@ -443,7 +444,7 @@ export default function CheckoutPage() {
           orderNumber: Number(data.order_number),
           customerName: formData.name,
           customerPhone: formData.phone,
-          customerAddress: formData.address,
+          customerAddress: `${formData.city} - ${formData.address}`,
           paymentMethod: formData.paymentMethod,
           items: orderItems,
           total: finalTotal + shippingFee,
@@ -689,11 +690,6 @@ export default function CheckoutPage() {
                         <span>Shipping</span>
                         <span className="font-semibold text-primary">
                           {formatPrice(shippingFee)}
-                          {appliedCoupon && (
-                            <span className="ml-1.5 text-emerald-600 text-[10px] font-bold line-through decoration-red-400">
-                              {formatPrice(80)}
-                            </span>
-                          )}
                         </span>
                      </div>
                   </div>
