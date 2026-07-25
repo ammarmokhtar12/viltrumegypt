@@ -29,7 +29,7 @@ export default function PromoCountdownBanner({ products }: PromoCountdownBannerP
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/bundle-offer-banner.png"
-            alt="Bundle Offer – 2 T-Shirts 800 EGP | 3 T-Shirts 1150 EGP"
+            alt="Bundle Offer – 2 T-Shirts 799 EGP | 3 T-Shirts 1150 EGP"
             style={{ width: "100%", height: "auto", display: "block" }}
           />
         </Link>
@@ -39,7 +39,7 @@ export default function PromoCountdownBanner({ products }: PromoCountdownBannerP
           <div className="flex items-center gap-3 bg-surface border border-border-light rounded-2xl px-6 py-4 shadow-sm">
             <div className="text-center">
               <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted mb-0.5">2 T-Shirts Bundle</p>
-              <p className="text-2xl font-extrabold text-primary leading-none">800 <span className="text-sm font-semibold text-secondary">EGP</span></p>
+              <p className="text-2xl font-extrabold text-primary leading-none">799 <span className="text-sm font-semibold text-secondary">EGP</span></p>
             </div>
           </div>
 

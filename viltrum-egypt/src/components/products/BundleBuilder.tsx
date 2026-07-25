@@ -164,7 +164,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
   const isBundleComplete = slots.every((s) => s.product && s.size);
 
   // Core Pricing Logic
-  const bundlePrice = tier === 2 ? 800 : 1150;
+  const bundlePrice = tier === 2 ? 799 : 1150;
   const originalPriceSum = slots.reduce((sum, s) => sum + (s.product?.price || 500), 0);
   const discountAmount = Math.max(0, originalPriceSum - bundlePrice);
 
@@ -266,7 +266,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
               <p className="text-xs text-secondary leading-relaxed">Choose any 2 premium T-shirts with mixed sizes.</p>
               
               <div className="pt-4 flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl font-bold text-primary">800 EGP</span>
+                <span className="text-2xl font-bold text-primary">799 EGP</span>
                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save 200 EGP</span>
               </div>
             </div>
