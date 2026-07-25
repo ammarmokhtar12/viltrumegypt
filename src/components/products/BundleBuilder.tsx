@@ -291,8 +291,8 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
               <p className="text-xs text-secondary leading-relaxed">Choose any 3 premium T-shirts with custom sizes.</p>
 
               <div className="pt-4 flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl font-bold text-primary">1,200 EGP</span>
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save 300 EGP</span>
+                <span className="text-2xl font-bold text-primary">1,150 EGP</span>
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest">Save 350 EGP</span>
               </div>
             </div>
           </button>
