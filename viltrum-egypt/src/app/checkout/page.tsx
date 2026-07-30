@@ -673,7 +673,7 @@ export default function CheckoutPage() {
                      )}
                      {appliedCoupon && (
                         <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied! (7% singles / 4% bundles)
+                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied!
                         </p>
                      )}
                   </div>
