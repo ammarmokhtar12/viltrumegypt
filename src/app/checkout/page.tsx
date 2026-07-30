@@ -269,12 +269,7 @@ export default function CheckoutPage() {
   const FAR_CITIES = ["أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "البحر الأحمر", "الوادي الجديد", "مطروح", "شمال سيناء", "جنوب سيناء"];
   const shippingFee = formData?.city && FAR_CITIES.includes(formData.city) ? 90 : 80;
 
-  // 7% coupon discount on full-price items (no bundle_id)
-  const fullPriceSubtotal = cartItems
-    .filter((item) => !item.bundle_id)
-    .reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  const discountAmount = appliedCoupon ? Math.round(fullPriceSubtotal * 0.07) : 0;
+  const discountAmount = appliedCoupon ? Math.round(cartTotal * 0.07) : 0;
   const finalTotal = cartTotal - discountAmount;
 
   if (cartItems.length === 0) {
@@ -670,7 +665,7 @@ export default function CheckoutPage() {
                      )}
                      {appliedCoupon && (
                         <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied! (7% discount on full-price items)
+                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied! (7% discount)
                         </p>
                      )}
                   </div>
