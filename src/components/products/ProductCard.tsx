@@ -96,7 +96,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <span className="text-[10px] text-muted line-through tracking-widest font-medium">
               {formatPrice(originalPrice)}
             </span>
-            <span className="text-sm font-bold text-accent tracking-tight">
+            <span className="text-sm font-bold text-foreground tracking-tight">
               {formatPrice(product.price)}
             </span>
           </div>

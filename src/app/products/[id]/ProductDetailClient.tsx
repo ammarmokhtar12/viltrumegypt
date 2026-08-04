@@ -526,7 +526,7 @@ export default function ProductDetailPage() {
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-foreground truncate">{product.title}</p>
-              <p className="text-sm font-bold text-accent">{formatPrice(product.price)}</p>
+              <p className="text-sm font-bold text-foreground">{formatPrice(product.price)}</p>
             </div>
             <button
               onClick={handleAddToCart}
