@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, Lock, ChevronRight, Sparkles, Copy, Clock } from "lucide-react";
+import { ArrowLeft, Check, Lock, ChevronRight, Sparkles, Copy, Clock, Package, Mail } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { supabase } from "@/lib/supabase";
 import { formatPrice, generateOrderWhatsAppUrl } from "@/lib/utils";
@@ -11,7 +11,7 @@ import PaymentUpload from "@/components/checkout/PaymentUpload";
 import Image from "next/image";
 import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
-import { sendOrderNotification } from "@/app/actions/notify";
+import { sendOrderNotification, sendCustomerConfirmation } from "@/app/actions/notify";
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCartStore();
@@ -23,12 +23,14 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState<{
     name: string;
     phone: string;
+    email: string;
     city: string;
     address: string;
     paymentMethod: "vodafone_cash" | "instapay";
   } | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | number | null>(null);
+  const [customerEmail, setCustomerEmail] = useState<string>("");
 
   // Affiliate / Coupon system state
   const [couponCode, setCouponCode] = useState("");
@@ -42,13 +44,12 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setMounted(true);
-    // Read from cookie or localStorage
     if (typeof window !== "undefined") {
       const refCode = localStorage.getItem("viltrum_ref") || (() => {
         const match = document.cookie.match(/(?:^|; )viltrum_ref=([^;]*)/);
         return match ? decodeURIComponent(match[1]) : null;
       })();
-      
+
       if (refCode) {
         autoApplyCoupon(refCode);
       }
@@ -83,7 +84,7 @@ export default function CheckoutPage() {
     setCouponError(null);
     try {
       const cleanCode = code.trim().toUpperCase();
-      
+
       const { data: influencer, error } = await supabase
         .from("influencers")
         .select("*")
@@ -101,11 +102,10 @@ export default function CheckoutPage() {
         return;
       }
 
-      // Check self-referral using phone number
       if (formData && formData.phone) {
         const cleanCustomerPhone = formData.phone.replace(/\D/g, "");
         const cleanInfluencerPhone = influencer.phone.replace(/\D/g, "");
-        
+
         if (cleanCustomerPhone && cleanInfluencerPhone && cleanCustomerPhone === cleanInfluencerPhone) {
           setCouponError("You cannot use your own influencer coupon code.");
           return;
@@ -137,18 +137,14 @@ export default function CheckoutPage() {
     const contactPhone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229";
     return (
       <main className="min-h-screen bg-[#fafafa] flex items-center justify-center px-6 py-16 relative overflow-hidden font-sans">
-        {/* Editorial Background Glows */}
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-radial from-neutral-200/40 to-transparent blur-3xl -z-10" />
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-radial from-neutral-200/30 to-transparent blur-3xl -z-10" />
 
         <div className="max-w-lg w-full bg-white border border-neutral-100 rounded-[2.5rem] p-8 md:p-12 space-y-10 shadow-[0_32px_96px_-16px_rgba(0,0,0,0.06)] relative animate-in fade-in slide-in-from-bottom-8 duration-1000">
-          
-          {/* Header Section */}
+
           <div className="text-center space-y-6">
-            {/* Elegant Ring Badge */}
             <div className="flex justify-center">
               <div className="relative flex items-center justify-center">
-                {/* Double pulse rings */}
                 <div className="absolute inset-0 rounded-full bg-neutral-100 scale-150 animate-pulse" />
                 <div className="absolute inset-0 rounded-full bg-neutral-50 scale-125" />
                 <div className="relative w-16 h-16 rounded-full bg-neutral-900 flex items-center justify-center text-white shadow-lg z-10">
@@ -170,11 +166,9 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Premium Order Receipt Block */}
           <div className="bg-[#fcfcfd] border border-neutral-200/60 rounded-2xl p-6 relative overflow-hidden space-y-4">
-            {/* Top decorative receipt line */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-neutral-300 via-neutral-900 to-neutral-300" />
-            
+
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Reference ID</span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">Secure</span>
@@ -202,7 +196,6 @@ export default function CheckoutPage() {
               </button>
             </div>
 
-            {/* Instruction Warning */}
             <div className="pt-3 border-t border-dashed border-neutral-200 text-left">
               <p className="text-xs text-neutral-600 leading-relaxed flex items-start gap-2.5">
                 <span className="text-neutral-800 text-base leading-none">⚠️</span>
@@ -213,7 +206,16 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* Information Timeline */}
+          {/* Estimated Delivery */}
+          <div className="bg-emerald-50/70 border border-emerald-200/60 rounded-2xl p-5 text-center space-y-2">
+            <div className="flex items-center justify-center gap-2">
+              <Package size={18} className="text-emerald-700" />
+              <span className="text-sm font-bold text-emerald-800">Estimated Delivery</span>
+            </div>
+            <p className="text-2xl font-black text-emerald-900">5 Business Days</p>
+            <p className="text-xs text-emerald-700">من تاريخ تأكيد الأوردر</p>
+          </div>
+
           <div className="space-y-4">
             {[
               {
@@ -221,6 +223,11 @@ export default function CheckoutPage() {
                 title: "Logistics Contact (24 Hours)",
                 desc: "Our dispatch managers will contact you within 24 hours to confirm your address and schedule delivery."
               },
+              ...(customerEmail ? [{
+                icon: <Mail size={16} />,
+                title: "Confirmation Email Sent",
+                desc: `A confirmation email with your order details has been sent to ${customerEmail}.`
+              }] : []),
               {
                 icon: <Sparkles size={16} />,
                 title: "WhatsApp Dispatch Message",
@@ -239,16 +246,15 @@ export default function CheckoutPage() {
             ))}
           </div>
 
-          {/* Action Buttons */}
           <div className="pt-2 space-y-3">
-            <Link 
-              href="/products" 
+            <Link
+              href="/products"
               className="w-full h-14 bg-neutral-950 text-white rounded-xl text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-neutral-800 active:scale-[0.98] transition-all flex items-center justify-center shadow-lg shadow-neutral-900/5 cursor-pointer animate-pulse"
             >
               Continue Shopping
             </Link>
-            
-            <a 
+
+            <a
               href={`https://wa.me/${contactPhone}?text=Hello,%20I'm%20inquiring%20about%20my%20order%20%23${orderNumber}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -269,15 +275,7 @@ export default function CheckoutPage() {
   const FAR_CITIES = ["أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "البحر الأحمر", "الوادي الجديد", "مطروح", "شمال سيناء", "جنوب سيناء"];
   const shippingFee = formData?.city && FAR_CITIES.includes(formData.city) ? 90 : 80;
 
-  const singleSubtotal = cartItems
-    .filter((item) => !item.bundle_id)
-    .reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const bundleSubtotal = cartItems
-    .filter((item) => !!item.bundle_id)
-    .reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discountAmount = appliedCoupon
-    ? Math.round(singleSubtotal * 0.07) + Math.round(bundleSubtotal * 0.04)
-    : 0;
+  const discountAmount = appliedCoupon ? Math.round(cartTotal * 0.07) : 0;
   const finalTotal = cartTotal - discountAmount;
 
   if (cartItems.length === 0) {
@@ -294,6 +292,7 @@ export default function CheckoutPage() {
   const handleFormSubmit = (data: {
     name: string;
     phone: string;
+    email: string;
     city: string;
     address: string;
     paymentMethod: "vodafone_cash" | "instapay";
@@ -322,7 +321,6 @@ export default function CheckoutPage() {
        alert("Please fill in all contact and shipping details.");
        return;
     }
-    // Only require screenshot for instapay
     if (formData.paymentMethod === 'instapay' && !screenshotUrl) {
        alert("Please upload your payment screenshot to proceed.");
        return;
@@ -366,7 +364,6 @@ export default function CheckoutPage() {
 
       if (error) throw error;
 
-      // Create commission record if influencer coupon is used
       if (appliedCoupon) {
         const { error: commError } = await supabase
           .from("commissions")
@@ -387,12 +384,10 @@ export default function CheckoutPage() {
           console.error("Failed to create commission record:", commError);
         }
 
-        // Clear referral after successful order
         document.cookie = "viltrum_ref=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         localStorage.removeItem("viltrum_ref");
       }
 
-      // Decrement stock for each item in the order
       try {
         for (const item of orderItems) {
           await supabase.rpc("decrement_stock", {
@@ -439,9 +434,10 @@ export default function CheckoutPage() {
       });
 
       setOrderNumber(data.order_number);
+      setCustomerEmail(formData.email || "");
       setIsSuccess(true);
 
-      // Send Email Notification
+      // Send admin notification email
       try {
         await sendOrderNotification({
           orderNumber: Number(data.order_number),
@@ -453,11 +449,24 @@ export default function CheckoutPage() {
           total: finalTotal + shippingFee,
         });
       } catch (emailErr) {
-        console.error("Failed to send notification email:", emailErr);
-        // We don't want to block the success UI if the email fails
+        console.error("Failed to send admin notification email:", emailErr);
       }
-      
-      // Delay opening WhatsApp slightly for a better visual transition
+
+      // Send customer confirmation email if email was provided
+      if (formData.email) {
+        try {
+          await sendCustomerConfirmation({
+            orderNumber: Number(data.order_number),
+            customerName: formData.name,
+            customerEmail: formData.email,
+            items: orderItems,
+            total: finalTotal + shippingFee,
+          });
+        } catch (emailErr) {
+          console.error("Failed to send customer confirmation email:", emailErr);
+        }
+      }
+
       setTimeout(() => {
         window.open(whatsappUrl, "_blank");
       }, 2000);
@@ -470,11 +479,8 @@ export default function CheckoutPage() {
     }
   };
 
-
-
   return (
     <main className="min-h-screen bg-background text-primary font-sans selection:bg-primary selection:text-white pb-24">
-      {/* Checkout Navbar */}
       <header className="border-b border-border-light bg-background py-4 px-6 md:px-12 flex items-center justify-between z-10 relative">
          <Link href="/" className="inline-block">
            <Image src="/viltrum-logo.png" alt="Viltrum Egypt" width={48} height={48} className="object-contain" />
@@ -486,11 +492,9 @@ export default function CheckoutPage() {
 
       <div className="max-w-6xl mx-auto px-6 md:px-12 pt-8 md:pt-16">
          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 relative">
-            
-            {/* Left side: Form */}
+
             <div className="order-2 lg:order-1 max-w-xl">
-               
-               {/* Breadcrumbs */}
+
                <div className="text-xs text-muted flex items-center gap-2 mb-10">
                   <span className="font-semibold text-primary">Information</span>
                   <ChevronRight size={12} />
@@ -505,7 +509,6 @@ export default function CheckoutPage() {
                   onPaymentMethodChange={handlePaymentMethodChange}
                />
 
-               {/* Upload area conditionally rendered dynamically */}
                <div className={`transition-all duration-500 overflow-hidden ${paymentMethod === 'instapay' ? 'max-h-[500px] opacity-100 mt-10' : 'max-h-0 opacity-0 mt-0'}`}>
                   <h2 className="text-xl font-bold text-primary mb-4">Payment Verification</h2>
                   <PaymentUpload onUploadComplete={setScreenshotUrl} uploaded={!!screenshotUrl} />
@@ -526,7 +529,6 @@ export default function CheckoutPage() {
                </div>
             </div>
 
-            {/* Right side: Summary */}
             <div className="order-1 lg:order-2">
                <div className="lg:sticky lg:top-10 bg-surface p-8 md:p-10 rounded-2xl border border-border-light">
                   <h3 className="font-semibold text-primary mb-6">Order Summary</h3>
@@ -649,7 +651,6 @@ export default function CheckoutPage() {
                               onClick={() => {
                                  setAppliedCoupon(null);
                                  setCouponCode("");
-                                 // clear coupon cookies
                                  document.cookie = "viltrum_ref=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                                  localStorage.removeItem("viltrum_ref");
                                  toast.info("Coupon removed.");
@@ -673,7 +674,7 @@ export default function CheckoutPage() {
                      )}
                      {appliedCoupon && (
                         <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied!
+                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied! (7% discount)
                         </p>
                      )}
                   </div>

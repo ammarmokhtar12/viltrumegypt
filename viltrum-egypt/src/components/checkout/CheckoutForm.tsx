@@ -51,6 +51,7 @@ interface CheckoutFormProps {
   onSubmit: (data: {
     name: string;
     phone: string;
+    email: string;
     city: string;
     address: string;
     paymentMethod: "vodafone_cash" | "instapay";
@@ -67,6 +68,7 @@ export default function CheckoutForm({
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    email: "",
     city: "",
     address: "",
   });
@@ -126,6 +128,22 @@ export default function CheckoutForm({
               onChange={handleChange}
               className="viltrum-input"
             />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-secondary mb-1.5 block">
+              Email <span className="text-muted font-normal">(Optional)</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              value={formData.email}
+              onChange={handleChange}
+              className="viltrum-input"
+            />
+            <p className="text-[11px] text-muted mt-1.5">
+              مطلوب لتأكيد مواعيد وصول الأوردر
+            </p>
           </div>
         </div>
       </div>
