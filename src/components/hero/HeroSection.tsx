@@ -17,7 +17,7 @@ export default function HeroSection() {
           backgroundPosition: "center center",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-black/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/85" />
       </div>
 
       {/* Accent energy lines */}
