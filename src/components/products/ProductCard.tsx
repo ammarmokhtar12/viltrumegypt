@@ -23,7 +23,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="group relative font-sans will-change-transform">
       <Link href={`/products/${product.id}`} className="block">
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-white border border-border-light shadow-sm transition-all duration-500 group-hover:shadow-lg group-hover:shadow-black/5 group-hover:-translate-y-1.5">
+        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface border border-border-light card-glow transition-all duration-500 group-hover:-translate-y-1.5">
           {hasImage && (
             <Image
               src={product.image_url!}
@@ -56,7 +56,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
 
           {isPromo ? (
-            <div className="absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans bg-primary text-white border-white/10 flex items-center gap-1.5 animate-pulse">
+            <div className="absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans bg-accent text-white border-accent/30 flex items-center gap-1.5 animate-pulse">
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
               <span>Ends in {timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes.toString().padStart(2, '0')}:{timeLeft.seconds.toString().padStart(2, '0')}</span>
             </div>
@@ -64,8 +64,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div
               className={`absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-semibold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans ${
                 product.title === "Thragg Edition"
-                  ? "bg-primary text-white border-white/10"
-                  : "bg-white/90 text-primary border-border-light"
+                  ? "bg-accent text-white border-accent/30"
+                  : "bg-black/70 text-white border-white/10"
               }`}
             >
               {product.title === "Thragg Edition" ? "Coming Soon" : "Hero Edition"}
@@ -80,15 +80,15 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-8">
+            <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 shadow-xl shadow-accent/30">
               <ArrowUpRight size={20} />
             </div>
           </div>
         </div>
 
-        <div className="mt-8 text-center px-4 space-y-3">
-          <h3 className="text-[15px] font-serif font-medium text-foreground uppercase tracking-[0.12em] group-hover:text-accent transition-colors">
+        <div className="mt-6 text-center px-4 space-y-2">
+          <h3 className="text-[16px] font-display font-normal text-foreground uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
             {product.title}
           </h3>
 
@@ -96,7 +96,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <span className="text-[10px] text-muted line-through tracking-widest font-medium">
               {formatPrice(originalPrice)}
             </span>
-            <span className="text-sm font-bold text-primary tracking-tight">
+            <span className="text-sm font-bold text-accent tracking-tight">
               {formatPrice(product.price)}
             </span>
           </div>

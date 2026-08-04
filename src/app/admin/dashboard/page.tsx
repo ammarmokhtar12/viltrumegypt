@@ -127,6 +127,29 @@ export default function AdminDashboardPage() {
 
   const recentOrders = [...orders].reverse().slice(0, 5);
 
+  // Monthly orders breakdown
+  const monthlyOrdersMap = new Map<string, { count: number; revenue: number }>();
+  orders.forEach(o => {
+    const d = new Date(o.created_at);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const label = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    if (!monthlyOrdersMap.has(key)) {
+      monthlyOrdersMap.set(key, { count: 0, revenue: 0 });
+    }
+    const entry = monthlyOrdersMap.get(key)!;
+    entry.count += 1;
+    if (o.status !== 'cancelled' && o.status !== 'returned') {
+      entry.revenue += o.total;
+    }
+  });
+  const monthlyOrders = Array.from(monthlyOrdersMap.entries())
+    .sort((a, b) => b[0].localeCompare(a[0]))
+    .map(([key, data]) => {
+      const [year, month] = key.split('-');
+      const label = new Date(Number(year), Number(month) - 1).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      return { key, label, ...data };
+    });
+
   return (
     <div className="space-y-6">
       <div>
@@ -296,7 +319,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Operational Logs Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Orders */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col">
           <h3 className="font-semibold text-black mb-6">Recent Orders</h3>
@@ -321,6 +344,34 @@ export default function AdminDashboardPage() {
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400 text-sm">
                 No orders found.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Monthly Orders */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col">
+          <h3 className="font-semibold text-black mb-6">Monthly Orders</h3>
+          <div className="flex-1 overflow-y-auto pr-2">
+            {monthlyOrders.length > 0 ? (
+              <div className="space-y-3">
+                {monthlyOrders.map(m => (
+                  <div key={m.key} className="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0 last:pb-0">
+                    <div>
+                      <p className="font-medium text-black text-sm">{m.label}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{m.revenue.toLocaleString()} EGP revenue</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-block px-3 py-1.5 text-sm font-bold text-black bg-gray-100 rounded-lg">
+                        {m.count} orders
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                No orders yet.
               </div>
             )}
           </div>

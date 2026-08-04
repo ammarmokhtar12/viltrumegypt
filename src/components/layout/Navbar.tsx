@@ -37,13 +37,13 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         scrolled ? "premium-blur shadow-sm" : "bg-transparent"
       }`}
     >
-      <div className="eid-banner overflow-hidden py-2.5 border-b border-border-light relative z-50 select-none">
+      <div className="eid-banner overflow-hidden py-2.5 border-b border-border-light/50 relative z-50 select-none rgb-shadow">
         <div className="marquee-container flex whitespace-nowrap">
           <div className="marquee-content flex gap-16 text-[10px] font-semibold uppercase tracking-[0.25em] px-4 font-sans">
-            <span className="eid-glow-text">
+            <span className="rgb-glow-text">
               VILTRUM ARMORY — COMPRESSION GEAR FORGED FOR HEROES · UNLEASH YOUR INNER VILTRUMITE
             </span>
-            <span className="eid-glow-text">
+            <span className="rgb-glow-text">
               VILTRUM ARMORY — COMPRESSION GEAR FORGED FOR HEROES · UNLEASH YOUR INNER VILTRUMITE
             </span>
           </div>
@@ -112,7 +112,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
       </div>
 
       {mobileOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-border-light shadow-xl px-6 py-8 flex flex-col gap-5 animate-mobile-menu">
+        <div className="lg:hidden absolute top-full left-0 w-full bg-background/95 backdrop-blur-xl border-t border-border-light shadow-xl px-6 py-8 flex flex-col gap-5 animate-mobile-menu">
           <Link
             href="/#products"
             onClick={() => setMobileOpen(false)}

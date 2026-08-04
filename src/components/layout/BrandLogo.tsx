@@ -22,7 +22,7 @@ export default function BrandLogo({
 }: BrandLogoProps) {
   const s = sizes[size];
   const isLight = variant === "light";
-  const wordColor = isLight ? "text-white" : "text-primary";
+  const wordColor = isLight ? "text-white" : "text-foreground";
   const tagColor = isLight ? "text-zinc-400" : "text-accent";
 
   const inner = (

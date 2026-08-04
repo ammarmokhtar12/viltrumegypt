@@ -110,7 +110,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between px-8 py-6 border-b border-border-light bg-white">
+          <div className="flex items-center justify-between px-8 py-6 border-b border-border-light bg-background">
             <div className="flex items-center gap-3">
                <ShoppingBag size={20} className="text-primary" />
               <h2 className="text-[13px] font-sans font-semibold text-primary uppercase tracking-[0.2em]">
@@ -221,7 +221,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
           {/* Footer */}
           {cartItems.length > 0 && (
-            <div className="px-8 py-8 border-t border-border-light bg-white space-y-6">
+            <div className="px-5 py-5 sm:px-8 sm:py-8 border-t border-border-light bg-background space-y-6">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted font-medium uppercase tracking-widest">
                   Estimated Total
@@ -234,7 +234,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <Link
                   href="/checkout"
                   onClick={handleCheckoutClick}
-                  className="btn-primary w-full shadow-lg shadow-black/5 flex items-center justify-center gap-3"
+                  className="rgb-btn w-full shadow-lg shadow-black/5 flex items-center justify-center gap-3 text-white font-sans text-[11px] font-semibold uppercase tracking-[0.2em] px-8 py-3.5 rounded-xl transition-all active:scale-[0.98]"
                 >
                   Proceed to Checkout
                   <ArrowRight size={16} />
