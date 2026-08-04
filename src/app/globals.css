@@ -363,13 +363,56 @@
   @apply w-full text-left border-collapse;
 }
 .admin-table th {
-  @apply px-6 py-4 text-[10px] font-semibold uppercase tracking-wider text-muted border-b border-border-light bg-surface select-none font-sans;
+  @apply px-6 py-4 text-[10px] font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200 bg-gray-50 select-none font-sans;
 }
 .admin-table td {
-  @apply px-6 py-4 text-xs border-b border-border-light align-middle text-foreground font-sans;
+  @apply px-6 py-4 text-xs border-b border-gray-200 align-middle text-gray-900 font-sans;
 }
 .admin-table tr {
-  @apply transition-colors hover:bg-surface/50;
+  @apply transition-colors hover:bg-gray-50;
+}
+
+.admin-layout {
+  --background: #ffffff;
+  --foreground: #111111;
+  --surface: #f9fafb;
+  --muted: #6b7280;
+  --primary: #111111;
+  --accent: #c41e3a;
+  --color-background: #ffffff;
+  --color-foreground: #111111;
+  --color-surface: #f9fafb;
+  --color-border-light: #e5e7eb;
+  --color-muted: #6b7280;
+  --color-primary: #111111;
+  --color-secondary: #6b7280;
+}
+
+.admin-layout h1,
+.admin-layout h2,
+.admin-layout h3,
+.admin-layout h4,
+.admin-layout h5,
+.admin-layout h6 {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #111111;
+}
+
+.admin-layout button,
+.admin-layout a {
+  min-height: unset;
+}
+
+.admin-layout ::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+.admin-layout ::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+.admin-layout ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 html {
