@@ -21,16 +21,16 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isPromo = product.title.toUpperCase() === "LIMITED OFFER";
 
   return (
-    <div className="group relative font-sans will-change-transform">
+    <div className="group relative font-sans">
       <Link href={`/products/${product.id}`} className="block">
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface border border-border-light card-glow transition-all duration-500 group-hover:-translate-y-1.5">
+        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface border border-border-light card-glow sm:transition-transform sm:duration-500 sm:group-hover:-translate-y-1.5">
           {hasImage && (
             <Image
               src={product.image_url!}
               alt={product.title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className={`object-cover transition-transform duration-1000 group-hover:scale-105 ${
+              className={`object-cover sm:transition-transform sm:duration-1000 sm:group-hover:scale-105 ${
                 hasVideo ? "opacity-0" : "opacity-100"
               }`}
               loading="lazy"
@@ -56,8 +56,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
 
           {isPromo ? (
-            <div className="absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans bg-accent text-white border-accent/30 flex items-center gap-1.5 animate-pulse">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+            <div className="absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans bg-accent text-white border-accent/30 flex items-center gap-1.5 sm:animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-white sm:animate-ping" />
               <span>Ends in {timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes.toString().padStart(2, '0')}:{timeLeft.seconds.toString().padStart(2, '0')}</span>
             </div>
           ) : (
@@ -80,8 +80,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-8">
-            <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 shadow-xl shadow-accent/30">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 sm:group-hover:opacity-100 sm:transition-opacity hidden sm:flex items-end justify-center pb-8">
+            <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white shadow-xl shadow-accent/30">
               <ArrowUpRight size={20} />
             </div>
           </div>

@@ -91,8 +91,13 @@
 
   .accent-line {
     background: linear-gradient(90deg, transparent, #c41e3a, #e6a817, #1a6ed8, #8b5cf6, #c41e3a, transparent);
-    background-size: 200% 100%;
-    animation: rgbSlide 12s linear infinite;
+  }
+
+  @media (min-width: 769px) {
+    .accent-line {
+      background-size: 200% 100%;
+      animation: rgbSlide 20s linear infinite;
+    }
   }
 
   .accent-line-blue {
@@ -100,12 +105,16 @@
   }
 
   .card-glow {
-    box-shadow: 0 0 0 1px rgba(196, 30, 58, 0.1), 0 8px 32px rgba(0, 0, 0, 0.4);
-    transition: box-shadow 0.4s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
-  .card-glow:hover {
-    box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.4), 0 0 30px rgba(196, 30, 58, 0.15), 0 0 30px rgba(26, 110, 216, 0.1), 0 12px 40px rgba(0, 0, 0, 0.5);
+  @media (min-width: 769px) {
+    .card-glow {
+      transition: box-shadow 0.4s ease;
+    }
+    .card-glow:hover {
+      box-shadow: 0 0 0 1px rgba(196, 30, 58, 0.2), 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
   }
 
   .rgb-border {
@@ -119,28 +128,40 @@
     border-radius: inherit;
     padding: 1px;
     background: linear-gradient(135deg, #c41e3a, #e6a817, #1a6ed8, #8b5cf6, #c41e3a);
-    background-size: 300% 300%;
-    animation: rgbRotate 14s linear infinite;
     mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     mask-composite: exclude;
     -webkit-mask-composite: xor;
     pointer-events: none;
-    opacity: 0.5;
-    transition: opacity 0.3s;
+    opacity: 0.4;
   }
 
-  .rgb-border:hover::after {
-    opacity: 1;
+  @media (min-width: 769px) {
+    .rgb-border::after {
+      background-size: 300% 300%;
+      animation: rgbRotate 14s linear infinite;
+      opacity: 0.5;
+      transition: opacity 0.3s;
+    }
+    .rgb-border:hover::after {
+      opacity: 1;
+    }
   }
 
   .rgb-glow-text {
-    background: linear-gradient(90deg, #ffffff, #6b7280, #e0e0e0, #9ca3af, #ffffff, #4b5563, #f0f0f0, #6b7280, #ffffff);
-    background-size: 300% auto;
+    background: linear-gradient(90deg, #ffffff, #9ca3af, #e0e0e0, #ffffff);
+    background-size: 100% auto;
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: rgbSlide 10s linear infinite;
+  }
+
+  @media (min-width: 769px) {
+    .rgb-glow-text {
+      background-image: linear-gradient(90deg, #ffffff, #6b7280, #e0e0e0, #9ca3af, #ffffff, #4b5563, #f0f0f0, #6b7280, #ffffff);
+      background-size: 300% auto;
+      animation: rgbSlide 10s linear infinite;
+    }
   }
 
   .rgb-btn {
@@ -153,15 +174,28 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, #c41e3a, #b91c8a, #8b5cf6, #1a6ed8, #0ea5e9, #1a6ed8, #8b5cf6, #b91c8a, #c41e3a);
-    background-size: 300% 100%;
-    animation: rgbSlide 10s linear infinite;
+    background: var(--color-accent);
     z-index: -1;
     border-radius: inherit;
   }
 
+  @media (min-width: 769px) {
+    .rgb-btn::before {
+      background: linear-gradient(90deg, #c41e3a, #b91c8a, #8b5cf6, #1a6ed8, #0ea5e9, #1a6ed8, #8b5cf6, #b91c8a, #c41e3a);
+      background-size: 300% 100%;
+      animation: rgbSlide 10s linear infinite;
+    }
+  }
+
   .rgb-shadow {
-    animation: rgbShadow 12s linear infinite;
+    box-shadow: 0 0 10px rgba(196, 30, 58, 0.08);
+  }
+
+  @media (min-width: 769px) {
+    .rgb-shadow {
+      box-shadow: none;
+      animation: rgbShadow 12s linear infinite;
+    }
   }
 }
 
@@ -268,25 +302,45 @@
 }
 
 .energy-pulse {
-  animation: energyPulse 3s ease-in-out infinite;
+  opacity: 0.5;
+}
+
+@media (min-width: 769px) {
+  .energy-pulse {
+    opacity: 1;
+    animation: energyPulse 3s ease-in-out infinite;
+  }
 }
 
 .eid-glow-text {
   font-weight: 700;
   letter-spacing: 0.12em;
-  background: linear-gradient(90deg, #ffffff, #6b7280, #e0e0e0, #9ca3af, #ffffff);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-size: 200% auto;
-  animation: textShimmer 10s linear infinite;
+  color: #e0e0e0;
+}
+
+@media (min-width: 769px) {
+  .eid-glow-text {
+    background: linear-gradient(90deg, #ffffff, #6b7280, #e0e0e0, #9ca3af, #ffffff);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: textShimmer 10s linear infinite;
+    color: unset;
+  }
 }
 
 .eid-banner {
-  background: linear-gradient(90deg, #080808, #0d1a2e, #1a0a0e, #0d1a2e, #080808);
-  background-size: 200% auto;
-  animation: bannerShimmer 10s linear infinite;
+  background: #0a0a0e;
   color: #ffffff;
+}
+
+@media (min-width: 769px) {
+  .eid-banner {
+    background: linear-gradient(90deg, #080808, #0d1a2e, #1a0a0e, #0d1a2e, #080808);
+    background-size: 200% auto;
+    animation: bannerShimmer 10s linear infinite;
+  }
 }
 
 .marquee-container {
