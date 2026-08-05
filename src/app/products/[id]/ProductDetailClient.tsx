@@ -251,6 +251,7 @@ export default function ProductDetailPage() {
                         className="object-cover object-center group-hover:scale-105 transition-transform duration-1000"
                         sizes="(max-width: 1024px) 100vw, 50vw"
                         priority
+                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -274,7 +275,7 @@ export default function ProductDetailPage() {
                            activeMedia?.url === product.image_url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
                          }`}
                        >
-                          <Image src={product.image_url} alt="Main" fill className="object-cover" />
+                          <Image src={product.image_url} alt="Main" fill className="object-cover" unoptimized />
                        </button>
                      )}
 
@@ -287,7 +288,7 @@ export default function ProductDetailPage() {
                            activeMedia?.url === url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
                          }`}
                        >
-                          <Image src={url} alt={`Gallery ${i}`} fill className="object-cover" />
+                          <Image src={url} alt={`Gallery ${i}`} fill className="object-cover" unoptimized />
                        </button>
                      ))}
 

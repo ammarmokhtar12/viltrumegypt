@@ -14,6 +14,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [videoFailed, setVideoFailed] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
   const timeLeft = useCountdown();
   const hasImage = Boolean(product.image_url);
   const hasVideo = Boolean(product.video_url) && !videoFailed;
@@ -24,7 +25,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     <div className="group relative font-sans">
       <Link href={`/products/${product.id}`} className="block">
         <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface border border-border-light card-glow sm:transition-transform sm:duration-500 sm:group-hover:-translate-y-1.5">
-          {hasImage && (
+          {hasImage && !imgFailed && (
             <Image
               src={product.image_url!}
               alt={product.title}
@@ -34,6 +35,16 @@ export default function ProductCard({ product }: ProductCardProps) {
                 hasVideo ? "opacity-0" : "opacity-100"
               }`}
               loading="lazy"
+              unoptimized
+              onError={() => setImgFailed(true)}
+            />
+          )}
+          {hasImage && imgFailed && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={product.image_url!}
+              alt={product.title}
+              className="absolute inset-0 w-full h-full object-cover"
             />
           )}
 
