@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Image from "next/image";
 import { X } from "lucide-react";
 
 interface SizeGuideModalProps {
@@ -52,13 +51,11 @@ export default function SizeGuideModal({ isOpen, onClose }: SizeGuideModalProps)
 
           {/* Size Chart Image */}
           <div className="relative w-full">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src="/size-chart.png"
               alt="Viltrum Size Chart"
-              width={1280}
-              height={1024}
               className="w-full h-auto"
-              sizes="(max-width: 768px) 100vw, 500px"
             />
           </div>
         </div>
