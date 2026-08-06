@@ -67,7 +67,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             Archive
           </Link>
           <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
+            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}`}
             target="_blank"
             rel="noopener noreferrer"
             className={linkClass}
@@ -79,7 +79,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         <div className="flex items-center gap-4 lg:gap-6">
           <div className="hidden md:flex items-center gap-2 text-sm font-medium text-foreground font-sans">
             <Phone size={15} className="text-secondary" />
-            <span>+201031429229</span>
+            <span>+201132507383</span>
           </div>
 
           <button
@@ -128,7 +128,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             Archive
           </Link>
           <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
+            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setMobileOpen(false)}
@@ -138,7 +138,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           </a>
           <div className="flex items-center gap-3 pt-2 font-medium text-secondary text-sm font-sans">
             <Phone size={18} />
-            <span>+201031429229</span>
+            <span>+201132507383</span>
           </div>
         </div>
       )}

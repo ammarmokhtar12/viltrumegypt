@@ -11,7 +11,7 @@ export default function WhatsAppButton() {
     return () => clearTimeout(timer);
   }, []);
 
-  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229";
+  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383";
 
   if (!visible) return null;
 

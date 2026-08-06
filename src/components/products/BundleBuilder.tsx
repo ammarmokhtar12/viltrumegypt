@@ -346,7 +346,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                   <div className="flex gap-4 items-start flex-1">
                     <div className="relative w-16 h-20 rounded-xl overflow-hidden bg-white border border-border-light flex-shrink-0">
                       {slot.product.image_url && (
-                        <Image src={slot.product.image_url} alt={slot.product.title} fill className="object-cover" sizes="64px" />
+                        <Image src={slot.product.image_url} alt={slot.product.title} fill className="object-cover" sizes="64px" unoptimized />
                       )}
                     </div>
                     <div className="space-y-3 flex-1 min-w-0">
@@ -443,7 +443,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                     }`}
                   >
                     <div className="relative aspect-[4/5] bg-white rounded-xl overflow-hidden mb-3">
-                      {p.image_url && <Image src={p.image_url} alt={p.title} fill className="object-cover" sizes="20vw" />}
+                      {p.image_url && <Image src={p.image_url} alt={p.title} fill className="object-cover" sizes="20vw" unoptimized loading="eager" />}
                       
                       {wouldViolateLongSleeveRule && (
                         <div className="absolute inset-0 backdrop-blur-md bg-black/50 flex flex-col items-center justify-center gap-2 rounded-xl text-center px-2">

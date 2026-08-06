@@ -16,7 +16,7 @@ export function generateOrderWhatsAppUrl(
   customerName: string,
   paymentMethod: string
 ): string {
-  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229";
+  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383";
 
   const itemLines = items
     .map(

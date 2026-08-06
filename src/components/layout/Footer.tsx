@@ -54,7 +54,7 @@ export default function Footer() {
               Checkout
             </Link>
             <a
-              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
+              href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}`}
               className="text-zinc-400 hover:text-white transition-colors"
             >
               Contact
