@@ -44,6 +44,7 @@ export interface Order {
   status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled" | "returned";
   created_at: string;
   updated_at: string;
+  shipped_at?: string | null;
   admin_comment?: string | null;
   replacement_requested?: boolean;
   replacement_note?: string | null;

@@ -14,6 +14,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [videoFailed, setVideoFailed] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
   const timeLeft = useCountdown();
   const hasImage = Boolean(product.image_url);
   const hasVideo = Boolean(product.video_url) && !videoFailed;
@@ -21,19 +22,29 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isPromo = product.title.toUpperCase() === "LIMITED OFFER";
 
   return (
-    <div className="group relative font-sans will-change-transform">
+    <div className="group relative font-sans">
       <Link href={`/products/${product.id}`} className="block">
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-white border border-border-light shadow-sm transition-all duration-500 group-hover:shadow-lg group-hover:shadow-black/5 group-hover:-translate-y-1.5">
-          {hasImage && (
+        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface border border-border-light card-glow sm:transition-transform sm:duration-500 sm:group-hover:-translate-y-1.5">
+          {hasImage && !imgFailed && (
             <Image
               src={product.image_url!}
               alt={product.title}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className={`object-cover transition-transform duration-1000 group-hover:scale-105 ${
+              className={`object-cover sm:transition-transform sm:duration-1000 sm:group-hover:scale-105 ${
                 hasVideo ? "opacity-0" : "opacity-100"
               }`}
               loading="lazy"
+              unoptimized
+              onError={() => setImgFailed(true)}
+            />
+          )}
+          {hasImage && imgFailed && (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={product.image_url!}
+              alt={product.title}
+              className="absolute inset-0 w-full h-full object-cover"
             />
           )}
 
@@ -56,16 +67,16 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
 
           {isPromo ? (
-            <div className="absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans bg-primary text-white border-white/10 flex items-center gap-1.5 animate-pulse">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+            <div className="absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-bold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans bg-accent text-white border-accent/30 flex items-center gap-1.5 sm:animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-white sm:animate-ping" />
               <span>Ends in {timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes.toString().padStart(2, '0')}:{timeLeft.seconds.toString().padStart(2, '0')}</span>
             </div>
           ) : (
             <div
               className={`absolute top-6 left-6 backdrop-blur-md text-[9px] uppercase font-semibold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans ${
                 product.title === "Thragg Edition"
-                  ? "bg-primary text-white border-white/10"
-                  : "bg-white/90 text-primary border-border-light"
+                  ? "bg-accent text-white border-accent/30"
+                  : "bg-black/70 text-white border-white/10"
               }`}
             >
               {product.title === "Thragg Edition" ? "Coming Soon" : "Hero Edition"}
@@ -80,15 +91,15 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-black transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 shadow-xl">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 sm:group-hover:opacity-100 sm:transition-opacity hidden sm:flex items-end justify-center pb-8">
+            <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-white shadow-xl shadow-accent/30">
               <ArrowUpRight size={20} />
             </div>
           </div>
         </div>
 
-        <div className="mt-8 text-center px-4 space-y-3">
-          <h3 className="text-[15px] font-serif font-medium text-foreground uppercase tracking-[0.12em] group-hover:text-accent transition-colors">
+        <div className="mt-6 text-center px-4 space-y-2">
+          <h3 className="text-[16px] font-display font-normal text-foreground uppercase tracking-[0.15em] group-hover:text-accent transition-colors">
             {product.title}
           </h3>
 
@@ -96,7 +107,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             <span className="text-[10px] text-muted line-through tracking-widest font-medium">
               {formatPrice(originalPrice)}
             </span>
-            <span className="text-sm font-bold text-primary tracking-tight">
+            <span className="text-sm font-bold text-foreground tracking-tight">
               {formatPrice(product.price)}
             </span>
           </div>

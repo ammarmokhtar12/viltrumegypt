@@ -113,7 +113,7 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex text-black font-sans">
+    <div className="min-h-screen bg-gray-50 flex text-black font-sans admin-layout">
       {/* Top Navigation Bar on Mobile */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-40 flex items-center justify-between px-4">
         <button onClick={() => setSidebarOpen(true)} className="p-2 -ml-2 text-gray-600 hover:text-black">

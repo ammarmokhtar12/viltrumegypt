@@ -217,6 +217,102 @@ function ConfirmedAnalysisPanel({ confirmedOrders }: { confirmedOrders: Order[] 
   );
 }
 
+// ─── Shipped Analysis (grouped by date + daily revenue) ───────────────────────
+function ShippedAnalysisPanel({ shippedOrders }: { shippedOrders: Order[] }) {
+  const byDate: Record<string, Order[]> = {};
+  shippedOrders.forEach((order) => {
+    const dateKey = order.shipped_at
+      ? new Date(order.shipped_at).toLocaleDateString("en-GB", { weekday: "short", year: "numeric", month: "short", day: "numeric" })
+      : "Unknown Date";
+    if (!byDate[dateKey]) byDate[dateKey] = [];
+    byDate[dateKey].push(order);
+  });
+
+  const sortedDates = Object.entries(byDate).sort((a, b) => {
+    const da = a[1][0]?.shipped_at ? new Date(a[1][0].shipped_at).getTime() : 0;
+    const db = b[1][0]?.shipped_at ? new Date(b[1][0].shipped_at).getTime() : 0;
+    return db - da;
+  });
+
+  const totalRevenue = shippedOrders.reduce((s, o) => s + o.total, 0);
+  const totalOrders = shippedOrders.length;
+
+  if (totalOrders === 0) {
+    return (
+      <div className="bg-surface border border-border-light rounded-2xl p-8 text-center text-muted text-sm">
+        No shipped orders to analyze.
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-surface border border-border-light rounded-2xl overflow-hidden">
+      <div className="px-6 py-4 border-b border-border-light flex items-center justify-between">
+        <div>
+          <p className="text-[10px] font-bold text-muted uppercase tracking-[0.3em]">Shipping Log</p>
+          <h3 className="font-semibold text-foreground text-lg mt-0.5">Shipped Orders by Date</h3>
+        </div>
+        <div className="flex gap-8">
+          <div className="text-right">
+            <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Total Orders</p>
+            <p className="text-2xl font-bold text-purple-500">{totalOrders}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-bold text-muted uppercase tracking-widest">Total Revenue</p>
+            <p className="text-2xl font-bold text-emerald-500">{totalRevenue.toLocaleString()} EGP</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-6 space-y-5">
+        {sortedDates.map(([date, dateOrders]) => {
+          const dayRevenue = dateOrders.reduce((s, o) => s + o.total, 0);
+          const dayUnits = dateOrders.reduce((s, o) => {
+            const items = Array.isArray(o.items) ? o.items : [];
+            return s + items.reduce((is, item) => is + item.quantity, 0);
+          }, 0);
+
+          return (
+            <div key={date} className="bg-background border border-border-light rounded-xl overflow-hidden">
+              <div className="px-4 py-3 bg-purple-500/5 border-b border-border-light flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Truck size={16} className="text-purple-500" />
+                  <p className="font-bold text-foreground text-sm">{date}</p>
+                  <span className="text-[10px] font-bold text-muted">({dateOrders.length} orders • {dayUnits} units)</span>
+                </div>
+                <span className="text-sm font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full">
+                  {dayRevenue.toLocaleString()} EGP
+                </span>
+              </div>
+              <div className="divide-y divide-border-light">
+                {dateOrders.map((order) => {
+                  const items = Array.isArray(order.items) ? order.items : [];
+                  return (
+                    <div key={order.id} className="px-4 py-3 flex items-center justify-between">
+                      <div className="flex items-center gap-4 min-w-0">
+                        <span className="text-xs font-bold text-purple-500 bg-purple-500/10 px-2 py-0.5 rounded-md">
+                          #{order.order_number}
+                        </span>
+                        <span className="text-sm font-medium text-foreground truncate">{order.customer_name}</span>
+                        <span className="text-[10px] text-muted hidden sm:inline">
+                          {items.map(i => `${i.title} (${i.size}) x${i.quantity}`).join(" • ")}
+                        </span>
+                      </div>
+                      <span className="text-sm font-bold text-foreground whitespace-nowrap ml-4">
+                        {order.total.toLocaleString()} EGP
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Shared Print Styles ───────────────────────────────────────────────────────
 const PRINT_STYLES = `
   @media print {
@@ -639,6 +735,7 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
+  const [showShippedAnalysis, setShowShippedAnalysis] = useState(false);
   const [printMode, setPrintMode] = useState<"pending" | "confirmed">("pending");
 
   // ─── Edit Order state ────────────────────────────────────────────────────────
@@ -704,14 +801,22 @@ export default function AdminOrdersPage() {
     const orderToCancel = (newStatus === "cancelled" || newStatus === "returned") ? orders.find(o => o.id === orderId) : null;
 
     try {
+      const updatePayload: Record<string, unknown> = { status: newStatus };
+      if (newStatus === "shipped") {
+        updatePayload.shipped_at = new Date().toISOString();
+      }
+      if (newStatus !== "shipped") {
+        updatePayload.shipped_at = null;
+      }
+
       const { error } = await supabase
         .from("orders")
-        .update({ status: newStatus })
+        .update(updatePayload)
         .eq("id", orderId);
 
       if (!error) {
         setOrders((prev) =>
-          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus as Order["status"] } : o))
+          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus as Order["status"], shipped_at: newStatus === "shipped" ? new Date().toISOString() : null } : o))
         );
 
         // If the order was cancelled or returned, restore the stock of all its items
@@ -908,6 +1013,8 @@ export default function AdminOrdersPage() {
   const pendingCount = pendingOrders.length;
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
   const confirmedCount = confirmedOrders.length;
+  const shippedOrders = orders.filter((o) => o.status === "shipped");
+  const shippedCount = shippedOrders.length;
 
   if (loading) {
     return (
@@ -941,7 +1048,7 @@ export default function AdminOrdersPage() {
           <div className="flex flex-wrap items-center gap-3">
             {/* Pending Analysis Toggle */}
             <button
-              onClick={() => { setShowAnalysis((v) => !v); setShowConfirmedAnalysis(false); }}
+              onClick={() => { setShowAnalysis((v) => !v); setShowConfirmedAnalysis(false); setShowShippedAnalysis(false); }}
               className={`flex items-center gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-xl border transition-all ${showAnalysis
                   ? "bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20"
                   : "bg-surface border-border-light text-foreground hover:border-secondary"
@@ -958,7 +1065,7 @@ export default function AdminOrdersPage() {
 
             {/* Confirmed Analysis Toggle */}
             <button
-              onClick={() => { setShowConfirmedAnalysis((v) => !v); setShowAnalysis(false); }}
+              onClick={() => { setShowConfirmedAnalysis((v) => !v); setShowAnalysis(false); setShowShippedAnalysis(false); }}
               className={`flex items-center gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-xl border transition-all ${showConfirmedAnalysis
                   ? "bg-blue-500 text-white border-blue-500 shadow-md shadow-blue-500/20"
                   : "bg-surface border-border-light text-foreground hover:border-secondary"
@@ -969,6 +1076,23 @@ export default function AdminOrdersPage() {
               {confirmedCount > 0 && (
                 <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-black ${showConfirmedAnalysis ? "bg-white/30 text-white" : "bg-blue-500 text-white"}`}>
                   {confirmedCount}
+                </span>
+              )}
+            </button>
+
+            {/* Shipped Analysis Toggle */}
+            <button
+              onClick={() => { setShowShippedAnalysis((v) => !v); setShowAnalysis(false); setShowConfirmedAnalysis(false); }}
+              className={`flex items-center gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-xl border transition-all ${showShippedAnalysis
+                  ? "bg-purple-500 text-white border-purple-500 shadow-md shadow-purple-500/20"
+                  : "bg-surface border-border-light text-foreground hover:border-secondary"
+                }`}
+            >
+              <Truck size={14} />
+              Shipped Analysis
+              {shippedCount > 0 && (
+                <span className={`px-1.5 py-0.5 rounded-full text-[8px] font-black ${showShippedAnalysis ? "bg-white/30 text-white" : "bg-purple-500 text-white"}`}>
+                  {shippedCount}
                 </span>
               )}
             </button>
@@ -1016,6 +1140,13 @@ export default function AdminOrdersPage() {
         {showConfirmedAnalysis && (
           <div className="animate-in slide-in-from-top-2 duration-300">
             <ConfirmedAnalysisPanel confirmedOrders={confirmedOrders} />
+          </div>
+        )}
+
+        {/* Shipped Analysis Panel */}
+        {showShippedAnalysis && (
+          <div className="animate-in slide-in-from-top-2 duration-300">
+            <ShippedAnalysisPanel shippedOrders={shippedOrders} />
           </div>
         )}
 
@@ -1121,6 +1252,12 @@ export default function AdminOrdersPage() {
                           <span className="text-primary/80 font-mono select-all bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10">{order.customer_phone}</span>
                           <span className="opacity-40">·</span>
                           <span>{new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span>
+                          {order.shipped_at && (
+                            <>
+                              <span className="opacity-40">·</span>
+                              <span className="text-purple-500">Shipped {new Date(order.shipped_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span>
+                            </>
+                          )}
                         </p>
                       </div>
                     </div>

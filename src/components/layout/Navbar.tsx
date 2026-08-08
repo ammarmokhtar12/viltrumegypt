@@ -37,13 +37,13 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         scrolled ? "premium-blur shadow-sm" : "bg-transparent"
       }`}
     >
-      <div className="eid-banner overflow-hidden py-2.5 border-b border-border-light relative z-50 select-none">
+      <div className="eid-banner overflow-hidden py-2.5 border-b border-border-light/50 relative z-50 select-none rgb-shadow">
         <div className="marquee-container flex whitespace-nowrap">
           <div className="marquee-content flex gap-16 text-[10px] font-semibold uppercase tracking-[0.25em] px-4 font-sans">
-            <span className="eid-glow-text">
+            <span className="rgb-glow-text">
               VILTRUM ARMORY — COMPRESSION GEAR FORGED FOR HEROES · UNLEASH YOUR INNER VILTRUMITE
             </span>
-            <span className="eid-glow-text">
+            <span className="rgb-glow-text">
               VILTRUM ARMORY — COMPRESSION GEAR FORGED FOR HEROES · UNLEASH YOUR INNER VILTRUMITE
             </span>
           </div>
@@ -67,7 +67,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             Archive
           </Link>
           <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
+            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}`}
             target="_blank"
             rel="noopener noreferrer"
             className={linkClass}
@@ -79,7 +79,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         <div className="flex items-center gap-4 lg:gap-6">
           <div className="hidden md:flex items-center gap-2 text-sm font-medium text-foreground font-sans">
             <Phone size={15} className="text-secondary" />
-            <span>+201031429229</span>
+            <span>+201132507383</span>
           </div>
 
           <button
@@ -112,7 +112,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
       </div>
 
       {mobileOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-border-light shadow-xl px-6 py-8 flex flex-col gap-5 animate-mobile-menu">
+        <div className="lg:hidden absolute top-full left-0 w-full bg-background/95 backdrop-blur-xl border-t border-border-light shadow-xl px-6 py-8 flex flex-col gap-5 animate-mobile-menu">
           <Link
             href="/#products"
             onClick={() => setMobileOpen(false)}
@@ -128,7 +128,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
             Archive
           </Link>
           <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229"}`}
+            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setMobileOpen(false)}
@@ -138,7 +138,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           </a>
           <div className="flex items-center gap-3 pt-2 font-medium text-secondary text-sm font-sans">
             <Phone size={18} />
-            <span>+201031429229</span>
+            <span>+201132507383</span>
           </div>
         </div>
       )}

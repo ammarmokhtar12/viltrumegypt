@@ -36,17 +36,17 @@ export default function PromoCountdownBanner({ products }: PromoCountdownBannerP
 
         {/* Pricing pills below image */}
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <div className="flex items-center gap-3 bg-surface border border-border-light rounded-2xl px-6 py-4 shadow-sm">
-            <div className="text-center">
+          <div className="w-full sm:w-auto flex items-center gap-3 bg-surface border border-border-light rounded-2xl px-6 py-4 card-glow">
+            <div className="text-center w-full sm:w-auto">
               <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted mb-0.5">2 T-Shirts Bundle</p>
-              <p className="text-2xl font-extrabold text-primary leading-none">799 <span className="text-sm font-semibold text-secondary">EGP</span></p>
+              <p className="text-2xl font-extrabold text-foreground leading-none">799 <span className="text-sm font-semibold text-secondary">EGP</span></p>
             </div>
           </div>
 
           <div className="hidden sm:block text-muted text-xl font-light">|</div>
 
-          <div className="flex items-center gap-3 bg-primary text-white rounded-2xl px-6 py-4 shadow-lg">
-            <div className="text-center">
+          <div className="w-full sm:w-auto flex items-center gap-3 bg-accent text-white rounded-2xl px-6 py-4 shadow-lg shadow-accent/20 rgb-border">
+            <div className="text-center w-full sm:w-auto">
               <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/70 mb-0.5">3 T-Shirts Bundle</p>
               <p className="text-2xl font-extrabold leading-none">1,150 <span className="text-sm font-semibold text-white/80">EGP</span></p>
             </div>
