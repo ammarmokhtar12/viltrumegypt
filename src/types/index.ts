@@ -48,4 +48,5 @@ export interface Order {
   admin_comment?: string | null;
   replacement_requested?: boolean;
   replacement_note?: string | null;
+  shipping_company?: string | null;
 }

@@ -733,6 +733,7 @@ export default function AdminOrdersPage() {
   const [screenshotModal, setScreenshotModal] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [shippingFilter, setShippingFilter] = useState<string>("all");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
   const [showShippedAnalysis, setShowShippedAnalysis] = useState(false);
@@ -1006,7 +1007,8 @@ export default function AdminOrdersPage() {
       o.customer_phone.includes(searchQuery) ||
       String(o.order_number).includes(searchQuery);
     const matchesStatus = statusFilter === "all" || o.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesShipping = shippingFilter === "all" || (o.shipping_company || "alsafwa") === shippingFilter;
+    return matchesSearch && matchesStatus && matchesShipping;
   });
 
   const pendingOrders = orders.filter((o) => o.status === "pending");
@@ -1195,6 +1197,23 @@ export default function AdminOrdersPage() {
               </button>
             ))}
           </div>
+          {/* Shipping Company Filter */}
+          <div className="flex gap-2 p-1 bg-surface border border-border-light rounded-xl w-full lg:w-auto">
+            {["all", "alsafwa", "blackhorse"].map((s) => (
+              <button
+                key={s}
+                onClick={() => setShippingFilter(s)}
+                className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all whitespace-nowrap ${shippingFilter === s
+                    ? s === "blackhorse"
+                      ? "bg-yellow-600 text-white shadow-md shadow-yellow-600/10"
+                      : "bg-primary text-white shadow-md shadow-primary/10"
+                    : "text-muted hover:text-foreground"
+                  }`}
+              >
+                {s === "all" ? `All Shipping` : s === "alsafwa" ? "الصفوة" : "بلاك هورس"} ({s === "all" ? orders.length : orders.filter(o => (o.shipping_company || "alsafwa") === s).length})
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Orders Grid/Table */}
@@ -1237,6 +1256,12 @@ export default function AdminOrdersPage() {
                             <div className="px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg border bg-orange-500/10 text-orange-500 border-orange-500/20 flex items-center gap-1">
                               <RotateCcw size={9} />
                               Replace
+                            </div>
+                          )}
+                          {order.shipping_company && order.shipping_company !== "alsafwa" && (
+                            <div className="px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded-lg border bg-yellow-500/10 text-yellow-600 border-yellow-500/20 flex items-center gap-1">
+                              <Truck size={9} />
+                              {order.shipping_company}
                             </div>
                           )}
                           {order.admin_comment && (
