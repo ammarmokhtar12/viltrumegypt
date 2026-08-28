@@ -370,7 +370,7 @@ export default function ProductDetailPage() {
                                     <span className="text-emerald-600">✓ In Stock ({inventory[selectedSize]} available)</span>
                                   )
                                 ) : (
-                                  <span className="text-red-500 font-extrabold animate-pulse">✗ Out of Stock (نفذت الكمية)</span>
+                                  <span className="text-[#ef4444] font-extrabold animate-pulse">✗ Out of Stock (نفذت الكمية)</span>
                                 )}
                               </div>
                             )}
@@ -392,15 +392,15 @@ export default function ProductDetailPage() {
                               onClick={() => setSelectedSize(size)}
                               className={`flex h-12 w-16 items-center justify-center rounded-xl text-xs font-bold transition-all duration-300 relative ${
                                 selectedSize === size
-                                  ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105"
+                                  ? "bg-[#000000] text-[#ffffff] shadow-lg shadow-[#00000033] scale-105"
                                   : isOutOfStock
-                                  ? "bg-surface border border-border-light text-muted/30 cursor-not-allowed line-through"
-                                  : "bg-surface border border-border-light text-secondary hover:text-foreground hover:border-secondary"
+                                  ? "bg-[#f5f5f5] border border-[#e5e5e5] text-[#d4d4d4] cursor-not-allowed line-through"
+                                  : "bg-[#f5f5f5] border border-[#d4d4d4] text-[#404040] hover:text-[#000000] hover:border-[#737373]"
                               }`}
                             >
                               {size}
                               {isOutOfStock && (
-                                <span className="absolute bottom-1 text-[7px] text-red-500 font-bold uppercase scale-75">OUT</span>
+                                <span className="absolute bottom-1 text-[7px] text-[#ef4444] font-bold uppercase scale-75">OUT</span>
                               )}
                             </button>
                           );
@@ -413,14 +413,14 @@ export default function ProductDetailPage() {
                       <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block">
                         Quantity
                       </label>
-                      <div className="inline-flex items-center rounded-xl border border-border-light bg-surface p-1 shadow-sm">
+                      <div className="inline-flex items-center rounded-xl border border-[#d4d4d4] bg-[#f5f5f5] p-1 shadow-sm">
                         <button
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          className="flex h-10 w-10 items-center justify-center text-muted transition-colors hover:text-foreground hover:bg-background rounded-lg"
+                          className="flex h-10 w-10 items-center justify-center text-[#737373] transition-colors hover:text-[#000000] hover:bg-[#ffffff] rounded-lg"
                         >
                           <Minus size={14} />
                         </button>
-                        <span className="flex h-10 w-12 items-center justify-center text-xs font-bold text-foreground">
+                        <span className="flex h-10 w-12 items-center justify-center text-xs font-bold text-[#000000]">
                           {quantity}
                         </span>
                         <button
@@ -429,7 +429,7 @@ export default function ProductDetailPage() {
                             setQuantity(Math.min(quantity + 1, maxStock));
                           }}
                           disabled={selectedSize ? (inventory[selectedSize] !== undefined && quantity >= inventory[selectedSize]) : false}
-                          className="flex h-10 w-10 items-center justify-center text-muted transition-colors hover:text-foreground hover:bg-background rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="flex h-10 w-10 items-center justify-center text-[#737373] transition-colors hover:text-[#000000] hover:bg-[#ffffff] rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                           <Plus size={14} />
                         </button>
@@ -444,10 +444,10 @@ export default function ProductDetailPage() {
                         disabled={!selectedSize || added || (selectedSize && inventory[selectedSize] !== undefined ? inventory[selectedSize] <= 0 : false)}
                         className={`flex-1 flex items-center justify-center gap-3 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 group ${
                           added
-                            ? "bg-emerald-600 text-white"
+                            ? "bg-[#059669] text-[#ffffff]"
                             : (!selectedSize || (selectedSize && inventory[selectedSize] !== undefined ? inventory[selectedSize] <= 0 : false))
-                            ? "cursor-not-allowed bg-surface border border-border-light text-muted opacity-50"
-                            : "bg-primary text-white hover:opacity-90 shadow-2xl shadow-primary/10"
+                            ? "cursor-not-allowed bg-[#f5f5f5] border border-[#e5e5e5] text-[#a3a3a3] opacity-50"
+                            : "bg-[#000000] text-[#ffffff] hover:bg-[#262626] shadow-2xl shadow-[#0000001a]"
                         }`}
                         style={{ minHeight: "4rem" }}
                       >
@@ -534,10 +534,10 @@ export default function ProductDetailPage() {
               disabled={!selectedSize || added || (selectedSize && inventory[selectedSize] !== undefined ? inventory[selectedSize] <= 0 : false)}
               className={`px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-[0.15em] transition-all whitespace-nowrap ${
                 added
-                  ? "bg-emerald-600 text-white"
+                  ? "bg-[#059669] text-[#ffffff]"
                   : !selectedSize
-                  ? "bg-surface border border-border-light text-muted"
-                  : "bg-primary text-white active:scale-[0.97]"
+                  ? "bg-[#f5f5f5] border border-[#d4d4d4] text-[#a3a3a3]"
+                  : "bg-[#000000] text-[#ffffff] active:scale-[0.97]"
               }`}
             >
               {added ? "Added!" : !selectedSize ? "Pick Size" : "Add to Cart"}
