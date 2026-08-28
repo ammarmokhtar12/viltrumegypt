@@ -110,6 +110,11 @@ export default function ProductCard({ product }: ProductCardProps) {
             <span className="text-sm font-bold text-foreground tracking-tight">
               {formatPrice(product.price)}
             </span>
+            {product.title.toLowerCase().includes("spider") && (
+              <span className="text-[11px] font-bold text-red-500 mt-1">
+                🔥 63 Sold
+              </span>
+            )}
           </div>
         </div>
       </Link>
