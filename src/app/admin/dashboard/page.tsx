@@ -556,7 +556,7 @@ export default function AdminDashboardPage() {
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#6B7280" }} />
                   <Tooltip
                     contentStyle={{ borderRadius: "8px", border: "1px solid #E5E7EB", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
-                    formatter={(val: number, name: string) => [name === "Revenue" ? `${val.toLocaleString()} EGP` : val, name]}
+                    formatter={(val: any, name: any) => [name === "Revenue" ? `${Number(val || 0).toLocaleString()} EGP` : val, name]}
                   />
                   <Area type="monotone" dataKey="Revenue" stroke="#000000" strokeWidth={2} fill="#000000" fillOpacity={0.1} />
                 </AreaChart>
