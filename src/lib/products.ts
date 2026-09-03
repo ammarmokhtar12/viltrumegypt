@@ -21,7 +21,7 @@ export async function fetchActiveProducts(): Promise<ProductsFetchResult> {
     const { data, error } = await supabase
       .from("products")
       .select(
-        "id,title,description,price,image_url,gallery_urls,sizes,is_active,created_at,updated_at"
+        "id,title,description,price,image_url,gallery_urls,sizes,is_active,video_url,created_at,updated_at"
       )
       .eq("is_active", true)
       .order("created_at", { ascending: false });
