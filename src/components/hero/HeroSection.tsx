@@ -73,12 +73,12 @@ export default function HeroSection() {
           >
             Enter The Archive
           </Link>
-          <Link
-            href="/products"
+          <a
+            href="#bundle"
             className="btn-secondary w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm active:scale-[0.97]"
           >
             Build Your Bundle
-          </Link>
+          </a>
         </div>
       </div>
     </section>

@@ -10,6 +10,7 @@ import PromoCountdownBanner from "@/components/products/PromoCountdownBanner";
 import ProductGrid from "@/components/products/ProductGrid";
 import CartDrawer from "@/components/cart/CartDrawer";
 import StoreDataAlert from "@/components/store/StoreDataAlert";
+import BundleBuilder from "@/components/products/BundleBuilder";
 
 interface HomePageClientProps {
   initial: ProductsFetchResult;
@@ -36,6 +37,14 @@ export default function HomePageClient({ initial }: HomePageClientProps) {
         )}
         <PromoCountdownBanner products={products} />
         <ProductGrid products={products} fetchError={fetchError} />
+        {products.length > 0 && (() => {
+          const limitedOffer = products.find(p => p.title.toUpperCase() === "LIMITED OFFER");
+          return limitedOffer ? (
+            <div id="bundle">
+              <BundleBuilder limitedOfferProduct={limitedOffer} onCartOpen={() => setCartOpen(true)} />
+            </div>
+          ) : null;
+        })()}
       </main>
       <Footer />
     </>
