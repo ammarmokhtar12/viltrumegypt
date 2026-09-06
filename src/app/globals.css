@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @font-face {
@@ -10,18 +10,20 @@
 
 @theme {
   --font-sans: 'CleanNumbers', 'Inter', system-ui, -apple-system, sans-serif;
-  --font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-serif: 'Inter', system-ui, sans-serif;
   --font-display: 'Teko', 'Arial Black', Impact, sans-serif;
 
   --color-primary: #e8e8e8;
   --color-secondary: #9ca3af;
   --color-muted: #6b7280;
-  --color-surface: #141414;
+  --color-surface: #1c1c1c;
   --color-border-light: #2a2a2a;
   --color-background: #0a0a0a;
   --color-foreground: #f0f0f0;
   --color-accent: #c41e3a;
   --color-accent-glow: #e63950;
+  --color-accent-gold: #d4a017;
+  --color-accent-gold-glow: #e8b830;
   --color-accent-blue: #1a6ed8;
   --color-accent-blue-glow: #3b8af0;
 }
@@ -30,7 +32,7 @@
   :root {
     --background: #0a0a0a;
     --foreground: #f0f0f0;
-    --surface: #141414;
+    --surface: #1c1c1c;
     --muted: #6b7280;
     --primary: #e8e8e8;
     --accent: #c41e3a;
@@ -41,6 +43,7 @@
 
   body {
     @apply bg-background text-foreground antialiased font-sans text-[15px] leading-relaxed;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -105,15 +108,16 @@
   }
 
   .card-glow {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
 
   @media (min-width: 769px) {
     .card-glow {
-      transition: box-shadow 0.4s ease;
+      transition: box-shadow 0.4s ease, transform 0.3s ease;
     }
     .card-glow:hover {
-      box-shadow: 0 0 0 1px rgba(196, 30, 58, 0.2), 0 8px 32px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 0 1px rgba(196, 30, 58, 0.35), 0 12px 40px rgba(196, 30, 58, 0.15), 0 8px 32px rgba(0, 0, 0, 0.6);
+      transform: translateY(-2px);
     }
   }
 

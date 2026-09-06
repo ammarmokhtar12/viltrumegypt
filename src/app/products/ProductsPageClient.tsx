@@ -51,7 +51,7 @@ export default function ProductsPageClient({ initial }: ProductsPageClientProps)
           <h1 className="text-5xl sm:text-7xl lg:text-8xl type-headline leading-none">
             The Archive
           </h1>
-          <p className="mt-8 text-base sm:text-lg text-secondary max-w-xl mx-auto leading-relaxed font-serif italic font-normal">
+          <p className="mt-8 text-base sm:text-lg text-secondary max-w-xl mx-auto leading-relaxed font-sans font-normal">
             A comprehensive anthology of the Viltrum collection. Engineered for those who demand precision.
           </p>
 

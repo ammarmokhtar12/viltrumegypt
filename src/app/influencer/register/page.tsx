@@ -89,7 +89,7 @@ export default function InfluencerRegisterPage() {
           </div>
 
           <div className="space-y-3">
-            <h1 className="text-2xl font-serif text-neutral-900 tracking-tight leading-tight">
+            <h1 className="text-2xl font-display text-neutral-900 tracking-tight leading-tight">
               Application Submitted!
             </h1>
             <p className="text-neutral-500 text-sm leading-relaxed">

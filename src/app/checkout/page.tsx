@@ -157,7 +157,7 @@ export default function CheckoutPage() {
               <p className="text-[10px] font-sans font-bold uppercase tracking-[0.25em] text-neutral-400">
                 Fulfillment Protocol initiated
               </p>
-              <h1 className="text-3xl md:text-4xl font-serif text-neutral-900 tracking-tight leading-tight">
+              <h1 className="text-3xl md:text-4xl font-display text-neutral-900 tracking-tight leading-tight">
                 Order Registered
               </h1>
               <p className="text-neutral-500 text-sm max-w-sm mx-auto leading-relaxed">

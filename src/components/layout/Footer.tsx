@@ -64,7 +64,7 @@ export default function Footer() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-16">
           <div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal leading-tight text-white">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-normal leading-tight text-white">
               <span className="text-accent">Built for Heroes.</span><br /><span className="text-accent-blue">Worn by Legends.</span>
             </h2>
           </div>
@@ -80,7 +80,7 @@ export default function Footer() {
               <span className="type-eyebrow !text-zinc-500 mb-1">Inquiries</span>
               <a
                 href="mailto:info@viltrumegypt.com"
-                className="text-xl md:text-2xl font-serif italic text-zinc-200 hover:text-white transition-colors"
+                className="text-xl md:text-2xl font-display italic text-zinc-200 hover:text-white transition-colors"
               >
                 info@viltrumegypt.com
               </a>

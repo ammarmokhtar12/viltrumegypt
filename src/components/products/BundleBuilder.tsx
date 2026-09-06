@@ -236,7 +236,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
         <div className="space-y-1.5 z-10 text-center relative">
           <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-accent-blue">Viltrum Armory</p>
-          <p className="text-lg font-serif text-white tracking-wide">Assemble your hero compression set</p>
+          <p className="text-lg font-display text-white tracking-wide">Assemble your hero compression set</p>
           <p className="text-[11px] text-white/60">Choose any T-shirts from our active inventory.</p>
         </div>
       </div>
@@ -245,7 +245,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
       <div className="space-y-6">
         <div className="flex items-baseline gap-2">
           <span className="text-[10px] font-bold text-primary bg-primary/5 px-2.5 py-1 rounded-md uppercase tracking-wider">Step 1</span>
-          <h2 className="text-2xl font-serif text-foreground">Select Bundle Pack</h2>
+          <h2 className="text-2xl font-display text-foreground">Select Bundle Pack</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -264,7 +264,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
             )}
             <div className="space-y-2">
               <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-500/100/10 px-2 py-0.5 rounded-full uppercase tracking-wider">Value Pack</span>
-              <h3 className="text-xl font-serif font-bold text-foreground">Double Compression Pack</h3>
+              <h3 className="text-xl font-display font-bold text-foreground">Double Compression Pack</h3>
               <p className="text-xs text-secondary leading-relaxed">Choose any 2 premium T-shirts with mixed sizes.</p>
               
               <div className="pt-4 flex items-baseline gap-2 flex-wrap">
@@ -289,7 +289,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
             )}
             <div className="space-y-2">
               <span className="inline-block text-[9px] font-bold text-accent bg-accent/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Popular Pack</span>
-              <h3 className="text-xl font-serif font-bold text-foreground">Triple Compression Pack</h3>
+              <h3 className="text-xl font-display font-bold text-foreground">Triple Compression Pack</h3>
               <p className="text-xs text-secondary leading-relaxed">Choose any 3 premium T-shirts with custom sizes.</p>
 
               <div className="pt-4 flex items-baseline gap-2 flex-wrap">
@@ -306,7 +306,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
         <div className="flex justify-between items-baseline">
           <div className="flex items-baseline gap-2">
             <span className="text-[10px] font-bold text-primary bg-primary/5 px-2.5 py-1 rounded-md uppercase tracking-wider">Step 2</span>
-            <h2 className="text-2xl font-serif text-foreground">Configure T-Shirts</h2>
+            <h2 className="text-2xl font-display text-foreground">Configure T-Shirts</h2>
           </div>
           <span className="text-xs text-muted uppercase tracking-widest font-semibold">
             {slots.filter((s) => s.product && s.size).length} of {tier} Configured
@@ -415,7 +415,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
           <div className="bg-surface rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-border-light">
             <div className="px-6 py-5 border-b border-border-light flex justify-between items-center bg-surface">
-              <h3 className="text-lg font-serif font-bold text-primary">Choose T-Shirt for Slot {activeSelectIndex + 1}</h3>
+              <h3 className="text-lg font-display font-bold text-primary">Choose T-Shirt for Slot {activeSelectIndex + 1}</h3>
               <button
                 onClick={() => setActiveSelectIndex(null)}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-surface border border-border-light hover:text-foreground"
@@ -452,7 +452,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                       )}
                     </div>
                     <div className="space-y-1">
-                      <h4 className="text-xs font-serif font-bold text-primary uppercase truncate">{p.title}</h4>
+                      <h4 className="text-xs font-display font-bold text-primary uppercase truncate">{p.title}</h4>
                       <p className="text-[10px] font-bold text-secondary">{formatPrice(p.price)}</p>
                     </div>
                   </div>
