@@ -35,8 +35,9 @@ export default function ProductsPageClient({ initial }: ProductsPageClientProps)
 
   const filteredProducts = products.filter(
     (p) =>
-      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      p.title.toUpperCase() !== "LIMITED OFFER" &&
+      (p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.description?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
