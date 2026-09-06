@@ -473,6 +473,15 @@ html {
   filter: drop-shadow(0 2px 8px rgba(245, 197, 24, 0.3));
 }
 
+.invincible-text-accent {
+  background: linear-gradient(135deg, #c41e3a 0%, #e63950 50%, #c41e3a 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 12px rgba(196, 30, 58, 0.5));
+}
+
 /* Fade-in animations for sections */
 @keyframes fadeInSection {
   from { opacity: 0; transform: translateY(20px); }

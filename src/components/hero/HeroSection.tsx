@@ -41,16 +41,16 @@ export default function HeroSection() {
           className="hero-fade-in-up"
           style={{ animationDelay: "0.6s" }}
         >
-          <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-extrabold leading-[1.05] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
-            WEAR THE POWER.
+          <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-extrabold leading-[1.05] tracking-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
+            <span className="invincible-text">EVERY HERO</span>
           </h1>
         </div>
         <div
           className="hero-fade-in-up mb-8 sm:mb-10"
           style={{ animationDelay: "0.9s" }}
         >
-          <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-extrabold leading-[1.05] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
-            BECOME THE <span className="text-accent">LEGEND.</span>
+          <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-extrabold leading-[1.05] tracking-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
+            <span className="invincible-text">NEEDS A </span><span className="invincible-text-accent">SUIT.</span>
           </h1>
         </div>
 
