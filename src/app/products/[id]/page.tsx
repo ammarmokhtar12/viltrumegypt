@@ -17,6 +17,7 @@ import ReviewSection from "@/components/products/ReviewSection";
 import ViltrumLoader from "@/components/layout/ViltrumLoader";
 import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
+import { trackMetaEvent } from "@/lib/meta";
 
 import SizeGuideModal from "@/components/products/SizeGuideModal";
 import { useCountdown } from "@/lib/useCountdown";
@@ -96,6 +97,14 @@ export default function ProductDetailPage() {
               price: data.price,
             }],
           });
+          trackMetaEvent("ViewContent", {
+            content_type: "product",
+            content_ids: [data.id],
+            content_name: data.title,
+            value: data.price,
+            currency: "EGP",
+            contents: [{ id: data.id, quantity: 1, item_price: data.price }],
+          });
         } else if (error) {
           toast.error("Could not load this product.");
         }
@@ -147,6 +156,15 @@ export default function ProductDetailPage() {
         price: product.price,
       }],
     });
+    trackMetaEvent("AddToCart", {
+      content_type: "product",
+      content_ids: [product.id],
+      content_name: product.title,
+      value: product.price * quantity,
+      currency: "EGP",
+      contents: [{ id: product.id, quantity, item_price: product.price }],
+      num_items: quantity,
+    });
   };
 
   const handleAddToWishlist = () => {
@@ -170,6 +188,14 @@ export default function ProductDetailPage() {
         quantity: 1,
         price: product.price,
       }],
+    });
+    trackMetaEvent("AddToWishlist", {
+      content_type: "product",
+      content_ids: [product.id],
+      content_name: product.title,
+      value: product.price,
+      currency: "EGP",
+      contents: [{ id: product.id, quantity: 1, item_price: product.price }],
     });
   };
 

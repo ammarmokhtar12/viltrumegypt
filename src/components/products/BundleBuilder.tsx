@@ -12,6 +12,7 @@ import { useCartStore } from "@/store/cart";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
+import { trackMetaEvent } from "@/lib/meta";
 
 interface BundleBuilderProps {
   limitedOfferProduct: Product;
@@ -141,6 +142,13 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
       value: product.price,
       currency: "EGP",
     });
+    trackMetaEvent("ViewContent", {
+      content_type: "product",
+      content_ids: [product.id],
+      content_name: product.title,
+      value: product.price,
+      currency: "EGP",
+    });
   };
 
   // Set Size for a slot
@@ -210,6 +218,15 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
         quantity: 1,
         price: item.price,
       })),
+    });
+    trackMetaEvent("AddToCart", {
+      content_type: "product",
+      content_ids: bundleItems.map((item) => item.product_id),
+      content_name: label,
+      value: bundlePrice,
+      currency: "EGP",
+      contents: bundleItems.map((item) => ({ id: item.product_id, quantity: 1, item_price: item.price })),
+      num_items: bundleItems.length,
     });
 
     setIsAdding(false);

@@ -11,6 +11,7 @@ import PaymentUpload from "@/components/checkout/PaymentUpload";
 import Image from "next/image";
 import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
+import { trackMetaEvent } from "@/lib/meta";
 import { sendOrderNotification, sendCustomerConfirmation } from "@/app/actions/notify";
 
 export default function CheckoutPage() {
@@ -55,6 +56,31 @@ export default function CheckoutPage() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (mounted && items.length > 0) {
+      trackTikTokEvent("InitiateCheckout", {
+        content_type: "product",
+        contents: items.map((item) => ({
+          content_id: item.product_id,
+          content_type: "product",
+          content_name: item.title,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        value: totalPrice(),
+        currency: "EGP",
+      });
+      trackMetaEvent("InitiateCheckout", {
+        content_type: "product",
+        content_ids: items.map((item) => item.product_id),
+        value: totalPrice(),
+        currency: "EGP",
+        contents: items.map((item) => ({ id: item.product_id, quantity: item.quantity, item_price: item.price })),
+        num_items: items.reduce((sum, item) => sum + item.quantity, 0),
+      });
+    }
+  }, [mounted]);
 
   const autoApplyCoupon = async (code: string) => {
     setValidatingCoupon(true);
@@ -314,6 +340,13 @@ export default function CheckoutPage() {
       value: finalTotal,
       currency: "EGP",
     });
+    trackMetaEvent("AddPaymentInfo", {
+      content_type: "product",
+      content_ids: cartItems.map((item) => item.product_id),
+      value: finalTotal,
+      currency: "EGP",
+      contents: cartItems.map((item) => ({ id: item.product_id, quantity: item.quantity, item_price: item.price })),
+    });
   };
 
   const handleFinalSubmit = async () => {
@@ -426,6 +459,14 @@ export default function CheckoutPage() {
 
       trackTikTokEvent("PlaceAnOrder", trackingProps, userData, `ord_${data.order_number}_place`);
       trackTikTokEvent("Purchase", trackingProps, userData, `ord_${data.order_number}_purch`);
+      trackMetaEvent("Purchase", {
+        content_type: "product",
+        content_ids: orderItems.map((item) => item.product_id),
+        value: finalTotal + shippingFee,
+        currency: "EGP",
+        contents: orderItems.map((item) => ({ id: item.product_id, quantity: item.quantity, item_price: item.price })),
+        num_items: orderItems.reduce((sum, item) => sum + item.quantity, 0),
+      });
 
       clearCart();
       toast.success("Order Confirmed! Your package is being prepared.", {
