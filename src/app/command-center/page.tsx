@@ -246,6 +246,87 @@ export default function CommandCenterDashboard() {
         </div>
       )}
 
+      {/* Monthly Target */}
+      {(() => {
+        const TARGET_ORDERS = 100;
+        const TARGET_REVENUE = aov > 0 ? TARGET_ORDERS * aov : 50000;
+        const currentMonth = new Date().toLocaleString("en-US", { month: "long" });
+        const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+        const dayOfMonth = new Date().getDate();
+        const daysLeft = daysInMonth - dayOfMonth;
+        const orderPct = Math.min((totalOrders / TARGET_ORDERS) * 100, 100);
+        const revPct = Math.min((totalRevenue / TARGET_REVENUE) * 100, 100);
+        const ordersPerDay = dayOfMonth > 0 ? totalOrders / dayOfMonth : 0;
+        const projectedOrders = Math.round(ordersPerDay * daysInMonth);
+        const onTrack = projectedOrders >= TARGET_ORDERS;
+
+        return (
+          <div className="bg-gradient-to-br from-zinc-900 via-zinc-900/80 to-zinc-900/60 border border-zinc-800/60 rounded-2xl p-6 space-y-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-bold text-red-500 uppercase tracking-[0.3em]">{currentMonth} Target</p>
+                <h2 className="text-xl font-black text-white mt-1">Reach {TARGET_ORDERS} Orders</h2>
+              </div>
+              <div className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider border ${
+                onTrack ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" : "text-amber-400 bg-amber-500/10 border-amber-500/20"
+              }`}>
+                {onTrack ? "On Track" : "Behind"}
+              </div>
+            </div>
+
+            {/* Orders Progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-end">
+                <span className="text-xs text-zinc-500 font-bold">Orders</span>
+                <span className="text-sm font-black text-white">{totalOrders} <span className="text-zinc-600 font-medium">/ {TARGET_ORDERS}</span></span>
+              </div>
+              <div className="h-4 bg-zinc-800 rounded-full overflow-hidden relative">
+                <div
+                  className={`h-full rounded-full transition-all duration-1000 ease-out ${orderPct >= 100 ? "bg-emerald-500" : orderPct >= 60 ? "bg-blue-500" : "bg-red-500"}`}
+                  style={{ width: `${orderPct}%` }}
+                />
+                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-black text-white/80">{orderPct.toFixed(0)}%</span>
+              </div>
+              <div className="flex justify-between text-[10px] text-zinc-600">
+                <span>{TARGET_ORDERS - totalOrders > 0 ? `${TARGET_ORDERS - totalOrders} orders to go` : "Target reached!"}</span>
+                <span>{daysLeft} days left</span>
+              </div>
+            </div>
+
+            {/* Revenue Progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-end">
+                <span className="text-xs text-zinc-500 font-bold">Revenue</span>
+                <span className="text-sm font-black text-white">{fmt(totalRevenue)} <span className="text-zinc-600 font-medium">/ {fmt(TARGET_REVENUE)} EGP</span></span>
+              </div>
+              <div className="h-4 bg-zinc-800 rounded-full overflow-hidden relative">
+                <div
+                  className={`h-full rounded-full transition-all duration-1000 ease-out ${revPct >= 100 ? "bg-emerald-500" : revPct >= 60 ? "bg-purple-500" : "bg-amber-500"}`}
+                  style={{ width: `${revPct}%` }}
+                />
+                <span className="absolute inset-0 flex items-center justify-center text-[9px] font-black text-white/80">{revPct.toFixed(0)}%</span>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-3 pt-1">
+              <div className="text-center">
+                <p className="text-lg font-black text-white">{ordersPerDay.toFixed(1)}</p>
+                <p className="text-[9px] text-zinc-600 font-bold uppercase">Orders/Day</p>
+              </div>
+              <div className="text-center">
+                <p className={`text-lg font-black ${onTrack ? "text-emerald-400" : "text-amber-400"}`}>{projectedOrders}</p>
+                <p className="text-[9px] text-zinc-600 font-bold uppercase">Projected</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-black text-white">{daysLeft > 0 ? Math.ceil((TARGET_ORDERS - totalOrders) / daysLeft) : 0}</p>
+                <p className="text-[9px] text-zinc-600 font-bold uppercase">Needed/Day</p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Orders Status Bar */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
         {[

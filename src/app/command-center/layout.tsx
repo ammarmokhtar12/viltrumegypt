@@ -16,6 +16,8 @@ import {
   X,
   Home,
   ChevronRight,
+  Calculator,
+  FileSpreadsheet,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -24,6 +26,8 @@ const NAV_ITEMS = [
   { href: "/command-center/returns", label: "Returns", icon: RotateCcw },
   { href: "/command-center/manufacturing", label: "Manufacturing", icon: Factory },
   { href: "/command-center/ad-spend", label: "Ad Spend", icon: Megaphone },
+  { href: "/command-center/profit", label: "Profit Calc", icon: Calculator },
+  { href: "/command-center/reports", label: "Reports", icon: FileSpreadsheet },
   { href: "/command-center/upload", label: "Upload Sheet", icon: Upload },
   { href: "/command-center/analytics", label: "Analytics", icon: TrendingUp },
 ];

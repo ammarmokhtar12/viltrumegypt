@@ -29,3 +29,26 @@ export function generateOrderWhatsAppUrl(
 
   return `https://wa.me/${phoneNumber}?text=${message}`;
 }
+
+export function generateCustomerWhatsAppUrl(
+  orderNumber: number,
+  items: { title: string; size: string; quantity: number; price: number }[],
+  total: number,
+  customerName: string,
+  customerPhone: string,
+  customerAddress: string,
+  paymentMethod: string
+): string {
+  const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201031429229";
+
+  const itemLines = items
+    .map(
+      (item, i) =>
+        `${i + 1}. ${item.title} (${item.size}) x${item.quantity} — EGP ${item.price}`
+    )
+    .join("%0A");
+
+  const message = `✅ *تأكيد الأوردر — VILTRUM EGYPT*%0A%0A📋 *أوردر رقم #${orderNumber}*%0A👤 *الاسم:* ${customerName}%0A📱 *الموبايل:* ${customerPhone}%0A📍 *العنوان:* ${customerAddress}%0A💳 *الدفع:* ${paymentMethod === "vodafone_cash" ? "كاش عند الاستلام" : "InstaPay / فودافون كاش"}%0A%0A📦 *المنتجات:*%0A${itemLines}%0A%0A💰 *الإجمالي: EGP ${total}*%0A%0A⬇️ *اختار واحدة:*%0A1️⃣ تأكيد الأوردر ✅%0A2️⃣ تعديل الأوردر ✏️`;
+
+  return `https://wa.me/${phoneNumber}?text=${message}`;
+}

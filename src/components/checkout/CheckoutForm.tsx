@@ -54,6 +54,7 @@ interface CheckoutFormProps {
     email: string;
     city: string;
     address: string;
+    referral_source: string;
     paymentMethod: "vodafone_cash" | "instapay";
   }) => void;
   paymentMethod: "vodafone_cash" | "instapay";
@@ -71,6 +72,7 @@ export default function CheckoutForm({
     email: "",
     city: "",
     address: "",
+    referral_source: "",
   });
 
   const onSubmitRef = useRef(onSubmit);
@@ -144,6 +146,27 @@ export default function CheckoutForm({
             <p className="text-[11px] text-muted mt-1.5">
               مطلوب لتأكيد مواعيد وصول الأوردر
             </p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-secondary mb-1.5 block">
+              How did you know about us? <span className="text-muted font-normal">(Optional)</span>
+            </label>
+            <select
+              name="referral_source"
+              value={formData.referral_source}
+              onChange={handleChange}
+              className="viltrum-input"
+            >
+              <option value="">-- اختياري --</option>
+              <option value="facebook">Facebook</option>
+              <option value="instagram">Instagram</option>
+              <option value="tiktok">TikTok</option>
+              <option value="google">Google</option>
+              <option value="friend">صاحب / حد رشحنا</option>
+              <option value="influencer">Influencer / Creator</option>
+              <option value="street">شفتنا في الشارع</option>
+              <option value="other">Other</option>
+            </select>
           </div>
         </div>
       </div>

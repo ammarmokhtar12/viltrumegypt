@@ -17,6 +17,7 @@ import {
   Phone,
   MapPin,
   RefreshCw,
+  MessageCircle,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
@@ -229,6 +230,16 @@ export default function OrdersPage() {
                     </button>
 
                     <div className="w-px bg-zinc-800 mx-1" />
+
+                    {/* WhatsApp */}
+                    <a
+                      href={`https://wa.me/${(order.customer_phone || "").replace(/\D/g, "").replace(/^0/, "20")}?text=${encodeURIComponent(`مرحبا ${order.customer_name} 👋\nأوردر رقم #${order.order_number} من VILTRUM\nالإجمالي: ${order.total} EGP\n\nهل تحب تأكد الأوردر؟ ✅\nولا محتاج تعدل حاجة؟ ✏️`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-green-500 border-green-500/20 bg-green-500/10 hover:bg-green-500/20"
+                    >
+                      <MessageCircle size={12} /> WhatsApp
+                    </a>
 
                     {/* Payment toggle */}
                     <button

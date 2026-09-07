@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Check, Lock, ChevronRight, Sparkles, Copy, Clock, Package, Mail } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { supabase } from "@/lib/supabase";
-import { formatPrice, generateOrderWhatsAppUrl } from "@/lib/utils";
+import { formatPrice, generateOrderWhatsAppUrl, generateCustomerWhatsAppUrl } from "@/lib/utils";
 import CheckoutForm from "@/components/checkout/CheckoutForm";
 import PaymentUpload from "@/components/checkout/PaymentUpload";
 import Image from "next/image";
@@ -27,6 +27,7 @@ export default function CheckoutPage() {
     email: string;
     city: string;
     address: string;
+    referral_source: string;
     paymentMethod: "vodafone_cash" | "instapay";
   } | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -321,6 +322,7 @@ export default function CheckoutPage() {
     email: string;
     city: string;
     address: string;
+    referral_source: string;
     paymentMethod: "vodafone_cash" | "instapay";
   }) => {
     setFormData(data);
@@ -391,6 +393,7 @@ export default function CheckoutPage() {
           influencer_id: appliedCoupon ? appliedCoupon.id : null,
           discount_amount: discountAmount,
           commission_amount: commissionAmt,
+          referral_source: formData.referral_source || null,
         })
         .select("id, order_number")
         .single();
@@ -433,11 +436,13 @@ export default function CheckoutPage() {
         console.error("Failed to update inventory during checkout:", stockErr);
       }
 
-      const whatsappUrl = generateOrderWhatsAppUrl(
+      const whatsappUrl = generateCustomerWhatsAppUrl(
         data.order_number,
         orderItems,
         finalTotal + shippingFee,
         formData.name,
+        formData.phone,
+        `${formData.city} - ${formData.address}`,
         formData.paymentMethod
       );
 
@@ -500,6 +505,8 @@ export default function CheckoutPage() {
             orderNumber: Number(data.order_number),
             customerName: formData.name,
             customerEmail: formData.email,
+            customerPhone: formData.phone,
+            customerAddress: `${formData.city} - ${formData.address}`,
             items: orderItems,
             total: finalTotal + shippingFee,
           });
