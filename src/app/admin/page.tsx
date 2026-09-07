@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
       });
 
       if (res.ok) {
-        router.push("/admin/dashboard");
+        router.push("/command-center");
       } else {
         setError("Invalid password");
       }

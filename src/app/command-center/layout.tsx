@@ -38,6 +38,7 @@ const ANALYTICS_NAV = [
 ];
 
 const STORE_NAV = [
+  { href: "/command-center/overview", label: "Store Overview", icon: Home },
   { href: "/command-center/products", label: "Products", icon: Package },
   { href: "/command-center/inventory", label: "Inventory", icon: Database },
   { href: "/command-center/customers", label: "Customers", icon: Users },
