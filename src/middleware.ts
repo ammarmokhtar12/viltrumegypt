@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   // Only protect the admin dashboard routes, not the login page itself
-  if (request.nextUrl.pathname.startsWith('/admin/dashboard')) {
+  if (request.nextUrl.pathname.startsWith('/admin/dashboard') || request.nextUrl.pathname.startsWith('/command-center')) {
     const session = request.cookies.get('admin_session');
     
     // Basic check if cookie exists.
@@ -18,5 +18,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/dashboard/:path*'],
+  matcher: ['/admin/dashboard/:path*', '/command-center/:path*'],
 };
