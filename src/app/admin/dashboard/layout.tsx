@@ -15,6 +15,7 @@ import {
   DollarSign,
   Database,
   Percent,
+  BarChart3,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -151,6 +152,9 @@ export default function AdminLayout({
         </nav>
 
         <div className="p-4 border-t border-gray-200 space-y-2">
+           <Link href="/command-center" className="flex items-center justify-center gap-2 w-full py-2 text-sm font-medium text-white bg-zinc-900 border border-zinc-800 rounded-md hover:bg-zinc-800 transition-colors">
+              <BarChart3 size={16} /> Command Center
+           </Link>
            <Link href="/" className="flex items-center justify-center gap-2 w-full py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
               <Home size={16} /> Storefront
            </Link>

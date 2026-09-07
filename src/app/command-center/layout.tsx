@@ -47,6 +47,9 @@ export default function CommandCenterLayout({ children }: { children: React.Reac
         setChecking(false);
       }
     })();
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
   }, [router]);
 
   const handleLogout = async () => {
