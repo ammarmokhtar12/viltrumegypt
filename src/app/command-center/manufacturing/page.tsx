@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Factory, PlusCircle, Package, AlertTriangle, Trash2, RefreshCw } from "lucide-react";
+import { Factory, PlusCircle, Package, AlertTriangle, Trash2, Pencil, X, Check } from "lucide-react";
 
 export default function ManufacturingPage() {
   const [batches, setBatches] = useState<any[]>([]);
@@ -12,6 +12,7 @@ export default function ManufacturingPage() {
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // Form
   const [batchName, setBatchName] = useState("");
@@ -54,29 +55,71 @@ export default function ManufacturingPage() {
     }
   };
 
-  const handleAddBatch = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setBatchName(""); setBatchDate(new Date().toISOString().split("T")[0]);
+    setQty(""); setFabricCost(""); setPrintingCost(""); setSewingCost("");
+    setPackagingCost(""); setTransportCost(""); setOtherCost(""); setNotes("");
+    setEditingId(null);
+  };
+
+  const startEdit = (b: any) => {
+    setEditingId(b.id);
+    setBatchName(b.batch_name || "");
+    setBatchDate(b.date || new Date().toISOString().split("T")[0]);
+    setQty(String(b.quantity_produced || ""));
+    setFabricCost(String(b.fabric_cost || ""));
+    setPrintingCost(String(b.printing_cost || ""));
+    setSewingCost(String(b.sewing_cost || ""));
+    setPackagingCost(String(b.packaging_cost || ""));
+    setTransportCost(String(b.transport_cost || ""));
+    setOtherCost(String(b.other_cost || ""));
+    setNotes(b.notes || "");
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    try {
-      const { data, error } = await supabase.from("manufacturing_batches").insert({
-        batch_name: batchName,
-        date: batchDate,
-        quantity_produced: parseInt(qty) || 0,
-        fabric_cost: parseFloat(fabricCost) || 0,
-        printing_cost: parseFloat(printingCost) || 0,
-        sewing_cost: parseFloat(sewingCost) || 0,
-        packaging_cost: parseFloat(packagingCost) || 0,
-        transport_cost: parseFloat(transportCost) || 0,
-        other_cost: parseFloat(otherCost) || 0,
-        notes: notes.trim() || null,
-      }).select();
 
-      if (error) alert(`Error: ${error.message}`);
-      else if (data) {
-        setBatches((prev) => [data[0], ...prev]);
-        setShowForm(false);
-        setBatchName(""); setQty(""); setFabricCost(""); setPrintingCost(""); setSewingCost("");
-        setPackagingCost(""); setTransportCost(""); setOtherCost(""); setNotes("");
+    const payload = {
+      batch_name: batchName,
+      date: batchDate,
+      quantity_produced: parseInt(qty) || 0,
+      fabric_cost: parseFloat(fabricCost) || 0,
+      printing_cost: parseFloat(printingCost) || 0,
+      sewing_cost: parseFloat(sewingCost) || 0,
+      packaging_cost: parseFloat(packagingCost) || 0,
+      transport_cost: parseFloat(transportCost) || 0,
+      other_cost: parseFloat(otherCost) || 0,
+      notes: notes.trim() || null,
+    };
+
+    try {
+      if (editingId) {
+        const { data, error } = await supabase
+          .from("manufacturing_batches")
+          .update(payload)
+          .eq("id", editingId)
+          .select();
+
+        if (error) alert(`Error: ${error.message}`);
+        else if (data) {
+          setBatches((prev) => prev.map((b) => b.id === editingId ? data[0] : b));
+          setShowForm(false);
+          resetForm();
+        }
+      } else {
+        const { data, error } = await supabase
+          .from("manufacturing_batches")
+          .insert(payload)
+          .select();
+
+        if (error) alert(`Error: ${error.message}`);
+        else if (data) {
+          setBatches((prev) => [data[0], ...prev]);
+          setShowForm(false);
+          resetForm();
+        }
       }
     } catch (err) {
       console.error(err);
@@ -130,7 +173,7 @@ export default function ManufacturingPage() {
           <p className="text-[10px] font-bold text-red-500 uppercase tracking-[0.3em] mb-1">Production & Inventory</p>
           <h1 className="text-3xl font-bold text-white tracking-tight">Manufacturing & Stock</h1>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all">
+        <button onClick={() => { resetForm(); setShowForm(!showForm); }} className="flex items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all">
           <PlusCircle size={14} /> Add Batch
         </button>
       </div>
@@ -181,10 +224,20 @@ export default function ManufacturingPage() {
         </div>
       </div>
 
-      {/* Add Batch Form */}
+      {/* Add/Edit Batch Form */}
       {showForm && (
-        <form onSubmit={handleAddBatch} className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2"><Factory size={16} className="text-amber-400" /> New Manufacturing Batch</h3>
+        <form onSubmit={handleSubmit} className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <Factory size={16} className="text-amber-400" />
+              {editingId ? "Edit Batch" : "New Manufacturing Batch"}
+            </h3>
+            {editingId && (
+              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="p-1.5 text-zinc-600 hover:text-white transition-colors">
+                <X size={16} />
+              </button>
+            )}
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1.5">Batch Name *</label>
@@ -219,9 +272,16 @@ export default function ManufacturingPage() {
             <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1.5">Notes</label>
             <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional notes..." className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white text-sm focus:outline-none" />
           </div>
-          <button type="submit" disabled={submitting} className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black rounded-xl text-xs font-bold uppercase tracking-wider transition-colors">
-            {submitting ? "Saving..." : "Save Batch"}
-          </button>
+          <div className="flex gap-2">
+            <button type="submit" disabled={submitting} className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-black rounded-xl text-xs font-bold uppercase tracking-wider transition-colors">
+              {submitting ? "Saving..." : editingId ? "Update Batch" : "Save Batch"}
+            </button>
+            {editingId && (
+              <button type="button" onClick={() => { setShowForm(false); resetForm(); }} className="px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition-all">
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
       )}
 
@@ -229,21 +289,44 @@ export default function ManufacturingPage() {
       <div className="space-y-3">
         <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Production History</h2>
         {batches.map((b) => (
-          <div key={b.id} className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-1">
-                <span className="text-sm font-bold text-white">{b.batch_name}</span>
-                <span className="text-[10px] text-zinc-600">{new Date(b.date).toLocaleDateString("en-GB")}</span>
+          <div key={b.id} className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-sm font-bold text-white">{b.batch_name}</span>
+                  <span className="text-[10px] text-zinc-600">{new Date(b.date).toLocaleDateString("en-GB")}</span>
+                </div>
+                <div className="flex flex-wrap gap-3 text-[10px] text-zinc-500 font-medium">
+                  <span>Qty: <span className="text-zinc-300 font-bold">{b.quantity_produced}</span></span>
+                  <span>Total: <span className="text-amber-400 font-bold">{fmt(b.total_cost || 0)} EGP</span></span>
+                  <span>Per Unit: <span className="text-cyan-400 font-bold">{Number(b.cost_per_unit || 0).toFixed(1)} EGP</span></span>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-3 text-[10px] text-zinc-500 font-medium">
-                <span>Qty: <span className="text-zinc-300 font-bold">{b.quantity_produced}</span></span>
-                <span>Total: <span className="text-amber-400 font-bold">{fmt(b.total_cost || 0)} EGP</span></span>
-                <span>Per Unit: <span className="text-cyan-400 font-bold">{Number(b.cost_per_unit || 0).toFixed(1)} EGP</span></span>
+              <div className="flex gap-1">
+                <button onClick={() => startEdit(b)} className="p-2 text-zinc-700 hover:text-amber-400 transition-colors" title="Edit">
+                  <Pencil size={16} />
+                </button>
+                <button onClick={() => handleDelete(b.id)} className="p-2 text-zinc-700 hover:text-red-400 transition-colors" title="Delete">
+                  <Trash2 size={16} />
+                </button>
               </div>
             </div>
-            <button onClick={() => handleDelete(b.id)} className="p-2 text-zinc-700 hover:text-red-400 transition-colors">
-              <Trash2 size={16} />
-            </button>
+            {/* Cost breakdown */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: "Fabric", val: b.fabric_cost },
+                { label: "Printing", val: b.printing_cost },
+                { label: "Sewing", val: b.sewing_cost },
+                { label: "Packaging", val: b.packaging_cost },
+                { label: "Transport", val: b.transport_cost },
+                { label: "Other", val: b.other_cost },
+              ].filter((c) => Number(c.val) > 0).map((c) => (
+                <span key={c.label} className="px-2.5 py-1 rounded-lg text-[9px] font-bold text-zinc-500 bg-zinc-800/50 border border-zinc-800">
+                  {c.label}: <span className="text-zinc-300">{fmt(Number(c.val))} EGP</span>
+                </span>
+              ))}
+            </div>
+            {b.notes && <p className="text-[10px] text-zinc-600 italic">{b.notes}</p>}
           </div>
         ))}
         {batches.length === 0 && (
