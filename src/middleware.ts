@@ -2,15 +2,19 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Only protect the admin dashboard routes, not the login page itself
+  // Admin + Command Center: require admin_session cookie
   if (request.nextUrl.pathname.startsWith('/admin/dashboard') || request.nextUrl.pathname.startsWith('/command-center')) {
     const session = request.cookies.get('admin_session');
-    
-    // Basic check if cookie exists.
-    // The actual signature verification happens in the /api/admin/check route or layout,
-    // but this middleware stops obvious unauthorized access at the edge.
     if (!session?.value) {
       return NextResponse.redirect(new URL('/admin', request.url));
+    }
+  }
+
+  // Media Buyer dashboard: require mb_session cookie
+  if (request.nextUrl.pathname.startsWith('/media-buyer/dashboard')) {
+    const session = request.cookies.get('mb_session');
+    if (!session?.value) {
+      return NextResponse.redirect(new URL('/media-buyer', request.url));
     }
   }
 
@@ -18,5 +22,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/dashboard/:path*', '/command-center/:path*'],
+  matcher: ['/admin/dashboard/:path*', '/command-center/:path*', '/media-buyer/dashboard/:path*'],
 };
