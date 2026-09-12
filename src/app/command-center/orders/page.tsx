@@ -29,7 +29,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   returned: { label: "Returned", color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/20" },
 };
 
-const STATUS_FLOW = ["pending", "confirmed", "shipped", "delivered"];
+const STATUS_FLOW = ["pending", "confirmed", "shipped", "delivered", "returned"];
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
