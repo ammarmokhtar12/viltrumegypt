@@ -57,13 +57,13 @@ export default function CommandCenterDashboard() {
     setLoading(true);
     try {
       const [ordersRes, expensesRes, adSpendRes, batchesRes, invRes, returnsRes, budgetRes] = await Promise.all([
-        supabase.from("orders").select("*").order("created_at", { ascending: false }),
-        supabase.from("expenses").select("*"),
-        supabase.from("ad_spend").select("*"),
-        supabase.from("manufacturing_batches").select("*"),
-        supabase.from("inventory").select("*"),
-        supabase.from("returns").select("*"),
-        supabase.from("budget_settings").select("*").order("created_at", { ascending: false }).limit(1),
+        supabase.from("orders").select("status, total, payment_collected, created_at"),
+        supabase.from("expenses").select("amount"),
+        supabase.from("ad_spend").select("amount, impressions, clicks"),
+        supabase.from("manufacturing_batches").select("total_cost, cost_per_unit"),
+        supabase.from("inventory").select("quantity"),
+        supabase.from("returns").select("id"),
+        supabase.from("budget_settings").select("id, total_budget, ad_budget").order("created_at", { ascending: false }).limit(1),
       ]);
 
       setOrders(ordersRes.data || []);

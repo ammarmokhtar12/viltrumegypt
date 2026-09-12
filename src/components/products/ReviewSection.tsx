@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Star, MessageSquare, User, Send, ThumbsUp } from "lucide-react";
+import { Star, MessageSquare, User, Send, ThumbsUp, Camera, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 interface Review {
@@ -12,6 +12,7 @@ interface Review {
   comment: string;
   created_at: string;
   helpful: number;
+  image_url?: string | null;
 }
 
 interface ReviewSectionProps {
@@ -97,6 +98,8 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
   const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Load reviews from Supabase
   useEffect(() => {
@@ -130,8 +133,24 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
     if (!newName.trim() || !newComment.trim() || newRating === 0) return;
 
     setSubmitting(true);
-    
+
     try {
+      let imageUrl: string | null = null;
+
+      if (imageFile) {
+        const ext = imageFile.name.split(".").pop() || "jpg";
+        const filePath = `reviews/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: uploadErr } = await supabase.storage
+          .from("review-images")
+          .upload(filePath, imageFile, { cacheControl: "31536000", upsert: false });
+        if (!uploadErr) {
+          const { data: urlData } = supabase.storage
+            .from("review-images")
+            .getPublicUrl(filePath);
+          imageUrl = urlData.publicUrl;
+        }
+      }
+
       const { data, error } = await supabase
         .from('reviews')
         .insert({
@@ -139,7 +158,8 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
           name: newName.trim(),
           rating: newRating,
           comment: newComment.trim(),
-          helpful: 0
+          helpful: 0,
+          image_url: imageUrl,
         })
         .select()
         .single();
@@ -153,6 +173,8 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
       setNewName("");
       setNewRating(0);
       setNewComment("");
+      setImageFile(null);
+      setImagePreview(null);
       setSubmitted(true);
       setTimeout(() => {
         setSubmitted(false);
@@ -361,6 +383,49 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
                 </p>
               </div>
 
+              {/* Image Upload */}
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block mb-2">
+                  Add a Photo <span className="text-muted/40">(optional)</span>
+                </label>
+                {imagePreview ? (
+                  <div className="relative inline-block">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-24 h-24 object-cover rounded-xl border border-border-light"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview(null);
+                      }}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex items-center gap-2 px-4 py-3 bg-background border border-border-light border-dashed rounded-xl cursor-pointer hover:border-accent/30 transition-colors w-fit">
+                    <Camera size={16} className="text-muted" />
+                    <span className="text-xs text-muted">Upload Photo</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file && file.size <= 5 * 1024 * 1024) {
+                          setImageFile(file);
+                          setImagePreview(URL.createObjectURL(file));
+                        }
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+
               {/* Submit */}
               <button
                 type="submit"
@@ -421,6 +486,18 @@ export default function ReviewSection({ productId }: ReviewSectionProps) {
                 </div>
                 <StarRating rating={review.rating} size={13} />
               </div>
+
+              {review.image_url && (
+                <div className="ml-[52px] mb-3">
+                  <img
+                    src={review.image_url}
+                    alt={`Photo by ${review.name}`}
+                    className="w-32 h-32 object-cover rounded-xl border border-border-light cursor-pointer hover:opacity-90 transition-opacity"
+                    loading="lazy"
+                    onClick={() => window.open(review.image_url!, "_blank")}
+                  />
+                </div>
+              )}
 
               <p className="text-sm text-secondary leading-relaxed font-medium ml-[52px]">
                 {review.comment}

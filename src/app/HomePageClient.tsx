@@ -11,6 +11,8 @@ import ProductGrid from "@/components/products/ProductGrid";
 import CartDrawer from "@/components/cart/CartDrawer";
 import StoreDataAlert from "@/components/store/StoreDataAlert";
 import BundleBuilder from "@/components/products/BundleBuilder";
+import HomeReviews from "@/components/products/HomeReviews";
+import SocialProofPopup from "@/components/products/SocialProofPopup";
 
 interface HomePageClientProps {
   initial: ProductsFetchResult;
@@ -45,7 +47,9 @@ export default function HomePageClient({ initial }: HomePageClientProps) {
             </div>
           ) : null;
         })()}
+        <HomeReviews />
       </main>
+      <SocialProofPopup />
       <Footer />
     </>
   );
