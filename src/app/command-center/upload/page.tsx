@@ -11,12 +11,27 @@ interface ParsedRow {
   shippingCompany: string;
   status: string;
   rawRow: Record<string, string>;
+  dbCustomerName?: string;
+  sheetCustomerName?: string;
 }
 
 const STATUS_KEYWORDS: Record<string, string[]> = {
-  shipped: ["shipped", "in transit", "picked up", "out for delivery", "on the way", "dispatched"],
-  delivered: ["delivered", "completed", "received", "done"],
-  cancelled: ["cancelled", "canceled", "returned to sender", "rts", "failed"],
+  delivered: [
+    "delivered", "completed", "received", "done",
+    "تم التسليم", "تم الاستلام", "تم التوصيل", "مستلم", "تم تسليم",
+  ],
+  returned: [
+    "returned to sender", "rts", "return to shipper",
+    "ارتجاع", "مرتجع", "ارتجاع للراسل", "راجع", "مرفوض", "رفض الاستلام", "لم يستلم",
+  ],
+  cancelled: [
+    "cancelled", "canceled", "failed",
+    "ملغي", "الغاء", "إلغاء",
+  ],
+  shipped: [
+    "shipped", "in transit", "picked up", "out for delivery", "on the way", "dispatched",
+    "في الطريق", "جاري التوصيل", "تم الشحن", "خرج للتسليم",
+  ],
 };
 
 function detectStatus(row: Record<string, string>): string {
@@ -163,6 +178,21 @@ async function smartParsePDF(file: File): Promise<ParsedRow[]> {
   const results: ParsedRow[] = [];
   const seenOrders = new Set<number>();
 
+  const extractSheetName = (context: string, phone: string): string => {
+    const cleaned = context
+      .replace(PHONE_REGEX, "")
+      .replace(/\d{10,}/g, "")
+      .replace(/\b(shipped|delivered|pending|confirmed|cancelled|returned|تم التسليم|ارتجاع|مرتجع|تم الشحن|في الطريق)\b/gi, "");
+
+    const arabicName = cleaned.match(/[؀-ۿ]{2,}[\s؀-ۿ]*/);
+    if (arabicName) return arabicName[0].trim().substring(0, 40);
+
+    const englishName = cleaned.match(/[A-Za-z]{2,}(?:\s+[A-Za-z]{2,}){0,3}/);
+    if (englishName) return englishName[0].trim().substring(0, 40);
+
+    return "";
+  };
+
   const processMatch = (matchedOrder: DBOrder, context: string, matchMethod: string) => {
     if (seenOrders.has(matchedOrder.order_number)) return;
     seenOrders.add(matchedOrder.order_number);
@@ -179,12 +209,16 @@ async function smartParsePDF(file: File): Promise<ParsedRow[]> {
       if (genericTrack) trackingNumber = genericTrack[1];
     }
 
+    const sheetName = extractSheetName(context, matchedOrder.customer_phone || "");
+
     results.push({
       orderNumber: matchedOrder.order_number,
       trackingNumber,
       shippingCompany: company !== "Unknown" ? company : detectCompanyFromTracking(trackingNumber),
       status: detectStatus({ raw_line: context }),
-      rawRow: { raw_line: context.substring(0, 200), matched_by: matchMethod, customer: matchedOrder.customer_name, phone: matchedOrder.customer_phone },
+      rawRow: { raw_line: context.substring(0, 200), matched_by: matchMethod },
+      dbCustomerName: matchedOrder.customer_name,
+      sheetCustomerName: sheetName,
     });
   };
 
@@ -263,13 +297,46 @@ export default function UploadPage() {
       } else {
         const text = await file.text();
         const rows = parseCSV(text);
-        const parsedRows: ParsedRow[] = rows.map((row) => ({
-          orderNumber: detectOrderNumber(row),
-          trackingNumber: detectTracking(row),
-          shippingCompany: detectCompany(row, file.name),
-          status: detectStatus(row),
-          rawRow: row,
-        }));
+
+        const { data: dbOrders } = await supabase
+          .from("orders")
+          .select("id, order_number, customer_name, customer_phone, customer_address");
+
+        const phoneToOrder = new Map<string, DBOrder>();
+        const numToOrder = new Map<number, DBOrder>();
+        (dbOrders || []).forEach((o: DBOrder) => {
+          numToOrder.set(o.order_number, o);
+          if (o.customer_phone) phoneToOrder.set(normalizePhone(o.customer_phone), o);
+        });
+
+        const parsedRows: ParsedRow[] = rows.map((row) => {
+          const orderNum = detectOrderNumber(row);
+          const allValues = Object.values(row).join(" ");
+          const phones = allValues.match(PHONE_REGEX);
+
+          let dbMatch: DBOrder | undefined;
+          if (phones) {
+            for (const p of phones) {
+              dbMatch = phoneToOrder.get(normalizePhone(p));
+              if (dbMatch) break;
+            }
+          }
+          if (!dbMatch && orderNum) {
+            dbMatch = numToOrder.get(orderNum);
+          }
+
+          const sheetName = Object.values(row).find((v) => /[؀-ۿ]{2,}/.test(v) || /^[A-Za-z]{2,}\s+[A-Za-z]{2,}/.test(v)) || "";
+
+          return {
+            orderNumber: dbMatch ? dbMatch.order_number : orderNum,
+            trackingNumber: detectTracking(row),
+            shippingCompany: detectCompany(row, file.name),
+            status: detectStatus(row),
+            rawRow: row,
+            dbCustomerName: dbMatch?.customer_name || "",
+            sheetCustomerName: sheetName.trim().substring(0, 40),
+          };
+        });
         setParsed(parsedRows);
       }
     } catch (err) {
@@ -351,6 +418,8 @@ export default function UploadPage() {
               <thead>
                 <tr className="text-[10px] text-zinc-600 uppercase tracking-wider border-b border-zinc-800">
                   <th className="text-left py-3 px-3">Order #</th>
+                  <th className="text-left py-3 px-3">DB Name</th>
+                  <th className="text-left py-3 px-3">Sheet Name</th>
                   <th className="text-left py-3 px-3">Tracking</th>
                   <th className="text-left py-3 px-3">Company</th>
                   <th className="text-left py-3 px-3">Status</th>
@@ -371,6 +440,12 @@ export default function UploadPage() {
                         className="w-24 px-2 py-1.5 bg-zinc-800 border border-zinc-700 rounded-lg text-white font-bold text-xs focus:outline-none focus:border-red-500/50"
                         placeholder="Order #"
                       />
+                    </td>
+                    <td className="py-2 px-2">
+                      <span className="text-xs text-emerald-400 font-medium">{row.dbCustomerName || "-"}</span>
+                    </td>
+                    <td className="py-2 px-2">
+                      <span className="text-xs text-amber-400 font-medium">{row.sheetCustomerName || "-"}</span>
                     </td>
                     <td className="py-2 px-2">
                       <input
