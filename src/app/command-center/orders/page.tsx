@@ -100,7 +100,8 @@ ${itemLines}
     const matchSearch = search === "" ||
       String(o.order_number).includes(search) ||
       o.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
-      o.customer_phone?.includes(search);
+      o.customer_phone?.includes(search) ||
+      o.customer_address?.toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === "all" || o.status === statusFilter;
     const matchPayment = paymentFilter === "all" ||
       (paymentFilter === "collected" && o.payment_collected) ||
@@ -139,7 +140,7 @@ ${itemLines}
           <Search size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" />
           <input
             type="text"
-            placeholder="Search by order #, name, phone..."
+            placeholder="Search by order #, name, phone, address..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-11 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
