@@ -10,6 +10,7 @@ interface ParsedRow {
   trackingNumber: string;
   shippingCompany: string;
   status: string;
+  currentStatus?: string;
   rawRow: Record<string, string>;
   dbCustomerName?: string;
   sheetCustomerName?: string;
@@ -146,6 +147,7 @@ interface DBOrder {
   customer_name: string;
   customer_phone: string;
   customer_address: string;
+  status: string;
 }
 
 const TRACKING_PATTERNS: Record<string, RegExp> = {
@@ -197,7 +199,7 @@ async function smartParsePDF(file: File): Promise<ParsedRow[]> {
 
   const { data: dbOrders } = await supabase
     .from("orders")
-    .select("id, order_number, customer_name, customer_phone, customer_address")
+    .select("id, order_number, customer_name, customer_phone, customer_address, status")
     .order("created_at", { ascending: false });
 
   const ordersByPhone = new Map<string, DBOrder>();
@@ -257,6 +259,7 @@ async function smartParsePDF(file: File): Promise<ParsedRow[]> {
       trackingNumber,
       shippingCompany: company !== "Unknown" ? company : detectCompanyFromTracking(trackingNumber),
       status: detectStatus({ raw_line: context }),
+      currentStatus: matchedOrder.status,
       rawRow: { raw_line: context.substring(0, 200), matched_by: matchMethod },
       dbCustomerName: matchedOrder.customer_name,
       sheetCustomerName: sheetName,
@@ -341,7 +344,7 @@ export default function UploadPage() {
 
         const { data: dbOrders } = await supabase
           .from("orders")
-          .select("id, order_number, customer_name, customer_phone, customer_address");
+          .select("id, order_number, customer_name, customer_phone, customer_address, status");
 
         const phoneToOrder = new Map<string, DBOrder>();
         (dbOrders || []).forEach((o: DBOrder) => {
@@ -366,6 +369,7 @@ export default function UploadPage() {
             trackingNumber: detectTracking(row),
             shippingCompany: detectCompany(row, file.name),
             status,
+            currentStatus: dbMatch?.status || "",
             rawRow: row,
             dbCustomerName: dbMatch?.customer_name || "",
             sheetCustomerName: sheetName,
@@ -456,7 +460,8 @@ export default function UploadPage() {
                   <th className="text-left py-3 px-3">Sheet Name</th>
                   <th className="text-left py-3 px-3">Tracking</th>
                   <th className="text-left py-3 px-3">Company</th>
-                  <th className="text-left py-3 px-3">Status</th>
+                  <th className="text-left py-3 px-3">Current</th>
+                  <th className="text-left py-3 px-3">→ New</th>
                   <th className="text-left py-3 px-3 w-10"></th>
                 </tr>
               </thead>
@@ -511,6 +516,15 @@ export default function UploadPage() {
                       </select>
                     </td>
                     <td className="py-2 px-2">
+                      <span className={`px-2 py-1 rounded-lg text-[9px] font-bold uppercase ${
+                        row.currentStatus === "delivered" ? "text-emerald-400 bg-emerald-500/10" :
+                        row.currentStatus === "returned" ? "text-red-400 bg-red-500/10" :
+                        row.currentStatus === "shipped" ? "text-purple-400 bg-purple-500/10" :
+                        row.currentStatus === "confirmed" ? "text-blue-400 bg-blue-500/10" :
+                        "text-amber-400 bg-amber-500/10"
+                      }`}>{row.currentStatus || "?"}</span>
+                    </td>
+                    <td className="py-2 px-2">
                       <select
                         value={row.status}
                         onChange={(e) => {
@@ -518,6 +532,7 @@ export default function UploadPage() {
                         }}
                         className={`px-2 py-1.5 bg-zinc-800 border border-zinc-700 rounded-lg text-xs font-bold focus:outline-none focus:border-red-500/50 ${
                           row.status === "delivered" ? "text-emerald-400" :
+                          row.status === "returned" ? "text-red-400" :
                           row.status === "cancelled" ? "text-red-400" :
                           "text-purple-400"
                         }`}
