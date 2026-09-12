@@ -89,6 +89,7 @@ interface DBOrder {
   order_number: number;
   customer_name: string;
   customer_phone: string;
+  customer_address: string;
 }
 
 const TRACKING_PATTERNS: Record<string, RegExp> = {
@@ -131,92 +132,50 @@ function normalizePhone(phone: string): string {
   return phone.replace(/[\s\-\+]/g, "").replace(/^0/, "20").replace(/^20{2,}/, "20");
 }
 
+function normalizeAddress(addr: string): string {
+  return addr.replace(/[\s,،\-\.]+/g, " ").trim().toLowerCase();
+}
+
 async function smartParsePDF(file: File): Promise<ParsedRow[]> {
   const text = await extractPDFText(file);
 
   const { data: dbOrders } = await supabase
     .from("orders")
-    .select("id, order_number, customer_name, customer_phone")
+    .select("id, order_number, customer_name, customer_phone, customer_address")
     .order("created_at", { ascending: false });
 
-  const ordersByNumber = new Map<number, DBOrder>();
   const ordersByPhone = new Map<string, DBOrder>();
-  const ordersByName = new Map<string, DBOrder>();
+  const allOrders: DBOrder[] = dbOrders || [];
 
-  (dbOrders || []).forEach((o: DBOrder) => {
-    ordersByNumber.set(o.order_number, o);
+  allOrders.forEach((o: DBOrder) => {
     if (o.customer_phone) {
-      ordersByPhone.set(normalizePhone(o.customer_phone), o);
-    }
-    if (o.customer_name) {
-      ordersByName.set(o.customer_name.toLowerCase().trim(), o);
+      const normalized = normalizePhone(o.customer_phone);
+      if (!ordersByPhone.has(normalized)) {
+        ordersByPhone.set(normalized, o);
+      }
     }
   });
 
-  const lines = text.split(/\n/).filter((l) => l.trim() && l.trim() !== "---PAGE_BREAK---");
+  const fullText = text.replace(/---PAGE_BREAK---/g, "\n");
+  const blocks = fullText.split(/\n{2,}/).filter((b) => b.trim());
+  const lines = fullText.split(/\n/).filter((l) => l.trim());
+
   const results: ParsedRow[] = [];
   const seenOrders = new Set<number>();
 
-  for (const line of lines) {
-    let matchedOrder: DBOrder | null = null;
-    let trackingNumber = "";
-
-    const orderNumMatch = line.match(/(?:order|طلب|أوردر|ref|رقم)[#:\s]*(\d{1,6})/i);
-    if (orderNumMatch) {
-      const num = parseInt(orderNumMatch[1]);
-      if (ordersByNumber.has(num)) matchedOrder = ordersByNumber.get(num)!;
-    }
-
-    if (!matchedOrder) {
-      const nums = line.match(/\b(\d{1,5})\b/g);
-      if (nums) {
-        for (const n of nums) {
-          const num = parseInt(n);
-          if (ordersByNumber.has(num)) {
-            matchedOrder = ordersByNumber.get(num)!;
-            break;
-          }
-        }
-      }
-    }
-
-    if (!matchedOrder) {
-      const phones = line.match(PHONE_REGEX);
-      if (phones) {
-        for (const phone of phones) {
-          const normalized = normalizePhone(phone);
-          if (ordersByPhone.has(normalized)) {
-            matchedOrder = ordersByPhone.get(normalized)!;
-            break;
-          }
-        }
-      }
-    }
-
-    if (!matchedOrder) {
-      for (const [name, order] of ordersByName) {
-        if (name.length > 3 && line.toLowerCase().includes(name)) {
-          matchedOrder = order;
-          break;
-        }
-      }
-    }
-
-    if (!matchedOrder) continue;
-    if (seenOrders.has(matchedOrder.order_number)) continue;
+  const processMatch = (matchedOrder: DBOrder, context: string, matchMethod: string) => {
+    if (seenOrders.has(matchedOrder.order_number)) return;
     seenOrders.add(matchedOrder.order_number);
 
-    const company = detectCompany({ raw_line: line }, file.name);
-    for (const [comp, pattern] of Object.entries(TRACKING_PATTERNS)) {
-      const m = line.match(pattern);
-      if (m) {
-        trackingNumber = m[1];
-        if (company === "Unknown") break;
-        if (comp === company) break;
-      }
+    let trackingNumber = "";
+    const company = detectCompany({ raw_line: context }, file.name);
+
+    for (const [, pattern] of Object.entries(TRACKING_PATTERNS)) {
+      const m = context.match(pattern);
+      if (m) { trackingNumber = m[1]; break; }
     }
     if (!trackingNumber) {
-      const genericTrack = line.match(/\b([A-Z]{2,3}\d{8,14})\b/) || line.match(/\b(\d{10,15})\b/);
+      const genericTrack = context.match(/\b([A-Z]{2,3}\d{8,14})\b/) || context.match(/\b(\d{10,15})\b/);
       if (genericTrack) trackingNumber = genericTrack[1];
     }
 
@@ -224,9 +183,48 @@ async function smartParsePDF(file: File): Promise<ParsedRow[]> {
       orderNumber: matchedOrder.order_number,
       trackingNumber,
       shippingCompany: company !== "Unknown" ? company : detectCompanyFromTracking(trackingNumber),
-      status: detectStatus({ raw_line: line }),
-      rawRow: { raw_line: line, matched_by: "smart_pdf", customer: matchedOrder.customer_name },
+      status: detectStatus({ raw_line: context }),
+      rawRow: { raw_line: context.substring(0, 200), matched_by: matchMethod, customer: matchedOrder.customer_name, phone: matchedOrder.customer_phone },
     });
+  };
+
+  // Pass 1: Match by phone number (highest priority)
+  for (const line of lines) {
+    const phones = line.match(PHONE_REGEX);
+    if (!phones) continue;
+    for (const phone of phones) {
+      const normalized = normalizePhone(phone);
+      const matched = ordersByPhone.get(normalized);
+      if (matched) {
+        const contextLines = lines.filter((l) => l.includes(phone) || l === line);
+        processMatch(matched, contextLines.join(" "), "phone");
+      }
+    }
+  }
+
+  // Pass 2: Match by address keywords (second priority)
+  for (const block of blocks) {
+    if (seenOrders.size === allOrders.length) break;
+    const blockNorm = normalizeAddress(block);
+
+    for (const order of allOrders) {
+      if (seenOrders.has(order.order_number)) continue;
+      if (!order.customer_address || order.customer_address.length < 5) continue;
+
+      const addrParts = order.customer_address
+        .split(/[,،\-\/]/)
+        .map((p) => p.trim())
+        .filter((p) => p.length > 3);
+
+      let matchCount = 0;
+      for (const part of addrParts) {
+        if (blockNorm.includes(part.toLowerCase())) matchCount++;
+      }
+
+      if (addrParts.length > 0 && matchCount >= Math.min(2, addrParts.length)) {
+        processMatch(order, block, "address");
+      }
+    }
   }
 
   return results;
