@@ -51,10 +51,13 @@ function detectStatus(row: Record<string, string>): string {
 
   const textToCheck = statusValue || Object.values(row).join(" ");
 
+  const RETURNED_WORDS = ["ارتجاع", "مرتجع", "مرفوض", "رفض", "راجع", "returned", "rts", "return"];
+  if (RETURNED_WORDS.some((kw) => textToCheck.includes(kw))) return "returned";
+
   for (const [status, keywords] of Object.entries(STATUS_KEYWORDS)) {
     if (keywords.some((kw) => textToCheck.includes(kw))) return status;
   }
-  return "shipped";
+  return "delivered";
 }
 
 const PHONE_COLUMN_NAMES = ["هاتف المستلم", "هاتف", "تليفون", "رقم الهاتف", "الهاتف", "phone", "mobile"];
