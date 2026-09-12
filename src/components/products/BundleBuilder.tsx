@@ -1,7 +1,6 @@
 "use client";
 
-// --- VILTRUM BUNDLE BUILDER V2 (RESTRUCTURED) ---
-// This component handles the core logic for the 800 EGP and 1150 EGP bundles.
+// --- VILTRUM BUNDLE BUILDER V2 ---
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -31,13 +30,12 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
   const [inventory, setInventory] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
-  // Bundle Configuration State
-  const [tier, setTier] = useState<2 | 3>(2);
+  // Bundle Configuration State (2-shirt bundle only)
   const [slots, setSlots] = useState<SelectedSlot[]>([
     { product: null, size: "" },
     { product: null, size: "" },
   ]);
-  
+
   // Modal State for Product Selection
   const [activeSelectIndex, setActiveSelectIndex] = useState<number | null>(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -82,22 +80,6 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
 
     fetchBundleData();
   }, []);
-
-  // Update slots when tier changes
-  const handleTierChange = (newTier: 2 | 3) => {
-    setTier(newTier);
-    if (newTier === 2) {
-      setSlots((prev) => prev.slice(0, 2));
-    } else {
-      setSlots((prev) => {
-        const next = [...prev];
-        while (next.length < 3) {
-          next.push({ product: null, size: "" });
-        }
-        return next;
-      });
-    }
-  };
 
   // Calculate remaining stock across all chosen slots
   const getAvailableStock = (productId: string, size: string, currentSlotIdx: number) => {
@@ -172,8 +154,8 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
   const isBundleComplete = slots.every((s) => s.product && s.size);
 
   // Core Pricing Logic
-  const bundlePrice = tier === 2 ? 799 : 1150;
-  const originalPriceSum = slots.reduce((sum, s) => sum + (s.product?.price || 500), 0);
+  const bundlePrice = 850;
+  const originalPriceSum = slots.reduce((sum, s) => sum + (s.product?.price || 480), 0);
   const discountAmount = Math.max(0, originalPriceSum - bundlePrice);
 
   const handleAddToCart = () => {
@@ -200,7 +182,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
       image_url: s.product!.image_url,
     }));
 
-    const label = `Viltrum ${tier}-Shirt Bundle`;
+    const label = "Viltrum 2-Shirt Bundle";
     addBundle(bundleItems, bundlePrice, label);
 
     toast.success("Bundle added to cart!");
@@ -258,79 +240,26 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
         </div>
       </div>
 
-      {/* Tier Selection */}
-      <div className="space-y-6">
-        <div className="flex items-baseline gap-2">
-          <span className="text-[10px] font-bold text-primary bg-primary/5 px-2.5 py-1 rounded-md uppercase tracking-wider">Step 1</span>
-          <h2 className="text-2xl font-display text-foreground">Select Bundle Pack</h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <button
-            onClick={() => handleTierChange(2)}
-            className={`relative p-6 rounded-2xl border text-left transition-all duration-400 group overflow-hidden ${
-              tier === 2
-                ? "border-accent bg-primary/[0.02] shadow-xl scale-[1.01]"
-                : "border-border-light bg-surface hover:border-muted hover:bg-background"
-            }`}
-          >
-            {tier === 2 && (
-              <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-accent flex items-center justify-center text-white">
-                <Check size={14} strokeWidth={2.5} />
-              </div>
-            )}
-            <div className="space-y-2">
-              <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-500/100/10 px-2 py-0.5 rounded-full uppercase tracking-wider">Value Pack</span>
-              <h3 className="text-xl font-display font-bold text-foreground">Double Compression Pack</h3>
-              <p className="text-xs text-secondary leading-relaxed">Choose any 2 premium T-shirts with mixed sizes.</p>
-              
-              <div className="pt-4 flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl font-bold text-primary">799 EGP</span>
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md uppercase tracking-widest">Save 200 EGP</span>
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => handleTierChange(3)}
-            className={`relative p-6 rounded-2xl border text-left transition-all duration-400 group overflow-hidden ${
-              tier === 3
-                ? "border-accent bg-primary/[0.02] shadow-xl scale-[1.01]"
-                : "border-border-light bg-surface hover:border-muted hover:bg-background"
-            }`}
-          >
-            {tier === 3 && (
-              <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-accent flex items-center justify-center text-white">
-                <Check size={14} strokeWidth={2.5} />
-              </div>
-            )}
-            <div className="space-y-2">
-              <span className="inline-block text-[9px] font-bold text-accent bg-accent/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Popular Pack</span>
-              <h3 className="text-xl font-display font-bold text-foreground">Triple Compression Pack</h3>
-              <p className="text-xs text-secondary leading-relaxed">Choose any 3 premium T-shirts with custom sizes.</p>
-
-              <div className="pt-4 flex items-baseline gap-2 flex-wrap">
-                <span className="text-2xl font-bold text-primary">1,150 EGP</span>
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md uppercase tracking-widest">Save 350 EGP</span>
-              </div>
-            </div>
-          </button>
-        </div>
+      {/* Bundle Offer */}
+      <div className="bg-surface border border-accent/20 rounded-2xl p-6 text-center space-y-3">
+        <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full uppercase tracking-wider">Bundle Offer</span>
+        <h3 className="text-xl font-display font-bold text-foreground">اختار أي 2 تيشرت بـ 850 EGP</h3>
+        <p className="text-xs text-secondary">بدل ما تدفع 960 EGP — وفر 110 EGP</p>
       </div>
 
       {/* Slots Selection */}
       <div className="space-y-6">
         <div className="flex justify-between items-baseline">
           <div className="flex items-baseline gap-2">
-            <span className="text-[10px] font-bold text-primary bg-primary/5 px-2.5 py-1 rounded-md uppercase tracking-wider">Step 2</span>
+            <span className="text-[10px] font-bold text-primary bg-primary/5 px-2.5 py-1 rounded-md uppercase tracking-wider">Step 1</span>
             <h2 className="text-2xl font-display text-foreground">Configure T-Shirts</h2>
           </div>
           <span className="text-xs text-muted uppercase tracking-widest font-semibold">
-            {slots.filter((s) => s.product && s.size).length} of {tier} Configured
+            {slots.filter((s) => s.product && s.size).length} of 2 Configured
           </span>
         </div>
 
-        <div className={`grid grid-cols-1 gap-6 ${tier === 3 ? "lg:grid-cols-3" : "md:grid-cols-2"}`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {slots.map((slot, index) => {
             const hasProduct = !!slot.product;
 
