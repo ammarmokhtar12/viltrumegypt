@@ -56,6 +56,39 @@ export default function OrdersPage() {
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     await supabase.from("orders").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", orderId);
     setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status: newStatus } : o));
+
+    if (newStatus === "confirmed") {
+      const order = orders.find((o) => o.id === orderId);
+      if (order) openWhatsAppConfirmation(order);
+    }
+  };
+
+  const openWhatsAppConfirmation = (order: any) => {
+    const items = (order.items || []) as any[];
+    const itemLines = items.map((item: any, i: number) =>
+      `${i + 1}. ${item.title}${item.bundle_label ? ` (${item.bundle_label})` : ""} — Size: ${item.size} × ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} EGP`
+    ).join("\n");
+
+    const paymentMethod = order.payment_method === "vodafone_cash" ? "كاش عند الاستلام" : "InstaPay";
+
+    const msg = `السلام عليكم ${order.customer_name} 👋
+
+تم تأكيد أوردرك من *VILTRUM* ✅
+
+🧾 *أوردر رقم #${order.order_number}*
+
+📦 *المنتجات:*
+${itemLines}
+
+💰 *الإجمالي:* ${Number(order.total).toLocaleString()} EGP
+💳 *طريقة الدفع:* ${paymentMethod}
+📍 *العنوان:* ${order.customer_address}
+
+هيتم التواصل معاك قبل الشحن 🚚
+شكراً إنك اخترت VILTRUM 🔥`;
+
+    const phone = (order.customer_phone || "").replace(/\D/g, "").replace(/^0/, "20");
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
   const togglePaymentCollected = async (orderId: string, current: boolean) => {
@@ -232,14 +265,12 @@ export default function OrdersPage() {
                     <div className="w-px bg-zinc-800 mx-1" />
 
                     {/* WhatsApp */}
-                    <a
-                      href={`https://wa.me/${(order.customer_phone || "").replace(/\D/g, "").replace(/^0/, "20")}?text=${encodeURIComponent(`مرحبا ${order.customer_name} 👋\nأوردر رقم #${order.order_number} من VILTRUM\nالإجمالي: ${order.total} EGP\n\nهل تحب تأكد الأوردر؟ ✅\nولا محتاج تعدل حاجة؟ ✏️`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => openWhatsAppConfirmation(order)}
                       className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-green-500 border-green-500/20 bg-green-500/10 hover:bg-green-500/20"
                     >
                       <MessageCircle size={12} /> WhatsApp
-                    </a>
+                    </button>
 
                     {/* Payment toggle */}
                     <button

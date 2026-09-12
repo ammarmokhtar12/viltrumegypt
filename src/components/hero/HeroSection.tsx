@@ -8,15 +8,18 @@ export default function HeroSection() {
       className="relative w-full min-h-screen flex items-center justify-center overflow-hidden font-sans"
       style={{ minHeight: "100svh" }}
     >
-      {/* Background image */}
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: "url('/hero-bg.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center top",
-        }}
-      >
+      {/* Background video */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/hero-bg.jpg"
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="https://res.cloudinary.com/s8mhri9d/video/upload/v1789207707/ssstik.io_1789207609094.mp4" type="video/mp4" />
+        </video>
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/80" />
       </div>
 
