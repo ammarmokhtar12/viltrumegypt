@@ -34,12 +34,53 @@ const STATUS_KEYWORDS: Record<string, string[]> = {
   ],
 };
 
+const STATUS_COLUMN_NAMES = ["حالة الطلب", "حاله الطلب", "الحالة", "الحاله", "status", "حالة"];
+
 function detectStatus(row: Record<string, string>): string {
-  const allValues = Object.values(row).join(" ").toLowerCase();
+  let statusValue = "";
+  for (const col of STATUS_COLUMN_NAMES) {
+    for (const [key, val] of Object.entries(row)) {
+      if (key.includes(col) || col.includes(key.trim())) {
+        statusValue = val;
+        break;
+      }
+    }
+    if (statusValue) break;
+  }
+
+  const textToCheck = statusValue || Object.values(row).join(" ");
+
   for (const [status, keywords] of Object.entries(STATUS_KEYWORDS)) {
-    if (keywords.some((kw) => allValues.includes(kw))) return status;
+    if (keywords.some((kw) => textToCheck.includes(kw))) return status;
   }
   return "shipped";
+}
+
+const PHONE_COLUMN_NAMES = ["هاتف المستلم", "هاتف", "تليفون", "رقم الهاتف", "الهاتف", "phone", "mobile"];
+const NAME_COLUMN_NAMES = ["المستلم", "اسم المستلم", "الاسم", "اسم العميل", "name", "customer"];
+
+function detectPhoneFromColumns(row: Record<string, string>): string {
+  for (const col of PHONE_COLUMN_NAMES) {
+    for (const [key, val] of Object.entries(row)) {
+      if (key.includes(col) || col.includes(key.trim())) {
+        if (val?.trim()) return val.trim();
+      }
+    }
+  }
+  const allValues = Object.values(row).join(" ");
+  const phones = allValues.match(PHONE_REGEX);
+  return phones ? phones[0] : "";
+}
+
+function detectNameFromColumns(row: Record<string, string>): string {
+  for (const col of NAME_COLUMN_NAMES) {
+    for (const [key, val] of Object.entries(row)) {
+      if (key.includes(col) || col.includes(key.trim())) {
+        if (val?.trim()) return val.trim();
+      }
+    }
+  }
+  return "";
 }
 
 function detectOrderNumber(row: Record<string, string>): number | null {
@@ -303,40 +344,33 @@ export default function UploadPage() {
           .select("id, order_number, customer_name, customer_phone, customer_address");
 
         const phoneToOrder = new Map<string, DBOrder>();
-        const numToOrder = new Map<number, DBOrder>();
         (dbOrders || []).forEach((o: DBOrder) => {
-          numToOrder.set(o.order_number, o);
-          if (o.customer_phone) phoneToOrder.set(normalizePhone(o.customer_phone), o);
+          if (o.customer_phone) {
+            const norm = normalizePhone(o.customer_phone);
+            if (!phoneToOrder.has(norm)) phoneToOrder.set(norm, o);
+          }
         });
 
         const parsedRows: ParsedRow[] = rows.map((row) => {
-          const orderNum = detectOrderNumber(row);
-          const allValues = Object.values(row).join(" ");
-          const phones = allValues.match(PHONE_REGEX);
+          const sheetPhone = detectPhoneFromColumns(row);
+          const sheetName = detectNameFromColumns(row);
+          const status = detectStatus(row);
 
           let dbMatch: DBOrder | undefined;
-          if (phones) {
-            for (const p of phones) {
-              dbMatch = phoneToOrder.get(normalizePhone(p));
-              if (dbMatch) break;
-            }
+          if (sheetPhone) {
+            dbMatch = phoneToOrder.get(normalizePhone(sheetPhone));
           }
-          if (!dbMatch && orderNum) {
-            dbMatch = numToOrder.get(orderNum);
-          }
-
-          const sheetName = Object.values(row).find((v) => /[؀-ۿ]{2,}/.test(v) || /^[A-Za-z]{2,}\s+[A-Za-z]{2,}/.test(v)) || "";
 
           return {
-            orderNumber: dbMatch ? dbMatch.order_number : orderNum,
+            orderNumber: dbMatch ? dbMatch.order_number : detectOrderNumber(row),
             trackingNumber: detectTracking(row),
             shippingCompany: detectCompany(row, file.name),
-            status: detectStatus(row),
+            status,
             rawRow: row,
             dbCustomerName: dbMatch?.customer_name || "",
-            sheetCustomerName: sheetName.trim().substring(0, 40),
+            sheetCustomerName: sheetName,
           };
-        });
+        }).filter((r) => r.orderNumber !== null);
         setParsed(parsedRows);
       }
     } catch (err) {
