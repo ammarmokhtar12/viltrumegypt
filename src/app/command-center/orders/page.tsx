@@ -594,6 +594,11 @@ ${itemLines}
                       <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider border ${cfg.color} ${cfg.bg} ${cfg.border}`}>
                         {cfg.label}
                       </span>
+                      {order.shipping_company && (
+                        <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 border border-purple-500/20">
+                          {order.shipping_company}
+                        </span>
+                      )}
                       {order.payment_collected ? (
                         <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">Paid</span>
                       ) : (
