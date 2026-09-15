@@ -383,7 +383,6 @@ export default function CheckoutPage() {
         .insert({
           customer_name: formData.name,
           customer_phone: formData.phone,
-          customer_email: formData.email || null,
           customer_address: `${formData.city} - ${formData.address}`,
           payment_method: formData.paymentMethod,
           payment_screenshot_url: screenshotUrl,
