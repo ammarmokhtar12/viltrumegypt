@@ -16,6 +16,8 @@ import {
   MessageCircle,
   BarChart2,
   Printer,
+  Truck,
+  Loader2,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
@@ -282,6 +284,28 @@ export default function OrdersPage() {
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
   const [printMode, setPrintMode] = useState<"pending" | "confirmed">("pending");
+  const [shippingIds, setShippingIds] = useState<Set<string>>(new Set());
+
+  const shipToPanther = async (orderIds: string[]) => {
+    setShippingIds(new Set(orderIds));
+    try {
+      const res = await fetch("/api/panther", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "ship", orderIds }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchOrders();
+        alert(`تم شحن ${orderIds.length} أوردر بنجاح لـ Panther Express`);
+      } else {
+        alert("حصل مشكلة: " + (data.error || "Unknown error"));
+      }
+    } catch {
+      alert("فشل الاتصال بـ Panther Express");
+    }
+    setShippingIds(new Set());
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -303,7 +327,7 @@ export default function OrdersPage() {
     setLoading(true);
     const { data } = await supabase
       .from("orders")
-      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source")
+      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
       .order("created_at", { ascending: false });
     setOrders(data || []);
     setLoading(false);
@@ -475,6 +499,16 @@ ${itemLines}
               Print ({confirmedCount})
             </button>
 
+            {/* Ship Confirmed to Panther */}
+            <button
+              onClick={() => shipToPanther(confirmedOrders.map((o) => o.id))}
+              disabled={confirmedCount === 0 || shippingIds.size > 0}
+              className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl bg-purple-600 text-white hover:bg-purple-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-purple-600/20"
+            >
+              {shippingIds.size > 0 ? <Loader2 size={13} className="animate-spin" /> : <Truck size={13} />}
+              Ship ({confirmedCount})
+            </button>
+
             <button onClick={fetchOrders} className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-[10px] font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-wider">
               <RefreshCw size={13} /> Refresh
             </button>
@@ -571,6 +605,13 @@ ${itemLines}
                           <span className="text-zinc-600 text-[10px]">@</span> {order.customer_email}
                         </div>
                       )}
+                      {order.tracking_number && (
+                        <div className="flex items-center gap-2 text-xs text-zinc-400">
+                          <Truck size={14} className="text-zinc-600" />
+                          <span className="font-mono text-purple-400">{order.tracking_number}</span>
+                          {order.shipping_company && <span className="text-zinc-600">({order.shipping_company})</span>}
+                        </div>
+                      )}
                       {order.referral_source && (
                         <div className="flex items-center gap-2 text-xs text-zinc-400">
                           <span className="text-[10px] font-bold text-zinc-600 uppercase">Source:</span>
@@ -636,6 +677,17 @@ ${itemLines}
                           className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-amber-400 border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20"
                         >
                           <MessageCircle size={12} /> Feedback
+                        </button>
+                      )}
+
+                      {order.status === "confirmed" && (
+                        <button
+                          onClick={() => shipToPanther([order.id])}
+                          disabled={shippingIds.has(order.id)}
+                          className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-purple-400 border-purple-500/20 bg-purple-500/10 hover:bg-purple-500/20 disabled:opacity-50"
+                        >
+                          {shippingIds.has(order.id) ? <Loader2 size={12} className="animate-spin" /> : <Truck size={12} />}
+                          Ship to Panther
                         </button>
                       )}
 
