@@ -576,7 +576,7 @@ ${itemLines}
                   className="flex items-center gap-4 p-4 sm:p-5 cursor-pointer hover:bg-zinc-800/20 transition-colors"
                   onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
                 >
-                  {(order.status === "confirmed" || order.status === "pending") && (
+                  {order.status === "pending" && (
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleSelectForShip(order.id); }}
                       className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
@@ -595,8 +595,8 @@ ${itemLines}
                         {cfg.label}
                       </span>
                       {order.shipping_company && (
-                        <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-purple-400 bg-purple-500/10 border border-purple-500/20">
-                          {order.shipping_company}
+                        <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold tracking-wider text-purple-400 bg-purple-500/10 border border-purple-500/20">
+                          راح موقع بانثر
                         </span>
                       )}
                       {order.payment_collected ? (
@@ -706,7 +706,7 @@ ${itemLines}
                         </button>
                       )}
 
-                      {(order.status === "confirmed" || order.status === "pending") && (
+                      {order.status === "pending" && (
                         <button
                           onClick={() => shipToPanther([order.id])}
                           disabled={shippingIds.has(order.id)}
