@@ -303,7 +303,7 @@ export default function OrdersPage() {
     setLoading(true);
     const { data } = await supabase
       .from("orders")
-      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at")
+      .select("id, order_number, customer_name, customer_phone, customer_email, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source")
       .order("created_at", { ascending: false });
     setOrders(data || []);
     setLoading(false);
@@ -535,7 +535,7 @@ ${itemLines}
 
                 {isExpanded && (
                   <div className="border-t border-zinc-800/50 p-4 sm:p-5 space-y-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       <div className="flex items-center gap-2 text-xs text-zinc-400">
                         <Phone size={14} className="text-zinc-600" /> {order.customer_phone}
                       </div>
@@ -545,6 +545,19 @@ ${itemLines}
                       <div className="flex items-center gap-2 text-xs text-zinc-400">
                         <DollarSign size={14} className="text-zinc-600" /> {order.payment_method === "vodafone_cash" ? "Cash on Delivery" : "InstaPay"}
                       </div>
+                      {order.customer_email && (
+                        <div className="flex items-center gap-2 text-xs text-zinc-400">
+                          <span className="text-zinc-600 text-[10px]">@</span> {order.customer_email}
+                        </div>
+                      )}
+                      {order.referral_source && (
+                        <div className="flex items-center gap-2 text-xs text-zinc-400">
+                          <span className="text-[10px] font-bold text-zinc-600 uppercase">Source:</span>
+                          <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border border-cyan-500/20">
+                            {order.referral_source}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-2">
