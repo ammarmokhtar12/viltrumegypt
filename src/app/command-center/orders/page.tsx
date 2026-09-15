@@ -303,7 +303,7 @@ export default function OrdersPage() {
     setLoading(true);
     const { data } = await supabase
       .from("orders")
-      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source")
+      .select("id, order_number, customer_name, customer_phone, customer_email, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source")
       .order("created_at", { ascending: false });
     setOrders(data || []);
     setLoading(false);
