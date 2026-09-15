@@ -317,6 +317,7 @@ export default function OrdersPage() {
       const order = orders.find((o) => o.id === orderId);
       if (order) openWhatsAppConfirmation(order);
     }
+
   };
 
   const openWhatsAppConfirmation = (order: any) => {
@@ -342,6 +343,26 @@ ${itemLines}
 
 هيتم التواصل معاك قبل الشحن 🚚
 شكراً إنك اخترت VILTRUM 🔥`;
+
+    const phone = (order.customer_phone || "").replace(/\D/g, "").replace(/^0/, "20");
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+
+  const openWhatsAppFeedback = (order: any) => {
+    const msg = `السلام عليكم ${order.customer_name} 👋
+
+أوردرك رقم *#${order.order_number}* من *VILTRUM* وصلك ✅
+
+رأيك يهمنا جداً 💬
+
+🤔 *إيه رأيك في المنتج؟ الخامة عجبتك؟*
+
+📝 *إيه اللي ممكن نحسنه عشان تجربتك تكون أحسن؟*
+
+🔥 *تحب لما ينزل عروض جديدة نبلغك بيها قبل الإعلان؟*
+
+ردك يفرق معانا كتير 🖤
+شكراً إنك اخترت VILTRUM ✨`;
 
     const phone = (order.customer_phone || "").replace(/\D/g, "").replace(/^0/, "20");
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
@@ -608,6 +629,15 @@ ${itemLines}
                       >
                         <MessageCircle size={12} /> WhatsApp
                       </button>
+
+                      {order.status === "delivered" && (
+                        <button
+                          onClick={() => openWhatsAppFeedback(order)}
+                          className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-amber-400 border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20"
+                        >
+                          <MessageCircle size={12} /> Feedback
+                        </button>
+                      )}
 
                       <button
                         onClick={() => togglePaymentCollected(order.id, !!order.payment_collected)}

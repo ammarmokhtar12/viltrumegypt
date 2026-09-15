@@ -250,3 +250,102 @@ export async function sendCustomerConfirmation(orderData: {
     return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
+
+export async function sendDeliveryFeedback(orderData: {
+  orderNumber: number;
+  customerName: string;
+  customerEmail: string;
+}) {
+  try {
+    const { orderNumber, customerName, customerEmail } = orderData;
+
+    if (!orderNumber || !customerName || !customerEmail) {
+      return { success: false, error: 'Missing required fields' };
+    }
+
+    const safeName = escapeHtml(customerName);
+    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '201031429229';
+    const feedbackUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`مرحبا، أنا ${customerName} (أوردر #${orderNumber})\n\nالفيدباك بتاعي:\n`)}`;
+    const notifyMeUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`مرحبا، أنا ${customerName} (أوردر #${orderNumber})\nعايز أكون أول حد يعرف لما تنزل عروض جديدة 🔥`)}`;
+
+    const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY || '',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { name: 'Viltrum Egypt', email: 'viltrumegypt@gmail.com' },
+        to: [{ email: customerEmail, name: customerName }],
+        subject: `رأيك يهمنا 💬 — Viltrum Egypt`,
+        htmlContent: `
+          <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;" dir="rtl">
+            <!-- Header -->
+            <div style="background: #111; padding: 32px; text-align: center;">
+              <h1 style="color: #fff; font-size: 22px; letter-spacing: 4px; margin: 0; text-transform: uppercase;">VILTRUM EGYPT</h1>
+            </div>
+
+            <!-- Main Content -->
+            <div style="padding: 40px 32px; text-align: center;">
+              <div style="width: 64px; height: 64px; background: #16a34a; border-radius: 50%; margin: 0 auto 20px; line-height: 64px; color: #fff; font-size: 28px;">✅</div>
+              <h2 style="color: #111; font-size: 24px; margin: 0 0 8px; font-weight: 700;">أوردرك وصلك!</h2>
+              <p style="color: #666; font-size: 15px; margin: 0 0 4px;">أهلاً <strong style="color: #111;">${safeName}</strong></p>
+              <p style="color: #888; font-size: 13px; margin: 0;">أوردر <span style="font-family: monospace; font-weight: 700; color: #111;">#${Number(orderNumber)}</span></p>
+            </div>
+
+            <!-- Feedback Section -->
+            <div style="margin: 0 32px; padding: 28px 24px; background: #fafafa; border: 1px solid #eee; border-radius: 16px; text-align: center;">
+              <h3 style="color: #111; font-size: 18px; margin: 0 0 12px; font-weight: 700;">رأيك يهمنا جداً 💬</h3>
+              <p style="color: #666; font-size: 14px; margin: 0 0 8px; line-height: 1.7;">
+                إيه رأيك في المنتج؟ الخامة عجبتك؟
+              </p>
+              <p style="color: #666; font-size: 14px; margin: 0 0 24px; line-height: 1.7;">
+                إيه اللي ممكن نحسنه عشان تجربتك تكون أحسن؟
+              </p>
+              <a href="${feedbackUrl}" style="display: inline-block; padding: 16px 40px; background: #111; color: #ffffff; text-decoration: none; border-radius: 12px; font-size: 15px; font-weight: 700;">
+                ✍️ ابعتلنا رأيك
+              </a>
+            </div>
+
+            <!-- VIP Section -->
+            <div style="margin: 20px 32px; padding: 28px 24px; background: linear-gradient(135deg, #111 0%, #1a1a2e 100%); border-radius: 16px; text-align: center;">
+              <p style="color: #f59e0b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; margin: 0 0 12px;">عرض حصري</p>
+              <h3 style="color: #fff; font-size: 18px; margin: 0 0 12px; font-weight: 700;">عايز تعرف عن العروض الجديدة قبل أي حد؟ 🔥</h3>
+              <p style="color: #999; font-size: 13px; margin: 0 0 24px; line-height: 1.7;">
+                ابعتلنا على واتساب وهنضيفك في لستة الـ VIP — أول ناس تعرف لما ينزل أي عرض جديد
+              </p>
+              <a href="${notifyMeUrl}" style="display: inline-block; padding: 16px 40px; background: #c41e3a; color: #ffffff; text-decoration: none; border-radius: 12px; font-size: 15px; font-weight: 700;">
+                🔔 ضيفني في الـ VIP
+              </a>
+            </div>
+
+            <!-- Thank You -->
+            <div style="padding: 32px; text-align: center;">
+              <p style="color: #111; font-size: 16px; font-weight: 700; margin: 0 0 4px;">شكراً إنك اخترت Viltrum 🖤</p>
+              <p style="color: #888; font-size: 13px; margin: 0;">نتمنى نشوفك تاني قريب!</p>
+            </div>
+
+            <!-- Footer -->
+            <div style="background: #fafafa; padding: 24px 32px; text-align: center; border-top: 1px solid #eee;">
+              <p style="color: #999; font-size: 12px; margin: 0 0 4px;">محتاج مساعدة؟ كلمنا على واتساب</p>
+              <p style="color: #999; font-size: 11px; margin: 0;">Viltrum Egypt — Premium Streetwear</p>
+            </div>
+          </div>
+        `
+      })
+    });
+
+    const result = await brevoResponse.json();
+
+    if (!brevoResponse.ok) {
+      console.error('Brevo Feedback Email Error:', result);
+      return { success: false, error: result };
+    }
+
+    return { success: true, data: result };
+  } catch (error: unknown) {
+    console.error('Delivery Feedback Error:', error);
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}

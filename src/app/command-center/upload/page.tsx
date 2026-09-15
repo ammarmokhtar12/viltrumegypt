@@ -121,6 +121,7 @@ function detectCompany(row: Record<string, string>, fileName: string): string {
   if (all.includes("sprint")) return "Sprint";
   if (all.includes("imile") || all.includes("i-mile")) return "iMile";
   if (all.includes("fedex")) return "FedEx";
+  if (all.includes("alsafwa") || all.includes("الصفوة") || all.includes("الصفوه")) return "ALSAFWA";
   return "Unknown";
 }
 
@@ -162,7 +163,7 @@ const TRACKING_PATTERNS: Record<string, RegExp> = {
   "iMile":       /\b(IM\d{8,12}|\d{10,14})\b/i,
 };
 
-const PHONE_REGEX = /(?:0|\+?20)\s*1[0125]\d[\s-]?\d{3}[\s-]?\d{4}/g;
+const PHONE_REGEX = /(?:0|\+?2\s*0)\s*1\s*[0125]\s*\d[\s\-.]?\d[\s\-.]?\d[\s\-.]?\d[\s\-.]?\d[\s\-.]?\d[\s\-.]?\d[\s\-.]?\d/g;
 
 async function extractPDFText(file: File): Promise<string> {
   const pdfjsLib = await import("pdfjs-dist");
@@ -197,7 +198,7 @@ function normalizeAddress(addr: string): string {
   return addr.replace(/[\s,،\-\.]+/g, " ").trim().toLowerCase();
 }
 
-async function smartParsePDF(file: File): Promise<ParsedRow[]> {
+async function smartParsePDF(file: File): Promise<{ rows: ParsedRow[]; debugText: string }> {
   const text = await extractPDFText(file);
 
   const { data: dbOrders } = await supabase
@@ -206,6 +207,7 @@ async function smartParsePDF(file: File): Promise<ParsedRow[]> {
     .order("created_at", { ascending: false });
 
   const ordersByPhone = new Map<string, DBOrder>();
+  const ordersByName = new Map<string, DBOrder>();
   const allOrders: DBOrder[] = dbOrders || [];
 
   allOrders.forEach((o: DBOrder) => {
@@ -215,11 +217,24 @@ async function smartParsePDF(file: File): Promise<ParsedRow[]> {
         ordersByPhone.set(normalized, o);
       }
     }
+    if (o.customer_name) {
+      const normName = o.customer_name.trim().toLowerCase();
+      if (!ordersByName.has(normName)) {
+        ordersByName.set(normName, o);
+      }
+    }
   });
 
   const fullText = text.replace(/---PAGE_BREAK---/g, "\n");
   const blocks = fullText.split(/\n{2,}/).filter((b) => b.trim());
   const lines = fullText.split(/\n/).filter((l) => l.trim());
+
+  console.log("[PDF Debug] Extracted text length:", fullText.length);
+  console.log("[PDF Debug] Lines:", lines.length, "Blocks:", blocks.length);
+  console.log("[PDF Debug] First 1000 chars:", fullText.substring(0, 1000));
+  console.log("[PDF Debug] DB orders loaded:", allOrders.length);
+  console.log("[PDF Debug] Phone map size:", ordersByPhone.size);
+  console.log("[PDF Debug] Name map size:", ordersByName.size);
 
   const results: ParsedRow[] = [];
   const seenOrders = new Set<number>();
@@ -269,46 +284,161 @@ async function smartParsePDF(file: File): Promise<ParsedRow[]> {
     });
   };
 
-  // Pass 1: Match by phone number (highest priority)
-  for (const line of lines) {
-    const phones = line.match(PHONE_REGEX);
-    if (!phones) continue;
-    for (const phone of phones) {
-      const normalized = normalizePhone(phone);
-      const matched = ordersByPhone.get(normalized);
-      if (matched) {
-        const contextLines = lines.filter((l) => l.includes(phone) || l === line);
-        processMatch(matched, contextLines.join(" "), "phone");
-      }
-    }
+  // --- Structured parsing: split PDF into per-shipment entries ---
+  // ALSAFWA format: each entry starts with tracking code like N1017327
+  // followed by dates, then a line with: name phone location payment status numbers
+  const phonePattern11 = /\b(0\d{10})\b/g;
+
+  // Split text into entries by tracking code
+  const entryChunks: { tracking: string; text: string }[] = [];
+  const trackingIndices: { tracking: string; index: number }[] = [];
+  let m: RegExpExecArray | null;
+  const trackingRegex = /\b(N\d{6,10})\b/g;
+  while ((m = trackingRegex.exec(fullText)) !== null) {
+    trackingIndices.push({ tracking: m[1], index: m.index });
   }
 
-  // Pass 2: Match by address keywords (second priority)
-  for (const block of blocks) {
-    if (seenOrders.size === allOrders.length) break;
-    const blockNorm = normalizeAddress(block);
+  for (let i = 0; i < trackingIndices.length; i++) {
+    const start = trackingIndices[i].index;
+    const end = i + 1 < trackingIndices.length ? trackingIndices[i + 1].index : fullText.length;
+    entryChunks.push({ tracking: trackingIndices[i].tracking, text: fullText.substring(start, end) });
+  }
 
-    for (const order of allOrders) {
+  console.log("[PDF Debug] Tracking entries found:", entryChunks.length);
+
+  // If structured entries found, parse each one
+  if (entryChunks.length > 0) {
+    for (const entry of entryChunks) {
+      const phones = entry.text.match(phonePattern11) || [];
+      const entryPhones = phones.filter((p) => p.startsWith("01") && p.length === 11);
+
+      let matchedOrder: DBOrder | undefined;
+      let matchMethod = "";
+      let matchedPhone = "";
+
+      // Try phone match first
+      for (const phone of entryPhones) {
+        const normalized = normalizePhone(phone);
+        const found = ordersByPhone.get(normalized);
+        if (found && !seenOrders.has(found.order_number)) {
+          matchedOrder = found;
+          matchMethod = "phone";
+          matchedPhone = phone;
+          break;
+        }
+      }
+
+      // Try name match as fallback
+      if (!matchedOrder) {
+        for (const [normName, order] of ordersByName.entries()) {
+          if (seenOrders.has(order.order_number)) continue;
+          if (normName.length < 3) continue;
+          if (entry.text.toLowerCase().includes(normName)) {
+            matchedOrder = order;
+            matchMethod = "name";
+            break;
+          }
+        }
+      }
+
+      if (matchedOrder) {
+        // Detect status from entry text
+        let status = "delivered";
+        if (/ارتجاع|مرتجع|مرفوض|رفض/.test(entry.text)) status = "returned";
+        else if (/تم التسليم|تم الاستلام/.test(entry.text)) status = "delivered";
+        else if (/ملغي|إلغاء/.test(entry.text)) status = "cancelled";
+
+        if (!seenOrders.has(matchedOrder.order_number)) {
+          seenOrders.add(matchedOrder.order_number);
+
+          const sheetName = extractSheetName(entry.text, matchedPhone);
+
+          results.push({
+            orderNumber: matchedOrder.order_number,
+            trackingNumber: entry.tracking,
+            shippingCompany: detectCompany({ raw_line: entry.text }, file.name),
+            status,
+            currentStatus: matchedOrder.status,
+            rawRow: { raw_line: entry.text.substring(0, 200), matched_by: matchMethod },
+            dbCustomerName: matchedOrder.customer_name,
+            sheetCustomerName: sheetName,
+          });
+        }
+      }
+    }
+    console.log("[PDF Debug] Structured parse results:", results.length);
+  }
+
+  // Fallback: generic phone/name matching if structured parse found nothing
+  if (results.length === 0) {
+    // Pass 1: Match by phone number
+    const allPhones: string[] = [];
+    for (const line of lines) {
+      const phones = line.match(PHONE_REGEX);
+      if (!phones) continue;
+      for (const phone of phones) {
+        const normalized = normalizePhone(phone);
+        allPhones.push(normalized);
+        const matched = ordersByPhone.get(normalized);
+        if (matched) {
+          const contextLines = lines.filter((l) => l.includes(phone) || l === line);
+          processMatch(matched, contextLines.join(" "), "phone");
+        }
+      }
+    }
+    console.log("[PDF Debug] Fallback phones found:", allPhones.length);
+
+    // Pass 1b: Loose phone matching
+    if (results.length === 0) {
+      const allDigitSequences = fullText.match(/\d[\d\s\-.]{8,15}\d/g) || [];
+      for (const seq of allDigitSequences) {
+        const digits = seq.replace(/[\s\-.]/g, "");
+        if (digits.length < 10 || digits.length > 13) continue;
+        const normalized = normalizePhone(digits.startsWith("2") ? digits : "0" + digits);
+        const matched = ordersByPhone.get(normalized);
+        if (matched) {
+          const lineIdx = lines.findIndex((l) => l.includes(seq));
+          const context = lineIdx >= 0 ? lines.slice(Math.max(0, lineIdx - 2), lineIdx + 3).join(" ") : seq;
+          processMatch(matched, context, "phone-loose");
+        }
+      }
+    }
+
+    // Pass 2: Address matching
+    for (const block of blocks) {
+      if (seenOrders.size === allOrders.length) break;
+      const blockNorm = normalizeAddress(block);
+      for (const order of allOrders) {
+        if (seenOrders.has(order.order_number)) continue;
+        if (!order.customer_address || order.customer_address.length < 5) continue;
+        const addrParts = order.customer_address.split(/[,،\-\/]/).map((p) => p.trim()).filter((p) => p.length > 3);
+        let matchCount = 0;
+        for (const part of addrParts) {
+          if (blockNorm.includes(part.toLowerCase())) matchCount++;
+        }
+        if (addrParts.length > 0 && matchCount >= Math.min(2, addrParts.length)) {
+          processMatch(order, block, "address");
+        }
+      }
+    }
+
+    // Pass 3: Name matching
+    const fullTextLower = fullText.toLowerCase();
+    for (const [normName, order] of ordersByName.entries()) {
       if (seenOrders.has(order.order_number)) continue;
-      if (!order.customer_address || order.customer_address.length < 5) continue;
-
-      const addrParts = order.customer_address
-        .split(/[,،\-\/]/)
-        .map((p) => p.trim())
-        .filter((p) => p.length > 3);
-
-      let matchCount = 0;
-      for (const part of addrParts) {
-        if (blockNorm.includes(part.toLowerCase())) matchCount++;
-      }
-
-      if (addrParts.length > 0 && matchCount >= Math.min(2, addrParts.length)) {
-        processMatch(order, block, "address");
+      if (normName.length < 3) continue;
+      if (fullTextLower.includes(normName)) {
+        const lineIdx = lines.findIndex((l) => l.toLowerCase().includes(normName));
+        const context = lineIdx >= 0 ? lines.slice(Math.max(0, lineIdx - 2), lineIdx + 3).join(" ") : normName;
+        processMatch(order, context, "name");
       }
     }
   }
 
-  return results;
+  console.log("[PDF Debug] Total matches:", results.length);
+
+  const debugPreview = `Extracted ${lines.length} lines, ${blocks.length} blocks.\nTracking entries: ${entryChunks.length}\nMatches: ${results.length}\n\nFirst 1000 chars:\n${fullText.substring(0, 1000)}`;
+  return { rows: results, debugText: debugPreview };
 }
 
 function detectCompanyFromTracking(tracking: string): string {
@@ -328,6 +458,7 @@ export default function UploadPage() {
   const [updating, setUpdating] = useState(false);
   const [results, setResults] = useState<{ orderNumber: number; success: boolean; message: string }[]>([]);
   const [done, setDone] = useState(false);
+  const [debugInfo, setDebugInfo] = useState("");
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -335,11 +466,14 @@ export default function UploadPage() {
     setFileName(file.name);
     setDone(false);
     setResults([]);
+    setDebugInfo("");
     setFileType(file.name.toLowerCase().endsWith(".pdf") ? "pdf" : "csv");
 
     try {
       if (file.name.toLowerCase().endsWith(".pdf")) {
-        const parsedRows = await smartParsePDF(file);
+        const { rows: parsedRows, debugText } = await smartParsePDF(file);
+        console.log("[PDF Debug]", debugText);
+        setDebugInfo(debugText);
         setParsed(parsedRows);
       } else {
         const text = await file.text();
@@ -450,6 +584,17 @@ export default function UploadPage() {
         </div>
       )}
 
+      {/* Debug Info */}
+      {debugInfo && parsed.length === 0 && !done && (
+        <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-2">
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={16} className="text-amber-400" />
+            <span className="text-sm font-bold text-amber-400">PDF Debug Info — No matches found</span>
+          </div>
+          <pre className="text-[11px] text-zinc-400 whitespace-pre-wrap font-mono max-h-[300px] overflow-y-auto">{debugInfo}</pre>
+        </div>
+      )}
+
       {/* Parsed Preview */}
       {parsed.length > 0 && !done && (
         <div className="space-y-4">
@@ -515,6 +660,7 @@ export default function UploadPage() {
                         <option value="Sprint">Sprint</option>
                         <option value="iMile">iMile</option>
                         <option value="FedEx">FedEx</option>
+                        <option value="ALSAFWA">ALSAFWA</option>
                         <option value="Unknown">Unknown</option>
                       </select>
                     </td>
@@ -596,7 +742,7 @@ export default function UploadPage() {
             ))}
           </div>
 
-          <button onClick={() => { setParsed([]); setDone(false); setResults([]); setFileName(""); setFileType("csv"); }} className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition-all">
+          <button onClick={() => { setParsed([]); setDone(false); setResults([]); setFileName(""); setFileType("csv"); setDebugInfo(""); }} className="px-4 py-2 bg-zinc-800 border border-zinc-700 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition-all">
             <RefreshCw size={14} className="inline mr-2" />Upload Another
           </button>
         </div>
