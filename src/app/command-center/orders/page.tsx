@@ -576,7 +576,7 @@ ${itemLines}
                   className="flex items-center gap-4 p-4 sm:p-5 cursor-pointer hover:bg-zinc-800/20 transition-colors"
                   onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
                 >
-                  {order.status === "confirmed" && (
+                  {(order.status === "confirmed" || order.status === "pending") && (
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleSelectForShip(order.id); }}
                       className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
@@ -701,7 +701,7 @@ ${itemLines}
                         </button>
                       )}
 
-                      {order.status === "confirmed" && (
+                      {(order.status === "confirmed" || order.status === "pending") && (
                         <button
                           onClick={() => shipToPanther([order.id])}
                           disabled={shippingIds.has(order.id)}
