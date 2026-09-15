@@ -285,6 +285,15 @@ export default function OrdersPage() {
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
   const [printMode, setPrintMode] = useState<"pending" | "confirmed">("pending");
   const [shippingIds, setShippingIds] = useState<Set<string>>(new Set());
+  const [selectedForShip, setSelectedForShip] = useState<Set<string>>(new Set());
+
+  const toggleSelectForShip = (id: string) => {
+    setSelectedForShip((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
 
   const shipToPanther = async (orderIds: string[]) => {
     setShippingIds(new Set(orderIds));
@@ -499,14 +508,14 @@ ${itemLines}
               Print ({confirmedCount})
             </button>
 
-            {/* Ship Confirmed to Panther */}
+            {/* Ship Selected to Panther */}
             <button
-              onClick={() => shipToPanther(confirmedOrders.map((o) => o.id))}
-              disabled={confirmedCount === 0 || shippingIds.size > 0}
+              onClick={() => { shipToPanther(Array.from(selectedForShip)); setSelectedForShip(new Set()); }}
+              disabled={selectedForShip.size === 0 || shippingIds.size > 0}
               className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl bg-purple-600 text-white hover:bg-purple-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-purple-600/20"
             >
               {shippingIds.size > 0 ? <Loader2 size={13} className="animate-spin" /> : <Truck size={13} />}
-              Ship ({confirmedCount})
+              Ship Selected ({selectedForShip.size})
             </button>
 
             <button onClick={fetchOrders} className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-[10px] font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-wider">
@@ -562,11 +571,23 @@ ${itemLines}
             const items = order.items || [];
 
             return (
-              <div key={order.id} className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl overflow-hidden">
+              <div key={order.id} className={`bg-zinc-900/60 border rounded-2xl overflow-hidden ${selectedForShip.has(order.id) ? "border-purple-500/40" : "border-zinc-800/60"}`}>
                 <div
                   className="flex items-center gap-4 p-4 sm:p-5 cursor-pointer hover:bg-zinc-800/20 transition-colors"
                   onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
                 >
+                  {order.status === "confirmed" && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleSelectForShip(order.id); }}
+                      className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                        selectedForShip.has(order.id)
+                          ? "bg-purple-600 border-purple-600"
+                          : "border-zinc-600 hover:border-purple-400"
+                      }`}
+                    >
+                      {selectedForShip.has(order.id) && <Check size={12} className="text-white" />}
+                    </button>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1">
                       <span className="text-base font-black text-white">#{order.order_number}</span>
