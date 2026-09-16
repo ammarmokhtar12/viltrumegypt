@@ -283,6 +283,7 @@ export default function OrdersPage() {
   const [dateFilter, setDateFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [displayCount, setDisplayCount] = useState(100);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
@@ -341,7 +342,7 @@ export default function OrdersPage() {
       .from("orders")
       .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
       .order("created_at", { ascending: false })
-      .limit(300);
+      .limit(500);
     if (error) {
       console.error("Orders fetch error:", error);
       alert("Error loading orders: " + error.message);
@@ -677,7 +678,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
 
         {/* Orders List */}
         <div className="space-y-3">
-          {filtered.map((order) => {
+          {filtered.slice(0, displayCount).map((order) => {
             const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
             const isExpanded = expandedOrder === order.id;
             const items = order.items || [];
@@ -893,6 +894,15 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
               <Package size={40} className="mx-auto text-zinc-800 mb-4" />
               <p className="text-sm font-bold text-zinc-600">No orders found</p>
             </div>
+          )}
+
+          {filtered.length > displayCount && (
+            <button
+              onClick={() => setDisplayCount((c) => c + 100)}
+              className="w-full py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-bold text-zinc-400 hover:text-white hover:border-zinc-600 transition-all"
+            >
+              Load More ({filtered.length - displayCount} remaining)
+            </button>
           )}
         </div>
       </div>
