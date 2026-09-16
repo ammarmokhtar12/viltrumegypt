@@ -411,9 +411,11 @@ ${itemLines}
   };
 
   const toggleAddedToPanther = async (orderId: string, current: boolean) => {
-    const newValue = current ? null : "Panther Express";
-    await supabase.from("orders").update({ shipping_company: newValue }).eq("id", orderId);
-    setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, shipping_company: newValue } : o));
+    const newCompany = current ? null : "Panther Express";
+    const updates: Record<string, unknown> = { shipping_company: newCompany };
+    if (current) updates.tracking_number = null;
+    await supabase.from("orders").update(updates).eq("id", orderId);
+    setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, shipping_company: newCompany, ...(current ? { tracking_number: null } : {}) } : o));
   };
 
   const saveWaybill = async (orderId: string, waybill: string) => {
@@ -630,7 +632,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                   className="flex items-center gap-4 p-4 sm:p-5 cursor-pointer hover:bg-zinc-800/20 transition-colors"
                   onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
                 >
-                  {order.status === "pending" && (
+                  {!order.shipping_company && (
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleSelectForShip(order.id); }}
                       className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
@@ -760,7 +762,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                         </button>
                       )}
 
-                      {order.status === "pending" && (
+                      {!order.shipping_company && (
                         <button
                           onClick={() => shipToPanther([order.id])}
                           disabled={shippingIds.has(order.id)}
