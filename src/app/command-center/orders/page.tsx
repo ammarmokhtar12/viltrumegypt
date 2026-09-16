@@ -280,6 +280,7 @@ export default function OrdersPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
@@ -336,7 +337,7 @@ export default function OrdersPage() {
     setLoading(true);
     const { data } = await supabase
       .from("orders")
-      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
+      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, utm_medium, utm_campaign, tracking_number, shipping_company")
       .order("created_at", { ascending: false });
     setOrders(data || []);
     setLoading(false);
@@ -421,7 +422,11 @@ ${itemLines}
     const matchPayment = paymentFilter === "all" ||
       (paymentFilter === "collected" && o.payment_collected) ||
       (paymentFilter === "not_collected" && !o.payment_collected);
-    return matchSearch && matchStatus && matchPayment;
+    const matchSource = sourceFilter === "all" ||
+      (sourceFilter === "ad" && o.utm_medium === "ad") ||
+      (sourceFilter === "organic" && !o.utm_medium) ||
+      (sourceFilter !== "all" && sourceFilter !== "ad" && sourceFilter !== "organic" && o.referral_source === sourceFilter);
+    return matchSearch && matchStatus && matchPayment && matchSource;
   });
 
   const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -559,6 +564,19 @@ ${itemLines}
             <option value="collected">Collected</option>
             <option value="not_collected">Not Collected</option>
           </select>
+          <select
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+            className="px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-bold text-zinc-400 uppercase tracking-wider focus:outline-none"
+          >
+            <option value="all">All Sources</option>
+            <option value="ad">Media Buyer (Ads)</option>
+            <option value="organic">Organic</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+            <option value="tiktok">TikTok</option>
+            <option value="google">Google</option>
+          </select>
         </div>
 
         <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider">{filtered.length} orders found</p>
@@ -638,12 +656,24 @@ ${itemLines}
                           {order.shipping_company && <span className="text-zinc-600">({order.shipping_company})</span>}
                         </div>
                       )}
-                      {order.referral_source && (
+                      {(order.referral_source || order.utm_medium) && (
                         <div className="flex items-center gap-2 text-xs text-zinc-400">
                           <span className="text-[10px] font-bold text-zinc-600 uppercase">Source:</span>
-                          <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border border-cyan-500/20">
-                            {order.referral_source}
-                          </span>
+                          {order.referral_source && (
+                            <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border border-cyan-500/20">
+                              {order.referral_source}
+                            </span>
+                          )}
+                          {order.utm_medium === "ad" && (
+                            <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-orange-400 bg-orange-500/10 border border-orange-500/20">
+                              Ad
+                            </span>
+                          )}
+                          {order.utm_campaign && (
+                            <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-zinc-400 bg-zinc-500/10 border border-zinc-500/20">
+                              {order.utm_campaign}
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>

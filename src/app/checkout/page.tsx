@@ -28,6 +28,8 @@ export default function CheckoutPage() {
     city: string;
     address: string;
     referral_source: string;
+    utm_medium: string;
+    utm_campaign: string;
     paymentMethod: "vodafone_cash" | "instapay";
   } | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -323,6 +325,8 @@ export default function CheckoutPage() {
     city: string;
     address: string;
     referral_source: string;
+    utm_medium: string;
+    utm_campaign: string;
     paymentMethod: "vodafone_cash" | "instapay";
   }) => {
     setFormData(data);
@@ -394,6 +398,8 @@ export default function CheckoutPage() {
           discount_amount: discountAmount,
           commission_amount: commissionAmt,
           referral_source: formData.referral_source || null,
+          utm_medium: formData.utm_medium || null,
+          utm_campaign: formData.utm_campaign || null,
         })
         .select("id, order_number")
         .single();

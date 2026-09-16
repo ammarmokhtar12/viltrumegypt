@@ -55,6 +55,8 @@ interface CheckoutFormProps {
     city: string;
     address: string;
     referral_source: string;
+    utm_medium: string;
+    utm_campaign: string;
     paymentMethod: "vodafone_cash" | "instapay";
   }) => void;
   paymentMethod: "vodafone_cash" | "instapay";
@@ -73,6 +75,8 @@ export default function CheckoutForm({
     city: "",
     address: "",
     referral_source: "",
+    utm_medium: "",
+    utm_campaign: "",
   });
 
   const onSubmitRef = useRef(onSubmit);
@@ -83,8 +87,10 @@ export default function CheckoutForm({
   useEffect(() => {
     try {
       const utm = sessionStorage.getItem("utm_source");
+      const utmMedium = sessionStorage.getItem("utm_medium") || "";
+      const utmCampaign = sessionStorage.getItem("utm_campaign") || "";
       if (utm && !formData.referral_source) {
-        setFormData((prev) => ({ ...prev, referral_source: utm.toLowerCase() }));
+        setFormData((prev) => ({ ...prev, referral_source: utm.toLowerCase(), utm_medium: utmMedium.toLowerCase(), utm_campaign: utmCampaign.toLowerCase() }));
       }
     } catch {}
   // eslint-disable-next-line react-hooks/exhaustive-deps
