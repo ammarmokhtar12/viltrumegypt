@@ -280,6 +280,9 @@ export default function OrdersPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
@@ -477,7 +480,29 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
     const matchPayment = paymentFilter === "all" ||
       (paymentFilter === "collected" && o.payment_collected) ||
       (paymentFilter === "not_collected" && !o.payment_collected);
-    return matchSearch && matchStatus && matchPayment;
+
+    let matchDate = true;
+    if (dateFilter !== "all") {
+      const orderDate = new Date(o.created_at);
+      const now = new Date();
+      if (dateFilter === "today") {
+        matchDate = orderDate.toDateString() === now.toDateString();
+      } else if (dateFilter === "7days") {
+        const d = new Date(); d.setDate(d.getDate() - 7);
+        matchDate = orderDate >= d;
+      } else if (dateFilter === "30days") {
+        const d = new Date(); d.setDate(d.getDate() - 30);
+        matchDate = orderDate >= d;
+      } else if (dateFilter === "custom") {
+        if (dateFrom) matchDate = orderDate >= new Date(dateFrom);
+        if (dateTo && matchDate) {
+          const to = new Date(dateTo); to.setHours(23, 59, 59);
+          matchDate = orderDate <= to;
+        }
+      }
+    }
+
+    return matchSearch && matchStatus && matchPayment && matchDate;
   });
 
   const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -581,8 +606,8 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
         </div>
 
         {/* Analysis Panels */}
-        {showAnalysis && <AnalysisPanel ordersList={pendingOrders} label="Pending" accentColor="text-amber-400" />}
-        {showConfirmedAnalysis && <AnalysisPanel ordersList={confirmedOrders} label="Confirmed" accentColor="text-blue-400" />}
+        {showAnalysis && <AnalysisPanel ordersList={filtered.filter((o) => o.status === "pending")} label="Pending" accentColor="text-amber-400" />}
+        {showConfirmedAnalysis && <AnalysisPanel ordersList={filtered.filter((o) => o.status === "confirmed")} label="Confirmed" accentColor="text-blue-400" />}
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
@@ -615,7 +640,37 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
             <option value="collected">Collected</option>
             <option value="not_collected">Not Collected</option>
           </select>
+          <select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-bold text-zinc-400 uppercase tracking-wider focus:outline-none"
+          >
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+            <option value="custom">Custom Range</option>
+          </select>
         </div>
+
+        {dateFilter === "custom" && (
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">From:</span>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white focus:outline-none focus:border-zinc-600"
+            />
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">To:</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white focus:outline-none focus:border-zinc-600"
+            />
+          </div>
+        )}
 
         <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider">{filtered.length} orders found</p>
 
