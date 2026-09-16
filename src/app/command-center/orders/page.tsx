@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   Search,
@@ -335,19 +335,20 @@ export default function OrdersPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("orders")
       .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(300);
     if (error) {
       console.error("Orders fetch error:", error);
       alert("Error loading orders: " + error.message);
     }
     setOrders(data || []);
     setLoading(false);
-  };
+  }, []);
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     await supabase.from("orders").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", orderId);
@@ -470,7 +471,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
   const confirmedCount = confirmedOrders.length;
 
-  const filtered = orders.filter((o) => {
+  const filtered = useMemo(() => orders.filter((o) => {
     const matchSearch = search === "" ||
       String(o.order_number).includes(search) ||
       o.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -503,7 +504,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
     }
 
     return matchSearch && matchStatus && matchPayment && matchDate;
-  });
+  }), [orders, search, statusFilter, paymentFilter, dateFilter, dateFrom, dateTo]);
 
   const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
