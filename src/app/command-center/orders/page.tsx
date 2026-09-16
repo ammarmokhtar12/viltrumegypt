@@ -416,6 +416,50 @@ ${itemLines}
     setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, shipping_company: newValue } : o));
   };
 
+  const saveWaybill = async (orderId: string, waybill: string) => {
+    await supabase.from("orders").update({ tracking_number: waybill }).eq("id", orderId);
+    setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, tracking_number: waybill } : o));
+  };
+
+  const getEstimatedDelivery = (address: string) => {
+    const cairoGiza = ["القاهرة", "الجيزة", "مدينة نصر", "المعادي", "حلوان", "6 أكتوبر", "الرحاب", "التجمع", "العبور", "الشروق", "شبرا", "عين شمس", "المقطم", "الهرم", "فيصل", "الدقي", "المهندسين", "الزمالك", "وسط البلد", "مصر الجديدة"];
+    const isCairoGiza = cairoGiza.some((c) => address?.includes(c));
+    const daysToAdd = isCairoGiza ? 1 : 3;
+
+    const today = new Date();
+    let deliveryStart = new Date(today);
+    deliveryStart.setDate(deliveryStart.getDate() + daysToAdd);
+    if (deliveryStart.getDay() === 5) deliveryStart.setDate(deliveryStart.getDate() + 1);
+
+    let deliveryEnd = new Date(deliveryStart);
+    deliveryEnd.setDate(deliveryEnd.getDate() + 1);
+    if (deliveryEnd.getDay() === 5) deliveryEnd.setDate(deliveryEnd.getDate() + 1);
+
+    const days = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+    return `${days[deliveryStart.getDay()]} أو ${days[deliveryEnd.getDay()]}`;
+  };
+
+  const openShippingConfirmation = (order: any) => {
+    const estimatedDay = getEstimatedDelivery(order.customer_address);
+    const waybill = order.tracking_number || "";
+
+    const msg = `السلام عليكم ${order.customer_name} 👋
+
+أوردرك رقم *#${order.order_number}* من *VILTRUM* تم شحنه 🚚✅
+
+${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنوان:* ${order.customer_address}
+
+⏰ *المتوقع يوصلك:* ${estimatedDay} إن شاء الله
+
+هيتواصل معاك مندوب الشحن قبل التسليم 📞
+
+لو عندك أي استفسار تواصل معانا في أي وقت 🖤
+شكراً إنك اخترت VILTRUM 🔥`;
+
+    const phone = (order.customer_phone || "").replace(/\D/g, "").replace(/^0/, "20");
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+
   const pendingOrders = orders.filter((o) => o.status === "pending");
   const pendingCount = pendingOrders.length;
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
@@ -750,7 +794,36 @@ ${itemLines}
                         {order.shipping_company ? <Check size={12} /> : <Truck size={12} />}
                         {order.shipping_company ? "Added to Panther" : "Mark as Added to Panther"}
                       </button>
+
+                      <button
+                        onClick={() => openShippingConfirmation(order)}
+                        disabled={!order.shipping_company}
+                        className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-cyan-400 border-cyan-500/20 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <Truck size={12} /> تأكيد الشحن
+                      </button>
                     </div>
+
+                    {/* Waybill Input */}
+                    {order.shipping_company && (
+                      <div className="flex items-center gap-3 pt-2">
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Waybill:</span>
+                        <input
+                          type="text"
+                          defaultValue={order.tracking_number || ""}
+                          placeholder="رقم البوليصة"
+                          onBlur={(e) => {
+                            const val = e.target.value.trim();
+                            if (val !== (order.tracking_number || "")) saveWaybill(order.id, val);
+                          }}
+                          onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+                          className="flex-1 max-w-xs px-3 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-lg text-xs text-white font-mono placeholder:text-zinc-600 focus:outline-none focus:border-purple-500/50"
+                        />
+                        {order.tracking_number && (
+                          <span className="text-[9px] text-purple-400 font-bold">✓ محفوظ</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
