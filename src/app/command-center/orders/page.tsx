@@ -410,6 +410,12 @@ ${itemLines}
     setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, payment_collected: !current } : o));
   };
 
+  const toggleAddedToPanther = async (orderId: string, current: boolean) => {
+    const newValue = current ? null : "Panther Express";
+    await supabase.from("orders").update({ shipping_company: newValue }).eq("id", orderId);
+    setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, shipping_company: newValue } : o));
+  };
+
   const pendingOrders = orders.filter((o) => o.status === "pending");
   const pendingCount = pendingOrders.length;
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
@@ -731,6 +737,18 @@ ${itemLines}
                       >
                         {order.payment_collected ? <Check size={12} /> : <DollarSign size={12} />}
                         {order.payment_collected ? "Payment Collected" : "Mark as Paid"}
+                      </button>
+
+                      <button
+                        onClick={() => toggleAddedToPanther(order.id, !!order.shipping_company)}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 ${
+                          order.shipping_company
+                            ? "text-purple-400 bg-purple-500/10 border-purple-500/20"
+                            : "text-zinc-600 border-zinc-800 hover:text-purple-400 hover:border-purple-500/30"
+                        }`}
+                      >
+                        {order.shipping_company ? <Check size={12} /> : <Truck size={12} />}
+                        {order.shipping_company ? "Added to Panther" : "Mark as Added to Panther"}
                       </button>
                     </div>
                   </div>
