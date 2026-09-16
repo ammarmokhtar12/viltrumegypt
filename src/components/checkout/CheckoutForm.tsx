@@ -81,6 +81,16 @@ export default function CheckoutForm({
   }, [onSubmit]);
 
   useEffect(() => {
+    try {
+      const utm = sessionStorage.getItem("utm_source");
+      if (utm && !formData.referral_source) {
+        setFormData((prev) => ({ ...prev, referral_source: utm.toLowerCase() }));
+      }
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     onSubmitRef.current({
       ...formData,
       paymentMethod,

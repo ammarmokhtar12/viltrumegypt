@@ -8,6 +8,18 @@ export default function ReferralTracker() {
     if (typeof window === "undefined") return;
 
     const params = new URLSearchParams(window.location.search);
+
+    const utmSource = params.get("utm_source");
+    const utmMedium = params.get("utm_medium");
+    const utmCampaign = params.get("utm_campaign");
+    if (utmSource) {
+      try {
+        sessionStorage.setItem("utm_source", utmSource);
+        if (utmMedium) sessionStorage.setItem("utm_medium", utmMedium);
+        if (utmCampaign) sessionStorage.setItem("utm_campaign", utmCampaign);
+      } catch {}
+    }
+
     const ref = params.get("ref");
 
     if (ref) {
