@@ -335,10 +335,14 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("orders")
       .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, utm_medium, utm_campaign, tracking_number, shipping_company")
       .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Orders fetch error:", error);
+      alert("Error loading orders: " + error.message);
+    }
     setOrders(data || []);
     setLoading(false);
   };
