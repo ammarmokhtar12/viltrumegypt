@@ -162,6 +162,40 @@ export default function MediaBuyerDashboard() {
       });
     }
 
+    // Peak hours
+    const hourMap: Record<number, number> = {};
+    all.forEach((o: any) => {
+      const h = new Date(o.created_at).getHours();
+      hourMap[h] = (hourMap[h] || 0) + 1;
+    });
+    const peakHours = Array.from({ length: 24 }, (_, h) => ({ hour: h, count: hourMap[h] || 0 }));
+    const peakMax = Math.max(...peakHours.map((p) => p.count), 1);
+
+    // Size distribution
+    const sizeMap: Record<string, number> = {};
+    valid.forEach((o: any) => {
+      (o.items || []).forEach((item: any) => {
+        const sz = (item.size || "N/A").toUpperCase();
+        sizeMap[sz] = (sizeMap[sz] || 0) + (item.quantity || 1);
+      });
+    });
+    const sizeDistribution = Object.entries(sizeMap).sort((a, b) => b[1] - a[1]);
+    const sizeTotal = sizeDistribution.reduce((s, [, c]) => s + c, 0);
+
+    // Net profit (revenue - ad spend - shipping costs)
+    const FAR_CITIES = ["أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "البحر الأحمر", "الوادي الجديد", "مطروح", "شمال سيناء", "جنوب سيناء"];
+    const shippingCosts = valid.reduce((s: number, o: any) => {
+      const city = o.city || o.customer_address?.split(",").pop()?.trim() || "";
+      return s + (FAR_CITIES.includes(city) ? 90 : 80);
+    }, 0);
+    const netProfit = totalRevenue - totalSpend - shippingCosts;
+    const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+
+    // Payment method split
+    const codOrders = all.filter((o: any) => o.payment_collected || o.status === "delivered").length;
+    const onlineOrders = all.length - codOrders;
+    const codPercent = all.length > 0 ? (codOrders / all.length) * 100 : 0;
+
     return {
       totalOrders: all.length, validOrders: valid.length, totalRevenue, totalSpend,
       todayOrders: todayOrders.length, yesterdayOrders: yesterdayOrders.length,
@@ -170,6 +204,10 @@ export default function MediaBuyerDashboard() {
       aov, roas, cpa,
       topSources, topProductsWeek, topProductsAll, topCities,
       repeatCustomers, dailyOrders,
+      peakHours, peakMax,
+      sizeDistribution, sizeTotal,
+      netProfit, profitMargin, shippingCosts,
+      codOrders, onlineOrders, codPercent,
     };
   }, [orders, adSpend]);
 
@@ -303,6 +341,106 @@ export default function MediaBuyerDashboard() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Net Profit */}
+      <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5">
+        <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2"><DollarSign size={16} className="text-emerald-400" /> Profit Breakdown</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div className="text-center">
+            <p className="text-[9px] text-zinc-500 uppercase font-bold">Revenue</p>
+            <p className="text-xl font-black text-emerald-400">{fmt(stats.totalRevenue)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[9px] text-zinc-500 uppercase font-bold">- Ad Spend</p>
+            <p className="text-xl font-black text-red-400">{fmt(stats.totalSpend)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[9px] text-zinc-500 uppercase font-bold">- Shipping</p>
+            <p className="text-xl font-black text-orange-400">{fmt(stats.shippingCosts)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[9px] text-zinc-500 uppercase font-bold">= Net Profit</p>
+            <p className={`text-xl font-black ${stats.netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>{fmt(stats.netProfit)} EGP</p>
+            <p className={`text-[10px] font-bold ${stats.profitMargin >= 0 ? "text-emerald-500/60" : "text-red-500/60"}`}>{stats.profitMargin.toFixed(1)}% margin</p>
+          </div>
+        </div>
+        <p className="text-[9px] text-zinc-600">* Net profit = Revenue - Ad Spend - Shipping. Manufacturing costs not included.</p>
+      </div>
+
+      {/* Payment Split */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5">
+          <h3 className="text-sm font-bold text-white mb-4">Payment Split</h3>
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <div className="h-4 rounded-full overflow-hidden flex bg-zinc-800">
+                <div className="bg-amber-500 h-full transition-all" style={{ width: `${stats.codPercent}%` }} />
+                <div className="bg-blue-500 h-full transition-all" style={{ width: `${100 - stats.codPercent}%` }} />
+              </div>
+              <div className="flex justify-between mt-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-sm bg-amber-500" />
+                  <div>
+                    <p className="text-xs font-bold text-white">COD</p>
+                    <p className="text-[10px] text-zinc-500">{stats.codOrders} orders ({stats.codPercent.toFixed(0)}%)</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-sm bg-blue-500" />
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-white">Online</p>
+                    <p className="text-[10px] text-zinc-500">{stats.onlineOrders} orders ({(100 - stats.codPercent).toFixed(0)}%)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Size Distribution */}
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5">
+          <h3 className="text-sm font-bold text-white mb-4">Size Distribution</h3>
+          {stats.sizeDistribution.length > 0 ? (
+            <div className="space-y-2">
+              {stats.sizeDistribution.map(([size, count], i) => {
+                const pct = stats.sizeTotal > 0 ? (count / stats.sizeTotal) * 100 : 0;
+                return (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-white w-10 text-center">{size}</span>
+                    <div className="flex-1 h-3 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-purple-500" style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className="text-[10px] text-zinc-400 w-20 text-right">{count} ({pct.toFixed(0)}%)</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : <p className="text-xs text-zinc-600">No data yet</p>}
+        </div>
+      </div>
+
+      {/* Peak Hours */}
+      <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5">
+        <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2"><Clock size={16} className="text-amber-400" /> Peak Order Hours</h3>
+        <div className="flex items-end gap-[3px] h-24">
+          {stats.peakHours.map((p, i) => {
+            const pct = stats.peakMax > 0 ? (p.count / stats.peakMax) * 100 : 0;
+            const isTop = p.count === stats.peakMax && p.count > 0;
+            return (
+              <div key={i} className="flex-1 flex flex-col items-center group relative">
+                <div className="w-full rounded-t-sm transition-all" style={{ height: `${Math.max(pct, 4)}%`, background: isTop ? "#f59e0b" : p.count > 0 ? "#3b82f6" : "#27272a" }} />
+                {i % 3 === 0 && <p className="text-[8px] text-zinc-600 mt-1">{p.hour}:00</p>}
+                {p.count > 0 && (
+                  <div className="absolute -top-6 bg-zinc-800 text-[9px] text-white px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                    {p.hour}:00 — {p.count} orders
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-[9px] text-zinc-600 mt-2">Hover over bars to see details. Best time to run ads highlighted in gold.</p>
       </div>
 
       {/* Revenue by Source */}
