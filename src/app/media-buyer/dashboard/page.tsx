@@ -182,13 +182,16 @@ export default function MediaBuyerDashboard() {
     const sizeDistribution = Object.entries(sizeMap).sort((a, b) => b[1] - a[1]);
     const sizeTotal = sizeDistribution.reduce((s, [, c]) => s + c, 0);
 
-    // Net profit (revenue - ad spend - shipping costs)
+    // Net profit (revenue - ad spend - shipping - manufacturing)
+    const COST_PER_ITEM = 150;
     const FAR_CITIES = ["أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "البحر الأحمر", "الوادي الجديد", "مطروح", "شمال سيناء", "جنوب سيناء"];
+    const totalItemsSold = valid.reduce((s: number, o: any) => s + (o.items || []).reduce((ss: number, item: any) => ss + (item.quantity || 1), 0), 0);
+    const manufacturingCost = totalItemsSold * COST_PER_ITEM;
     const shippingCosts = valid.reduce((s: number, o: any) => {
       const city = o.city || o.customer_address?.split(",").pop()?.trim() || "";
       return s + (FAR_CITIES.includes(city) ? 90 : 80);
     }, 0);
-    const netProfit = totalRevenue - totalSpend - shippingCosts;
+    const netProfit = totalRevenue - totalSpend - shippingCosts - manufacturingCost;
     const profitMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
 
     // Payment method split
@@ -206,7 +209,7 @@ export default function MediaBuyerDashboard() {
       repeatCustomers, dailyOrders,
       peakHours, peakMax,
       sizeDistribution, sizeTotal,
-      netProfit, profitMargin, shippingCosts,
+      netProfit, profitMargin, shippingCosts, manufacturingCost, totalItemsSold,
       codOrders, onlineOrders, codPercent,
     };
   }, [orders, adSpend]);
@@ -346,7 +349,7 @@ export default function MediaBuyerDashboard() {
       {/* Net Profit */}
       <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5">
         <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2"><DollarSign size={16} className="text-emerald-400" /> Profit Breakdown</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
           <div className="text-center">
             <p className="text-[9px] text-zinc-500 uppercase font-bold">Revenue</p>
             <p className="text-xl font-black text-emerald-400">{fmt(stats.totalRevenue)}</p>
@@ -354,6 +357,11 @@ export default function MediaBuyerDashboard() {
           <div className="text-center">
             <p className="text-[9px] text-zinc-500 uppercase font-bold">- Ad Spend</p>
             <p className="text-xl font-black text-red-400">{fmt(stats.totalSpend)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[9px] text-zinc-500 uppercase font-bold">- Manufacturing</p>
+            <p className="text-xl font-black text-pink-400">{fmt(stats.manufacturingCost)}</p>
+            <p className="text-[9px] text-zinc-600">{stats.totalItemsSold} items x 150</p>
           </div>
           <div className="text-center">
             <p className="text-[9px] text-zinc-500 uppercase font-bold">- Shipping</p>
@@ -365,7 +373,6 @@ export default function MediaBuyerDashboard() {
             <p className={`text-[10px] font-bold ${stats.profitMargin >= 0 ? "text-emerald-500/60" : "text-red-500/60"}`}>{stats.profitMargin.toFixed(1)}% margin</p>
           </div>
         </div>
-        <p className="text-[9px] text-zinc-600">* Net profit = Revenue - Ad Spend - Shipping. Manufacturing costs not included.</p>
       </div>
 
       {/* Payment Split */}
