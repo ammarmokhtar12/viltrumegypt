@@ -14,7 +14,11 @@ import {
   RefreshCw,
   ArrowUp,
   ArrowDown,
+  Users,
+  Phone,
 } from "lucide-react";
+
+const MB_START_DATE = new Date("2024-09-12T00:00:00");
 
 function MiniChart({ data, color, height = 50 }: { data: number[]; color: string; height?: number }) {
   if (data.length < 2) return null;
@@ -56,8 +60,8 @@ export default function MediaBuyerDashboard() {
   const fetchData = async () => {
     setLoading(true);
     const [oRes, aRes] = await Promise.all([
-      supabase.from("orders").select("total, status, items, city, customer_address, created_at").order("created_at", { ascending: true }),
-      supabase.from("ad_spend").select("*").order("date", { ascending: true }),
+      supabase.from("orders").select("total, status, items, city, customer_address, customer_name, customer_phone, created_at").gte("created_at", MB_START_DATE.toISOString()).order("created_at", { ascending: true }),
+      supabase.from("ad_spend").select("*").gte("date", "2024-09-12").order("date", { ascending: true }),
     ]);
     setOrders(oRes.data || []);
     setAdSpend(aRes.data || []);
@@ -90,7 +94,6 @@ export default function MediaBuyerDashboard() {
     const ctr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
     const aov = validOrders.length > 0 ? revenue / validOrders.length : 0;
 
-    // Revenue by day for chart
     const revenueByDay: Record<string, number> = {};
     const ordersByDay: Record<string, number> = {};
     validOrders.forEach((o: any) => {
@@ -102,7 +105,6 @@ export default function MediaBuyerDashboard() {
     const revenueSeries = days.map((d) => revenueByDay[d] || 0);
     const ordersSeries = days.map((d) => ordersByDay[d] || 0);
 
-    // By product (qty sold only, no costs)
     const productMap: Record<string, { qty: number; revenue: number }> = {};
     validOrders.forEach((o: any) => {
       (o.items || []).forEach((item: any) => {
@@ -117,7 +119,6 @@ export default function MediaBuyerDashboard() {
       .sort((a, b) => b.qty - a.qty)
       .slice(0, 8);
 
-    // By city (order count only)
     const cityMap: Record<string, number> = {};
     validOrders.forEach((o: any) => {
       const city = o.city || o.customer_address?.split(",").pop()?.trim() || "Unknown";
@@ -128,7 +129,6 @@ export default function MediaBuyerDashboard() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 8);
 
-    // By platform
     const platformMap: Record<string, { spend: number; impressions: number; clicks: number }> = {};
     filtered.adSpend.forEach((a: any) => {
       if (!platformMap[a.platform]) platformMap[a.platform] = { spend: 0, impressions: 0, clicks: 0 };
@@ -145,6 +145,27 @@ export default function MediaBuyerDashboard() {
       topProducts, topCities, platformMap,
     };
   }, [filtered]);
+
+  const repeatCustomers = useMemo(() => {
+    const phoneMap: Record<string, { name: string; phone: string; count: number; lastOrder: string; totalSpent: number }> = {};
+    const validOrders = orders.filter((o: any) => o.status !== "cancelled" && o.status !== "returned");
+    validOrders.forEach((o: any) => {
+      const phone = (o.customer_phone || "").trim();
+      if (!phone) return;
+      if (!phoneMap[phone]) {
+        phoneMap[phone] = { name: o.customer_name || "Unknown", phone, count: 0, lastOrder: o.created_at, totalSpent: 0 };
+      }
+      phoneMap[phone].count += 1;
+      phoneMap[phone].totalSpent += Number(o.total || 0);
+      if (new Date(o.created_at) > new Date(phoneMap[phone].lastOrder)) {
+        phoneMap[phone].lastOrder = o.created_at;
+        phoneMap[phone].name = o.customer_name || phoneMap[phone].name;
+      }
+    });
+    return Object.values(phoneMap)
+      .filter((c) => c.count >= 2)
+      .sort((a, b) => b.count - a.count);
+  }, [orders]);
 
   const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
@@ -163,6 +184,7 @@ export default function MediaBuyerDashboard() {
         <div>
           <p className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.3em] mb-1">Performance Overview</p>
           <h1 className="text-3xl font-bold text-white tracking-tight">Ad Dashboard</h1>
+          <p className="text-[10px] text-zinc-600 mt-1">Data from Sep 12, 2024</p>
         </div>
         <div className="flex gap-2">
           {(["7d", "30d", "90d", "all"] as const).map((p) => (
@@ -240,13 +262,50 @@ export default function MediaBuyerDashboard() {
         </div>
       </div>
 
+      {/* Repeat Customers */}
+      {repeatCustomers.length > 0 && (
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+            <Users size={16} className="text-amber-400" /> Repeat Customers
+            <span className="text-[10px] text-zinc-500 font-normal ml-auto">{repeatCustomers.length} customers</span>
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-[10px] text-zinc-500 uppercase tracking-wider border-b border-zinc-800">
+                  <th className="text-left py-2 pr-4">Customer</th>
+                  <th className="text-left py-2 pr-4">Phone</th>
+                  <th className="text-center py-2 pr-4">Orders</th>
+                  <th className="text-right py-2 pr-4">Total Spent</th>
+                  <th className="text-right py-2">Last Order</th>
+                </tr>
+              </thead>
+              <tbody>
+                {repeatCustomers.slice(0, 20).map((c, i) => (
+                  <tr key={i} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                    <td className="py-2.5 pr-4 font-semibold text-white">{c.name}</td>
+                    <td className="py-2.5 pr-4 text-zinc-400 font-mono flex items-center gap-1.5">
+                      <Phone size={10} className="text-zinc-600" /> {c.phone}
+                    </td>
+                    <td className="py-2.5 pr-4 text-center">
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-bold border border-amber-500/20">{c.count}x</span>
+                    </td>
+                    <td className="py-2.5 pr-4 text-right text-emerald-400 font-bold">{c.totalSpent.toLocaleString()} EGP</td>
+                    <td className="py-2.5 text-right text-zinc-500">{new Date(c.lastOrder).toLocaleDateString("en-GB")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Platform Breakdown */}
       {Object.keys(kpis.platformMap).length > 0 && (
         <div className="space-y-3">
           <h2 className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Platform Breakdown</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {Object.entries(kpis.platformMap).map(([p, d]) => {
-              const pRoas = d.spend > 0 ? kpis.revenue / d.spend : 0;
               const pCtr = d.impressions > 0 ? (d.clicks / d.impressions) * 100 : 0;
               return (
                 <div key={p} className="bg-zinc-900/60 border border-zinc-800/60 rounded-xl p-4 space-y-2">

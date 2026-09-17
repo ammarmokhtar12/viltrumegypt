@@ -25,6 +25,8 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   returned: { label: "Returned", color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/20" },
 };
 
+const MB_START_DATE = "2024-09-12T00:00:00";
+
 export default function MediaBuyerOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +43,7 @@ export default function MediaBuyerOrdersPage() {
     const { data, error } = await supabase
       .from("orders")
       .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
+      .gte("created_at", MB_START_DATE)
       .order("created_at", { ascending: false })
       .limit(500);
     if (error) {
