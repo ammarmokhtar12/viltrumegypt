@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Megaphone, PlusCircle, Trash2, AlertTriangle, RefreshCw } from "lucide-react";
 
-const MB_START_DATE = "2024-09-12";
+const MB_START_DATE = "2026-09-12";
 
 export default function MediaBuyerAdSpendPage() {
   const [entries, setEntries] = useState<any[]>([]);

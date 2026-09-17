@@ -18,7 +18,7 @@ import {
   Phone,
 } from "lucide-react";
 
-const MB_START_DATE = new Date("2024-09-12T00:00:00");
+const MB_START_DATE = new Date("2026-09-12T00:00:00");
 
 function MiniChart({ data, color, height = 50 }: { data: number[]; color: string; height?: number }) {
   if (data.length < 2) return null;
@@ -61,7 +61,7 @@ export default function MediaBuyerDashboard() {
     setLoading(true);
     const [oRes, aRes] = await Promise.all([
       supabase.from("orders").select("total, status, items, city, customer_address, customer_name, customer_phone, created_at").gte("created_at", MB_START_DATE.toISOString()).order("created_at", { ascending: true }),
-      supabase.from("ad_spend").select("*").gte("date", "2024-09-12").order("date", { ascending: true }),
+      supabase.from("ad_spend").select("*").gte("date", "2026-09-12").order("date", { ascending: true }),
     ]);
     setOrders(oRes.data || []);
     setAdSpend(aRes.data || []);

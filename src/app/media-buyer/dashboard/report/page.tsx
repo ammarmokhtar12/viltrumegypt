@@ -5,7 +5,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { FileDown, RefreshCw, TrendingUp, ShoppingCart, DollarSign, Target, Users } from "lucide-react";
 
-const MB_START_DATE = "2024-09-12T00:00:00";
+const MB_START_DATE = "2026-09-12T00:00:00";
 
 export default function WeeklyReportPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -24,7 +24,7 @@ export default function WeeklyReportPage() {
     setLoading(true);
     const [oRes, aRes] = await Promise.all([
       supabase.from("orders").select("total, status, items, customer_name, customer_phone, customer_address, created_at").gte("created_at", MB_START_DATE).order("created_at", { ascending: false }),
-      supabase.from("ad_spend").select("*").gte("date", "2024-09-12").order("date", { ascending: false }),
+      supabase.from("ad_spend").select("*").gte("date", "2026-09-12").order("date", { ascending: false }),
     ]);
     setOrders(oRes.data || []);
     setAdSpend(aRes.data || []);
