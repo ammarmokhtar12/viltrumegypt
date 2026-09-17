@@ -109,13 +109,13 @@ export default function CheckoutForm({
 
   return (
     <form className="space-y-10 font-sans" onSubmit={(e) => e.preventDefault()}>
-      {/* Contact Section */}
+      {/* Required: Contact + Shipping */}
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-primary">Contact Information</h2>
+        <h2 className="text-xl font-bold text-primary">Contact & Shipping</h2>
         <div className="grid grid-cols-1 gap-4">
           <div>
             <label className="text-sm font-medium text-secondary mb-1.5 block">
-              Full Name
+              Full Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -129,7 +129,7 @@ export default function CheckoutForm({
           </div>
           <div>
             <label className="text-sm font-medium text-secondary mb-1.5 block">
-              Phone Number
+              Phone Number <span className="text-red-500">*</span>
             </label>
             <input
               type="tel"
@@ -143,51 +143,7 @@ export default function CheckoutForm({
           </div>
           <div>
             <label className="text-sm font-medium text-secondary mb-1.5 block">
-              Email <span className="text-muted font-normal">(Optional)</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              className="viltrum-input"
-            />
-            <p className="text-[11px] text-muted mt-1.5">
-              مطلوب لتأكيد مواعيد وصول الأوردر
-            </p>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-secondary mb-1.5 block">
-              How did you know about us? <span className="text-muted font-normal">(Optional)</span>
-            </label>
-            <select
-              name="referral_source"
-              value={formData.referral_source}
-              onChange={handleChange}
-              className="viltrum-input"
-            >
-              <option value="">-- اختياري --</option>
-              <option value="facebook">Facebook</option>
-              <option value="instagram">Instagram</option>
-              <option value="tiktok">TikTok</option>
-              <option value="google">Google</option>
-              <option value="friend">صاحب / حد رشحنا</option>
-              <option value="influencer">Influencer / Creator</option>
-              <option value="street">شفتنا في الشارع</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Shipping Section */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-primary">Shipping Address</h2>
-        <div className="grid grid-cols-1 gap-4">
-          <div>
-            <label className="text-sm font-medium text-secondary mb-1.5 block">
-              المحافظة
+              المحافظة <span className="text-red-500">*</span>
             </label>
             <select
               name="city"
@@ -208,7 +164,7 @@ export default function CheckoutForm({
           </div>
           <div>
             <label className="text-sm font-medium text-secondary mb-1.5 block">
-              Detailed Address
+              Detailed Address <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -234,6 +190,50 @@ export default function CheckoutForm({
             <span className="font-bold text-xs text-foreground uppercase">
               EGP {formData.city && FAR_CITIES.includes(formData.city) ? "90" : "80"}
             </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Optional Fields */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-primary">Additional Info <span className="text-muted text-sm font-normal">(Optional)</span></h2>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="text-sm font-medium text-secondary mb-1.5 block">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              value={formData.email}
+              onChange={handleChange}
+              className="viltrum-input"
+            />
+            <p className="text-[11px] text-muted mt-1.5">
+              مطلوب لتأكيد مواعيد وصول الأوردر
+            </p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-secondary mb-1.5 block">
+              How did you know about us?
+            </label>
+            <select
+              name="referral_source"
+              value={formData.referral_source}
+              onChange={handleChange}
+              className="viltrum-input"
+            >
+              <option value="">-- اختياري --</option>
+              <option value="facebook">Facebook</option>
+              <option value="instagram">Instagram</option>
+              <option value="tiktok">TikTok</option>
+              <option value="google">Google</option>
+              <option value="friend">صاحب / حد رشحنا</option>
+              <option value="influencer">Influencer / Creator</option>
+              <option value="street">شفتنا في الشارع</option>
+              <option value="other">Other</option>
+            </select>
           </div>
         </div>
       </div>

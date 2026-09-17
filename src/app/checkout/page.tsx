@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Check, Lock, ChevronRight, Sparkles, Copy, Clock, Package, Mail, Star } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { supabase } from "@/lib/supabase";
-import { formatPrice, generateOrderWhatsAppUrl, generateCustomerWhatsAppUrl } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import CheckoutForm from "@/components/checkout/CheckoutForm";
 import PaymentUpload from "@/components/checkout/PaymentUpload";
 import Image from "next/image";
@@ -257,8 +257,8 @@ export default function CheckoutPage() {
               }] : []),
               {
                 icon: <Sparkles size={16} />,
-                title: "WhatsApp Dispatch Message",
-                desc: "We are opening a WhatsApp window to finalize shipping. Please keep the session active to proceed."
+                title: "Quality Guaranteed",
+                desc: "Every piece is inspected before dispatch. Your satisfaction is our priority."
               }
             ].map((step, idx) => (
               <div key={idx} className="flex gap-4 items-start text-left p-4 rounded-2xl hover:bg-neutral-50 transition-colors duration-300">
@@ -436,16 +436,6 @@ export default function CheckoutPage() {
         console.error("Failed to update inventory during checkout:", stockErr);
       }
 
-      const whatsappUrl = generateCustomerWhatsAppUrl(
-        data.order_number,
-        orderItems,
-        finalTotal + shippingFee,
-        formData.name,
-        formData.phone,
-        `${formData.city} - ${formData.address}`,
-        formData.paymentMethod
-      );
-
       const trackingProps = {
         content_type: "product",
         contents: orderItems.map((item) => ({
@@ -514,10 +504,6 @@ export default function CheckoutPage() {
           console.error("Failed to send customer confirmation email:", emailErr);
         }
       }
-
-      setTimeout(() => {
-        window.open(whatsappUrl, "_blank");
-      }, 2000);
 
     } catch (err) {
       console.error("Order error:", err);
