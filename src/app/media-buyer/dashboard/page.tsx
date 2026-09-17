@@ -23,7 +23,6 @@ import {
   Percent,
 } from "lucide-react";
 
-const MB_START_DATE = "2026-09-12T00:00:00";
 
 function SimpleBar({ label, value, max, color, suffix }: { label: string; value: number; max: number; color: string; suffix?: string }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
@@ -50,8 +49,8 @@ export default function MediaBuyerDashboard() {
   const fetchData = async () => {
     setLoading(true);
     const [oRes, aRes] = await Promise.all([
-      supabase.from("orders").select("total, status, items, city, customer_address, customer_name, customer_phone, referral_source, payment_collected, created_at").gte("created_at", MB_START_DATE).order("created_at", { ascending: true }),
-      supabase.from("ad_spend").select("*").gte("date", "2026-09-12").order("date", { ascending: true }),
+      supabase.from("orders").select("total, status, items, city, customer_address, customer_name, customer_phone, referral_source, payment_collected, created_at").order("created_at", { ascending: true }),
+      supabase.from("ad_spend").select("*").order("date", { ascending: true }),
     ]);
     setOrders(oRes.data || []);
     setAdSpend(aRes.data || []);
@@ -215,7 +214,8 @@ export default function MediaBuyerDashboard() {
   }, [orders, adSpend]);
 
   const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
-  const daysSinceLaunch = Math.max(1, Math.ceil((Date.now() - new Date(MB_START_DATE).getTime()) / 86400000));
+  const firstOrderDate = orders.length > 0 ? new Date(orders[0].created_at) : new Date();
+  const daysSinceLaunch = Math.max(1, Math.ceil((Date.now() - firstOrderDate.getTime()) / 86400000));
 
   if (loading) {
     return <div className="flex items-center justify-center py-32"><div className="w-10 h-10 border-2 border-zinc-700 border-t-blue-500 rounded-full animate-spin" /></div>;
@@ -237,7 +237,7 @@ export default function MediaBuyerDashboard() {
         <div>
           <p className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.3em] mb-1">Viltrum Egypt</p>
           <h1 className="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
-          <p className="text-[10px] text-zinc-600 mt-1">Since Sep 12, 2026 — Day {daysSinceLaunch}</p>
+          <p className="text-[10px] text-zinc-600 mt-1">All time — Day {daysSinceLaunch}</p>
         </div>
         <button onClick={fetchData} className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-zinc-400 border border-zinc-800 rounded-xl hover:text-white hover:border-zinc-600 transition-all">
           <RefreshCw size={14} /> Refresh

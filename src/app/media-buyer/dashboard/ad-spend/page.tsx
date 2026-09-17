@@ -5,8 +5,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Megaphone, PlusCircle, Trash2, AlertTriangle, RefreshCw } from "lucide-react";
 
-const MB_START_DATE = "2026-09-12";
-
 export default function MediaBuyerAdSpendPage() {
   const [entries, setEntries] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
@@ -30,8 +28,8 @@ export default function MediaBuyerAdSpendPage() {
     setDbError(false);
     try {
       const [aRes, oRes] = await Promise.all([
-        supabase.from("ad_spend").select("*").gte("date", MB_START_DATE).order("date", { ascending: false }),
-        supabase.from("orders").select("total, status, created_at").gte("created_at", MB_START_DATE + "T00:00:00"),
+        supabase.from("ad_spend").select("*").order("date", { ascending: false }),
+        supabase.from("orders").select("total, status, created_at"),
       ]);
       if (aRes.error && (aRes.error.code === "PGRST205" || aRes.error.message?.includes("does not exist"))) {
         setDbError(true);
