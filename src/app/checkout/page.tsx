@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, Lock, ChevronRight, Sparkles, Copy, Clock, Package, Mail } from "lucide-react";
+import { ArrowLeft, Check, Lock, ChevronRight, Sparkles, Copy, Clock, Package, Mail, Star } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { supabase } from "@/lib/supabase";
 import { formatPrice, generateOrderWhatsAppUrl, generateCustomerWhatsAppUrl } from "@/lib/utils";
@@ -751,6 +751,37 @@ export default function CheckoutPage() {
                      <div className="flex items-baseline gap-2">
                         <span className="text-xs text-muted font-medium tracking-wide">EGP</span>
                         <span className="text-3xl font-bold text-primary tracking-tight">{formatPrice(finalTotal + shippingFee)}</span>
+                     </div>
+                  </div>
+
+                  {/* Customer Reviews */}
+                  <div className="mt-8 pt-6 border-t border-border-light space-y-4">
+                     <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">What customers say</p>
+                        <div className="flex items-center gap-1">
+                           <div className="flex">{[1,2,3,4,5].map(i => <Star key={i} size={10} className="text-amber-400 fill-amber-400" />)}</div>
+                           <span className="text-[10px] font-bold text-primary ml-1">4.9</span>
+                        </div>
+                     </div>
+                     <div className="space-y-3">
+                        {[
+                           { name: "أحمد م.", text: "الخامة فوق الممتاز والمقاسات مظبوطة، هشتري تاني أكيد", rating: 5 },
+                           { name: "سارة ك.", text: "التيشيرت وصل في يومين والجودة أحسن من اللي توقعتها", rating: 5 },
+                           { name: "محمد ع.", text: "أحسن براند مصري جربته، الأوفر برايس بجد لا يقاوم", rating: 5 },
+                        ].map((review, i) => (
+                           <div key={i} className="flex gap-3 items-start">
+                              <div className="w-7 h-7 rounded-full bg-primary/5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                 <span className="text-[10px] font-bold text-primary">{review.name[0]}</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                 <div className="flex items-center gap-2">
+                                    <span className="text-xs font-semibold text-primary">{review.name}</span>
+                                    <div className="flex">{Array.from({length: review.rating}).map((_, j) => <Star key={j} size={8} className="text-amber-400 fill-amber-400" />)}</div>
+                                 </div>
+                                 <p className="text-[11px] text-secondary leading-relaxed mt-0.5" dir="rtl">{review.text}</p>
+                              </div>
+                           </div>
+                        ))}
                      </div>
                   </div>
                </div>
