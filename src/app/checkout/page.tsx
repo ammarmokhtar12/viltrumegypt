@@ -741,35 +741,61 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Customer Reviews */}
-                  <div className="mt-8 pt-6 border-t border-border-light space-y-4">
-                     <div className="flex items-center justify-between">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">What customers say</p>
-                        <div className="flex items-center gap-1">
-                           <div className="flex">{[1,2,3,4,5].map(i => <Star key={i} size={10} className="text-amber-400 fill-amber-400" />)}</div>
-                           <span className="text-[10px] font-bold text-primary ml-1">4.9</span>
-                        </div>
-                     </div>
-                     <div className="space-y-3">
-                        {[
-                           { name: "أحمد م.", text: "الخامة فوق الممتاز والمقاسات مظبوطة، هشتري تاني أكيد", rating: 5 },
-                           { name: "سارة ك.", text: "التيشيرت وصل في يومين والجودة أحسن من اللي توقعتها", rating: 5 },
-                           { name: "محمد ع.", text: "أحسن براند مصري جربته، الأوفر برايس بجد لا يقاوم", rating: 5 },
-                        ].map((review, i) => (
-                           <div key={i} className="flex gap-3 items-start">
-                              <div className="w-7 h-7 rounded-full bg-primary/5 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                 <span className="text-[10px] font-bold text-primary">{review.name[0]}</span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs font-semibold text-primary">{review.name}</span>
-                                    <div className="flex">{Array.from({length: review.rating}).map((_, j) => <Star key={j} size={8} className="text-amber-400 fill-amber-400" />)}</div>
-                                 </div>
-                                 <p className="text-[11px] text-secondary leading-relaxed mt-0.5" dir="rtl">{review.text}</p>
+                  {(() => {
+                     const allReviews = [
+                        { name: "Mohamed Elakkad", text: "التصميم تحفة و أجمد خامة شوفتها يستحق كل جنيه بيتدفع", rating: 5 },
+                        { name: "Elenany", text: "احسن خامه شوفتها في السوق واحسن تعامل شكرا ليكو جدا", rating: 5 },
+                        { name: "Mohammed Elsayed", text: "Wow", rating: 5 },
+                        { name: "Malak", text: "Perfect fit, great quality, looks the same as it does in the photo", rating: 5 },
+                        { name: "Yaseen", text: "Honestly its the best compression shirt money can buy, the price and quality is super awesome", rating: 5 },
+                        { name: "Kero", text: "perfect", rating: 5 },
+                        { name: "Abdo Mota", text: "يجدعان جامد فشخ وربنا", rating: 5 },
+                        { name: "Waterblade", text: "It doesn't nerf your physique, that's the good thing, and it gives Viltrum vibes", rating: 5 },
+                        { name: "Seif Eldeeb", text: "Perfect fit, great quality, looks amazing... 100% recommend", rating: 5 },
+                        { name: "Mohanad", text: "خامه تحفه تستاهل سعرها والتصميم حلو اوي وشكرا جدا علي التعامل والاحترام", rating: 5 },
+                        { name: "Mohamed Samir", text: "Comfortable and fit, you actually feel like Nightwing because of details", rating: 5 },
+                        { name: "Yousef Uchii", text: "خامه حلوة و تقفيل جميل الديزاين مظبوط من اجمل القطع اللي هنزل بيها الجيم", rating: 5 },
+                        { name: "Mohab Thabet", text: "The quality is amazing, I love it, it's perfect for conquering planets", rating: 5 },
+                        { name: "Shady Emad", text: "I conquered Earth with this", rating: 5 },
+                        { name: "Shady", text: "Top quality and fits perfectly", rating: 5 },
+                        { name: "Shady Emad", text: "It's perfect", rating: 5 },
+                     ];
+                     const seed = new Date().getDate();
+                     const shuffled = [...allReviews].sort((a, b) => {
+                        const ha = a.name.charCodeAt(0) * 31 + seed;
+                        const hb = b.name.charCodeAt(0) * 31 + seed;
+                        return (ha % 97) - (hb % 97);
+                     });
+                     const shown = shuffled.slice(0, 3);
+                     return (
+                        <div className="mt-8 pt-6 border-t border-border-light space-y-4">
+                           <div className="flex items-center justify-between">
+                              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">What customers say</p>
+                              <div className="flex items-center gap-1">
+                                 <div className="flex">{[1,2,3,4,5].map(i => <Star key={i} size={10} className="text-amber-400 fill-amber-400" />)}</div>
+                                 <span className="text-[10px] font-bold text-primary ml-1">4.9</span>
+                                 <span className="text-[10px] text-muted ml-1">({allReviews.length})</span>
                               </div>
                            </div>
-                        ))}
-                     </div>
-                  </div>
+                           <div className="space-y-3">
+                              {shown.map((review, i) => (
+                                 <div key={i} className="flex gap-3 items-start">
+                                    <div className="w-7 h-7 rounded-full bg-primary/5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                       <span className="text-[10px] font-bold text-primary">{review.name[0]}</span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                       <div className="flex items-center gap-2">
+                                          <span className="text-xs font-semibold text-primary">{review.name}</span>
+                                          <div className="flex">{Array.from({length: review.rating}).map((_, j) => <Star key={j} size={8} className="text-amber-400 fill-amber-400" />)}</div>
+                                       </div>
+                                       <p className="text-[11px] text-secondary leading-relaxed mt-0.5" dir="rtl">{review.text}</p>
+                                    </div>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                     );
+                  })()}
                </div>
             </div>
          </div>

@@ -10,6 +10,7 @@ export default function Footer() {
   const router = useRouter();
   const [clickCount, setClickCount] = useState(0);
   const [bloggerClickCount, setBloggerClickCount] = useState(0);
+  const [mbClickCount, setMbClickCount] = useState(0);
 
   const handlePrivacyClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -32,6 +33,18 @@ export default function Footer() {
     } else {
       setBloggerClickCount(newCount);
       setTimeout(() => setBloggerClickCount(0), 1000);
+    }
+  };
+
+  const handleMbClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const newCount = mbClickCount + 1;
+    if (newCount >= 3) {
+      router.push("/media-buyer");
+      setMbClickCount(0);
+    } else {
+      setMbClickCount(newCount);
+      setTimeout(() => setMbClickCount(0), 1000);
     }
   };
 
@@ -110,6 +123,12 @@ export default function Footer() {
               className="text-xs text-zinc-500 hover:text-white transition-colors cursor-pointer"
             >
               Bloggers Dashboard
+            </button>
+            <button
+              onClick={handleMbClick}
+              className="text-xs text-zinc-500 hover:text-white transition-colors cursor-pointer"
+            >
+              Media Buyer
             </button>
             <Link
               href="/admin"
