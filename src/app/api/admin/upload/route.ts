@@ -98,12 +98,10 @@ export async function POST(request: NextRequest) {
     });
 
     const filePath = `${crypto.randomUUID()}.${ext}`;
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
 
     const { error } = await supabase.storage
       .from("product-images")
-      .upload(filePath, buffer, {
+      .upload(filePath, file, {
         contentType: mimeFromExt[ext] || file.type || "image/jpeg",
         cacheControl: "31536000",
         upsert: false,
