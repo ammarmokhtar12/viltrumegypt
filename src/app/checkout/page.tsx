@@ -9,6 +9,7 @@ import { formatPrice } from "@/lib/utils";
 import CheckoutForm from "@/components/checkout/CheckoutForm";
 import PaymentUpload from "@/components/checkout/PaymentUpload";
 import Image from "next/image";
+import ProductImage from "@/components/products/ProductImage";
 import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
 import { trackMetaEvent } from "@/lib/meta";
@@ -612,7 +613,7 @@ export default function CheckoutPage() {
                                           {item.quantity}
                                        </span>
                                        {item.image_url ? (
-                                          <Image src={item.image_url} alt={item.title} fill className="object-cover" />
+                                          <ProductImage src={item.image_url} alt={item.title} fill className="object-cover" />
                                        ) : (
                                           <div className="w-full h-full bg-surface" />
                                        )}
@@ -646,7 +647,7 @@ export default function CheckoutPage() {
                                           <div key={`${subItem.product_id}-${subItem.size}-${index}`} className="flex items-center gap-3">
                                              <div className="relative w-10 h-10 rounded bg-surface border border-border-light overflow-hidden flex-shrink-0">
                                                 {subItem.image_url ? (
-                                                   <Image src={subItem.image_url} alt={subItem.title} fill className="object-cover" />
+                                                   <ProductImage src={subItem.image_url} alt={subItem.title} fill className="object-cover" />
                                                 ) : (
                                                    <div className="w-full h-full bg-surface" />
                                                 )}

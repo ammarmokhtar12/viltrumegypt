@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import ProductImage from "@/components/products/ProductImage";
 import { formatPrice } from "@/lib/utils";
 import { Product } from "@/types";
 import { ArrowUpRight } from "lucide-react";
@@ -22,7 +22,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <Link href={`/products/${product.id}`} className="block">
         <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface border border-border-light shadow-sm transition-all duration-500 group-hover:shadow-lg group-hover:shadow-black/20 group-hover:-translate-y-1.5 card-glow">
           {hasImage && (
-            <Image
+            <ProductImage
               src={product.image_url!}
               alt={product.title}
               fill

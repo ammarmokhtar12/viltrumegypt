@@ -35,10 +35,51 @@ export async function POST(request: NextRequest) {
 
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+    const file = formData.get("file") as File | null;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    const MAX_BYTES = 10 * 1024 * 1024;
+    if (file.size > MAX_BYTES) {
+      return NextResponse.json(
+        { error: "Image is too large. Use a file under 10MB (JPG, PNG, or WEBP)." },
+        { status: 400 }
+      );
+    }
+
+    const mimeFromExt: Record<string, string> = {
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      webp: "image/webp",
+      gif: "image/gif",
+      avif: "image/avif",
+    };
+    const extFromMime: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp",
+      "image/gif": "gif",
+      "image/avif": "avif",
+    };
+
+    const rawExt = (file.name.split(".").pop() || "").toLowerCase();
+    const ext = mimeFromExt[rawExt]
+      ? rawExt === "jpeg"
+        ? "jpg"
+        : rawExt
+      : extFromMime[file.type];
+
+    if (!ext) {
+      return NextResponse.json(
+        {
+          error:
+            "Unsupported image type. Upload JPG, PNG, or WEBP (not HEIC from iPhone).",
+        },
+        { status: 400 }
+      );
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -56,17 +97,16 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `${fileName}`;
-
+    const filePath = `${crypto.randomUUID()}.${ext}`;
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("product-images")
       .upload(filePath, buffer, {
-        contentType: file.type,
+        contentType: mimeFromExt[ext] || file.type || "image/jpeg",
+        cacheControl: "31536000",
+        upsert: false,
       });
 
     if (error) throw error;

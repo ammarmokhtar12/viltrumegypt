@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import ProductImage from "@/components/products/ProductImage";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 import { CartItem as CartItemType } from "@/types";
@@ -18,7 +18,7 @@ export default function CartItem({ item }: CartItemProps) {
       {/* Thumbnail */}
       <div className="relative w-20 h-24 overflow-hidden rounded-lg bg-background flex-shrink-0">
         {item.image_url ? (
-          <Image
+          <ProductImage
             src={item.image_url}
             alt={item.title}
             fill

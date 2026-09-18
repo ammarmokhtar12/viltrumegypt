@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
+import ProductImage from "@/components/products/ProductImage";
 import { ShoppingBag, Check, Minus, Plus, ArrowLeft, Truck, ShieldCheck, Heart } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Product } from "@/types";
@@ -245,7 +245,7 @@ export default function ProductDetailPage() {
                 <div className="lg:col-span-7 space-y-6">
                   <div className="relative overflow-hidden rounded-2xl bg-surface border border-border-light shadow-2xl group" style={{ aspectRatio: "4/5" }}>
                     {activeImage ? (
-                      <Image
+                      <ProductImage
                         src={activeImage}
                         alt={product.title}
                         fill
@@ -275,7 +275,7 @@ export default function ProductDetailPage() {
                            activeImage === product.image_url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
                          }`}
                        >
-                          <Image src={product.image_url} alt="Main" fill className="object-cover" />
+                          <ProductImage src={product.image_url} alt="Main" fill className="object-cover" />
                        </button>
                      )}
 
@@ -288,7 +288,7 @@ export default function ProductDetailPage() {
                            activeImage === url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
                          }`}
                        >
-                          <Image src={url} alt={`Gallery ${i}`} fill className="object-cover" />
+                          <ProductImage src={url} alt={`Gallery ${i}`} fill className="object-cover" />
                        </button>
                      ))}
                   </div>

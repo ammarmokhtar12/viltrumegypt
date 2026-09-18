@@ -6,7 +6,7 @@ import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 import CartItem from "./CartItem";
 import Link from "next/link";
-import Image from "next/image";
+import ProductImage from "@/components/products/ProductImage";
 import { trackTikTokEvent } from "@/lib/tiktok";
 import { CartItem as CartItemType } from "@/types";
 
@@ -186,7 +186,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           <div key={`${subItem.product_id}-${subItem.size}-${index}`} className="flex gap-3 items-center">
                             <div className="relative w-10 h-12 rounded-lg overflow-hidden bg-white border border-border-light flex-shrink-0">
                               {subItem.image_url ? (
-                                <Image
+                                <ProductImage
                                   src={subItem.image_url}
                                   alt={subItem.title}
                                   fill
