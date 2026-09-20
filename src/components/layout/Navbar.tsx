@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBag, Menu, X, Phone, Moon, Sun, Instagram } from "lucide-react";
+import { ShoppingBag, Menu, X, Phone, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
@@ -193,9 +193,6 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
                 className="mt-4 flex items-center justify-between"
               >
                 <div className="flex items-center gap-4 text-foreground">
-                  <a href="#" className="p-3 bg-secondary/10 rounded-full hover:bg-accent hover:text-white transition-colors">
-                    <Instagram size={24} />
-                  </a>
                   <a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}`} className="p-3 bg-secondary/10 rounded-full hover:bg-accent hover:text-white transition-colors">
                     <Phone size={24} />
                   </a>
