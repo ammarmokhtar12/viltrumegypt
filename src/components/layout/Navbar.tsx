@@ -1,10 +1,12 @@
 "use client";
 
-import { ShoppingBag, Menu, X, Phone } from "lucide-react";
+import { ShoppingBag, Menu, X, Phone, Moon, Sun, Instagram } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
 import BrandLogo from "@/components/layout/BrandLogo";
+import { useTheme } from "next-themes";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
   onCartOpen: () => void;
@@ -13,6 +15,7 @@ interface NavbarProps {
 export default function Navbar({ onCartOpen }: NavbarProps) {
   const totalItems = useCartStore((s) => s.totalItems);
   const itemCount = totalItems();
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -87,6 +90,25 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           >
             Contact
           </a>
+
+          {/* Dark Mode Toggle Desktop */}
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex items-center justify-center p-2 rounded-full hover:bg-secondary/10 transition-colors text-foreground"
+            title="Toggle Villain Mode"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={theme === "dark" ? "dark" : "light"}
+                initial={{ y: -20, opacity: 0, rotate: -90 }}
+                animate={{ y: 0, opacity: 1, rotate: 0 }}
+                exit={{ y: 20, opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.2 }}
+              >
+                {theme === "dark" ? <Moon size={18} className="text-accent" /> : <Sun size={18} />}
+              </motion.div>
+            </AnimatePresence>
+          </button>
         </div>
 
         <div className="flex items-center gap-4 lg:gap-6">
@@ -131,37 +153,75 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
         </div>
       </div>
 
-      {mobileOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-background/95 backdrop-blur-xl border-t border-border-light shadow-xl px-6 py-8 flex flex-col gap-5 animate-mobile-menu">
-          <Link
-            href="/#products"
-            onClick={() => setMobileOpen(false)}
-            className="font-sans text-sm font-medium text-foreground border-b border-border-light pb-3 hover:text-accent transition-colors"
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "100%", opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="lg:hidden fixed inset-0 z-40 bg-background/98 backdrop-blur-3xl flex flex-col pt-32 pb-10 px-8"
           >
-            Collections
-          </Link>
-          <Link
-            href="/products"
-            onClick={() => setMobileOpen(false)}
-            className="font-sans text-sm font-medium text-foreground border-b border-border-light pb-3 hover:text-accent transition-colors"
-          >
-            Archive
-          </Link>
-          <a
-            href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setMobileOpen(false)}
-            className="font-sans text-sm font-medium text-foreground border-b border-border-light pb-3 hover:text-accent transition-colors"
-          >
-            Contact
-          </a>
-          <div className="flex items-center gap-3 pt-2 font-medium text-secondary text-sm font-sans">
-            <Phone size={18} />
-            <span>+201132507383</span>
-          </div>
-        </div>
-      )}
+            <div className="flex flex-col gap-6 flex-1">
+              {[
+                { name: "Collections", href: "/#products" },
+                { name: "Archive", href: "/products" },
+                { name: "Contact", href: `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}` },
+              ].map((link, i) => (
+                <motion.div
+                  key={link.name}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 50 }}
+                  transition={{ delay: 0.1 + i * 0.1 }}
+                >
+                  <Link
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="font-display text-4xl font-bold text-foreground hover:text-accent transition-colors uppercase tracking-wider block border-b border-border-light pb-4"
+                  >
+                    {link.name}
+                  </Link>
+                </motion.div>
+              ))}
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ delay: 0.4 }}
+                className="mt-4 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-4 text-foreground">
+                  <a href="#" className="p-3 bg-secondary/10 rounded-full hover:bg-accent hover:text-white transition-colors">
+                    <Instagram size={24} />
+                  </a>
+                  <a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}`} className="p-3 bg-secondary/10 rounded-full hover:bg-accent hover:text-white transition-colors">
+                    <Phone size={24} />
+                  </a>
+                </div>
+
+                <button
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="flex items-center gap-3 p-3 bg-secondary/10 rounded-full text-foreground hover:bg-secondary/20 transition-colors font-sans text-sm font-bold uppercase tracking-wider"
+                >
+                  {theme === "dark" ? (
+                    <>
+                      <Moon size={20} className="text-accent" />
+                      Villain Mode
+                    </>
+                  ) : (
+                    <>
+                      <Sun size={20} />
+                      Hero Mode
+                    </>
+                  )}
+                </button>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
