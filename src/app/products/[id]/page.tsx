@@ -18,6 +18,7 @@ import ViltrumLoader from "@/components/layout/ViltrumLoader";
 import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
 import { trackMetaEvent } from "@/lib/meta";
+import gsap from "gsap";
 
 import SizeGuideModal from "@/components/products/SizeGuideModal";
 import { useCountdown } from "@/lib/useCountdown";
@@ -141,6 +142,35 @@ export default function ProductDetailPage() {
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
 
+    const imgEl = document.getElementById("main-product-image");
+    const cartEl = document.getElementById("cart-icon-target");
+    if (imgEl && cartEl) {
+      const clone = imgEl.cloneNode(true) as HTMLElement;
+      const rect = imgEl.getBoundingClientRect();
+      clone.style.position = "fixed";
+      clone.style.top = rect.top + "px";
+      clone.style.left = rect.left + "px";
+      clone.style.width = rect.width + "px";
+      clone.style.height = rect.height + "px";
+      clone.style.zIndex = "9999";
+      clone.style.pointerEvents = "none";
+      document.body.appendChild(clone);
+
+      const cartRect = cartEl.getBoundingClientRect();
+      gsap.to(clone, {
+        top: cartRect.top,
+        left: cartRect.left,
+        width: 30,
+        height: 30,
+        opacity: 0.2,
+        duration: 0.8,
+        ease: "power3.inOut",
+        onComplete: () => {
+          clone.remove();
+        }
+      });
+    }
+
     // Track AddToCart event
     trackTikTokEvent("AddToCart", {
       content_type: "product",
@@ -243,7 +273,7 @@ export default function ProductDetailPage() {
                 
                 {/* Gallery Section */}
                 <div className="lg:col-span-7 space-y-6">
-                  <div className="relative overflow-hidden rounded-2xl bg-surface border border-border-light shadow-2xl group" style={{ aspectRatio: "4/5" }}>
+                  <div id="main-product-image" className="relative overflow-hidden rounded-2xl bg-surface border border-border-light shadow-2xl group" style={{ aspectRatio: "4/5" }}>
                     {activeImage ? (
                       <ProductImage
                         src={activeImage}

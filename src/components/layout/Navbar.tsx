@@ -47,7 +47,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
     <nav
       id="main-navbar"
       className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrolled ? "premium-blur shadow-sm" : "bg-transparent"
+        scrolled ? "glass-premium shadow-sm" : "bg-transparent"
       }`}
     >
       <div className="eid-banner overflow-hidden py-2.5 border-b border-border-light/50 relative z-50 select-none rgb-shadow">
@@ -96,6 +96,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           </div>
 
           <button
+            id="cart-icon-target"
             onClick={onCartOpen}
             className={`flex items-center group relative p-1 transition-all ${
               isBumping ? "animate-cart-shake" : ""

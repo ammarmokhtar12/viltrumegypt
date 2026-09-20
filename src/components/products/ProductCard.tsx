@@ -6,6 +6,8 @@ import { formatPrice } from "@/lib/utils";
 import { Product } from "@/types";
 import { ArrowUpRight } from "lucide-react";
 import { useCountdown } from "@/lib/useCountdown";
+import { useRef, useEffect } from "react";
+import gsap from "gsap";
 
 interface ProductCardProps {
   product: Product;
@@ -16,11 +18,43 @@ export default function ProductCard({ product }: ProductCardProps) {
   const hasImage = Boolean(product.image_url);
   const originalPrice = product.price * 1.25;
   const isPromo = product.title.toUpperCase() === "LIMITED OFFER";
+  
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const xTo = gsap.quickTo(card, "rotationY", { duration: 0.5, ease: "power3" });
+    const yTo = gsap.quickTo(card, "rotationX", { duration: 0.5, ease: "power3" });
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { left, top, width, height } = card.getBoundingClientRect();
+      const x = (clientX - left - width / 2) / 20;
+      const y = -(clientY - top - height / 2) / 20;
+      xTo(x);
+      yTo(y);
+    };
+
+    const handleMouseLeave = () => {
+      xTo(0);
+      yTo(0);
+    };
+
+    card.addEventListener("mousemove", handleMouseMove);
+    card.addEventListener("mouseleave", handleMouseLeave);
+
+    return () => {
+      card.removeEventListener("mousemove", handleMouseMove);
+      card.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, []);
 
   return (
-    <div className="group relative font-sans will-change-transform">
+    <div className="group relative font-sans will-change-transform" style={{ perspective: "1000px" }}>
       <Link href={`/products/${product.id}`} className="block">
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface border border-border-light shadow-sm transition-all duration-500 group-hover:shadow-lg group-hover:shadow-black/20 group-hover:-translate-y-1.5 card-glow">
+        <div ref={cardRef} className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface border border-border-light shadow-sm transition-all duration-500 group-hover:shadow-lg group-hover:shadow-black/20 card-glow">
           {hasImage && (
             <ProductImage
               src={product.image_url!}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import TextReveal from "@/components/ui/TextReveal";
 
 export default function HeroSection() {
   return (
@@ -40,22 +41,17 @@ export default function HeroSection() {
         </div>
 
         {/* Headline */}
-        <div
-          className="hero-fade-in-up"
-          style={{ animationDelay: "0.6s" }}
-        >
+        <TextReveal delay={0.6}>
           <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-extrabold leading-[1.05] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
             EVERY HERO
           </h1>
-        </div>
-        <div
-          className="hero-fade-in-up mb-8 sm:mb-10"
-          style={{ animationDelay: "0.9s" }}
-        >
+        </TextReveal>
+        
+        <TextReveal delay={0.9} className="mb-8 sm:mb-10">
           <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-extrabold leading-[1.05] tracking-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.8)]">
             <span className="invincible-text">NEEDS A </span><span className="invincible-text-accent">SUIT.</span>
           </h1>
-        </div>
+        </TextReveal>
 
         {/* Description */}
         <p
