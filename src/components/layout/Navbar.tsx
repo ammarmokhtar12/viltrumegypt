@@ -1,11 +1,10 @@
 "use client";
 
-import { ShoppingBag, Menu, X, Phone, Moon, Sun } from "lucide-react";
+import { ShoppingBag, Menu, X, Phone } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
 import BrandLogo from "@/components/layout/BrandLogo";
-import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
@@ -15,7 +14,6 @@ interface NavbarProps {
 export default function Navbar({ onCartOpen }: NavbarProps) {
   const totalItems = useCartStore((s) => s.totalItems);
   const itemCount = totalItems();
-  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -90,25 +88,6 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           >
             Contact
           </a>
-
-          {/* Dark Mode Toggle Desktop */}
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex items-center justify-center p-2 rounded-full hover:bg-secondary/10 transition-colors text-foreground"
-            title="Toggle Villain Mode"
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={theme === "dark" ? "dark" : "light"}
-                initial={{ y: -20, opacity: 0, rotate: -90 }}
-                animate={{ y: 0, opacity: 1, rotate: 0 }}
-                exit={{ y: 20, opacity: 0, rotate: 90 }}
-                transition={{ duration: 0.2 }}
-              >
-                {theme === "dark" ? <Moon size={18} className="text-accent" /> : <Sun size={18} />}
-              </motion.div>
-            </AnimatePresence>
-          </button>
         </div>
 
         <div className="flex items-center gap-4 lg:gap-6">
@@ -197,23 +176,6 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
                     <Phone size={24} />
                   </a>
                 </div>
-
-                <button
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="flex items-center gap-3 p-3 bg-secondary/10 rounded-full text-foreground hover:bg-secondary/20 transition-colors font-sans text-sm font-bold uppercase tracking-wider"
-                >
-                  {theme === "dark" ? (
-                    <>
-                      <Moon size={20} className="text-accent" />
-                      Villain Mode
-                    </>
-                  ) : (
-                    <>
-                      <Sun size={20} />
-                      Hero Mode
-                    </>
-                  )}
-                </button>
               </motion.div>
             </div>
           </motion.div>
