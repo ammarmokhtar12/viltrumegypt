@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { Inter, Teko } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "sonner";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const teko = Teko({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-teko" });
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://viltrumegypt.vercel.app";
@@ -82,7 +86,7 @@ export default function RootLayout({
           />
         </noscript>
       </head>
-      <body className="font-sans antialiased bg-background text-foreground">
+      <body className={`${inter.variable} ${teko.variable} font-sans antialiased bg-background text-foreground`}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"

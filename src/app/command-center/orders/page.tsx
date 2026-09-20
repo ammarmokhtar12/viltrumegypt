@@ -18,6 +18,7 @@ import {
   Printer,
   Truck,
   Loader2,
+  PackageCheck,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
@@ -290,6 +291,7 @@ export default function OrdersPage() {
   const [printMode, setPrintMode] = useState<"pending" | "confirmed">("pending");
   const [shippingIds, setShippingIds] = useState<Set<string>>(new Set());
   const [selectedForShip, setSelectedForShip] = useState<Set<string>>(new Set());
+  const [safwaLoading, setSafwaLoading] = useState<Set<string>>(new Set());
 
   const toggleSelectForShip = (id: string) => {
     setSelectedForShip((prev) => {
@@ -421,6 +423,46 @@ ${itemLines}
     if (current) updates.tracking_number = null;
     await supabase.from("orders").update(updates).eq("id", orderId);
     setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, shipping_company: newCompany, ...(current ? { tracking_number: null } : {}) } : o));
+  };
+
+  const addToSafwa = async (orderId: string) => {
+    setSafwaLoading((prev) => new Set(prev).add(orderId));
+    try {
+      const res = await fetch("/api/safwa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "add", orderIds: [orderId] }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, shipping_company: "ALSAFWA" } : o));
+      } else {
+        alert("خطأ: " + (data.error || "Unknown"));
+      }
+    } catch {
+      alert("فشل الاتصال");
+    }
+    setSafwaLoading((prev) => { const s = new Set(prev); s.delete(orderId); return s; });
+  };
+
+  const removeFromSafwa = async (orderId: string) => {
+    setSafwaLoading((prev) => new Set(prev).add(orderId));
+    try {
+      const res = await fetch("/api/safwa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "remove", orderIds: [orderId] }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, shipping_company: null, tracking_number: null } : o));
+      } else {
+        alert("خطأ: " + (data.error || "Unknown"));
+      }
+    } catch {
+      alert("فشل الاتصال");
+    }
+    setSafwaLoading((prev) => { const s = new Set(prev); s.delete(orderId); return s; });
   };
 
   const saveWaybill = async (orderId: string, waybill: string) => {
@@ -708,8 +750,12 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                         {cfg.label}
                       </span>
                       {order.shipping_company && (
-                        <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold tracking-wider text-purple-400 bg-purple-500/10 border border-purple-500/20">
-                          راح موقع بانثر
+                        <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold tracking-wider border ${
+                          order.shipping_company === "ALSAFWA"
+                            ? "text-teal-400 bg-teal-500/10 border-teal-500/20"
+                            : "text-purple-400 bg-purple-500/10 border-purple-500/20"
+                        }`}>
+                          {order.shipping_company === "ALSAFWA" ? "الصفوة ✓" : "راح موقع بانثر"}
                         </span>
                       )}
                       {order.payment_collected ? (
@@ -856,10 +902,26 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
 
                       <button
                         onClick={() => openShippingConfirmation(order)}
-                        disabled={!order.shipping_company}
+                        disabled={order.status !== "shipped" && !order.shipping_company}
                         className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-cyan-400 border-cyan-500/20 bg-cyan-500/10 hover:bg-cyan-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
                       >
                         <Truck size={12} /> تأكيد الشحن
+                      </button>
+
+                      <div className="w-px bg-zinc-800 mx-1" />
+
+                      {/* Add to Safwa */}
+                      <button
+                        onClick={() => order.shipping_company === "ALSAFWA" ? removeFromSafwa(order.id) : addToSafwa(order.id)}
+                        disabled={safwaLoading.has(order.id) || (!!order.shipping_company && order.shipping_company !== "ALSAFWA")}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed ${
+                          order.shipping_company === "ALSAFWA"
+                            ? "text-teal-400 bg-teal-500/10 border-teal-500/20 hover:bg-teal-500/20"
+                            : "text-zinc-600 border-zinc-800 hover:text-teal-400 hover:border-teal-500/30"
+                        }`}
+                      >
+                        {safwaLoading.has(order.id) ? <Loader2 size={12} className="animate-spin" /> : order.shipping_company === "ALSAFWA" ? <Check size={12} /> : <PackageCheck size={12} />}
+                        {order.shipping_company === "ALSAFWA" ? "Added to Safwa ✓" : "Add to Safwa"}
                       </button>
                     </div>
 

@@ -470,16 +470,7 @@ export default function ProductDetailPage() {
                     </div>
 
                     {/* Service Highlights */}
-                    <div className="grid grid-cols-2 gap-6 pt-12 border-t border-border-light">
-                       <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-surface border border-border-light flex items-center justify-center text-muted shadow-sm">
-                            <Truck size={18} />
-                          </div>
-                          <div>
-                             <p className="text-[10px] font-bold text-foreground uppercase tracking-widest">Logistics</p>
-                             <p className="text-[11px] text-muted font-medium mt-1 leading-relaxed">Delivery costs calculated via WhatsApp.</p>
-                          </div>
-                       </div>
+                    <div className="pt-12 border-t border-border-light">
                        <div className="flex items-start gap-4">
                           <div className="w-10 h-10 rounded-xl bg-surface border border-border-light flex items-center justify-center text-muted shadow-sm">
                             <ShieldCheck size={18} />

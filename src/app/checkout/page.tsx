@@ -778,18 +778,18 @@ export default function CheckoutPage() {
                                  <span className="text-[10px] text-muted ml-1">({allReviews.length})</span>
                               </div>
                            </div>
-                           <div className="space-y-3">
+                           <div className="space-y-4">
                               {shown.map((review, i) => (
-                                 <div key={i} className="flex gap-3 items-start">
-                                    <div className="w-7 h-7 rounded-full bg-primary/5 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                       <span className="text-[10px] font-bold text-primary">{review.name[0]}</span>
+                                 <div key={i} className="flex gap-4 items-start bg-white p-4 rounded-2xl border border-border-light shadow-sm hover:border-primary/20 transition-colors">
+                                    <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center flex-shrink-0">
+                                       <span className="text-sm font-bold text-primary">{review.name[0]}</span>
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                       <div className="flex items-center gap-2">
-                                          <span className="text-xs font-semibold text-primary">{review.name}</span>
-                                          <div className="flex">{Array.from({length: review.rating}).map((_, j) => <Star key={j} size={8} className="text-amber-400 fill-amber-400" />)}</div>
+                                       <div className="flex items-center justify-between gap-2 mb-1">
+                                          <span className="text-sm font-bold text-primary">{review.name}</span>
+                                          <div className="flex gap-0.5">{Array.from({length: review.rating}).map((_, j) => <Star key={j} size={12} className="text-amber-400 fill-amber-400" />)}</div>
                                        </div>
-                                       <p className="text-[11px] text-secondary leading-relaxed mt-0.5" dir="rtl">{review.text}</p>
+                                       <p className="text-sm text-secondary leading-relaxed" dir="auto">{review.text}</p>
                                     </div>
                                  </div>
                               ))}

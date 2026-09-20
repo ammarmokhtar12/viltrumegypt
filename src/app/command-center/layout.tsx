@@ -23,11 +23,13 @@ import {
   Users,
   DollarSign,
   Percent,
+  Truck,
 } from "lucide-react";
 
 const ANALYTICS_NAV = [
   { href: "/command-center", label: "Dashboard", icon: BarChart3 },
   { href: "/command-center/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/command-center/safwa", label: "Safwa Shipments", icon: Truck },
   { href: "/command-center/returns", label: "Returns", icon: RotateCcw },
   { href: "/command-center/manufacturing", label: "Manufacturing", icon: Factory },
   { href: "/command-center/ad-spend", label: "Ad Spend", icon: Megaphone },

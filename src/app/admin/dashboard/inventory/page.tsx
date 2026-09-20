@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Product } from "@/types";
+import ProductImage from "@/components/products/ProductImage";
 import {
   Database,
   Search,
@@ -227,7 +228,7 @@ export default function AdminInventoryPage() {
                         <div className="flex items-center gap-4">
                           <div className="relative w-12 h-16 rounded-xl border border-border-light overflow-hidden bg-background shadow-sm flex-shrink-0">
                             {product.image_url ? (
-                              <img src={product.image_url} alt={product.title} className="w-full h-full object-cover" />
+                              <ProductImage src={product.image_url} alt={product.title} fill className="object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-muted font-bold text-xs">V</div>
                             )}

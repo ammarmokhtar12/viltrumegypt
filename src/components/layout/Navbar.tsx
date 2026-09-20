@@ -16,6 +16,8 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
   const [mounted, setMounted] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isBumping, setIsBumping] = useState(false);
+  const [prevCount, setPrevCount] = useState(itemCount);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -24,6 +26,17 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (mounted && itemCount > prevCount) {
+      setIsBumping(true);
+      const timer = setTimeout(() => setIsBumping(false), 600);
+      setPrevCount(itemCount);
+      return () => clearTimeout(timer);
+    } else if (itemCount !== prevCount) {
+      setPrevCount(itemCount);
+    }
+  }, [itemCount, prevCount, mounted]);
 
   if (!mounted) return null;
 
@@ -84,17 +97,23 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
 
           <button
             onClick={onCartOpen}
-            className="flex items-center group relative p-1"
+            className={`flex items-center group relative p-1 transition-all ${
+              isBumping ? "animate-cart-shake" : ""
+            }`}
             aria-label="Open cart"
           >
             <div className="relative">
               <ShoppingBag
                 strokeWidth={1.5}
-                size={22}
-                className="text-foreground group-hover:text-accent transition-colors"
+                size={26}
+                className={`transition-colors duration-300 ${
+                  isBumping ? "text-red-500 fill-red-500/20" : "text-foreground group-hover:text-accent"
+                }`}
               />
               {itemCount > 0 && (
-                <span className="absolute -right-2 -top-1 flex h-4 w-4 items-center justify-center bg-secondary text-white text-[9px] font-semibold rounded-full font-sans">
+                <span className={`absolute -right-2 -top-1 flex h-5 w-5 items-center justify-center text-white text-[10px] font-bold rounded-full font-sans transition-all duration-300 ${
+                  isBumping ? "bg-red-500 scale-110 shadow-[0_0_15px_rgba(239,68,68,0.5)]" : "bg-secondary"
+                }`}>
                   {itemCount}
                 </span>
               )}

@@ -4,6 +4,7 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { Product } from "@/types";
+import ProductImage from "@/components/products/ProductImage";
 import {
   Plus,
   Edit2,
@@ -315,10 +316,11 @@ export default function AdminProductsPage() {
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-14 bg-background border border-border-light rounded-lg overflow-hidden flex-shrink-0 group">
                         {product.image_url ? (
-                          <img
+                          <ProductImage
                             src={product.image_url}
                             alt={product.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center opacity-20">
@@ -489,7 +491,7 @@ export default function AdminProductsPage() {
                        >
                           {formData.image_url ? (
                             <div className="relative w-full h-full rounded-xl overflow-hidden shadow-inner bg-surface">
-                              <img src={formData.image_url} className="w-full h-full object-cover" />
+                              <ProductImage src={formData.image_url} alt="Main Image" fill className="object-cover" />
                               <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                  <Upload className="text-background" size={24} />
                               </div>
@@ -511,7 +513,7 @@ export default function AdminProductsPage() {
                           <div className="grid grid-cols-2 gap-3 mb-3">
                              {formData.gallery_urls.map((url, idx) => (
                                <div key={idx} className="relative aspect-square rounded-xl overflow-hidden group border border-border-light">
-                                 <img src={url} className="w-full h-full object-cover" />
+                                 <ProductImage src={url} alt={`Gallery image ${idx}`} fill className="object-cover" />
                                  <button
                                    type="button"
                                    onClick={() => setFormData(p => ({ ...p, gallery_urls: p.gallery_urls.filter((_, i) => i !== idx) }))}
