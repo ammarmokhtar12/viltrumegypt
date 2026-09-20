@@ -273,34 +273,46 @@ export default function ProductDetailPage() {
                 
                 {/* Gallery Section */}
                 <div className="lg:col-span-7 space-y-6">
-                  <div id="main-product-image" className="relative overflow-hidden rounded-2xl bg-surface border border-border-light shadow-2xl group" style={{ aspectRatio: "4/5" }}>
-                    {activeImage ? (
-                      <ProductImage
-                        src={activeImage}
-                        alt={product.title}
-                        fill
-                        className="object-cover object-center group-hover:scale-105 transition-transform duration-1000"
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                        priority
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-8xl font-display text-muted/10">V</span>
-                      </div>
-                    )}
-                    
+                  {/* Swipeable Main Gallery */}
+                  <div
+                    id="main-product-image"
+                    className="relative overflow-x-auto flex snap-x snap-mandatory scroll-smooth hide-scrollbar rounded-2xl bg-surface border border-border-light shadow-2xl group"
+                    style={{ aspectRatio: "4/5" }}
+                  >
+                    {[product.image_url, ...(product.gallery_urls || [])]
+                      .filter(Boolean)
+                      .map((url, index) => (
+                        <div
+                          key={index}
+                          className="min-w-full flex-shrink-0 snap-center relative"
+                        >
+                          <ProductImage
+                            src={url!}
+                            alt={`${product.title} - Image ${index + 1}`}
+                            fill
+                            className="object-cover object-center lg:group-hover:scale-105 transition-transform duration-1000"
+                            sizes="(max-width: 1024px) 100vw, 50vw"
+                            priority={index === 0}
+                          />
+                        </div>
+                      ))}
+
                     {/* Floating Tag */}
-                    <div className="absolute top-8 left-8 bg-background/80 backdrop-blur-md px-4 py-2 rounded-xl border border-border-light shadow-sm">
-                       <p className="text-[10px] font-bold text-foreground uppercase tracking-widest">In Stock · Guaranteed</p>
+                    <div className="absolute top-6 left-6 bg-background/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-border-light shadow-sm z-10 pointer-events-none">
+                       <p className="text-[9px] font-bold text-foreground uppercase tracking-widest">Swipe to View</p>
                     </div>
                   </div>
 
-                  {/* Thumbnails */}
-                  <div className="flex flex-wrap gap-4 pt-2">
+                  {/* Thumbnails (Hidden on very small screens, visible on larger mobile and up) */}
+                  <div className="hidden sm:flex flex-wrap gap-4 pt-2">
                      {/* Main Image Thumbnail */}
                      {product.image_url && (
                        <button
-                         onClick={() => setActiveImage(product.image_url!)}
+                         onClick={() => {
+                           const container = document.getElementById("main-product-image");
+                           if (container) container.scrollTo({ left: 0, behavior: "smooth" });
+                           setActiveImage(product.image_url!);
+                         }}
                          className={`relative w-20 h-24 rounded-xl overflow-hidden border-2 transition-all ${
                            activeImage === product.image_url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
                          }`}
@@ -313,7 +325,15 @@ export default function ProductDetailPage() {
                      {product.gallery_urls?.map((url, i) => (
                        <button
                          key={i}
-                         onClick={() => setActiveImage(url)}
+                         onClick={() => {
+                           const container = document.getElementById("main-product-image");
+                           if (container) {
+                             const scrollWidth = container.scrollWidth;
+                             const numImages = (product.gallery_urls?.length || 0) + 1;
+                             container.scrollTo({ left: (scrollWidth / numImages) * (i + 1), behavior: "smooth" });
+                           }
+                           setActiveImage(url);
+                         }}
                          className={`relative w-20 h-24 rounded-xl overflow-hidden border-2 transition-all ${
                            activeImage === url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
                          }`}
@@ -433,11 +453,12 @@ export default function ProductDetailPage() {
                       <div className="inline-flex items-center rounded-xl border border-border-light bg-surface p-1 shadow-sm">
                         <button
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          className="flex h-10 w-10 items-center justify-center text-muted transition-colors hover:text-foreground hover:bg-background rounded-lg"
+                          className="flex h-12 w-12 items-center justify-center text-muted transition-colors hover:text-foreground hover:bg-background rounded-lg active:scale-95"
+                          aria-label="Decrease quantity"
                         >
-                          <Minus size={14} />
+                          <Minus size={16} />
                         </button>
-                        <span className="flex h-10 w-12 items-center justify-center text-xs font-bold text-foreground">
+                        <span className="flex h-12 w-14 items-center justify-center text-sm font-bold text-foreground">
                           {quantity}
                         </span>
                         <button
@@ -446,9 +467,10 @@ export default function ProductDetailPage() {
                             setQuantity(Math.min(quantity + 1, maxStock));
                           }}
                           disabled={selectedSize ? (inventory[selectedSize] !== undefined && quantity >= inventory[selectedSize]) : false}
-                          className="flex h-10 w-10 items-center justify-center text-muted transition-colors hover:text-foreground hover:bg-background rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="flex h-12 w-12 items-center justify-center text-muted transition-colors hover:text-foreground hover:bg-background rounded-lg disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
+                          aria-label="Increase quantity"
                         >
-                          <Plus size={14} />
+                          <Plus size={16} />
                         </button>
                       </div>
                     </div>
