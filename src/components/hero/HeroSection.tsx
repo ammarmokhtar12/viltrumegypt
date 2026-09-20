@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import TextReveal from "@/components/ui/TextReveal";
+import MagneticButton from "@/components/ui/MagneticButton";
 
 export default function HeroSection() {
   return (
@@ -66,18 +67,22 @@ export default function HeroSection() {
           className="hero-fade-in flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto px-2 sm:px-0"
           style={{ animationDelay: "1.4s" }}
         >
-          <Link
-            href="/products"
-            className="rgb-btn w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] text-white border-none shadow-xl shadow-accent/25 active:scale-[0.97] inline-flex items-center justify-center font-sans px-8 py-3.5 font-semibold uppercase tracking-[0.2em] rounded-xl transition-all"
-          >
-            Enter The Archive
-          </Link>
-          <a
-            href="#bundle"
-            className="btn-secondary w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm active:scale-[0.97]"
-          >
-            Build Your Bundle
-          </a>
+          <MagneticButton>
+            <Link
+              href="/products"
+              className="rgb-btn w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] text-white border-none shadow-xl shadow-accent/25 active:scale-[0.97] inline-flex items-center justify-center font-sans px-8 py-3.5 font-semibold uppercase tracking-[0.2em] rounded-xl transition-all"
+            >
+              Enter The Archive
+            </Link>
+          </MagneticButton>
+          <MagneticButton>
+            <a
+              href="#bundle"
+              className="btn-secondary w-full sm:min-w-[200px] h-14 sm:h-auto text-[11px] sm:text-[11px] bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-sm active:scale-[0.97]"
+            >
+              Build Your Bundle
+            </a>
+          </MagneticButton>
         </div>
       </div>
     </section>

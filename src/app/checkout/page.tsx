@@ -531,11 +531,11 @@ export default function CheckoutPage() {
             <div className="order-2 lg:order-1 max-w-xl">
 
                <div className="text-xs text-muted flex items-center gap-2 mb-10">
-                  <span className="font-semibold text-primary">Information</span>
-                  <ChevronRight size={12} />
-                  <span className="font-semibold text-primary">Shipping</span>
-                  <ChevronRight size={12} />
-                  <span className="font-semibold text-primary">Payment</span>
+                  <span className="font-semibold text-primary px-2 py-1 bg-primary/5 rounded-md">1. Shipping</span>
+                  <ChevronRight size={12} className="text-muted" />
+                  <span className="font-semibold text-muted">2. Payment</span>
+                  <ChevronRight size={12} className="text-muted" />
+                  <span className="font-semibold text-muted">3. Confirm</span>
                </div>
 
                <CheckoutForm
@@ -549,18 +549,38 @@ export default function CheckoutPage() {
                   <PaymentUpload onUploadComplete={setScreenshotUrl} uploaded={!!screenshotUrl} />
                </div>
 
-               <div className="mt-12 pt-8 border-t border-border-light">
+                <div className="mt-12 pt-8 border-t border-border-light space-y-6">
                   <button
                      onClick={handleFinalSubmit}
                      disabled={submitting}
-                     className="btn-primary w-full h-14 text-sm"
+                     className="btn-primary w-full h-14 text-sm relative overflow-hidden group"
                   >
-                     {submitting ? "Processing Securely..." : (
-                        <>
-                           <Lock size={16} /> Complete Order
-                        </>
-                     )}
+                     <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                     <span className="relative flex items-center justify-center gap-2">
+                       {submitting ? "Processing Securely..." : (
+                          <>
+                             <Lock size={16} /> Complete Order
+                          </>
+                       )}
+                     </span>
                   </button>
+
+                  <div className="flex items-center justify-center gap-6 pt-4 border-t border-border-light/50">
+                    <div className="flex flex-col items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+                      <Lock size={20} className="text-primary" />
+                      <span className="text-[9px] uppercase font-bold tracking-widest text-primary">SSL Secure</span>
+                    </div>
+                    <div className="w-px h-8 bg-border-light" />
+                    <div className="flex flex-col items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+                      <Check size={20} className="text-primary" />
+                      <span className="text-[9px] uppercase font-bold tracking-widest text-primary">Quality Check</span>
+                    </div>
+                    <div className="w-px h-8 bg-border-light" />
+                    <div className="flex flex-col items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+                      <Package size={20} className="text-primary" />
+                      <span className="text-[9px] uppercase font-bold tracking-widest text-primary">Fast Delivery</span>
+                    </div>
+                  </div>
                </div>
             </div>
 
@@ -705,12 +725,22 @@ export default function CheckoutPage() {
                         )}
                      </div>
                      {couponError && (
-                        <p className="text-xs text-red-500 font-medium">{couponError}</p>
+                        <p className="text-xs text-red-500 font-medium animate-in fade-in slide-in-from-top-1">{couponError}</p>
                      )}
                      {appliedCoupon && (
-                        <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                           ✓ Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied! (7% discount)
-                        </p>
+                        <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl animate-in zoom-in-95 fade-in duration-300">
+                           <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                              <Check size={16} strokeWidth={3} />
+                           </div>
+                           <div>
+                              <p className="text-xs text-emerald-800 font-semibold">
+                                 Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied!
+                              </p>
+                              <p className="text-[10px] text-emerald-600 font-medium">
+                                 You saved 7% on your order
+                              </p>
+                           </div>
+                        </div>
                      )}
                   </div>
 
