@@ -358,52 +358,109 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
 
       {/* Catalog Selector Modal */}
       {activeSelectIndex !== null && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-          <div className="bg-surface rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl border border-border-light">
-            <div className="px-6 py-5 border-b border-border-light flex justify-between items-center bg-surface">
-              <h3 className="text-lg font-display font-bold text-primary">Choose T-Shirt for Slot {activeSelectIndex + 1}</h3>
+        <div
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setActiveSelectIndex(null)}
+        >
+          <div
+            className="bg-[#0f0f0f] rounded-t-3xl sm:rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl border border-white/8 animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-white/8 flex items-center justify-between shrink-0">
+              <div>
+                <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-red-400">Slot {activeSelectIndex! + 1}</p>
+                <h3 className="text-base font-bold text-white mt-0.5">Choose Your T-Shirt</h3>
+              </div>
               <button
                 onClick={() => setActiveSelectIndex(null)}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-surface border border-border-light hover:text-foreground"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {products.map((p) => {
-                const hasSizesAvailable = p.sizes?.some((sz) => getAvailableStock(p.id, sz, activeSelectIndex) > 0);
-                const wouldViolateLongSleeveRule = isLongSleeve(p) && slots.some((s, i) => i !== activeSelectIndex && s.product && isLongSleeve(s.product));
-                const isDisabled = !hasSizesAvailable || wouldViolateLongSleeveRule;
+            {/* Grid */}
+            <div className="p-4 overflow-y-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {products.map((p) => {
+                  const hasSizesAvailable = p.sizes?.some((sz) => getAvailableStock(p.id, sz, activeSelectIndex!) > 0);
+                  const wouldViolateLongSleeveRule =
+                    isLongSleeve(p) && slots.some((s, i) => i !== activeSelectIndex && s.product && isLongSleeve(s.product));
+                  const isDisabled = !hasSizesAvailable || wouldViolateLongSleeveRule;
+                  const isCurrentlySelected = slots[activeSelectIndex!]?.product?.id === p.id;
 
-                return (
-                  <div
-                    key={p.id}
-                    onClick={() => !isDisabled && handleSelectProduct(activeSelectIndex, p)}
-                    className={`group relative flex flex-col bg-surface rounded-2xl border p-3 transition-all ${
-                      wouldViolateLongSleeveRule
-                        ? "cursor-not-allowed border-border-light"
-                        : !hasSizesAvailable
-                        ? "opacity-40 grayscale cursor-not-allowed border-border-light"
-                        : "cursor-pointer hover:border-muted hover:bg-background hover:shadow-md"
-                    }`}
-                  >
-                    <div className="relative aspect-[4/5] bg-surface rounded-xl overflow-hidden mb-3">
-                      {p.image_url && <ProductImage src={p.image_url} alt={p.title} fill className="object-cover" sizes="20vw" />}
-                      
-                      {wouldViolateLongSleeveRule && (
-                        <div className="absolute inset-0 backdrop-blur-md bg-black/50 flex flex-col items-center justify-center gap-2 rounded-xl text-center px-2">
-                          <span className="text-white text-[9px] font-extrabold uppercase tracking-widest leading-snug">Max 1 Long Sleeve</span>
-                        </div>
-                      )}
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => !isDisabled && handleSelectProduct(activeSelectIndex!, p)}
+                      className={`group relative flex flex-col rounded-2xl border overflow-hidden transition-all duration-200 ${
+                        isCurrentlySelected
+                          ? "border-red-500 ring-2 ring-red-500/40 shadow-lg shadow-red-500/10"
+                          : isDisabled
+                          ? "border-white/5 opacity-40 grayscale cursor-not-allowed"
+                          : "border-white/8 cursor-pointer hover:border-white/20 hover:shadow-xl hover:shadow-black/50"
+                      }`}
+                    >
+                      {/* Image */}
+                      <div className="relative aspect-[3/4] bg-zinc-900 overflow-hidden">
+                        {p.image_url ? (
+                          <ProductImage
+                            src={p.image_url}
+                            alt={p.title}
+                            fill
+                            className={`object-cover transition-transform duration-500 ${!isDisabled ? "group-hover:scale-105" : ""}`}
+                            sizes="(max-width: 640px) 50vw, 33vw"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center bg-zinc-800">
+                            <span className="text-zinc-600 text-xs">No Image</span>
+                          </div>
+                        )}
+
+                        {/* Gradient overlay */}
+                        {!isDisabled && (
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        )}
+
+                        {/* Selected checkmark */}
+                        {isCurrentlySelected && (
+                          <div className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+                            <Check size={12} strokeWidth={3} className="text-white" />
+                          </div>
+                        )}
+
+                        {/* Long Sleeve restriction overlay */}
+                        {wouldViolateLongSleeveRule && (
+                          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center gap-1 px-3 text-center">
+                            <span className="text-white text-[9px] font-extrabold uppercase tracking-widest leading-snug">
+                              Max 1 Long Sleeve
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Out of stock overlay */}
+                        {!hasSizesAvailable && !wouldViolateLongSleeveRule && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <span className="text-zinc-400 text-[9px] font-bold uppercase tracking-widest">Out of Stock</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Info */}
+                      <div className="p-3 bg-zinc-900/80">
+                        <h4 className="text-xs font-bold text-white uppercase truncate leading-tight">{p.title}</h4>
+                        <p className="text-[11px] font-semibold text-zinc-400 mt-0.5">{formatPrice(p.price)}</p>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-display font-bold text-primary uppercase truncate">{p.title}</h4>
-                      <p className="text-[10px] font-bold text-secondary">{formatPrice(p.price)}</p>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Footer hint */}
+            <div className="px-5 py-3 border-t border-white/5 shrink-0">
+              <p className="text-[10px] text-zinc-600 text-center">اضغط على أي منتج لاختياره في هذا الـ Slot</p>
             </div>
           </div>
         </div>
