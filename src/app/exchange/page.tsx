@@ -18,6 +18,7 @@ import {
   Plus,
 } from "lucide-react";
 import { toast } from "sonner";
+import PaymentUpload from "@/components/checkout/PaymentUpload";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 interface OrderItem {
@@ -57,8 +58,8 @@ interface NewItem {
 const EXCHANGE_TYPES = [
   {
     id: "same_type" as const,
-    label: "نفس النوع",
-    desc: "مثلاً تيشرت بتيشرت",
+    label: "تبديل مقاس أو نفس النوع",
+    desc: "نفس الموديل بنفس السعر",
     fee: 90,
     color: "border-blue-500/40 bg-blue-500/5 text-blue-400",
     badgeColor: "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -66,10 +67,18 @@ const EXCHANGE_TYPES = [
   {
     id: "different_type" as const,
     label: "نوع مختلف",
-    desc: "مثلاً تيشرت بلونج سليف",
+    desc: "استبدال بمنتج أغلى أو أرخص",
     fee: 150,
     color: "border-orange-500/40 bg-orange-500/5 text-orange-400",
     badgeColor: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+  },
+  {
+    id: "defect" as const,
+    label: "ديفوه (عيب صناعة)",
+    desc: "مجاناً بالكامل (يجب إرفاق صورة)",
+    fee: 0,
+    color: "border-emerald-500/40 bg-emerald-500/5 text-emerald-400",
+    badgeColor: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   },
 ];
 
@@ -92,8 +101,9 @@ export default function ExchangePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [newItems, setNewItems] = useState<NewItem[]>([]);
-  const [exchangeType, setExchangeType] = useState<"same_type" | "different_type">("same_type");
+  const [exchangeType, setExchangeType] = useState<"same_type" | "different_type" | "defect">("same_type");
   const [notes, setNotes] = useState("");
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const selectedType = EXCHANGE_TYPES.find((t) => t.id === exchangeType)!;
@@ -191,6 +201,10 @@ export default function ExchangePage() {
       toast.error("اختار المنتجات اللي عايز ترجعها.");
       return;
     }
+    if (exchangeType === "defect" && !photoUrl) {
+      toast.error("لازم ترفق صورة الديفوه عشان الطلب يتوافق عليه.");
+      return;
+    }
     setSubmitting(true);
 
     const returnedTotal = returnedItems.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -212,7 +226,7 @@ export default function ExchangePage() {
       price_difference:      priceDiff,
       total,
       status:                "pending",
-      notes:                 notes.trim() || null,
+      notes:                 (photoUrl ? `[صورة الديفوه]: ${photoUrl}\n\n` : "") + (notes.trim() || ""),
     }).select("replacement_number").single();
 
     setSubmitting(false);
@@ -232,11 +246,11 @@ export default function ExchangePage() {
         customerAddress: order!.customer_address,
         returnedItems,
         newItems,
-        exchangeType,
+        exchangeType:    exchangeType as any,
         shippingFees,
         priceDifference: priceDiff,
         total,
-        notes: notes.trim() || null,
+        notes: (photoUrl ? `[صورة الديفوه]: ${photoUrl}\n\n` : "") + (notes.trim() || ""),
       }).catch(console.error);
     }
   };
@@ -567,6 +581,20 @@ export default function ExchangePage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Defect Photo Upload */}
+            {exchangeType === "defect" && (
+              <div className="bg-surface border border-border-light rounded-2xl p-5 space-y-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold text-secondary uppercase tracking-wider block">ارفق صورة الديفوه (Attach Defect Photo) <span className="text-red-500">*</span></label>
+                  <p className="text-xs text-muted">لازم ترفق صورة واضحة للديفوه عشان نقدر نوافق على طلبك وتكون مصاريف الشحن مجاناً بالكامل.</p>
+                </div>
+                <PaymentUpload
+                  onUploadComplete={(url) => setPhotoUrl(url)}
+                  uploaded={!!photoUrl}
+                />
               </div>
             )}
 
