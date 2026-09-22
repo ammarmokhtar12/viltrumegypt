@@ -349,3 +349,138 @@ export async function sendDeliveryFeedback(orderData: {
     return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
+
+// ─── Exchange / Replacement Notification ─────────────────────────────────────
+
+export async function sendExchangeNotification(data: {
+  replacementNumber: number;
+  originalOrderNumber: number | null;
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  returnedItems: { title: string; size: string; quantity: number; price: number }[];
+  newItems: { title: string; size: string; quantity: number; price: number }[];
+  exchangeType: 'same_type' | 'different_type';
+  shippingFees: number;
+  priceDifference: number;
+  total: number;
+  notes?: string | null;
+}) {
+  try {
+    const {
+      replacementNumber, originalOrderNumber, customerName, customerPhone,
+      customerAddress, returnedItems, newItems, exchangeType,
+      shippingFees, priceDifference, total, notes,
+    } = data;
+
+    const safeName    = escapeHtml(customerName);
+    const safePhone   = escapeHtml(customerPhone);
+    const safeAddress = escapeHtml(customerAddress || '—');
+    const exchangeLabel = exchangeType === 'same_type' ? 'نفس النوع — 90 EGP' : 'نوع مختلف — 150 EGP';
+
+    const buildRows = (items: typeof returnedItems, color: string) =>
+      items.map(i => `
+        <tr>
+          <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:13px;color:#333;">
+            <strong>${escapeHtml(i.title)}</strong> <span style="color:#888;">(${escapeHtml(i.size)})</span>
+          </td>
+          <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;text-align:center;font-size:13px;">×${i.quantity}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;text-align:right;font-size:13px;font-weight:700;color:${color};">
+            ${(i.price * i.quantity).toLocaleString()} EGP
+          </td>
+        </tr>
+      `).join('');
+
+    const returnedTotal = returnedItems.reduce((s, i) => s + i.price * i.quantity, 0);
+    const newTotal      = newItems.reduce((s, i) => s + i.price * i.quantity, 0);
+
+    const whatsappUrl  = `https://wa.me/2${customerPhone}?text=${encodeURIComponent(`مرحباً ${customerName}،\nتم استلام طلب الاستبدال #${replacementNumber} ✅\nهيتواصل معاك الفريق خلال 24 ساعة.`)}`;
+    const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://viltrumegypt.vercel.app'}/command-center/replacements`;
+
+    const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY || '',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: { name: 'Viltrum Egypt', email: 'viltrumegypt@gmail.com' },
+        to: [{ email: 'viltrumegypt@gmail.com', name: 'Viltrum Admin' }],
+        subject: `🔄 Exchange #${replacementNumber} — ${customerName}`,
+        htmlContent: `
+          <div style="font-family:'Helvetica Neue',Arial,sans-serif;max-width:640px;margin:0 auto;background:#fff;">
+
+            <div style="background:#111;padding:28px 32px;">
+              <p style="color:#c41e3a;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:3px;margin:0 0 4px;">Exchange Request</p>
+              <h1 style="color:#fff;font-size:20px;letter-spacing:3px;margin:0 0 6px;text-transform:uppercase;">VILTRUM EGYPT</h1>
+              <p style="color:#aaa;font-size:13px;margin:0;">طلب استبدال جديد — يحتاج متابعة</p>
+            </div>
+
+            <div style="background:#fff3cd;border-left:4px solid #f59e0b;padding:14px 24px;">
+              <p style="margin:0;font-size:13px;color:#92400e;font-weight:700;">
+                🔄 Exchange #${replacementNumber}
+                ${originalOrderNumber ? ` &nbsp;|&nbsp; أوردر أصلي: #${originalOrderNumber}` : ''}
+              </p>
+            </div>
+
+            <div style="padding:24px 32px;background:#fafafa;border-bottom:1px solid #eee;">
+              <h3 style="color:#111;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin:0 0 14px;font-weight:700;">بيانات العميل</h3>
+              <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:5px 0;font-size:12px;color:#888;width:100px;">الاسم</td><td style="padding:5px 0;font-size:14px;font-weight:700;color:#111;">${safeName}</td></tr>
+                <tr><td style="padding:5px 0;font-size:12px;color:#888;">الموبايل</td><td style="padding:5px 0;font-size:14px;font-weight:700;color:#111;" dir="ltr">${safePhone}</td></tr>
+                <tr><td style="padding:5px 0;font-size:12px;color:#888;">العنوان</td><td style="padding:5px 0;font-size:13px;color:#333;">${safeAddress}</td></tr>
+                <tr><td style="padding:5px 0;font-size:12px;color:#888;">نوع الاستبدال</td><td style="padding:5px 0;font-size:13px;font-weight:700;color:${exchangeType === 'same_type' ? '#2563eb' : '#ea580c'};">${exchangeLabel}</td></tr>
+              </table>
+            </div>
+
+            <div style="padding:24px 32px;">
+              <h3 style="color:#ef4444;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin:0 0 10px;border-bottom:2px solid #ef4444;padding-bottom:6px;">📦 مرتجع من العميل</h3>
+              <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+                <tbody>${buildRows(returnedItems, '#ef4444')}</tbody>
+                <tfoot><tr><td colspan="2" style="padding:10px 14px;font-size:12px;color:#888;text-align:right;">الإجمالي</td><td style="padding:10px 14px;font-size:14px;font-weight:800;color:#ef4444;text-align:right;">${returnedTotal.toLocaleString()} EGP</td></tr></tfoot>
+              </table>
+
+              <h3 style="color:#16a34a;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin:0 0 10px;border-bottom:2px solid #16a34a;padding-bottom:6px;">✨ منتجات جديدة للعميل</h3>
+              <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+                <tbody>${buildRows(newItems, '#16a34a')}</tbody>
+                <tfoot><tr><td colspan="2" style="padding:10px 14px;font-size:12px;color:#888;text-align:right;">الإجمالي</td><td style="padding:10px 14px;font-size:14px;font-weight:800;color:#16a34a;text-align:right;">${newTotal.toLocaleString()} EGP</td></tr></tfoot>
+              </table>
+            </div>
+
+            <div style="margin:0 32px 24px;padding:20px;background:#111;border-radius:14px;">
+              <h3 style="color:#fff;font-size:11px;text-transform:uppercase;letter-spacing:2px;margin:0 0 14px;">ملخص الحساب</h3>
+              <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:5px 0;font-size:12px;color:#999;">فرق السعر</td><td style="padding:5px 0;font-size:14px;font-weight:700;color:${priceDifference >= 0 ? '#4ade80' : '#f87171'};text-align:right;">${priceDifference >= 0 ? '+' : ''}${priceDifference.toLocaleString()} EGP</td></tr>
+                <tr><td style="padding:5px 0;font-size:12px;color:#999;">رسوم الشحن</td><td style="padding:5px 0;font-size:14px;font-weight:700;color:#f59e0b;text-align:right;">${shippingFees} EGP</td></tr>
+                <tr style="border-top:1px solid #333;"><td style="padding:10px 0 4px;font-size:13px;color:#fff;font-weight:700;">الإجمالي على العميل</td><td style="padding:10px 0 4px;font-size:22px;font-weight:900;color:#fff;text-align:right;">${total.toLocaleString()} EGP</td></tr>
+              </table>
+            </div>
+
+            ${notes ? `<div style="margin:0 32px 24px;padding:14px 18px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;"><p style="font-size:11px;font-weight:700;color:#92400e;margin:0 0 5px;text-transform:uppercase;">ملاحظات العميل</p><p style="font-size:13px;color:#78350f;margin:0;">${escapeHtml(notes)}</p></div>` : ''}
+
+            <div style="padding:0 32px 32px;display:flex;gap:12px;">
+              <a href="${whatsappUrl}" style="display:inline-block;padding:14px 0;background:#16a34a;color:#fff;text-decoration:none;border-radius:12px;font-size:14px;font-weight:700;text-align:center;width:48%;">📱 واتساب العميل</a>
+              <a href="${dashboardUrl}" style="display:inline-block;padding:14px 0;background:#c41e3a;color:#fff;text-decoration:none;border-radius:12px;font-size:14px;font-weight:700;text-align:center;width:48%;">📊 فتح الداشبورد</a>
+            </div>
+
+            <div style="background:#fafafa;padding:18px 32px;text-align:center;border-top:1px solid #eee;">
+              <p style="color:#999;font-size:11px;margin:0;">Viltrum Egypt — Exchange System Notification</p>
+            </div>
+          </div>
+        `
+      })
+    });
+
+    const result = await brevoResponse.json();
+    if (!brevoResponse.ok) {
+      console.error('Brevo Exchange Email Error:', result);
+      return { success: false, error: result };
+    }
+    return { success: true, data: result };
+  } catch (error: unknown) {
+    console.error('Exchange Notification Error:', error);
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+

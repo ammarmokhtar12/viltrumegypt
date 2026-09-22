@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { sendExchangeNotification } from "@/app/actions/notify";
 import {
   ArrowLeft,
   Search,
@@ -222,8 +223,24 @@ export default function ExchangePage() {
     } else {
       setReplacementNumber(data.replacement_number);
       setSubmitted(true);
+      // Send email notification to admin
+      sendExchangeNotification({
+        replacementNumber: data.replacement_number,
+        originalOrderNumber: order!.order_number,
+        customerName:    order!.customer_name,
+        customerPhone:   order!.customer_phone,
+        customerAddress: order!.customer_address,
+        returnedItems,
+        newItems,
+        exchangeType,
+        shippingFees,
+        priceDifference: priceDiff,
+        total,
+        notes: notes.trim() || null,
+      }).catch(console.error);
     }
   };
+
 
   // ─── Success Screen ────────────────────────────────────────────────────────
   if (submitted) {
