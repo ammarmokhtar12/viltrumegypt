@@ -19,6 +19,9 @@ import {
   Truck,
   Loader2,
   PackageCheck,
+  Edit,
+  Plus,
+  Trash2,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
@@ -274,6 +277,127 @@ function PrintSheet({ ordersList, printMode }: { ordersList: any[]; printMode: "
   );
 }
 
+// ─── Edit Order Modal ────────────────────────────────────────────────────────
+function EditOrderModal({ order, onClose, onSave }: { order: any; onClose: () => void; onSave: (updated: any) => void }) {
+  const [address, setAddress] = useState(order.customer_address || "");
+  const [items, setItems] = useState<any[]>(Array.isArray(order.items) ? [...order.items] : []);
+  const [saving, setSaving] = useState(false);
+
+  const handleItemChange = (index: number, field: string, value: any) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setItems(newItems);
+  };
+
+  const removeItem = (index: number) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  const addItem = () => {
+    setItems([...items, { title: "New Item", size: "M", quantity: 1, price: 0 }]);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    const oldItemTotal = (order.items || []).reduce((sum: number, item: any) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
+    const newTotal = items.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
+    const shippingAndFees = Number(order.total || 0) - oldItemTotal;
+    const finalTotal = newTotal + shippingAndFees;
+
+    const { error } = await supabase.from("orders").update({
+      customer_address: address,
+      items: items,
+      total: finalTotal,
+      updated_at: new Date().toISOString()
+    }).eq("id", order.id);
+
+    if (error) {
+      alert("Error saving: " + error.message);
+    } else {
+      onSave({ ...order, customer_address: address, items, total: finalTotal });
+    }
+    setSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-white">Edit Order #{order.order_number}</h2>
+          <button onClick={onClose} className="text-zinc-400 hover:text-white"><X size={20} /></button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Address</label>
+            <input 
+              value={address} 
+              onChange={e => setAddress(e.target.value)}
+              className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white text-sm focus:outline-none focus:border-zinc-500"
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-bold text-zinc-500 uppercase">Items</label>
+              <button onClick={addItem} className="text-xs flex items-center gap-1 text-purple-400 hover:text-purple-300">
+                <Plus size={14} /> Add Item
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              {items.map((item, i) => (
+                <div key={i} className="flex flex-wrap sm:flex-nowrap items-center gap-2 bg-zinc-800/50 p-3 rounded-xl border border-zinc-700/50">
+                  <input 
+                    value={item.title || ""} 
+                    onChange={e => handleItemChange(i, "title", e.target.value)}
+                    placeholder="Product Name"
+                    className="flex-1 min-w-[120px] px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"
+                  />
+                  <input 
+                    value={item.size || ""} 
+                    onChange={e => handleItemChange(i, "size", e.target.value)}
+                    placeholder="Size"
+                    className="w-20 px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"
+                  />
+                  <input 
+                    type="number"
+                    value={item.quantity || 1} 
+                    onChange={e => handleItemChange(i, "quantity", parseInt(e.target.value) || 1)}
+                    placeholder="Qty"
+                    className="w-16 px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"
+                  />
+                  <input 
+                    type="number"
+                    value={item.price || 0} 
+                    onChange={e => handleItemChange(i, "price", parseFloat(e.target.value) || 0)}
+                    placeholder="Price"
+                    className="w-24 px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white focus:outline-none"
+                  />
+                  <button onClick={() => removeItem(i)} className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+              {items.length === 0 && <p className="text-sm text-zinc-500">No items.</p>}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-8">
+            <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-bold text-zinc-400 hover:text-white transition-colors">
+              Cancel
+            </button>
+            <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors disabled:opacity-50">
+              {saving && <Loader2 size={16} className="animate-spin" />}
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ───────────────────────────────────────────────────────────────
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -292,6 +416,7 @@ export default function OrdersPage() {
   const [shippingIds, setShippingIds] = useState<Set<string>>(new Set());
   const [selectedForShip, setSelectedForShip] = useState<Set<string>>(new Set());
   const [safwaLoading, setSafwaLoading] = useState<Set<string>>(new Set());
+  const [editingOrder, setEditingOrder] = useState<any>(null);
 
   const toggleSelectForShip = (id: string) => {
     setSelectedForShip((prev) => {
@@ -818,6 +943,15 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                     </div>
 
                     <div className="flex flex-wrap gap-2 pt-2">
+                      <button
+                        onClick={() => setEditingOrder(order)}
+                        className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-blue-400 border-blue-500/20 bg-blue-500/10 hover:bg-blue-500/20"
+                      >
+                        <Edit size={12} /> Edit
+                      </button>
+
+                      <div className="w-px bg-zinc-800 mx-1" />
+
                       {STATUS_FLOW.map((s) => {
                         const sCfg = STATUS_CONFIG[s];
                         const isCurrent = order.status === s;
@@ -968,6 +1102,17 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
           )}
         </div>
       </div>
+
+      {editingOrder && (
+        <EditOrderModal
+          order={editingOrder}
+          onClose={() => setEditingOrder(null)}
+          onSave={(updated) => {
+            setOrders((prev) => prev.map((o) => o.id === updated.id ? updated : o));
+            setEditingOrder(null);
+          }}
+        />
+      )}
     </>
   );
 }

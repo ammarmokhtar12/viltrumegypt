@@ -3,7 +3,14 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
-import { TrendingUp, BarChart3, MapPin, Package, RefreshCw } from "lucide-react";
+import { TrendingUp, BarChart3, MapPin, Package, RefreshCw, Clock } from "lucide-react";
+
+const EGYPT_GOVERNORATES = [
+  "القاهرة", "الجيزة", "الاسكندرية", "الدقهلية", "الشرقية", "المنوفية", "القليوبية",
+  "البحيرة", "الغربية", "بور سعيد", "دمياط", "الاسماعيلية", "السويس", "كفر الشيخ",
+  "الفيوم", "بني سويف", "مطروح", "شمال سيناء", "جنوب سيناء", "المنيا", "اسيوط",
+  "سوهاج", "قنا", "البحر الاحمر", "الاقصر", "اسوان", "الواحات", "الوادي الجديد"
+];
 
 function SimpleBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
@@ -41,7 +48,9 @@ export default function AnalyticsPage() {
   const [adSpend, setAdSpend] = useState<any[]>([]);
   const [batches, setBatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState<"7d" | "30d" | "90d" | "all">("30d");
+  const [period, setPeriod] = useState<"7d" | "30d" | "90d" | "all" | "custom">("30d");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
 
   useEffect(() => { fetchAll(); }, []);
 
@@ -62,11 +71,21 @@ export default function AnalyticsPage() {
 
   const filteredOrders = useMemo(() => {
     if (period === "all") return orders;
+    if (period === "custom") {
+      let f = orders;
+      if (customStart) f = f.filter(o => new Date(o.created_at) >= new Date(customStart));
+      if (customEnd) {
+        const end = new Date(customEnd);
+        end.setHours(23, 59, 59, 999);
+        f = f.filter(o => new Date(o.created_at) <= end);
+      }
+      return f;
+    }
     const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
     return orders.filter((o) => new Date(o.created_at) >= cutoff);
-  }, [orders, period]);
+  }, [orders, period, customStart, customEnd]);
 
   const analytics = useMemo(() => {
     const validOrders = filteredOrders.filter((o: any) => o.status !== "cancelled" && o.status !== "returned");
@@ -110,18 +129,41 @@ export default function AnalyticsPage() {
       .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 10);
 
-    // By city
-    const cityMap: Record<string, { orders: number; revenue: number }> = {};
+    // By Governorate
+    const govMap: Record<string, { orders: number; revenue: number }> = {};
     validOrders.forEach((o: any) => {
-      const city = o.city || o.customer_address?.split(",").pop()?.trim() || "Unknown";
-      if (!cityMap[city]) cityMap[city] = { orders: 0, revenue: 0 };
-      cityMap[city].orders++;
-      cityMap[city].revenue += Number(o.total || 0);
+      let gov = "أخرى";
+      const addr = (o.customer_address || "").trim();
+      for (const g of EGYPT_GOVERNORATES) {
+        if (addr.includes(g) || addr.includes(g.replace("ال", ""))) {
+          gov = g;
+          break;
+        }
+      }
+      if (!govMap[gov]) govMap[gov] = { orders: 0, revenue: 0 };
+      govMap[gov].orders++;
+      govMap[gov].revenue += Number(o.total || 0);
     });
-    const topCities = Object.entries(cityMap)
+    const topGovs = Object.entries(govMap)
       .map(([name, d]) => ({ name, ...d }))
       .sort((a, b) => b.orders - a.orders)
       .slice(0, 10);
+
+    // Peak Hours
+    const hourMap: Record<number, number> = {};
+    filteredOrders.forEach((o: any) => {
+      const h = new Date(o.created_at).getHours();
+      hourMap[h] = (hourMap[h] || 0) + 1;
+    });
+    const peakHours = Object.entries(hourMap)
+      .map(([h, count]) => ({ hour: parseInt(h), count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6)
+      .map(h => {
+        const ampm = h.hour >= 12 ? 'PM' : 'AM';
+        const display = h.hour % 12 || 12;
+        return { label: `${display} ${ampm}`, count: h.count };
+      });
 
     // By status
     const statusMap: Record<string, number> = {};
@@ -133,7 +175,7 @@ export default function AnalyticsPage() {
       revenue, totalCost, profit, totalAdSpend, totalExpenses, totalManufacturing,
       validOrders: validOrders.length, allOrders: filteredOrders.length,
       revenueSeries, costSeries, profitSeries, ordersSeries, allDays,
-      topProducts, topCities, statusMap,
+      topProducts, topGovs, peakHours, statusMap,
     };
   }, [filteredOrders, adSpend, expenses, batches]);
 
@@ -144,7 +186,8 @@ export default function AnalyticsPage() {
   }
 
   const maxProductRev = Math.max(...analytics.topProducts.map((p) => p.revenue), 1);
-  const maxCityOrders = Math.max(...analytics.topCities.map((c) => c.orders), 1);
+  const maxGovOrders = Math.max(...analytics.topGovs.map((c) => c.orders), 1);
+  const maxPeakHour = Math.max(...analytics.peakHours.map(h => h.count), 1);
 
   return (
     <div className="space-y-6 pb-12">
@@ -153,12 +196,20 @@ export default function AnalyticsPage() {
           <p className="text-[10px] font-bold text-red-500 uppercase tracking-[0.3em] mb-1">Insights</p>
           <h1 className="text-3xl font-bold text-white tracking-tight">Analytics</h1>
         </div>
-        <div className="flex gap-2">
-          {(["7d", "30d", "90d", "all"] as const).map((p) => (
-            <button key={p} onClick={() => setPeriod(p)} className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all ${
-              period === p ? "text-red-400 bg-red-500/10 border-red-500/20" : "text-zinc-600 border-zinc-800 hover:text-zinc-300"
-            }`}>{p === "all" ? "All" : p}</button>
-          ))}
+        <div className="flex flex-col sm:flex-row items-end gap-3">
+          {period === "custom" && (
+            <div className="flex gap-2">
+              <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] text-white focus:outline-none" />
+              <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] text-white focus:outline-none" />
+            </div>
+          )}
+          <div className="flex gap-2">
+            {(["7d", "30d", "90d", "all", "custom"] as const).map((p) => (
+              <button key={p} onClick={() => setPeriod(p)} className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                period === p ? "text-red-400 bg-red-500/10 border-red-500/20" : "text-zinc-600 border-zinc-800 hover:text-zinc-300"
+              }`}>{p === "all" ? "All" : p}</button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -256,12 +307,12 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Product & City Performance */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Product, Governorate & Time Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
           <div className="flex items-center gap-2">
             <Package size={16} className="text-cyan-400" />
-            <h3 className="text-sm font-bold text-white">Top Products by Revenue</h3>
+            <h3 className="text-sm font-bold text-white">Top Products (Revenue)</h3>
           </div>
           <div className="space-y-3">
             {analytics.topProducts.map((p, i) => (
@@ -274,13 +325,26 @@ export default function AnalyticsPage() {
         <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
           <div className="flex items-center gap-2">
             <MapPin size={16} className="text-purple-400" />
-            <h3 className="text-sm font-bold text-white">Top Cities by Orders</h3>
+            <h3 className="text-sm font-bold text-white">Top Governorates</h3>
           </div>
           <div className="space-y-3">
-            {analytics.topCities.map((c, i) => (
-              <SimpleBar key={i} label={`${c.name} (${fmt(c.revenue)} EGP)`} value={c.orders} max={maxCityOrders} color="bg-purple-500" />
+            {analytics.topGovs.map((c, i) => (
+              <SimpleBar key={i} label={`${c.name} (${fmt(c.revenue)} EGP)`} value={c.orders} max={maxGovOrders} color="bg-purple-500" />
             ))}
-            {analytics.topCities.length === 0 && <p className="text-xs text-zinc-600">No city data</p>}
+            {analytics.topGovs.length === 0 && <p className="text-xs text-zinc-600">No data</p>}
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Clock size={16} className="text-amber-400" />
+            <h3 className="text-sm font-bold text-white">Peak Order Hours</h3>
+          </div>
+          <div className="space-y-3">
+            {analytics.peakHours.map((h, i) => (
+              <SimpleBar key={i} label={h.label} value={h.count} max={maxPeakHour} color="bg-amber-500" />
+            ))}
+            {analytics.peakHours.length === 0 && <p className="text-xs text-zinc-600">No data</p>}
           </div>
         </div>
       </div>

@@ -118,7 +118,7 @@ export default function CommandCenterLayout({ children }: { children: React.Reac
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-zinc-100 font-sans flex">
+    <div className="h-[100dvh] overflow-hidden bg-[#0a0a0a] text-zinc-100 font-sans flex">
       {/* PWA meta */}
       <meta name="theme-color" content="#0a0a0a" />
       <link rel="manifest" href="/manifest.json" />
