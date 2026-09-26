@@ -21,6 +21,7 @@ import { trackMetaEvent } from "@/lib/meta";
 import gsap from "gsap";
 
 import SizeGuideModal from "@/components/products/SizeGuideModal";
+import SizeRecommender from "@/components/products/SizeRecommender";
 import { useCountdown } from "@/lib/useCountdown";
 import BundleBuilder from "@/components/products/BundleBuilder";
 
@@ -443,6 +444,11 @@ export default function ProductDetailPage() {
                           );
                         })}
                       </div>
+                    </div>
+
+                    {/* AI Size Recommender */}
+                    <div className="py-2">
+                      <SizeRecommender />
                     </div>
 
                     {/* Configuration: Quantity */}

@@ -446,7 +446,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price: item.price,
         })),
-        value: finalTotal + shippingFee,
+        value: finalTotal,
         currency: "EGP",
       };
       const userData = {
@@ -458,7 +458,7 @@ export default function CheckoutPage() {
       trackMetaEvent("Purchase", {
         content_type: "product",
         content_ids: orderItems.map((item) => item.product_id),
-        value: finalTotal + shippingFee,
+        value: finalTotal,
         currency: "EGP",
         contents: orderItems.map((item) => ({ id: item.product_id, quantity: item.quantity, item_price: item.price })),
         num_items: orderItems.reduce((sum, item) => sum + item.quantity, 0),
