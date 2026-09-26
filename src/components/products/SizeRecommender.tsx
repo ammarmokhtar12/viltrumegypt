@@ -59,35 +59,33 @@ export default function SizeRecommender() {
         <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
           <Ruler size={16} />
         </div>
-        <h3 className="font-bold text-foreground">مساعد المقاسات الذكي</h3>
+        <h3 className="font-bold text-foreground">Smart Size Assistant</h3>
       </div>
       
       <p className="text-xs text-muted mb-5 leading-relaxed">
-        أدخل وزنك وطولك وهنقولك أنسب مقاس ليك عشان يطلع مضبوط عليك.
+        Enter your weight and height and we'll recommend the best size for a perfect fit.
       </p>
 
       <div className="space-y-4">
         <div className="flex gap-3">
           <div className="flex-1 space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted">الوزن (KG)</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted">Weight (KG)</label>
             <input
               type="number"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              placeholder="مثال: 75"
-              className="w-full bg-background border border-border-light rounded-xl px-4 py-2.5 text-sm font-medium text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-right"
-              dir="ltr"
+              placeholder="e.g. 75"
+              className="w-full bg-background border border-border-light rounded-xl px-4 py-2.5 text-sm font-medium text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
             />
           </div>
           <div className="flex-1 space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted">الطول (CM)</label>
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted">Height (CM)</label>
             <input
               type="number"
               value={height}
               onChange={(e) => setHeight(e.target.value)}
-              placeholder="مثال: 175"
-              className="w-full bg-background border border-border-light rounded-xl px-4 py-2.5 text-sm font-medium text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-right"
-              dir="ltr"
+              placeholder="e.g. 175"
+              className="w-full bg-background border border-border-light rounded-xl px-4 py-2.5 text-sm font-medium text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
             />
           </div>
         </div>
@@ -96,7 +94,7 @@ export default function SizeRecommender() {
           onClick={calculateSize}
           className="w-full bg-foreground text-background font-bold text-sm py-3 rounded-xl hover:bg-foreground/90 transition-all active:scale-[0.98]"
         >
-          اعرف مقاسي
+          Find My Size
         </button>
       </div>
 
@@ -105,7 +103,7 @@ export default function SizeRecommender() {
           <div className="flex items-start gap-3">
             <CheckCircle2 className="text-primary w-5 h-5 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs text-muted mb-1">المقاس المثالي ليك هو:</p>
+              <p className="text-xs text-muted mb-1">Your perfect size is:</p>
               <p className="text-lg font-bold text-foreground font-display">{result}</p>
             </div>
           </div>
@@ -113,7 +111,7 @@ export default function SizeRecommender() {
           <div className="mt-4 pt-3 border-t border-border-light flex items-start gap-2">
             <AlertCircle className="text-orange-500 w-4 h-4 flex-shrink-0 mt-0.5" />
             <p className="text-[11px] text-orange-500/90 leading-relaxed font-medium">
-              <span className="font-bold">تنويه هام:</span> التيشرت ده من نوع Compression (ضغط)، يعني تصميمه بيقسم الجسم وهيبين تفاصيل جسمك بالضبط.
+              <span className="font-bold">Important Note:</span> This is a compression shirt, meaning it's designed to fit tightly and will reveal your body's details.
             </p>
           </div>
         </div>
@@ -121,7 +119,7 @@ export default function SizeRecommender() {
 
       {result === "error" && (
         <p className="text-xs text-red-500 mt-4 text-center font-medium">
-          يرجى إدخال الوزن والطول بشكل صحيح.
+          Please enter valid weight and height.
         </p>
       )}
     </div>
