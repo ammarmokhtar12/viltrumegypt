@@ -143,7 +143,8 @@ export default function ProductDetailPage() {
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
 
-    const imgEl = document.getElementById("main-product-image");
+    const galleryEl = document.getElementById("main-product-image");
+    const imgEl = galleryEl ? galleryEl.querySelector("img") : null;
     const cartEl = document.getElementById("cart-icon-target");
     if (imgEl && cartEl) {
       const clone = imgEl.cloneNode(true) as HTMLElement;
