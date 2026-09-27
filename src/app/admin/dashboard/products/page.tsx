@@ -419,9 +419,9 @@ export default function AdminProductsPage() {
 
       {/* Modal Form Overlay */}
       {showForm && (
-        <div className="fixed inset-0 z-[100] bg-primary/20 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 lg:p-10 animate-fade-in">
+        <div className="fixed inset-0 z-[100] bg-primary/20 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 lg:p-10 animate-fade-in">
           <div
-            className="bg-background w-full max-w-2xl max-h-full overflow-y-auto rounded-3xl border border-secondary shadow-2xl flex flex-col scale-100 animate-in zoom-in-95 duration-300"
+            className="bg-background w-full max-w-2xl max-h-[90dvh] overflow-y-auto rounded-3xl border border-secondary shadow-2xl flex flex-col scale-100 animate-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Head */}
