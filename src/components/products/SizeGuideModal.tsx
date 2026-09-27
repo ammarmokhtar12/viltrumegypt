@@ -4,6 +4,7 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
+import SizeRecommender from "./SizeRecommender";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -127,7 +128,7 @@ export default function SizeGuideModal({ isOpen, onClose }: SizeGuideModalProps)
                 Measurement Guide
               </p>
               <h3 className="text-xl font-bold font-display tracking-tight text-foreground">
-                Viltrum Fit Chart
+                Smart Size Assistant
               </h3>
             </div>
             <button
@@ -139,24 +140,8 @@ export default function SizeGuideModal({ isOpen, onClose }: SizeGuideModalProps)
           </div>
 
           {/* Content Body */}
-          <div ref={contentRef} className="p-8 space-y-6">
-            <div className="relative w-full aspect-square md:aspect-[4/3] rounded-2xl overflow-hidden border border-border-light bg-background shadow-inner">
-              {/* Replace '/size-chart.png' with actual image later if needed, but it should be available now */}
-              <Image
-                src="/size-chart.png"
-                alt="Viltrum Size Chart"
-                fill
-                className="object-contain p-4"
-                sizes="(max-width: 768px) 100vw, 800px"
-              />
-            </div>
-            
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-background border border-border-light shadow-sm">
-              <div className="w-2 h-2 rounded-full bg-primary mt-1.5 flex-shrink-0" />
-              <p className="text-sm font-medium text-secondary leading-relaxed">
-                For the best fit, lay a similar garment flat and measure from armpit to armpit for width, and from collar to bottom hem for length. Compression fit is designed to be tight; if you prefer a relaxed feel, consider sizing up.
-              </p>
-            </div>
+          <div ref={contentRef} className="p-8">
+            <SizeRecommender />
           </div>
 
         </div>

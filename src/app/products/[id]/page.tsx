@@ -418,7 +418,7 @@ export default function ProductDetailPage() {
                             onClick={() => setSizeGuideOpen(true)}
                             className="text-[10px] font-bold text-primary uppercase tracking-widest underline underline-offset-4 hover:opacity-70 transition-opacity"
                           >
-                            Size Guide
+                            Size Assistant
                           </button>
                        </div>
                       <div className="flex flex-wrap gap-2.5">
@@ -445,11 +445,6 @@ export default function ProductDetailPage() {
                           );
                         })}
                       </div>
-                    </div>
-
-                    {/* AI Size Recommender */}
-                    <div className="py-2">
-                      <SizeRecommender />
                     </div>
 
                     {/* Configuration: Quantity */}
