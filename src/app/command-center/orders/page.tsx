@@ -187,6 +187,12 @@ function PrintOrderCard({ order, cardClass = "" }: { order: any; cardClass?: str
         <div><span className="p-label">Phone</span><p className="p-value-md" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{order.customer_phone}</p></div>
       </div>
       <div><span className="p-label">Address</span><p className="p-value-sm">{order.customer_address}</p></div>
+      {order.notes && (
+        <div style={{ marginTop: "1mm", background: "#fffbe6", padding: "1mm", border: "1px dashed #f59e0b", borderRadius: "1mm" }}>
+          <span className="p-label" style={{ color: "#b45309" }}>Notes</span>
+          <p className="p-value-sm" style={{ color: "#92400e" }}>{order.notes}</p>
+        </div>
+      )}
       <hr className="p-divider" />
       <div>
         <span className="p-label">Order Details</span>
@@ -280,7 +286,9 @@ function PrintSheet({ ordersList, printMode }: { ordersList: any[]; printMode: "
 // ─── Edit Order Modal ────────────────────────────────────────────────────────
 function EditOrderModal({ order, onClose, onSave }: { order: any; onClose: () => void; onSave: (updated: any) => void }) {
   const [address, setAddress] = useState(order.customer_address || "");
+  const [notes, setNotes] = useState(order.notes || "");
   const [items, setItems] = useState<any[]>(Array.isArray(order.items) ? [...order.items] : []);
+  const [total, setTotal] = useState<number | string>(order.total || 0);
   const [saving, setSaving] = useState(false);
 
   const handleItemChange = (index: number, field: string, value: any) => {
@@ -299,13 +307,11 @@ function EditOrderModal({ order, onClose, onSave }: { order: any; onClose: () =>
 
   const handleSave = async () => {
     setSaving(true);
-    const oldItemTotal = (order.items || []).reduce((sum: number, item: any) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
-    const newTotal = items.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
-    const shippingAndFees = Number(order.total || 0) - oldItemTotal;
-    const finalTotal = newTotal + shippingAndFees;
+    const finalTotal = parseFloat(total as string) || 0;
 
     const { error } = await supabase.from("orders").update({
       customer_address: address,
+      notes: notes,
       items: items,
       total: finalTotal,
       updated_at: new Date().toISOString()
@@ -314,7 +320,7 @@ function EditOrderModal({ order, onClose, onSave }: { order: any; onClose: () =>
     if (error) {
       alert("Error saving: " + error.message);
     } else {
-      onSave({ ...order, customer_address: address, items, total: finalTotal });
+      onSave({ ...order, customer_address: address, notes, items, total: finalTotal });
     }
     setSaving(false);
   };
@@ -334,6 +340,16 @@ function EditOrderModal({ order, onClose, onSave }: { order: any; onClose: () =>
               value={address} 
               onChange={e => setAddress(e.target.value)}
               className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white text-sm focus:outline-none focus:border-zinc-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Notes</label>
+            <textarea 
+              value={notes} 
+              onChange={e => setNotes(e.target.value)}
+              placeholder="Order notes..."
+              className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white text-sm focus:outline-none focus:border-zinc-500 resize-none h-20"
             />
           </div>
 
@@ -381,6 +397,16 @@ function EditOrderModal({ order, onClose, onSave }: { order: any; onClose: () =>
               ))}
               {items.length === 0 && <p className="text-sm text-zinc-500">No items.</p>}
             </div>
+          </div>
+
+          <div className="flex items-center justify-between bg-zinc-800/30 p-4 rounded-xl border border-zinc-700/50 mt-4">
+            <label className="text-xs font-bold text-zinc-500 uppercase">Total Amount (EGP)</label>
+            <input 
+              type="number"
+              value={total}
+              onChange={e => setTotal(e.target.value)}
+              className="w-32 px-4 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white font-bold text-right focus:outline-none"
+            />
           </div>
 
           <div className="flex justify-end gap-3 mt-8">
@@ -467,7 +493,7 @@ export default function OrdersPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
+      .select("id, order_number, customer_name, customer_phone, customer_address, notes, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
       .order("created_at", { ascending: false })
       .limit(500);
     if (error) {

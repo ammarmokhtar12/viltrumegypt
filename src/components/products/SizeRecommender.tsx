@@ -54,71 +54,57 @@ export default function SizeRecommender() {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto p-5 rounded-2xl bg-surface border border-border-light shadow-sm">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-          <Ruler size={16} />
+    <div className="w-full p-4 rounded-xl bg-surface border border-border-light shadow-sm flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+            <Ruler size={12} />
+          </div>
+          <h3 className="font-bold text-foreground text-xs">Smart Size Assistant</h3>
         </div>
-        <h3 className="font-bold text-foreground">Smart Size Assistant</h3>
       </div>
-      
-      <p className="text-xs text-muted mb-5 leading-relaxed">
-        Enter your weight and height and we'll recommend the best size for a perfect fit.
-      </p>
 
-      <div className="space-y-4">
-        <div className="flex gap-3">
-          <div className="flex-1 space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted">Weight (KG)</label>
-            <input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              placeholder="e.g. 75"
-              className="w-full bg-background border border-border-light rounded-xl px-4 py-2.5 text-sm font-medium text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-            />
-          </div>
-          <div className="flex-1 space-y-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-muted">Height (CM)</label>
-            <input
-              type="number"
-              value={height}
-              onChange={(e) => setHeight(e.target.value)}
-              placeholder="e.g. 175"
-              className="w-full bg-background border border-border-light rounded-xl px-4 py-2.5 text-sm font-medium text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-            />
-          </div>
+      <div className="flex flex-wrap sm:flex-nowrap gap-2 items-end">
+        <div className="flex-1">
+          <label className="text-[9px] font-bold uppercase tracking-wider text-muted block mb-1">Weight (KG)</label>
+          <input
+            type="number"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            placeholder="e.g. 75"
+            className="w-full bg-background border border-border-light rounded-lg px-3 py-2 text-xs font-medium text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+          />
         </div>
-
+        <div className="flex-1">
+          <label className="text-[9px] font-bold uppercase tracking-wider text-muted block mb-1">Height (CM)</label>
+          <input
+            type="number"
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+            placeholder="e.g. 175"
+            className="w-full bg-background border border-border-light rounded-lg px-3 py-2 text-xs font-medium text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+          />
+        </div>
         <button
           onClick={calculateSize}
-          className="w-full bg-foreground text-background font-bold text-sm py-3 rounded-xl hover:bg-foreground/90 transition-all active:scale-[0.98]"
+          className="bg-foreground text-background font-bold text-xs px-4 py-2 h-[34px] rounded-lg hover:bg-foreground/90 transition-all active:scale-[0.98] whitespace-nowrap"
         >
-          Find My Size
+          Find Size
         </button>
       </div>
 
       {result && result !== "error" && (
-        <div className="mt-5 p-4 rounded-xl bg-background border border-primary/20 result-box">
-          <div className="flex items-start gap-3">
-            <CheckCircle2 className="text-primary w-5 h-5 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs text-muted mb-1">Your perfect size is:</p>
-              <p className="text-lg font-bold text-foreground font-display">{result}</p>
-            </div>
-          </div>
-          
-          <div className="mt-4 pt-3 border-t border-border-light flex items-start gap-2">
-            <AlertCircle className="text-orange-500 w-4 h-4 flex-shrink-0 mt-0.5" />
-            <p className="text-[11px] text-orange-500/90 leading-relaxed font-medium">
-              <span className="font-bold">Important Note:</span> This is a compression shirt, meaning it's designed to fit tightly and will reveal your body's details.
-            </p>
+        <div className="mt-2 p-3 rounded-lg bg-background border border-primary/20 result-box flex items-center gap-3">
+          <CheckCircle2 className="text-primary w-5 h-5 flex-shrink-0" />
+          <div>
+            <p className="text-[10px] text-muted leading-tight">Your perfect size is:</p>
+            <p className="text-sm font-bold text-foreground font-display leading-tight">{result}</p>
           </div>
         </div>
       )}
 
       {result === "error" && (
-        <p className="text-xs text-red-500 mt-4 text-center font-medium">
+        <p className="text-[10px] text-red-500 mt-1 font-medium">
           Please enter valid weight and height.
         </p>
       )}

@@ -137,8 +137,8 @@ export default function CommandCenterLayout({ children }: { children: React.Reac
       </div>
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0f0f0f] border-r border-zinc-800/50 transform transition-transform duration-300 lg:translate-x-0 lg:static lg:flex lg:flex-col ${sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"}`}>
-        <div className="h-16 flex items-center justify-between px-6 border-b border-zinc-800/50">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0f0f0f] border-r border-zinc-800/50 transform transition-transform duration-300 flex flex-col lg:translate-x-0 lg:static ${sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"}`}>
+        <div className="h-16 flex items-center justify-between px-6 border-b border-zinc-800/50 shrink-0">
           <div>
             <h1 className="text-base font-bold tracking-tight text-white">VILTRUM</h1>
             <p className="text-[9px] text-red-500 font-bold tracking-[0.3em] uppercase -mt-0.5">Command Center</p>
@@ -161,7 +161,7 @@ export default function CommandCenterLayout({ children }: { children: React.Reac
           {STORE_NAV.map(renderNavItem)}
         </nav>
 
-        <div className="p-4 border-t border-zinc-800/50 space-y-2">
+        <div className="p-4 border-t border-zinc-800/50 space-y-2 shrink-0">
           <Link href="/" className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-medium text-zinc-500 border border-zinc-800 rounded-xl hover:bg-zinc-800/50 hover:text-zinc-300 transition-colors">
             <Home size={14} /> Storefront
           </Link>
@@ -177,8 +177,8 @@ export default function CommandCenterLayout({ children }: { children: React.Reac
       )}
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0 min-h-screen">
-        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto min-h-full">
           {children}
         </div>
       </main>

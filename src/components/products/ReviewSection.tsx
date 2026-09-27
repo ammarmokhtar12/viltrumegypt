@@ -53,7 +53,7 @@ function StarRating({
             size={size}
             className={`transition-colors duration-150 ${
               star <= (hovered || rating)
-                ? "fill-amber-400 text-amber-400"
+                ? "fill-primary text-primary"
                 : "fill-transparent text-gray-200"
             }`}
           />
@@ -80,7 +80,7 @@ function RatingBar({
       </span>
       <div className="flex-1 h-2 bg-surface border border-border-light rounded-full overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-700 ease-out"
+          className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
           style={{ width: `${percentage}%` }}
         />
       </div>
