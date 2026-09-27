@@ -433,7 +433,13 @@ export default function OrdersPage() {
   const [dateFilter, setDateFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [displayCount, setDisplayCount] = useState(100);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 100;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, paymentFilter, dateFilter, dateFrom, dateTo]);
+
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
@@ -494,7 +500,7 @@ export default function OrdersPage() {
       .from("orders")
       .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
       .order("created_at", { ascending: false })
-      .limit(500);
+      .limit(5000);
     if (error) {
       console.error("Orders fetch error:", error);
       alert("Error loading orders: " + error.message);
@@ -870,7 +876,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
 
         {/* Orders List */}
         <div className="space-y-3">
-          {filtered.slice(0, displayCount).map((order) => {
+          {filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((order) => {
             const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
             const isExpanded = expandedOrder === order.id;
             const items = order.items || [];
@@ -1117,13 +1123,26 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
             </div>
           )}
 
-          {filtered.length > displayCount && (
-            <button
-              onClick={() => setDisplayCount((c) => c + 100)}
-              className="w-full py-4 bg-zinc-900 border border-zinc-800 rounded-2xl text-sm font-bold text-zinc-400 hover:text-white hover:border-zinc-600 transition-all"
-            >
-              Load More ({filtered.length - displayCount} remaining)
-            </button>
+          {filtered.length > itemsPerPage && (
+            <div className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mt-6">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-zinc-800 rounded-xl text-xs font-bold text-white hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+              >
+                Previous
+              </button>
+              <span className="text-xs font-bold text-zinc-500">
+                Page {currentPage} of {Math.ceil(filtered.length / itemsPerPage)}
+              </span>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(Math.ceil(filtered.length / itemsPerPage), p + 1))}
+                disabled={currentPage === Math.ceil(filtered.length / itemsPerPage)}
+                className="px-4 py-2 bg-zinc-800 rounded-xl text-xs font-bold text-white hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+              >
+                Next
+              </button>
+            </div>
           )}
         </div>
       </div>
