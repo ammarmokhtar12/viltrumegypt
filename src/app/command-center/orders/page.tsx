@@ -311,7 +311,6 @@ function EditOrderModal({ order, onClose, onSave }: { order: any; onClose: () =>
 
     const { error } = await supabase.from("orders").update({
       customer_address: address,
-      notes: notes,
       items: items,
       total: finalTotal,
       updated_at: new Date().toISOString()
@@ -493,7 +492,7 @@ export default function OrdersPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select("id, order_number, customer_name, customer_phone, customer_address, notes, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
+      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
       .order("created_at", { ascending: false })
       .limit(500);
     if (error) {
