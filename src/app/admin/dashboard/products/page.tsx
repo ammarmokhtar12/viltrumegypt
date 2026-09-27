@@ -314,7 +314,7 @@ export default function AdminProductsPage() {
                 <tr key={product.id}>
                   <td>
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-14 bg-background border border-border-light rounded-lg overflow-hidden flex-shrink-0 group">
+                      <div className="relative w-12 h-14 bg-background border border-border-light rounded-lg overflow-hidden flex-shrink-0 group">
                         {product.image_url ? (
                           <ProductImage
                             src={product.image_url}
