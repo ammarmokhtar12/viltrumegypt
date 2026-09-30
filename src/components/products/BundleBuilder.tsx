@@ -96,19 +96,8 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
     return Math.max(0, totalStock - usedStock);
   };
 
-  // Helper: detect long sleeve
-  const isLongSleeve = (product: Product) =>
-    product.title.toLowerCase().includes("long");
-
   // Select Product for a specific slot
   const handleSelectProduct = (slotIdx: number, product: Product) => {
-    // Enforcement: Only 1 Long Sleeve allowed
-    if (isLongSleeve(product)) {
-      const hasLongSleeve = slots.some(
-        (s, i) => i !== slotIdx && s.product && isLongSleeve(s.product)
-      );
-      if (hasLongSleeve) return; // Prevent selection
-    }
 
     setSlots((prev) => {
       const next = [...prev];
@@ -165,13 +154,6 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
     }
 
     setIsAdding(true);
-
-    const longSleeveCount = slots.filter(s => s.product && isLongSleeve(s.product)).length;
-    if (longSleeveCount > 1) {
-      toast.error("You can only include 1 Long Sleeve per bundle.");
-      setIsAdding(false);
-      return;
-    }
 
     const bundleItems: CartItem[] = slots.map((s) => ({
       product_id: s.product!.id,
@@ -385,9 +367,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {products.map((p) => {
                   const hasSizesAvailable = p.sizes?.some((sz) => getAvailableStock(p.id, sz, activeSelectIndex!) > 0);
-                  const wouldViolateLongSleeveRule =
-                    isLongSleeve(p) && slots.some((s, i) => i !== activeSelectIndex && s.product && isLongSleeve(s.product));
-                  const isDisabled = !hasSizesAvailable || wouldViolateLongSleeveRule;
+                  const isDisabled = !hasSizesAvailable;
                   const isCurrentlySelected = slots[activeSelectIndex!]?.product?.id === p.id;
 
                   return (
@@ -430,17 +410,8 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                           </div>
                         )}
 
-                        {/* Long Sleeve restriction overlay */}
-                        {wouldViolateLongSleeveRule && (
-                          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center gap-1 px-3 text-center">
-                            <span className="text-white text-[9px] font-extrabold uppercase tracking-widest leading-snug">
-                              Max 1 Long Sleeve
-                            </span>
-                          </div>
-                        )}
-
                         {/* Out of stock overlay */}
-                        {!hasSizesAvailable && !wouldViolateLongSleeveRule && (
+                        {!hasSizesAvailable && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                             <span className="text-zinc-400 text-[9px] font-bold uppercase tracking-widest">Out of Stock</span>
                           </div>

@@ -124,13 +124,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         <div className="mt-6 text-center px-4 space-y-2.5">
-          <div className="flex items-center justify-center gap-1 mb-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star key={star} size={12} className="text-amber-400 fill-amber-400" />
-            ))}
-            <span className="text-[10px] text-muted ml-1 font-medium">(42)</span>
-          </div>
-
           <h3 className="text-[14px] font-display font-medium text-foreground uppercase tracking-[0.1em] group-hover:text-accent transition-colors line-clamp-1">
             {product.title}
           </h3>

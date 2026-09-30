@@ -414,12 +414,15 @@ export default function ProductDetailPage() {
                               </div>
                             )}
                           </div>
-                          <button 
-                            onClick={() => setSizeGuideOpen(true)}
-                            className="text-[10px] font-bold text-primary uppercase tracking-widest underline underline-offset-4 hover:opacity-70 transition-opacity"
-                          >
-                            Size Assistant
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-accent animate-pulse" dir="rtl">لو عايز تعرف مقاسك بالظبط دوس هنا &larr;</span>
+                            <button 
+                              onClick={() => setSizeGuideOpen(true)}
+                              className="text-[10px] font-bold text-primary uppercase tracking-widest underline underline-offset-4 hover:opacity-70 transition-opacity"
+                            >
+                              Size Assistant
+                            </button>
+                          </div>
                        </div>
                       <div className="flex flex-wrap gap-2.5">
                         {availableSizes.map((size) => {
