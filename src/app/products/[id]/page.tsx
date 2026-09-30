@@ -415,7 +415,7 @@ export default function ProductDetailPage() {
                             )}
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-accent animate-pulse" dir="rtl">لو عايز تعرف مقاسك بالظبط دوس هنا &larr;</span>
+                            <span className="text-xs font-bold text-accent animate-pulse">لو عايز تعرف مقاسك بالظبط دوس هنا &rarr;</span>
                             <button 
                               onClick={() => setSizeGuideOpen(true)}
                               className="text-[10px] font-bold text-primary uppercase tracking-widest underline underline-offset-4 hover:opacity-70 transition-opacity"
