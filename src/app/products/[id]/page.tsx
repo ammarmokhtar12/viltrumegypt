@@ -14,7 +14,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CartDrawer from "@/components/cart/CartDrawer";
 import ReviewSection from "@/components/products/ReviewSection";
-import ViltrumLoader from "@/components/layout/ViltrumLoader";
+import ProductDetailSkeleton from "@/components/products/ProductDetailSkeleton";
 import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
 import { trackMetaEvent } from "@/lib/meta";
@@ -232,7 +232,7 @@ export default function ProductDetailPage() {
   };
 
   if (loading) {
-    return <ViltrumLoader />;
+    return <ProductDetailSkeleton />;
   }
 
   if (!product) {
@@ -305,44 +305,78 @@ export default function ProductDetailPage() {
                     </div>
                   </div>
 
-                  {/* Thumbnails (Hidden on very small screens, visible on larger mobile and up) */}
-                  <div className="hidden sm:flex flex-wrap gap-4 pt-2">
-                     {/* Main Image Thumbnail */}
-                     {product.image_url && (
-                       <button
-                         onClick={() => {
-                           const container = document.getElementById("main-product-image");
-                           if (container) container.scrollTo({ left: 0, behavior: "smooth" });
-                           setActiveImage(product.image_url!);
-                         }}
-                         className={`relative w-20 h-24 rounded-xl overflow-hidden border-2 transition-all ${
-                           activeImage === product.image_url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
-                         }`}
-                       >
-                          <ProductImage src={product.image_url} alt="Main" fill className="object-cover" />
-                       </button>
-                     )}
+                  {/* Dot Indicators */}
+                  {(() => {
+                    const allImages = [product.image_url, ...(product.gallery_urls || [])].filter(Boolean);
+                    if (allImages.length <= 1) return null;
+                    return (
+                      <div className="flex justify-center items-center gap-2 pt-1">
+                        {allImages.map((url, i) => (
+                          <button
+                            key={i}
+                            onClick={() => {
+                              const container = document.getElementById("main-product-image");
+                              if (container) container.scrollTo({ left: container.scrollWidth / allImages.length * i, behavior: "smooth" });
+                              setActiveImage(url!);
+                            }}
+                            className={`rounded-full transition-all duration-300 ${
+                              activeImage === url
+                                ? 'w-5 h-2 bg-primary'
+                                : 'w-2 h-2 bg-border-light hover:bg-muted'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    );
+                  })()}
 
-                     {/* Gallery Thumbnails */}
-                     {product.gallery_urls?.map((url, i) => (
-                       <button
-                         key={i}
-                         onClick={() => {
-                           const container = document.getElementById("main-product-image");
-                           if (container) {
-                             const scrollWidth = container.scrollWidth;
-                             const numImages = (product.gallery_urls?.length || 0) + 1;
-                             container.scrollTo({ left: (scrollWidth / numImages) * (i + 1), behavior: "smooth" });
-                           }
-                           setActiveImage(url);
-                         }}
-                         className={`relative w-20 h-24 rounded-xl overflow-hidden border-2 transition-all ${
-                           activeImage === url ? 'border-primary shadow-lg scale-105' : 'border-border-light grayscale hover:grayscale-0'
-                         }`}
-                       >
-                          <ProductImage src={url} alt={`Gallery ${i}`} fill className="object-cover" />
-                       </button>
-                     ))}
+                  {/* Thumbnails */}
+                  <div className="hidden sm:flex gap-3 pt-1 overflow-x-auto hide-scrollbar">
+                    {/* Main Image Thumbnail */}
+                    {product.image_url && (
+                      <button
+                        onClick={() => {
+                          const container = document.getElementById("main-product-image");
+                          if (container) container.scrollTo({ left: 0, behavior: "smooth" });
+                          setActiveImage(product.image_url!);
+                        }}
+                        className={`relative flex-shrink-0 w-24 aspect-square rounded-2xl overflow-hidden border-2 transition-all duration-300 group/thumb ${
+                          activeImage === product.image_url
+                            ? 'border-primary shadow-lg shadow-primary/10 ring-2 ring-primary/20'
+                            : 'border-border-light opacity-60 hover:opacity-100 hover:border-secondary hover:shadow-md'
+                        }`}
+                      >
+                        <ProductImage src={product.image_url} alt="Main" fill className="object-cover transition-transform duration-500 group-hover/thumb:scale-110" />
+                        {activeImage === product.image_url && (
+                          <div className="absolute inset-0 ring-inset ring-2 ring-primary/30 rounded-2xl pointer-events-none" />
+                        )}
+                      </button>
+                    )}
+
+                    {/* Gallery Thumbnails */}
+                    {product.gallery_urls?.map((url, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          const container = document.getElementById("main-product-image");
+                          if (container) {
+                            const allImgs = [product.image_url, ...(product.gallery_urls || [])].filter(Boolean);
+                            container.scrollTo({ left: (container.scrollWidth / allImgs.length) * (i + 1), behavior: "smooth" });
+                          }
+                          setActiveImage(url);
+                        }}
+                        className={`relative flex-shrink-0 w-24 aspect-square rounded-2xl overflow-hidden border-2 transition-all duration-300 group/thumb ${
+                          activeImage === url
+                            ? 'border-primary shadow-lg shadow-primary/10 ring-2 ring-primary/20'
+                            : 'border-border-light opacity-60 hover:opacity-100 hover:border-secondary hover:shadow-md'
+                        }`}
+                      >
+                        <ProductImage src={url} alt={`View ${i + 2}`} fill className="object-cover transition-transform duration-500 group-hover/thumb:scale-110" />
+                        {activeImage === url && (
+                          <div className="absolute inset-0 ring-inset ring-2 ring-primary/30 rounded-2xl pointer-events-none" />
+                        )}
+                      </button>
+                    ))}
                   </div>
                 </div>
 

@@ -2,33 +2,53 @@ import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
+function Shimmer({ className }: { className: string }) {
+  return (
+    <div className={`relative overflow-hidden bg-secondary/10 ${className}`}>
+      <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.6s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+    </div>
+  );
+}
+
 export default function ProductDetailSkeleton() {
   return (
     <>
+      <style>{`
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
       <Navbar onCartOpen={() => {}} />
       <main className="min-h-screen bg-background pt-32 sm:pt-44">
+
         {/* Back Button Skeleton */}
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-8">
-          <div className="h-4 w-32 bg-secondary/10 rounded animate-pulse" />
+          <Shimmer className="h-4 w-36 rounded-full" />
         </div>
 
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 pb-32 sm:pb-44">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start">
-            
+
             {/* Gallery Skeleton */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-5">
               {/* Main Image */}
-              <div
-                className="relative overflow-hidden rounded-2xl bg-surface border border-border-light shadow-2xl"
-                style={{ aspectRatio: "4/5" }}
-              >
-                <div className="absolute inset-0 bg-secondary/10 animate-pulse" />
+              <Shimmer
+                className="w-full rounded-2xl border border-border-light shadow-2xl"
+                style={{ aspectRatio: "4/5" } as React.CSSProperties}
+              />
+
+              {/* Dot indicators */}
+              <div className="flex justify-center items-center gap-2">
+                <div className="w-5 h-2 rounded-full bg-secondary/30" />
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="w-2 h-2 rounded-full bg-secondary/15" />
+                ))}
               </div>
 
               {/* Thumbnails */}
-              <div className="hidden sm:flex flex-wrap gap-4 pt-2">
+              <div className="hidden sm:flex gap-3 overflow-x-auto">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-20 h-24 rounded-xl bg-secondary/10 animate-pulse border-2 border-border-light" />
+                  <Shimmer key={i} className="flex-shrink-0 w-24 aspect-square rounded-2xl border-2 border-border-light" />
                 ))}
               </div>
             </div>
@@ -36,42 +56,61 @@ export default function ProductDetailSkeleton() {
             {/* Content Skeleton */}
             <div className="lg:col-span-5 flex flex-col pt-4">
               <div className="space-y-12">
-                
+
                 {/* Title & Price */}
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <div className="h-3 w-24 bg-secondary/10 rounded animate-pulse" />
-                    <div className="h-14 w-full bg-secondary/20 rounded animate-pulse" />
-                    <div className="h-14 w-2/3 bg-secondary/20 rounded animate-pulse" />
+                    <Shimmer className="h-3 w-28 rounded-full" />
+                    <Shimmer className="h-14 w-full rounded-xl" />
+                    <Shimmer className="h-14 w-2/3 rounded-xl" />
                   </div>
-                  <div className="flex items-baseline gap-2">
-                    <div className="h-4 w-12 bg-secondary/10 rounded animate-pulse" />
-                    <div className="h-8 w-32 bg-secondary/20 rounded animate-pulse" />
+                  <div className="flex items-baseline gap-3">
+                    <Shimmer className="h-4 w-12 rounded-full" />
+                    <Shimmer className="h-9 w-36 rounded-lg" />
                   </div>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <Shimmer className="h-3.5 w-full rounded-full" />
+                  <Shimmer className="h-3.5 w-4/5 rounded-full" />
+                  <Shimmer className="h-3.5 w-3/5 rounded-full" />
                 </div>
 
                 <div className="h-px bg-border-light w-24" />
 
-                {/* Configuration: Size */}
+                {/* Size Selector */}
                 <div className="space-y-5">
-                  <div className="h-3 w-20 bg-secondary/10 rounded animate-pulse" />
+                  <div className="flex justify-between items-center">
+                    <Shimmer className="h-3 w-20 rounded-full" />
+                    <Shimmer className="h-3 w-28 rounded-full" />
+                  </div>
                   <div className="flex flex-wrap gap-2.5">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="h-12 w-16 bg-secondary/10 rounded-xl animate-pulse" />
+                      <Shimmer key={i} className="h-12 w-16 rounded-xl" />
                     ))}
                   </div>
                 </div>
 
-                {/* Configuration: Quantity */}
+                {/* Quantity */}
                 <div className="space-y-5">
-                  <div className="h-3 w-20 bg-secondary/10 rounded animate-pulse" />
-                  <div className="h-14 w-36 bg-secondary/10 rounded-xl animate-pulse" />
+                  <Shimmer className="h-3 w-20 rounded-full" />
+                  <Shimmer className="h-14 w-40 rounded-xl" />
                 </div>
 
-                {/* Main Action */}
+                {/* Add to Cart */}
                 <div className="pt-4 flex gap-3">
-                  <div className="flex-1 h-16 bg-secondary/20 rounded-2xl animate-pulse" />
-                  <div className="w-16 h-16 bg-secondary/10 rounded-2xl animate-pulse" />
+                  <Shimmer className="flex-1 h-16 rounded-2xl" />
+                  <Shimmer className="w-16 h-16 rounded-2xl" />
+                </div>
+
+                {/* Assurance */}
+                <div className="pt-4 border-t border-border-light flex items-center gap-4">
+                  <Shimmer className="w-10 h-10 rounded-xl flex-shrink-0" />
+                  <div className="space-y-2 flex-1">
+                    <Shimmer className="h-3 w-24 rounded-full" />
+                    <Shimmer className="h-3 w-48 rounded-full" />
+                  </div>
                 </div>
 
               </div>
