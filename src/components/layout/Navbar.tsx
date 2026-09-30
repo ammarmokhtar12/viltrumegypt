@@ -187,6 +187,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
                 { name: "Collections", href: "/#products" },
                 { name: "Archive", href: "/products" },
                 { name: "Exchange", href: "/exchange" },
+                { name: "Track Order", href: "/tracking" },
                 { name: "Contact", href: `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}` },
               ].map((link, i) => (
                 <motion.div
