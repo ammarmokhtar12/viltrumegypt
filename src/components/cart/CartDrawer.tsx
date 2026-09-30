@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import { X, ShoppingBag, ArrowRight, Trash2, Sparkles } from "lucide-react";
+import { X, ShoppingBag, ArrowRight, Trash2, Sparkles, Zap, Gift } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 import CartItem from "./CartItem";
@@ -220,31 +220,130 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           </div>
 
           {/* Footer */}
-          {cartItems.length > 0 && (
-            <div className="px-8 py-8 border-t border-border-light bg-surface space-y-6">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted font-medium uppercase tracking-widest">
-                  Estimated Total
-                </span>
-                <span className="text-2xl font-bold text-foreground tabular-nums">
-                  {formatPrice(cartTotal)}
-                </span>
+          {cartItems.length > 0 && (() => {
+            const FREE_SHIPPING_THRESHOLD = 1000;
+            const BUNDLE_PRICE = 850;
+            const BUNDLE_SAVE = 150;
+
+            const singleItems = cartItems.filter((i) => !i.bundle_id);
+            const hasSingleItem = singleItems.length === 1;
+            const hasBundle = cartItems.some((i) => i.bundle_id);
+            const showBundleUpsell = hasSingleItem && !hasBundle;
+
+            const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - cartTotal);
+            const freeShippingProgress = Math.min(100, (cartTotal / FREE_SHIPPING_THRESHOLD) * 100);
+            const hasReachedFreeShipping = cartTotal >= FREE_SHIPPING_THRESHOLD;
+
+            return (
+              <div className="border-t border-border-light bg-surface">
+                {/* Upsell Banners */}
+                <div className="px-5 pt-5 space-y-3">
+
+                  {/* Bundle Upsell */}
+                  {showBundleUpsell && (
+                    <div className="relative overflow-hidden rounded-xl border border-accent/30 bg-gradient-to-r from-accent/8 via-accent/5 to-transparent p-3.5 group">
+                      {/* Shimmer sweep */}
+                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-accent/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Zap size={14} className="text-accent" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-bold text-foreground leading-tight">
+                            Add a 2nd T-shirt &amp; unlock the Bundle Deal
+                          </p>
+                          <p className="text-[10px] text-muted mt-0.5 leading-snug">
+                            Get <span className="text-accent font-bold">2 T-shirts for {formatPrice(BUNDLE_PRICE)}</span> — save{" "}
+                            <span className="text-emerald-500 font-bold">{formatPrice(BUNDLE_SAVE)}</span>
+                          </p>
+                          {/* Progress bar */}
+                          <div className="mt-2.5 relative h-1.5 w-full rounded-full bg-border-light overflow-hidden">
+                            <div
+                              className="absolute left-0 top-0 h-full rounded-full bg-accent transition-all duration-700"
+                              style={{ width: "50%" }}
+                            />
+                            <div className="absolute left-[calc(50%-3px)] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-accent/70 animate-pulse" />
+                          </div>
+                          <p className="text-[9px] text-muted mt-1.5 uppercase tracking-wider font-semibold">
+                            1 of 2 T-shirts selected
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Free Shipping Upsell */}
+                  <div className={`relative overflow-hidden rounded-xl border p-3.5 group transition-colors duration-500 ${
+                    hasReachedFreeShipping
+                      ? "border-emerald-500/40 bg-emerald-500/8"
+                      : "border-border-light bg-surface/80"
+                  }`}>
+                    <div className="flex items-start gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors duration-500 ${
+                        hasReachedFreeShipping ? "bg-emerald-500/20" : "bg-surface border border-border-light"
+                      }`}>
+                        <Gift size={14} className={hasReachedFreeShipping ? "text-emerald-500" : "text-muted"} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        {hasReachedFreeShipping ? (
+                          <p className="text-[11px] font-bold text-emerald-500 leading-tight">
+                            🎉 You&apos;ve unlocked Free Shipping!
+                          </p>
+                        ) : (
+                          <p className="text-[11px] font-bold text-foreground leading-tight">
+                            Spend{" "}
+                            <span className="text-primary">{formatPrice(amountToFreeShipping)}</span> more for Free Shipping
+                          </p>
+                        )}
+                        <p className="text-[10px] text-muted mt-0.5">
+                          {hasReachedFreeShipping
+                            ? "Free shipping applied to your order"
+                            : `${formatPrice(cartTotal)} of ${formatPrice(FREE_SHIPPING_THRESHOLD)} spent`}
+                        </p>
+                        {/* Progress bar */}
+                        <div className="mt-2.5 h-1.5 w-full rounded-full bg-border-light overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-700 ease-out"
+                            style={{
+                              width: `${freeShippingProgress}%`,
+                              background: hasReachedFreeShipping
+                                ? "linear-gradient(90deg, #10b981, #34d399)"
+                                : "linear-gradient(90deg, #6366f1, #a78bfa)",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Total & Checkout */}
+                <div className="px-8 pt-5 pb-8 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted font-medium uppercase tracking-widest">
+                      Estimated Total
+                    </span>
+                    <span className="text-2xl font-bold text-foreground tabular-nums">
+                      {formatPrice(cartTotal)}
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    <Link
+                      href="/checkout"
+                      onClick={handleCheckoutClick}
+                      className="btn-primary w-full shadow-lg shadow-black/5 flex items-center justify-center gap-3"
+                    >
+                      Proceed to Checkout
+                      <ArrowRight size={16} />
+                    </Link>
+                    <p className="text-[10px] text-center text-muted uppercase tracking-[0.1em]">
+                      Shipping &amp; taxes calculated at checkout
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-3">
-                <Link
-                  href="/checkout"
-                  onClick={handleCheckoutClick}
-                  className="btn-primary w-full shadow-lg shadow-black/5 flex items-center justify-center gap-3"
-                >
-                  Proceed to Checkout
-                  <ArrowRight size={16} />
-                </Link>
-                <p className="text-[10px] text-center text-muted uppercase tracking-[0.1em]">
-                  Shipping & taxes calculated at checkout
-                </p>
-              </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </div>
     </>
