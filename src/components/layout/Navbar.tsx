@@ -53,12 +53,50 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
     >
       <div className="eid-banner overflow-hidden py-2.5 border-b border-border-light/50 relative z-50 select-none rgb-shadow">
         <div className="marquee-container flex whitespace-nowrap">
-          <div className="marquee-content flex gap-16 text-[10px] font-semibold uppercase tracking-[0.25em] px-4 font-sans">
-            <span className="rgb-glow-text">
-              VILTRUM ARMORY — COMPRESSION GEAR FORGED FOR HEROES · UNLEASH YOUR INNER VILTRUMITE
+          <div className="marquee-content flex gap-16 text-[10px] font-semibold uppercase tracking-[0.25em] px-4 font-sans items-center">
+            {/* Message 1 */}
+            <span className="flex items-center gap-3">
+              <span className="text-amber-400">⚡</span>
+              <span className="rgb-glow-text tracking-[0.2em]">Bundle Deal</span>
+              <span className="text-muted/50">·</span>
+              <span className="font-bold text-white/90 tracking-wider">2 T-Shirts for only 850 EGP</span>
+              <span className="text-muted/50">·</span>
+              <span className="text-emerald-400 font-bold">Save 150 EGP</span>
             </span>
-            <span className="rgb-glow-text">
-              VILTRUM ARMORY — COMPRESSION GEAR FORGED FOR HEROES · UNLEASH YOUR INNER VILTRUMITE
+
+            {/* Divider */}
+            <span className="text-muted/30 text-lg font-thin">|</span>
+
+            {/* Message 2 */}
+            <span className="flex items-center gap-3">
+              <span className="text-blue-400">🚚</span>
+              <span className="rgb-glow-text tracking-[0.2em]">Free Shipping</span>
+              <span className="text-muted/50">·</span>
+              <span className="font-bold text-white/90 tracking-wider">Spend 1,000 EGP & get Free Delivery</span>
+            </span>
+
+            {/* Divider */}
+            <span className="text-muted/30 text-lg font-thin">|</span>
+
+            {/* Repeat 1 */}
+            <span className="flex items-center gap-3">
+              <span className="text-amber-400">⚡</span>
+              <span className="rgb-glow-text tracking-[0.2em]">Bundle Deal</span>
+              <span className="text-muted/50">·</span>
+              <span className="font-bold text-white/90 tracking-wider">2 T-Shirts for only 850 EGP</span>
+              <span className="text-muted/50">·</span>
+              <span className="text-emerald-400 font-bold">Save 150 EGP</span>
+            </span>
+
+            {/* Divider */}
+            <span className="text-muted/30 text-lg font-thin">|</span>
+
+            {/* Repeat 2 */}
+            <span className="flex items-center gap-3">
+              <span className="text-blue-400">🚚</span>
+              <span className="rgb-glow-text tracking-[0.2em]">Free Shipping</span>
+              <span className="text-muted/50">·</span>
+              <span className="font-bold text-white/90 tracking-wider">Spend 1,000 EGP & get Free Delivery</span>
             </span>
           </div>
         </div>
