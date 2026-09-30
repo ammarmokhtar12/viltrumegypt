@@ -37,6 +37,7 @@ export interface Order {
   customer_name: string;
   customer_phone: string;
   customer_address: string;
+  customer_governorate?: string | null;
   payment_method: "vodafone_cash" | "instapay";
   payment_screenshot_url: string | null;
   items: OrderItem[];
@@ -44,6 +45,9 @@ export interface Order {
   status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled" | "returned";
   created_at: string;
   updated_at: string;
+  shipped_at?: string | null;
+  tracking_number?: string | null;
+  shipping_company?: string | null;
   admin_comment?: string | null;
   replacement_requested?: boolean;
   replacement_note?: string | null;

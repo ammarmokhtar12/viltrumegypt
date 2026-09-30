@@ -657,6 +657,10 @@ export default function AdminOrdersPage() {
   // ─── Admin Comment state ──────────────────────────────────────────────────────
   const [savingCommentId, setSavingCommentId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState<Record<string, string>>({});
+  // ─── Ship Modal state ─────────────────────────────────────────────────────────
+  const [shipModal, setShipModal] = useState<Order | null>(null);
+  const [shipForm, setShipForm] = useState({ governorate: "", date: new Date().toISOString().split("T")[0], company: "", tracking: "" });
+  const [shipSaving, setShipSaving] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -699,19 +703,30 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const updateStatus = async (orderId: string, newStatus: string) => {
+  const updateStatus = async (orderId: string, newStatus: string, extraFields?: Record<string, unknown>) => {
+    // If marking as shipped, open the ship modal instead
+    if (newStatus === "shipped" && !extraFields) {
+      const order = orders.find((o) => o.id === orderId);
+      if (order) {
+        setShipForm({ governorate: order.customer_governorate || "", date: new Date().toISOString().split("T")[0], company: "", tracking: "" });
+        setShipModal(order);
+      }
+      return;
+    }
+
     // Capture order data BEFORE state mutation to avoid stale closure read
     const orderToCancel = (newStatus === "cancelled" || newStatus === "returned") ? orders.find(o => o.id === orderId) : null;
 
     try {
+      const updatePayload: Record<string, unknown> = { status: newStatus, ...(extraFields || {}) };
       const { error } = await supabase
         .from("orders")
-        .update({ status: newStatus })
+        .update(updatePayload)
         .eq("id", orderId);
 
       if (!error) {
         setOrders((prev) =>
-          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus as Order["status"] } : o))
+          prev.map((o) => (o.id === orderId ? { ...o, status: newStatus as Order["status"], ...(extraFields || {}) } : o))
         );
 
         // If the order was cancelled or returned, restore the stock of all its items
@@ -743,6 +758,21 @@ export default function AdminOrdersPage() {
       console.error("Failed to update status:", err);
       alert("An unexpected error occurred while updating the status.");
     }
+  };
+
+  // ─── Ship Order (confirm from modal) ─────────────────────────────────────
+  const confirmShipOrder = async () => {
+    if (!shipModal) return;
+    setShipSaving(true);
+    const shippedAt = shipForm.date ? new Date(shipForm.date).toISOString() : new Date().toISOString();
+    await updateStatus(shipModal.id, "shipped", {
+      shipped_at: shippedAt,
+      customer_governorate: shipForm.governorate || null,
+      shipping_company: shipForm.company || null,
+      tracking_number: shipForm.tracking || null,
+    });
+    setShipSaving(false);
+    setShipModal(null);
   };
 
   // ─── Edit Order helpers ───────────────────────────────────────────────────
@@ -1678,6 +1708,99 @@ export default function AdminOrdersPage() {
               </div>
               <div className="p-8">
                 <img src={screenshotModal} alt="Payment proof" className="w-full rounded-2xl shadow-lg border border-border-light" />
+              </div>
+            </div>
+          </div>
+        )}
+        {/* ── Ship Order Modal ── */}
+        {shipModal && (
+          <div
+            className="fixed inset-0 z-[120] bg-primary/40 backdrop-blur-xl flex items-center justify-center p-4 animate-fade-in"
+            onClick={() => setShipModal(null)}
+          >
+            <div
+              className="bg-background max-w-md w-full rounded-3xl border border-secondary shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="h-16 px-6 flex items-center justify-between border-b border-border-light bg-purple-500/5">
+                <div className="flex items-center gap-3">
+                  <Truck size={18} className="text-purple-500" />
+                  <h3 className="text-sm font-bold text-foreground uppercase tracking-widest">Ship Order #{shipModal.order_number}</h3>
+                </div>
+                <button onClick={() => setShipModal(null)} className="p-2 text-muted hover:text-foreground hover:bg-surface rounded-xl transition-all">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5">
+                <p className="text-xs text-muted">
+                  أدخل بيانات الشحن عشان العميل يقدر يتابع أوردره بتوقع وصول دقيق.
+                </p>
+
+                {/* Governorate */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted block">
+                    المحافظة <span className="text-accent">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={shipForm.governorate}
+                    onChange={(e) => setShipForm((f) => ({ ...f, governorate: e.target.value }))}
+                    placeholder="مثال: القاهرة، الجيزة، الإسكندرية..."
+                    className="w-full px-4 py-3 bg-surface border border-border-light rounded-xl text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-purple-500/50 transition-colors"
+                  />
+                  <p className="text-[10px] text-muted">
+                    القاهرة/الجيزة: يوصل غداً أو بعده · الإسكندرية: 3 أيام · باقي المحافظات: 3-5 أيام
+                  </p>
+                </div>
+
+                {/* Ship Date */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted block">
+                    تاريخ الشحن <span className="text-accent">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={shipForm.date}
+                    onChange={(e) => setShipForm((f) => ({ ...f, date: e.target.value }))}
+                    className="w-full px-4 py-3 bg-surface border border-border-light rounded-xl text-sm text-foreground focus:outline-none focus:border-purple-500/50 transition-colors"
+                  />
+                </div>
+
+                {/* Shipping Company */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted block">شركة الشحن (اختياري)</label>
+                  <input
+                    type="text"
+                    value={shipForm.company}
+                    onChange={(e) => setShipForm((f) => ({ ...f, company: e.target.value }))}
+                    placeholder="مثال: J&T، Aramex، Bosta..."
+                    className="w-full px-4 py-3 bg-surface border border-border-light rounded-xl text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-purple-500/50 transition-colors"
+                  />
+                </div>
+
+                {/* Tracking Number */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted block">رقم البوليصة (اختياري)</label>
+                  <input
+                    type="text"
+                    value={shipForm.tracking}
+                    onChange={(e) => setShipForm((f) => ({ ...f, tracking: e.target.value }))}
+                    placeholder="رقم التتبع عند شركة الشحن"
+                    className="w-full px-4 py-3 bg-surface border border-border-light rounded-xl text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-purple-500/50 transition-colors"
+                  />
+                </div>
+
+                {/* Confirm */}
+                <button
+                  onClick={confirmShipOrder}
+                  disabled={shipSaving || !shipForm.governorate.trim()}
+                  className="w-full h-12 bg-purple-500 hover:opacity-90 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <Truck size={14} />
+                  {shipSaving ? "جاري الحفظ..." : "تأكيد الشحن"}
+                </button>
               </div>
             </div>
           </div>
