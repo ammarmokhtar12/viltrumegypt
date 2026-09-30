@@ -121,6 +121,9 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
           <Link href="/exchange" className={linkClass}>
             Exchange
           </Link>
+          <Link href="/tracking" className={linkClass}>
+            Track Order
+          </Link>
           <a
             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201132507383"}`}
             target="_blank"
