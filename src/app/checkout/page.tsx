@@ -765,7 +765,7 @@ export default function CheckoutPage() {
                                  Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied!
                               </p>
                               <p className="text-[10px] text-emerald-600 font-medium">
-                                 You saved {appliedCoupon.discount_percent ?? 7}% on your order
+                                 Discount applied to your order
                               </p>
                            </div>
                         </div>
@@ -862,3 +862,4 @@ export default function CheckoutPage() {
     </main>
   );
 }
+
