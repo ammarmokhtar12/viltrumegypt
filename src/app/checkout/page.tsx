@@ -41,9 +41,16 @@ export default function CheckoutPage() {
     id: string;
     coupon_code: string;
     commission_percent: number;
+    discount_percent?: number;
+    is_special?: boolean;
   } | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
+
+  // Special hardcoded coupons (no DB lookup needed)
+  const SPECIAL_COUPONS: Record<string, { discount_percent: number; commission_percent: number }> = {
+    WB: { discount_percent: 5, commission_percent: 0 },
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -112,6 +119,20 @@ export default function CheckoutPage() {
     setCouponError(null);
     try {
       const cleanCode = code.trim().toUpperCase();
+
+      // Check special hardcoded coupons first
+      if (SPECIAL_COUPONS[cleanCode]) {
+        const special = SPECIAL_COUPONS[cleanCode];
+        setAppliedCoupon({
+          id: `special_${cleanCode}`,
+          coupon_code: cleanCode,
+          commission_percent: special.commission_percent,
+          discount_percent: special.discount_percent,
+          is_special: true,
+        });
+        toast.success(`Coupon "${cleanCode}" applied! You get ${special.discount_percent}% off.`);
+        return;
+      }
 
       const { data: influencer, error } = await supabase
         .from("influencers")
@@ -301,10 +322,17 @@ export default function CheckoutPage() {
   const cartItems = items;
 
   const FAR_CITIES = ["أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "البحر الأحمر", "الوادي الجديد", "مطروح", "شمال سيناء", "جنوب سيناء"];
-  const shippingFee = formData?.city && FAR_CITIES.includes(formData.city) ? 90 : 80;
 
-  const discountAmount = appliedCoupon ? Math.round(cartTotal * 0.07) : 0;
+  // Discount: special coupons use their own discount_percent, influencer coupons use 7%
+  const discountPct = appliedCoupon
+    ? (appliedCoupon.discount_percent ?? 7)
+    : 0;
+  const discountAmount = appliedCoupon ? Math.round(cartTotal * (discountPct / 100)) : 0;
   const finalTotal = cartTotal - discountAmount;
+
+  // Free shipping when cart (after discount) >= 1000, otherwise 80 or 90 for far cities
+  const effectiveTotalForShipping = finalTotal;
+  const shippingFee = effectiveTotalForShipping >= 1000 ? 0 : (formData?.city && FAR_CITIES.includes(formData.city) ? 90 : 80);
 
   if (cartItems.length === 0) {
     return (
@@ -737,7 +765,7 @@ export default function CheckoutPage() {
                                  Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied!
                               </p>
                               <p className="text-[10px] text-emerald-600 font-medium">
-                                 You saved 7% on your order
+                                 You saved {appliedCoupon.discount_percent ?? 7}% on your order
                               </p>
                            </div>
                         </div>
