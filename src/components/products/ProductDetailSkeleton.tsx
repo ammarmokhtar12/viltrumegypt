@@ -2,9 +2,9 @@ import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-function Shimmer({ className }: { className: string }) {
+function Shimmer({ className, style }: { className: string; style?: React.CSSProperties }) {
   return (
-    <div className={`relative overflow-hidden bg-secondary/10 ${className}`}>
+    <div className={`relative overflow-hidden bg-secondary/10 ${className}`} style={style}>
       <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.6s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
     </div>
   );
