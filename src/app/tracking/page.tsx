@@ -61,9 +61,9 @@ export default function TrackingPage() {
     setError("");
     setOrder(null);
 
-    const { data } = await supabase
+    const { data, error: fetchErr } = await supabase
       .from("orders")
-      .select("order_number, customer_name, customer_address, customer_governorate, status, items, total, tracking_number, shipping_company, shipped_at, created_at")
+      .select("*")
       .eq("order_number", num)
       .eq("customer_phone", ph)
       .single();
@@ -71,6 +71,7 @@ export default function TrackingPage() {
     if (data) {
       setOrder(data);
     } else {
+      console.error("Tracking lookup failed:", fetchErr);
       setError("مش لاقيين الأوردر ده — تأكد من رقم الأوردر ورقم التليفون");
     }
     setLoading(false);
