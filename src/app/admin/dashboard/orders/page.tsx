@@ -431,7 +431,7 @@ const PRINT_STYLES = `
 `;
 
 // ─── Shared Order Card for Print ───────────────────────────────────────────────
-function PrintOrderCard({ order, cardClass = "" }: { order: Order; cardClass?: string }) {
+function PrintOrderCard({ order, cardClass = "", showShippedChecklist = false }: { order: Order; cardClass?: string; showShippedChecklist?: boolean }) {
   const items = Array.isArray(order.items) ? order.items : [];
   return (
     <div className={`p-card ${cardClass}`}>
@@ -484,6 +484,19 @@ function PrintOrderCard({ order, cardClass = "" }: { order: Order; cardClass?: s
         <span className="p-total-label">Total incl. shipping</span>
         <span className="p-total-val">{order.total.toLocaleString()} EGP</span>
       </div>
+
+      {showShippedChecklist && (
+        <div style={{ marginTop: "2mm", paddingTop: "2mm", borderTop: "1px dashed #ccc", display: "flex", justifyContent: "space-around", fontSize: "8pt", fontWeight: "bold" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "2mm" }}>
+            <div style={{ width: "4mm", height: "4mm", border: "1.5px solid #111", borderRadius: "1mm" }}></div>
+            وصل واتقفل
+          </label>
+          <label style={{ display: "flex", alignItems: "center", gap: "2mm" }}>
+            <div style={{ width: "4mm", height: "4mm", border: "1.5px solid #111", borderRadius: "1mm" }}></div>
+            مرتجع
+          </label>
+        </div>
+      )}
     </div>
   );
 }
@@ -491,15 +504,16 @@ function PrintOrderCard({ order, cardClass = "" }: { order: Order; cardClass?: s
 // ─── Print Sheet (hidden, only for @media print) ───────────────────────────────
 // Vercel webhook trigger comment
 // A4 ورق طابعة عادي — 2 عمود × 3 صفوف = 6 أوردرات في الصفحة
-function PrintSheet({ pendingOrders, printMode }: { pendingOrders: Order[]; printMode: "pending" | "confirmed" }) {
+function PrintSheet({ pendingOrders, printMode, batchDate }: { pendingOrders: Order[]; printMode: "pending" | "confirmed" | "shipped_batch"; batchDate?: string }) {
   const PER_PAGE = 6;
   const pages: Order[][] = [];
   for (let i = 0; i < pendingOrders.length; i += PER_PAGE) {
     pages.push(pendingOrders.slice(i, i + PER_PAGE));
   }
 
-  const sheetId = printMode === "pending" ? "print-sheet-pending" : "print-sheet-confirmed";
+  const sheetId = printMode === "pending" ? "print-sheet-pending" : printMode === "shipped_batch" ? "print-sheet-shipped" : "print-sheet-confirmed";
   const cardClass = printMode === "confirmed" ? "p-card-confirmed" : "";
+  const showShippedChecklist = printMode === "shipped_batch";
 
   // Calculate aggregation for the print-friendly list at the end
   const map: Record<string, number> = {};
@@ -533,7 +547,7 @@ function PrintSheet({ pendingOrders, printMode }: { pendingOrders: Order[]; prin
       {pages.map((pageOrders, pi) => (
         <div key={pi} className="print-page">
           {pageOrders.map((order) => (
-            <PrintOrderCard key={order.id} order={order} cardClass={cardClass} />
+            <PrintOrderCard key={order.id} order={order} cardClass={cardClass} showShippedChecklist={showShippedChecklist} />
           ))}
           {pageOrders.length < PER_PAGE &&
             Array.from({ length: PER_PAGE - pageOrders.length }).map((_, i) => (
@@ -548,7 +562,7 @@ function PrintSheet({ pendingOrders, printMode }: { pendingOrders: Order[]; prin
           <div className="print-analysis-header">
             <div>
               <h1 className="print-analysis-title">
-                {printMode === "pending" ? "Production List (Pending)" : "Picking List (Confirmed)"}
+                {printMode === "pending" ? "Production List (Pending)" : printMode === "shipped_batch" ? `Shipped Batch (${batchDate})` : "Picking List (Confirmed)"}
               </h1>
               <p style={{ fontSize: "8.5pt", color: "#666", marginTop: "1mm", fontWeight: 700 }}>
                 Viltrum Egypt Operations Protocol
@@ -639,7 +653,9 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
-  const [printMode, setPrintMode] = useState<"pending" | "confirmed">("pending");
+  const [printMode, setPrintMode] = useState<"pending" | "confirmed" | "shipped_batch">("pending");
+  const [shippedBatchModalOpen, setShippedBatchModalOpen] = useState(false);
+  const [selectedShippedDate, setSelectedShippedDate] = useState<string | null>(null);
 
   // ─── Edit Order state ────────────────────────────────────────────────────────
   const [editModal, setEditModal] = useState<Order | null>(null);
@@ -938,6 +954,18 @@ export default function AdminOrdersPage() {
   const pendingCount = pendingOrders.length;
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
   const confirmedCount = confirmedOrders.length;
+  
+  const shippedOrders = orders.filter((o) => o.status === "shipped");
+  const shippedBatches = shippedOrders.reduce((acc, order) => {
+    if (!order.shipped_at) return acc;
+    // Extract local date (YYYY-MM-DD)
+    const date = new Date(order.shipped_at);
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    if (!acc[dateStr]) acc[dateStr] = [];
+    acc[dateStr].push(order);
+    return acc;
+  }, {} as Record<string, Order[]>);
+  const shippedBatchDates = Object.keys(shippedBatches).sort((a, b) => b.localeCompare(a));
 
   if (loading) {
     return (
@@ -957,6 +985,9 @@ export default function AdminOrdersPage() {
       {/* Hidden Print Sheets — one for pending, one for confirmed */}
       {printMode === "pending" && <PrintSheet pendingOrders={pendingOrders} printMode="pending" />}
       {printMode === "confirmed" && <PrintSheet pendingOrders={confirmedOrders} printMode="confirmed" />}
+      {printMode === "shipped_batch" && selectedShippedDate && (
+        <PrintSheet pendingOrders={shippedBatches[selectedShippedDate] || []} printMode="shipped_batch" batchDate={selectedShippedDate} />
+      )}
 
       <div className="space-y-12 animate-fade-in max-w-[1400px] mx-auto print:hidden">
         {/* Header */}
@@ -1023,6 +1054,17 @@ export default function AdminOrdersPage() {
             >
               <Printer size={14} />
               Print Confirmed ({confirmedCount})
+            </button>
+            
+            {/* Print Shipped Batches Button */}
+            <button
+              onClick={() => setShippedBatchModalOpen(true)}
+              disabled={shippedBatchDates.length === 0}
+              className="flex items-center gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-xl bg-purple-500 text-white hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-purple-500/20"
+              title="Print shipped orders by batch"
+            >
+              <Printer size={14} />
+              طباعة دفعات الشحن
             </button>
 
             <button
@@ -1150,7 +1192,15 @@ export default function AdminOrdersPage() {
                           <span className="opacity-40">·</span>
                           <span className="text-primary/80 font-mono select-all bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10">{order.customer_phone}</span>
                           <span className="opacity-40">·</span>
-                          <span>{new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span>
+                          <span title="Created At">{new Date(order.created_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</span>
+                          {order.shipped_at && (
+                            <>
+                              <span className="opacity-40">·</span>
+                              <span className="text-purple-500 bg-purple-500/10 px-1.5 py-0.5 rounded" title="Shipped At">
+                                Shipped: {new Date(order.shipped_at).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}
+                              </span>
+                            </>
+                          )}
                         </p>
                       </div>
                     </div>
@@ -1801,6 +1851,62 @@ export default function AdminOrdersPage() {
                   <Truck size={14} />
                   {shipSaving ? "جاري الحفظ..." : "تأكيد الشحن"}
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Shipped Batch Selection Modal */}
+        {shippedBatchModalOpen && (
+          <div
+            className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 animate-fade-in"
+            onClick={() => setShippedBatchModalOpen(false)}
+          >
+            <div
+              className="bg-background max-w-lg w-full rounded-3xl border border-purple-500/30 shadow-2xl shadow-purple-500/10 animate-in zoom-in-95 duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="h-16 px-6 flex items-center justify-between border-b border-border-light bg-purple-500/5 rounded-t-3xl">
+                <h3 className="text-xs font-bold text-foreground uppercase tracking-widest flex items-center gap-2">
+                  <Printer size={14} className="text-purple-500" />
+                  اختر دفعة الشحن لطباعتها
+                </h3>
+                <button
+                  onClick={() => setShippedBatchModalOpen(false)}
+                  className="p-2 text-muted hover:text-foreground hover:bg-surface rounded-xl transition-all"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
+                {shippedBatchDates.length === 0 ? (
+                  <p className="text-sm text-muted text-center py-4">لا توجد طلبات قيد الشحن حالياً.</p>
+                ) : (
+                  shippedBatchDates.map((dateStr) => {
+                    const batchOrders = shippedBatches[dateStr];
+                    return (
+                      <button
+                        key={dateStr}
+                        onClick={() => {
+                          setSelectedShippedDate(dateStr);
+                          setPrintMode("shipped_batch");
+                          setShippedBatchModalOpen(false);
+                          setTimeout(() => window.print(), 100);
+                        }}
+                        className="w-full p-4 flex items-center justify-between bg-surface border border-border-light rounded-xl hover:border-purple-500/50 hover:bg-purple-500/5 transition-all text-left"
+                      >
+                        <div>
+                          <p className="text-sm font-bold text-foreground mb-1">
+                            شحنات يوم: {new Date(dateStr).toLocaleDateString("ar-EG", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                          </p>
+                          <p className="text-[10px] font-bold text-muted uppercase tracking-widest">
+                            {batchOrders.length} طلبات
+                          </p>
+                        </div>
+                        <Printer size={16} className="text-purple-500" />
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
