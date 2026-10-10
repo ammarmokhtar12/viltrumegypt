@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
-import {
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { supabase } from "@/lib/supabase";
+import React, {
   Search,
   ChevronDown,
   Check,
@@ -167,7 +167,7 @@ const PRINT_STYLES = `
 `;
 
 // ─── Print Order Card ────────────────────────────────────────────────────────
-function PrintOrderCard({ order, cardClass = "" }: { order: any; cardClass?: string }) {
+function PrintOrderCard({ order, cardClass = "", printMode }: { order: any; cardClass?: string; printMode?: string }) {
   const items = Array.isArray(order.items) ? order.items : [];
   return (
     <div className={`p-card ${cardClass}`}>
@@ -212,12 +212,24 @@ function PrintOrderCard({ order, cardClass = "" }: { order: any; cardClass?: str
         <span className="p-total-label">Total incl. shipping</span>
         <span className="p-total-val">{Number(order.total).toLocaleString()} EGP</span>
       </div>
+      {printMode === "shipped" && (
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "2mm", borderTop: "1px dashed #ccc", paddingTop: "2mm" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "1mm", fontSize: "10pt", fontWeight: "bold" }}>
+            <div style={{ width: "4mm", height: "4mm", border: "1px solid #111", borderRadius: "1mm" }}></div>
+            نزل وخد فلوسه
+          </label>
+          <label style={{ display: "flex", alignItems: "center", gap: "1mm", fontSize: "10pt", fontWeight: "bold" }}>
+            <div style={{ width: "4mm", height: "4mm", border: "1px solid #111", borderRadius: "1mm" }}></div>
+            خدناه مرتجع
+          </label>
+        </div>
+      )}
     </div>
   );
 }
 
 // ─── Print Sheet ─────────────────────────────────────────────────────────────
-function PrintSheet({ ordersList, printMode }: { ordersList: any[]; printMode: "pending" | "confirmed" }) {
+function PrintSheet({ ordersList, printMode }: { ordersList: any[]; printMode: "pending" | "confirmed" | "shipped" }) {
   const PER_PAGE = 6;
   const pages: any[][] = [];
   for (let i = 0; i < ordersList.length; i += PER_PAGE) {
@@ -232,7 +244,7 @@ function PrintSheet({ ordersList, printMode }: { ordersList: any[]; printMode: "
       {pages.map((pageOrders, pi) => (
         <div key={pi} className="print-page">
           {pageOrders.map((order) => (
-            <PrintOrderCard key={order.id} order={order} cardClass={cardClass} />
+            <PrintOrderCard key={order.id} order={order} cardClass={cardClass} printMode={printMode} />
           ))}
           {pageOrders.length < PER_PAGE &&
             Array.from({ length: PER_PAGE - pageOrders.length }).map((_, i) => (
@@ -246,7 +258,7 @@ function PrintSheet({ ordersList, printMode }: { ordersList: any[]; printMode: "
           <div className="print-analysis-header">
             <div>
               <h1 className="print-analysis-title">
-                {printMode === "pending" ? "Production List (Pending)" : "Picking List (Confirmed)"}
+                {printMode === "pending" ? "Production List (Pending)" : printMode === "confirmed" ? "Picking List (Confirmed)" : "Shipped Orders List"}
               </h1>
               <p style={{ fontSize: "8.5pt", color: "#666", marginTop: "1mm", fontWeight: 700 }}>Viltrum Egypt Operations</p>
             </div>
@@ -443,7 +455,7 @@ export default function OrdersPage() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [showConfirmedAnalysis, setShowConfirmedAnalysis] = useState(false);
-  const [printMode, setPrintMode] = useState<"pending" | "confirmed">("pending");
+  const [printMode, setPrintMode] = useState<"pending" | "confirmed" | "shipped">("pending");
   const [shippingIds, setShippingIds] = useState<Set<string>>(new Set());
   const [selectedForShip, setSelectedForShip] = useState<Set<string>>(new Set());
   const [safwaLoading, setSafwaLoading] = useState<Set<string>>(new Set());
@@ -498,7 +510,7 @@ export default function OrdersPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company")
+      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company, updated_at")
       .order("created_at", { ascending: false })
       .limit(5000);
     if (error) {
@@ -669,41 +681,50 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
   const pendingCount = pendingOrders.length;
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
   const confirmedCount = confirmedOrders.length;
+  const shippedOrders = orders.filter((o) => o.status === "shipped");
+  const shippedCount = shippedOrders.length;
 
-  const filtered = useMemo(() => orders.filter((o) => {
-    const matchSearch = search === "" ||
-      String(o.order_number).includes(search) ||
-      o.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
-      o.customer_phone?.includes(search) ||
-      o.customer_address?.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === "all" || o.status === statusFilter;
-    const matchPayment = paymentFilter === "all" ||
-      (paymentFilter === "collected" && o.payment_collected) ||
-      (paymentFilter === "not_collected" && !o.payment_collected);
+    let result = orders.filter((o) => {
+      const matchSearch = search === "" ||
+        String(o.order_number).includes(search) ||
+        o.customer_name?.toLowerCase().includes(search.toLowerCase()) ||
+        o.customer_phone?.includes(search) ||
+        o.customer_address?.toLowerCase().includes(search.toLowerCase());
+      const matchStatus = statusFilter === "all" || o.status === statusFilter;
+      const matchPayment = paymentFilter === "all" ||
+        (paymentFilter === "collected" && o.payment_collected) ||
+        (paymentFilter === "not_collected" && !o.payment_collected);
 
-    let matchDate = true;
-    if (dateFilter !== "all") {
-      const orderDate = new Date(o.created_at);
-      const now = new Date();
-      if (dateFilter === "today") {
-        matchDate = orderDate.toDateString() === now.toDateString();
-      } else if (dateFilter === "7days") {
-        const d = new Date(); d.setDate(d.getDate() - 7);
-        matchDate = orderDate >= d;
-      } else if (dateFilter === "30days") {
-        const d = new Date(); d.setDate(d.getDate() - 30);
-        matchDate = orderDate >= d;
-      } else if (dateFilter === "custom") {
-        if (dateFrom) matchDate = orderDate >= new Date(dateFrom);
-        if (dateTo && matchDate) {
-          const to = new Date(dateTo); to.setHours(23, 59, 59);
-          matchDate = orderDate <= to;
+      let matchDate = true;
+      if (dateFilter !== "all") {
+        const orderDate = new Date(o.created_at);
+        const now = new Date();
+        if (dateFilter === "today") {
+          matchDate = orderDate.toDateString() === now.toDateString();
+        } else if (dateFilter === "7days") {
+          const d = new Date(); d.setDate(d.getDate() - 7);
+          matchDate = orderDate >= d;
+        } else if (dateFilter === "30days") {
+          const d = new Date(); d.setDate(d.getDate() - 30);
+          matchDate = orderDate >= d;
+        } else if (dateFilter === "custom") {
+          if (dateFrom) matchDate = orderDate >= new Date(dateFrom);
+          if (dateTo && matchDate) {
+            const to = new Date(dateTo); to.setHours(23, 59, 59);
+            matchDate = orderDate <= to;
+          }
         }
       }
+
+      return matchSearch && matchStatus && matchPayment && matchDate;
+    });
+
+    if (statusFilter === "shipped") {
+      result.sort((a, b) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime());
     }
 
-    return matchSearch && matchStatus && matchPayment && matchDate;
-  }), [orders, search, statusFilter, paymentFilter, dateFilter, dateFrom, dateTo]);
+    return result;
+  }, [orders, search, statusFilter, paymentFilter, dateFilter, dateFrom, dateTo]);
 
   const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
@@ -723,6 +744,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
       {/* Hidden Print Sheets */}
       {printMode === "pending" && <PrintSheet ordersList={pendingOrders} printMode="pending" />}
       {printMode === "confirmed" && <PrintSheet ordersList={confirmedOrders} printMode="confirmed" />}
+      {printMode === "shipped" && <PrintSheet ordersList={shippedOrders} printMode="shipped" />}
 
       <div className="space-y-6 pb-12 print:hidden">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -787,6 +809,17 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
             >
               <Printer size={13} />
               Print ({confirmedCount})
+            </button>
+
+            {/* Print Shipped */}
+            <button
+              onClick={() => { setPrintMode("shipped"); setTimeout(() => window.print(), 50); }}
+              disabled={shippedCount === 0}
+              className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl bg-indigo-500 text-white hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-indigo-500/20"
+              title="Print shipped orders"
+            >
+              <Printer size={13} />
+              Print ({shippedCount})
             </button>
 
             {/* Ship Selected to Panther */}
@@ -876,13 +909,35 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
 
         {/* Orders List */}
         <div className="space-y-3">
-          {filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((order) => {
-            const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
-            const isExpanded = expandedOrder === order.id;
-            const items = order.items || [];
+          {(() => {
+            const pageOrders = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+            let lastDate = "";
+            
+            return pageOrders.map((order) => {
+              const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
+              const isExpanded = expandedOrder === order.id;
+              const items = order.items || [];
+              
+              let dateHeader = null;
+              if (statusFilter === "shipped") {
+                const orderDateStr = new Date(order.updated_at || order.created_at).toLocaleDateString("en-GB");
+                if (orderDateStr !== lastDate) {
+                  dateHeader = (
+                    <div key={`header-${orderDateStr}`} className="mt-6 mb-3 first:mt-0 flex items-center gap-3">
+                      <span className="px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-lg text-xs font-bold uppercase tracking-wider">
+                        Shipped on {orderDateStr}
+                      </span>
+                      <div className="h-px bg-zinc-800 flex-1"></div>
+                    </div>
+                  );
+                  lastDate = orderDateStr;
+                }
+              }
 
-            return (
-              <div key={order.id} className={`bg-zinc-900/60 border rounded-2xl overflow-hidden ${selectedForShip.has(order.id) ? "border-purple-500/40" : "border-zinc-800/60"}`}>
+              return (
+                <React.Fragment key={order.id}>
+                  {dateHeader}
+                  <div className={`bg-zinc-900/60 border rounded-2xl overflow-hidden ${selectedForShip.has(order.id) ? "border-purple-500/40" : "border-zinc-800/60"}`}>
                 <div
                   className="flex items-center gap-4 p-4 sm:p-5 cursor-pointer hover:bg-zinc-800/20 transition-colors"
                   onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
@@ -1113,8 +1168,9 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                   </div>
                 )}
               </div>
+                </React.Fragment>
             );
-          })}
+          })})()}
 
           {filtered.length === 0 && (
             <div className="text-center py-20">
