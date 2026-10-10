@@ -684,6 +684,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
   const shippedOrders = orders.filter((o) => o.status === "shipped");
   const shippedCount = shippedOrders.length;
 
+  const filtered = useMemo(() => {
     let result = orders.filter((o) => {
       const matchSearch = search === "" ||
         String(o.order_number).includes(search) ||
