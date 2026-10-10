@@ -2,8 +2,8 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import React, { supabase } from "@/lib/supabase";
-import React, {
+import { supabase } from "@/lib/supabase";
+import {
   Search,
   ChevronDown,
   Check,
