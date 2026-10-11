@@ -48,7 +48,8 @@ export default function AnalyticsPage() {
   const [adSpend, setAdSpend] = useState<any[]>([]);
   const [batches, setBatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState<"7d" | "30d" | "90d" | "all" | "custom">("30d");
+  const [period, setPeriod] = useState<"7d" | "30d" | "90d" | "all" | "custom" | "month">("30d");
+  const [selectedMonth, setSelectedMonth] = useState("");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
 
@@ -69,67 +70,104 @@ export default function AnalyticsPage() {
     setLoading(false);
   };
 
-  const filteredOrders = useMemo(() => {
-    if (period === "all") return orders;
-    if (period === "custom") {
-      let f = orders;
-      if (customStart) f = f.filter(o => new Date(o.created_at) >= new Date(customStart));
-      if (customEnd) {
-        const end = new Date(customEnd);
-        end.setHours(23, 59, 59, 999);
-        f = f.filter(o => new Date(o.created_at) <= end);
-      }
-      return f;
+  const getItemDate = (item: any): string => {
+    const d = item.date || item.created_at;
+    if (!d) return "";
+    return d.includes("T") ? d.split("T")[0] : d.slice(0, 10);
+  };
+
+  const availableMonths = useMemo(() => {
+    const set = new Set<string>();
+    orders.forEach((o: any) => {
+      const d = getItemDate(o);
+      if (d) set.add(d.substring(0, 7));
+    });
+    expenses.forEach((e: any) => {
+      const d = getItemDate(e);
+      if (d) set.add(d.substring(0, 7));
+    });
+    adSpend.forEach((a: any) => {
+      const d = getItemDate(a);
+      if (d) set.add(d.substring(0, 7));
+    });
+    return Array.from(set).filter(Boolean).sort().reverse();
+  }, [orders, expenses, adSpend]);
+
+  const isDateInFilter = (dStr: string): boolean => {
+    if (!dStr) return false;
+    if (period === "all") return true;
+
+    if (period === "month") {
+      return selectedMonth ? dStr.startsWith(selectedMonth) : true;
     }
+
+    if (period === "custom") {
+      if (customStart && dStr < customStart) return false;
+      if (customEnd && dStr > customEnd) return false;
+      return true;
+    }
+
     const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
-    return orders.filter((o) => new Date(o.created_at) >= cutoff);
-  }, [orders, period, customStart, customEnd]);
+    const cutoffStr = cutoff.toISOString().split("T")[0];
+    return dStr >= cutoffStr;
+  };
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter(o => isDateInFilter(getItemDate(o)));
+  }, [orders, period, selectedMonth, customStart, customEnd]);
+
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter(e => isDateInFilter(getItemDate(e)));
+  }, [expenses, period, selectedMonth, customStart, customEnd]);
+
+  const filteredAdSpend = useMemo(() => {
+    return adSpend.filter(a => isDateInFilter(getItemDate(a)));
+  }, [adSpend, period, selectedMonth, customStart, customEnd]);
+
+  const filteredBatches = useMemo(() => {
+    return batches.filter(b => isDateInFilter(getItemDate(b)));
+  }, [batches, period, selectedMonth, customStart, customEnd]);
 
   const analytics = useMemo(() => {
     const validOrders = filteredOrders.filter((o: any) => o.status !== "cancelled" && o.status !== "returned");
     const revenue = validOrders.reduce((s: number, o: any) => s + Number(o.total || 0), 0);
-    const totalAdSpend = adSpend.reduce((s: number, a: any) => s + Number(a.amount || 0), 0);
-
-    // Filter expenses by date within the selected period
-    const filteredExpensesList = (() => {
-      if (period === "all") return expenses;
-      if (period === "custom") {
-        let f = expenses;
-        if (customStart) f = f.filter((e: any) => e.date >= customStart);
-        if (customEnd) f = f.filter((e: any) => e.date <= customEnd);
-        return f;
-      }
-      const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - days);
-      const cutoffStr = cutoff.toISOString().split("T")[0];
-      return expenses.filter((e: any) => e.date >= cutoffStr);
-    })();
-    const totalExpenses = filteredExpensesList.reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
-
-    const totalManufacturing = batches.reduce((s: number, b: any) => s + Number(b.total_cost || 0), 0);
+    const totalAdSpend = filteredAdSpend.reduce((s: number, a: any) => s + Number(a.amount || 0), 0);
+    const totalExpenses = filteredExpenses.reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
+    const totalManufacturing = filteredBatches.reduce((s: number, b: any) => s + Number(b.total_cost || 0), 0);
     const totalCost = totalAdSpend + totalExpenses + totalManufacturing;
     const profit = revenue - totalCost;
 
-    // Revenue by day
+    // Revenue & Cost by day (using strictly filtered period data)
     const revenueByDay: Record<string, number> = {};
     const costByDay: Record<string, number> = {};
+
     validOrders.forEach((o: any) => {
-      const d = new Date(o.created_at).toISOString().split("T")[0];
-      revenueByDay[d] = (revenueByDay[d] || 0) + Number(o.total || 0);
+      const d = getItemDate(o);
+      if (d) revenueByDay[d] = (revenueByDay[d] || 0) + Number(o.total || 0);
     });
-    adSpend.forEach((a: any) => {
-      const d = a.date;
-      costByDay[d] = (costByDay[d] || 0) + Number(a.amount || 0);
+
+    filteredAdSpend.forEach((a: any) => {
+      const d = getItemDate(a);
+      if (d) costByDay[d] = (costByDay[d] || 0) + Number(a.amount || 0);
+    });
+
+    filteredExpenses.forEach((e: any) => {
+      const d = getItemDate(e);
+      if (d) costByDay[d] = (costByDay[d] || 0) + Number(e.amount || 0);
+    });
+
+    filteredBatches.forEach((b: any) => {
+      const d = getItemDate(b);
+      if (d) costByDay[d] = (costByDay[d] || 0) + Number(b.total_cost || 0);
     });
 
     const allDays = [...new Set([...Object.keys(revenueByDay), ...Object.keys(costByDay)])].sort();
     const revenueSeries = allDays.map((d) => revenueByDay[d] || 0);
     const costSeries = allDays.map((d) => costByDay[d] || 0);
     const profitSeries = allDays.map((d) => (revenueByDay[d] || 0) - (costByDay[d] || 0));
-    const ordersSeries = allDays.map((d) => validOrders.filter((o: any) => o.created_at?.startsWith(d)).length);
+    const ordersSeries = allDays.map((d) => validOrders.filter((o: any) => getItemDate(o) === d).length);
 
     // By product
     const productMap: Record<string, { revenue: number; qty: number }> = {};
@@ -169,8 +207,10 @@ export default function AnalyticsPage() {
     // Peak Hours
     const hourMap: Record<number, number> = {};
     filteredOrders.forEach((o: any) => {
-      const h = new Date(o.created_at).getHours();
-      hourMap[h] = (hourMap[h] || 0) + 1;
+      if (o.created_at) {
+        const h = new Date(o.created_at).getHours();
+        hourMap[h] = (hourMap[h] || 0) + 1;
+      }
     });
     const peakHours = Object.entries(hourMap)
       .map(([h, count]) => ({ hour: parseInt(h), count }))
@@ -188,14 +228,16 @@ export default function AnalyticsPage() {
       statusMap[o.status] = (statusMap[o.status] || 0) + 1;
     });
 
-    // Monthly Delivery Rate (delivered / ALL orders including cancelled & returned)
+    // Monthly Delivery Rate (across all orders to compare all months)
     const monthlyDeliveryMap: Record<string, { total: number; delivered: number }> = {};
-    filteredOrders.forEach((o: any) => {
-      const d = new Date(o.created_at);
-      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-      if (!monthlyDeliveryMap[monthKey]) monthlyDeliveryMap[monthKey] = { total: 0, delivered: 0 };
-      monthlyDeliveryMap[monthKey].total++;
-      if (o.status === "delivered") monthlyDeliveryMap[monthKey].delivered++;
+    orders.forEach((o: any) => {
+      const dStr = getItemDate(o);
+      const monthKey = dStr.substring(0, 7);
+      if (monthKey) {
+        if (!monthlyDeliveryMap[monthKey]) monthlyDeliveryMap[monthKey] = { total: 0, delivered: 0 };
+        monthlyDeliveryMap[monthKey].total++;
+        if (o.status === "delivered") monthlyDeliveryMap[monthKey].delivered++;
+      }
     });
     const monthlyDeliveryRate = Object.entries(monthlyDeliveryMap)
       .sort(([a], [b]) => a.localeCompare(b))
@@ -207,10 +249,11 @@ export default function AnalyticsPage() {
         rate: data.total > 0 ? Math.round((data.delivered / data.total) * 100) : 0,
       }));
 
-    // Monthly Expenses (based on expense date)
+    // Monthly Expenses (across all expenses based on expense payment date)
     const monthlyExpenseMap: Record<string, number> = {};
-    filteredExpensesList.forEach((e: any) => {
-      const monthKey = e.date?.substring(0, 7); // YYYY-MM
+    expenses.forEach((e: any) => {
+      const dStr = getItemDate(e);
+      const monthKey = dStr.substring(0, 7); // YYYY-MM
       if (monthKey) {
         monthlyExpenseMap[monthKey] = (monthlyExpenseMap[monthKey] || 0) + Number(e.amount || 0);
       }
@@ -230,7 +273,7 @@ export default function AnalyticsPage() {
       topProducts, topGovs, peakHours, statusMap,
       monthlyDeliveryRate, monthlyExpenses,
     };
-  }, [filteredOrders, adSpend, expenses, batches, period, customStart, customEnd]);
+  }, [filteredOrders, filteredAdSpend, filteredExpenses, filteredBatches, orders, expenses]);
 
   const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
@@ -250,6 +293,28 @@ export default function AnalyticsPage() {
           <h1 className="text-3xl font-bold text-white tracking-tight">Analytics</h1>
         </div>
         <div className="flex flex-col sm:flex-row items-end gap-3">
+          {availableMonths.length > 0 && (
+            <select
+              value={period === "month" ? selectedMonth : ""}
+              onChange={(e) => {
+                if (e.target.value) {
+                  setPeriod("month");
+                  setSelectedMonth(e.target.value);
+                }
+              }}
+              className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all cursor-pointer bg-zinc-900 ${
+                period === "month" ? "text-red-400 border-red-500/30 bg-red-500/10" : "text-zinc-500 border-zinc-800 hover:text-zinc-300"
+              }`}
+            >
+              <option value="" disabled>By Month</option>
+              {availableMonths.map((m) => (
+                <option key={m} value={m} className="bg-zinc-900 text-white">
+                  {new Date(m + "-01").toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                </option>
+              ))}
+            </select>
+          )}
+
           {period === "custom" && (
             <div className="flex gap-2">
               <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] text-white focus:outline-none" />
