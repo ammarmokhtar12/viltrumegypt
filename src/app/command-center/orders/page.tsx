@@ -310,7 +310,6 @@ function EditOrderModal({
   const [customerName, setCustomerName] = useState(order.customer_name || "");
   const [phone, setPhone] = useState(order.customer_phone || "");
   const [address, setAddress] = useState(order.customer_address || "");
-  const [notes, setNotes] = useState(order.notes || "");
   const [items, setItems] = useState<any[]>(Array.isArray(order.items) ? [...order.items] : []);
   const [total, setTotal] = useState<number | string>(order.total || 0);
   const [saving, setSaving] = useState(false);
@@ -337,7 +336,6 @@ function EditOrderModal({
       customer_name: customerName,
       customer_phone: phone,
       customer_address: address,
-      notes: notes,
       items: items,
       total: finalTotal,
       updated_at: new Date().toISOString()
@@ -351,7 +349,6 @@ function EditOrderModal({
         customer_name: customerName, 
         customer_phone: phone, 
         customer_address: address, 
-        notes, 
         items, 
         total: finalTotal 
       });
@@ -395,16 +392,6 @@ function EditOrderModal({
               value={address} 
               onChange={e => setAddress(e.target.value)}
               className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white text-sm focus:outline-none focus:border-zinc-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Notes</label>
-            <textarea 
-              value={notes} 
-              onChange={e => setNotes(e.target.value)}
-              placeholder="Order notes..."
-              className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white text-sm focus:outline-none focus:border-zinc-500 resize-none h-20"
             />
           </div>
 
