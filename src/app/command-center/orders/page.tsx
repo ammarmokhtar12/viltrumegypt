@@ -296,7 +296,17 @@ function PrintSheet({ ordersList, printMode }: { ordersList: any[]; printMode: "
 }
 
 // ─── Edit Order Modal ────────────────────────────────────────────────────────
-function EditOrderModal({ order, onClose, onSave }: { order: any; onClose: () => void; onSave: (updated: any) => void }) {
+function EditOrderModal({ 
+  order, 
+  onClose, 
+  onSave, 
+  onRequestDelete 
+}: { 
+  order: any; 
+  onClose: () => void; 
+  onSave: (updated: any) => void;
+  onRequestDelete?: (order: any) => void;
+}) {
   const [address, setAddress] = useState(order.customer_address || "");
   const [notes, setNotes] = useState(order.notes || "");
   const [items, setItems] = useState<any[]>(Array.isArray(order.items) ? [...order.items] : []);
@@ -420,14 +430,26 @@ function EditOrderModal({ order, onClose, onSave }: { order: any; onClose: () =>
             />
           </div>
 
-          <div className="flex justify-end gap-3 mt-8">
-            <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-bold text-zinc-400 hover:text-white transition-colors">
-              Cancel
+          <div className="flex items-center justify-between gap-3 mt-8">
+            <button 
+              type="button"
+              onClick={() => {
+                onClose();
+                onRequestDelete?.(order);
+              }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition-colors"
+            >
+              <Trash2 size={14} /> مسح الأوردر نهائياً
             </button>
-            <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors disabled:opacity-50">
-              {saving && <Loader2 size={16} className="animate-spin" />}
-              Save Changes
-            </button>
+            <div className="flex items-center gap-3">
+              <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-sm font-bold text-zinc-400 hover:text-white transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors disabled:opacity-50">
+                {saving && <Loader2 size={16} className="animate-spin" />}
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -460,6 +482,36 @@ export default function OrdersPage() {
   const [selectedForShip, setSelectedForShip] = useState<Set<string>>(new Set());
   const [safwaLoading, setSafwaLoading] = useState<Set<string>>(new Set());
   const [editingOrder, setEditingOrder] = useState<any>(null);
+  const [orderToDelete, setOrderToDelete] = useState<any | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const confirmDeleteOrder = async () => {
+    if (!orderToDelete) return;
+    setDeletingId(orderToDelete.id);
+    try {
+      // Delete any dependent records if present to avoid FK issues
+      try { await supabase.from("returns").delete().eq("order_id", orderToDelete.id); } catch {}
+      try { await supabase.from("replacements").delete().eq("original_order_id", orderToDelete.id); } catch {}
+      
+      const { error } = await supabase.from("orders").delete().eq("id", orderToDelete.id);
+      if (error) {
+        alert("فشل مسح الأوردر: " + error.message);
+      } else {
+        setOrders((prev) => prev.filter((o) => o.id !== orderToDelete.id));
+        setSelectedForShip((prev) => {
+          const next = new Set(prev);
+          next.delete(orderToDelete.id);
+          return next;
+        });
+        if (expandedOrder === orderToDelete.id) setExpandedOrder(null);
+        setOrderToDelete(null);
+      }
+    } catch (err: any) {
+      alert("حدث خطأ أثناء المسح: " + (err?.message || "Unknown error"));
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const toggleSelectForShip = (id: string) => {
     setSelectedForShip((prev) => {
@@ -1144,6 +1196,18 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                         {safwaLoading.has(order.id) ? <Loader2 size={12} className="animate-spin" /> : order.shipping_company === "ALSAFWA" ? <Check size={12} /> : <PackageCheck size={12} />}
                         {order.shipping_company === "ALSAFWA" ? "Added to Safwa ✓" : "Add to Safwa"}
                       </button>
+
+                      <div className="w-px bg-zinc-800 mx-1" />
+
+                      {/* Delete Order Button */}
+                      <button
+                        onClick={() => setOrderToDelete(order)}
+                        disabled={deletingId === order.id}
+                        className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-rose-400 border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 hover:border-rose-500/40 disabled:opacity-50"
+                        title="مسح الأوردر نهائياً من قاعدة البيانات"
+                      >
+                        <Trash2 size={12} /> مسح الأوردر
+                      </button>
                     </div>
 
                     {/* Waybill Input */}
@@ -1212,7 +1276,49 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
             setOrders((prev) => prev.map((o) => o.id === updated.id ? updated : o));
             setEditingOrder(null);
           }}
+          onRequestDelete={(ord) => {
+            setOrderToDelete(ord);
+          }}
         />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {orderToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-zinc-950 border border-rose-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-500">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center flex-shrink-0">
+                <Trash2 size={20} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">مسح الأوردر نهائياً؟</h3>
+                <p className="text-xs text-zinc-400">أوردر #{orderToDelete.order_number} — {orderToDelete.customer_name}</p>
+              </div>
+            </div>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              أنت على وشك مسح هذا الأوردر <strong className="text-rose-400 font-bold">حرفياً ونهائياً</strong> من قاعدة البيانات. سيتم حذفه تماماً ولن يظهر في أي تقارير أو حسابات. هذا الإجراء لا يمكن الرجوع عنه!
+            </p>
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-800/80">
+              <button
+                type="button"
+                onClick={() => setOrderToDelete(null)}
+                disabled={!!deletingId}
+                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white bg-zinc-900 border border-zinc-800 transition-colors"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteOrder}
+                disabled={!!deletingId}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 border border-rose-500/30 flex items-center gap-2 transition-colors disabled:opacity-50"
+              >
+                {deletingId ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                نعم، امسح الأوردر حرفياً
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
