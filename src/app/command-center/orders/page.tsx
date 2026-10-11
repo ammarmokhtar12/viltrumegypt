@@ -307,6 +307,8 @@ function EditOrderModal({
   onSave: (updated: any) => void;
   onRequestDelete?: (order: any) => void;
 }) {
+  const [customerName, setCustomerName] = useState(order.customer_name || "");
+  const [phone, setPhone] = useState(order.customer_phone || "");
   const [address, setAddress] = useState(order.customer_address || "");
   const [notes, setNotes] = useState(order.notes || "");
   const [items, setItems] = useState<any[]>(Array.isArray(order.items) ? [...order.items] : []);
@@ -332,7 +334,10 @@ function EditOrderModal({
     const finalTotal = parseFloat(total as string) || 0;
 
     const { error } = await supabase.from("orders").update({
+      customer_name: customerName,
+      customer_phone: phone,
       customer_address: address,
+      notes: notes,
       items: items,
       total: finalTotal,
       updated_at: new Date().toISOString()
@@ -341,7 +346,15 @@ function EditOrderModal({
     if (error) {
       alert("Error saving: " + error.message);
     } else {
-      onSave({ ...order, customer_address: address, notes, items, total: finalTotal });
+      onSave({ 
+        ...order, 
+        customer_name: customerName, 
+        customer_phone: phone, 
+        customer_address: address, 
+        notes, 
+        items, 
+        total: finalTotal 
+      });
     }
     setSaving(false);
   };
@@ -355,8 +368,29 @@ function EditOrderModal({
         </div>
 
         <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Customer Name (اسم العميل)</label>
+              <input 
+                value={customerName} 
+                onChange={e => setCustomerName(e.target.value)}
+                placeholder="اسم العميل"
+                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white text-sm focus:outline-none focus:border-zinc-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Customer Phone (رقم التليفون)</label>
+              <input 
+                value={phone} 
+                onChange={e => setPhone(e.target.value)}
+                placeholder="01xxxxxxxxx"
+                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white text-sm focus:outline-none focus:border-zinc-500 font-mono"
+              />
+            </div>
+          </div>
+
           <div>
-            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Address</label>
+            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Address (العنوان)</label>
             <input 
               value={address} 
               onChange={e => setAddress(e.target.value)}
