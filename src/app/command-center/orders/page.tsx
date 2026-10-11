@@ -489,7 +489,26 @@ export default function OrdersPage() {
     if (!orderToDelete) return;
     setDeletingId(orderToDelete.id);
     try {
-      // Delete any dependent records if present to avoid FK issues
+      // 1. Try server-side deletion via API (uses Service Role Key to bypass RLS)
+      const res = await fetch("/api/admin/orders/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: orderToDelete.id }),
+      });
+
+      if (res.ok) {
+        setOrders((prev) => prev.filter((o) => o.id !== orderToDelete.id));
+        setSelectedForShip((prev) => {
+          const next = new Set(prev);
+          next.delete(orderToDelete.id);
+          return next;
+        });
+        if (expandedOrder === orderToDelete.id) setExpandedOrder(null);
+        setOrderToDelete(null);
+        return;
+      }
+
+      // 2. Fallback to direct client-side Supabase delete if API returns error
       try { await supabase.from("returns").delete().eq("order_id", orderToDelete.id); } catch {}
       try { await supabase.from("replacements").delete().eq("original_order_id", orderToDelete.id); } catch {}
       
