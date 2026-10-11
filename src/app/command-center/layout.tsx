@@ -58,23 +58,49 @@ export default function CommandCenterLayout({ children }: { children: React.Reac
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
+      // Check if we already verified recently (within 5 minutes)
+      const cachedAuth = sessionStorage.getItem("cc_auth");
+      if (cachedAuth) {
+        const parsed = JSON.parse(cachedAuth);
+        const elapsed = Date.now() - parsed.ts;
+        if (elapsed < 5 * 60 * 1000 && parsed.ok) {
+          setAuthenticated(true);
+          setChecking(false);
+          return;
+        }
+      }
+
       try {
         const res = await fetch("/api/admin/check");
-        if (res.ok) setAuthenticated(true);
-        else router.push("/admin");
+        if (cancelled) return;
+        if (res.ok) {
+          setAuthenticated(true);
+          sessionStorage.setItem("cc_auth", JSON.stringify({ ok: true, ts: Date.now() }));
+        } else {
+          sessionStorage.removeItem("cc_auth");
+          router.push("/admin");
+        }
       } catch {
+        if (cancelled) return;
+        sessionStorage.removeItem("cc_auth");
         router.push("/admin");
       } finally {
-        setChecking(false);
+        if (!cancelled) setChecking(false);
       }
     })();
+
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
+
+    return () => { cancelled = true; };
   }, [router]);
 
   const handleLogout = async () => {
+    sessionStorage.removeItem("cc_auth");
     await fetch("/api/admin/logout", { method: "POST" });
     router.push("/admin");
   };

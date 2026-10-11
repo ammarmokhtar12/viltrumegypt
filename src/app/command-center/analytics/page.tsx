@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
-import { TrendingUp, BarChart3, MapPin, Package, RefreshCw, Clock } from "lucide-react";
+import { TrendingUp, BarChart3, MapPin, Package, RefreshCw, Clock, CheckCircle, Wallet } from "lucide-react";
 
 const EGYPT_GOVERNORATES = [
   "القاهرة", "الجيزة", "الاسكندرية", "الدقهلية", "الشرقية", "المنوفية", "القليوبية",
@@ -91,7 +91,24 @@ export default function AnalyticsPage() {
     const validOrders = filteredOrders.filter((o: any) => o.status !== "cancelled" && o.status !== "returned");
     const revenue = validOrders.reduce((s: number, o: any) => s + Number(o.total || 0), 0);
     const totalAdSpend = adSpend.reduce((s: number, a: any) => s + Number(a.amount || 0), 0);
-    const totalExpenses = expenses.reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
+
+    // Filter expenses by date within the selected period
+    const filteredExpensesList = (() => {
+      if (period === "all") return expenses;
+      if (period === "custom") {
+        let f = expenses;
+        if (customStart) f = f.filter((e: any) => e.date >= customStart);
+        if (customEnd) f = f.filter((e: any) => e.date <= customEnd);
+        return f;
+      }
+      const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      const cutoffStr = cutoff.toISOString().split("T")[0];
+      return expenses.filter((e: any) => e.date >= cutoffStr);
+    })();
+    const totalExpenses = filteredExpensesList.reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
+
     const totalManufacturing = batches.reduce((s: number, b: any) => s + Number(b.total_cost || 0), 0);
     const totalCost = totalAdSpend + totalExpenses + totalManufacturing;
     const profit = revenue - totalCost;
@@ -171,13 +188,49 @@ export default function AnalyticsPage() {
       statusMap[o.status] = (statusMap[o.status] || 0) + 1;
     });
 
+    // Monthly Delivery Rate (delivered / ALL orders including cancelled & returned)
+    const monthlyDeliveryMap: Record<string, { total: number; delivered: number }> = {};
+    filteredOrders.forEach((o: any) => {
+      const d = new Date(o.created_at);
+      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      if (!monthlyDeliveryMap[monthKey]) monthlyDeliveryMap[monthKey] = { total: 0, delivered: 0 };
+      monthlyDeliveryMap[monthKey].total++;
+      if (o.status === "delivered") monthlyDeliveryMap[monthKey].delivered++;
+    });
+    const monthlyDeliveryRate = Object.entries(monthlyDeliveryMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, data]) => ({
+        month,
+        label: new Date(month + "-01").toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+        total: data.total,
+        delivered: data.delivered,
+        rate: data.total > 0 ? Math.round((data.delivered / data.total) * 100) : 0,
+      }));
+
+    // Monthly Expenses (based on expense date)
+    const monthlyExpenseMap: Record<string, number> = {};
+    filteredExpensesList.forEach((e: any) => {
+      const monthKey = e.date?.substring(0, 7); // YYYY-MM
+      if (monthKey) {
+        monthlyExpenseMap[monthKey] = (monthlyExpenseMap[monthKey] || 0) + Number(e.amount || 0);
+      }
+    });
+    const monthlyExpenses = Object.entries(monthlyExpenseMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, amount]) => ({
+        month,
+        label: new Date(month + "-01").toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+        amount,
+      }));
+
     return {
       revenue, totalCost, profit, totalAdSpend, totalExpenses, totalManufacturing,
       validOrders: validOrders.length, allOrders: filteredOrders.length,
       revenueSeries, costSeries, profitSeries, ordersSeries, allDays,
       topProducts, topGovs, peakHours, statusMap,
+      monthlyDeliveryRate, monthlyExpenses,
     };
-  }, [filteredOrders, adSpend, expenses, batches]);
+  }, [filteredOrders, adSpend, expenses, batches, period, customStart, customEnd]);
 
   const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
@@ -304,6 +357,68 @@ export default function AnalyticsPage() {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Monthly Delivery Rate & Monthly Expenses */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Monthly Delivery Rate */}
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle size={16} className="text-emerald-400" />
+            <h3 className="text-sm font-bold text-white">Delivery Rate by Month</h3>
+          </div>
+          {analytics.monthlyDeliveryRate.length === 0 ? (
+            <p className="text-xs text-zinc-600">No data</p>
+          ) : (
+            <div className="space-y-3">
+              {analytics.monthlyDeliveryRate.map((m, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-zinc-400">{m.label}</span>
+                    <span className="font-bold">
+                      <span className={m.rate >= 60 ? "text-emerald-400" : m.rate >= 30 ? "text-amber-400" : "text-red-400"}>
+                        {m.rate}%
+                      </span>
+                      <span className="text-zinc-600 ml-1.5">({m.delivered}/{m.total})</span>
+                    </span>
+                  </div>
+                  <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        m.rate >= 60 ? "bg-emerald-500" : m.rate >= 30 ? "bg-amber-500" : "bg-red-500"
+                      }`}
+                      style={{ width: `${Math.min(m.rate, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Monthly Expenses (Paid in Month) */}
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Wallet size={16} className="text-orange-400" />
+            <h3 className="text-sm font-bold text-white">Monthly Expenses (Paid)</h3>
+            <span className="text-[9px] text-zinc-600 ml-auto">Based on payment date</span>
+          </div>
+          {analytics.monthlyExpenses.length === 0 ? (
+            <p className="text-xs text-zinc-600">No expense data</p>
+          ) : (
+            <div className="space-y-3">
+              {analytics.monthlyExpenses.map((m, i) => (
+                <SimpleBar
+                  key={i}
+                  label={m.label}
+                  value={m.amount}
+                  max={Math.max(...analytics.monthlyExpenses.map(e => e.amount), 1)}
+                  color="bg-orange-500"
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

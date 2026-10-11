@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+export const config = {
+  matcher: ['/admin/dashboard/:path*', '/command-center/:path*', '/media-buyer/dashboard/:path*'],
+};
+
 export function middleware(request: NextRequest) {
   // Admin + Command Center: require admin_session cookie
   if (request.nextUrl.pathname.startsWith('/admin/dashboard') || request.nextUrl.pathname.startsWith('/command-center')) {
@@ -20,7 +24,3 @@ export function middleware(request: NextRequest) {
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ['/admin/dashboard/:path*', '/command-center/:path*', '/media-buyer/dashboard/:path*'],
-};
