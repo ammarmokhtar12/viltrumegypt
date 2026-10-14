@@ -14,7 +14,9 @@ import {
   ShoppingCart,
   TrendingUp,
   Calendar,
+  Download,
 } from "lucide-react";
+import { exportOrdersToCsv } from "@/lib/exportOrdersCsv";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
   pending: { label: "Pending", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
@@ -122,9 +124,19 @@ export default function MediaBuyerOrdersPage() {
           <p className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.3em] mb-1">Order Management</p>
           <h1 className="text-3xl font-bold text-white tracking-tight">Orders</h1>
         </div>
-        <button onClick={() => { fetchOrders(); setDisplayCount(100); }} className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-zinc-400 border border-zinc-800 rounded-xl hover:text-white hover:border-zinc-600 transition-all">
-          <RefreshCw size={14} /> Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportOrdersToCsv(filtered, "media-buyer-orders")}
+            disabled={filtered.length === 0}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تصدير الأوردرات كملف CSV"
+          >
+            <Download size={14} /> Export CSV ({filtered.length})
+          </button>
+          <button onClick={() => { fetchOrders(); setDisplayCount(100); }} className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-zinc-400 border border-zinc-800 rounded-xl hover:text-white hover:border-zinc-600 transition-all">
+            <RefreshCw size={14} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
