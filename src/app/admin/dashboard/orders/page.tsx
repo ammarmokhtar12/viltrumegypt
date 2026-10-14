@@ -4,6 +4,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { Order, Product } from "@/types";
+import { exportOrdersToCsv } from "@/lib/exportOrdersCsv";
 import {
   Clock,
   CheckCircle,
@@ -18,6 +19,7 @@ import {
   ChevronUp,
   Search,
   XCircle,
+  Download,
   DollarSign,
   User,
   ArrowRight,
@@ -1065,6 +1067,17 @@ export default function AdminOrdersPage() {
             >
               <Printer size={14} />
               طباعة دفعات الشحن
+            </button>
+
+                        {/* Export CSV Button */}
+            <button
+              onClick={() => exportOrdersToCsv(filteredOrders, "admin-orders")}
+              disabled={filteredOrders.length === 0}
+              className="flex items-center gap-2 px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-emerald-600/20"
+              title="تصدير الأوردرات كملف CSV"
+            >
+              <Download size={14} />
+              Export CSV ({filteredOrders.length})
             </button>
 
             <button

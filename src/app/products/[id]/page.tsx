@@ -248,6 +248,7 @@ export default function ProductDetailPage() {
   }
 
   const availableSizes = product.title === "Thragg Edition" ? ["L", "XL", "XXL"] : (product.sizes || ["S", "M", "L", "XL", "XXL"]);
+  const originalPrice = product.price === 480 ? 600 : Math.round(product.price * 1.25);
 
   return (
     <>
@@ -392,11 +393,13 @@ export default function ProductDetailPage() {
                           {product.title}
                         </h1>
                       </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-[12px] font-bold text-muted uppercase tracking-widest">MSRP</span>
-                        <p className="text-3xl font-bold text-foreground">
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-3xl sm:text-4xl font-black text-red-500 line-through tracking-tight">
+                          {formatPrice(originalPrice)}
+                        </span>
+                        <span className="text-lg sm:text-xl font-bold text-zinc-400">
                           {formatPrice(product.price)}
-                        </p>
+                        </span>
                       </div>
                     </div>
 

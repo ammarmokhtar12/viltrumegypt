@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { exportOrdersToCsv } from "@/lib/exportOrdersCsv";
 import {
   Search,
   ChevronDown,
@@ -22,6 +23,7 @@ import {
   Edit,
   Plus,
   Trash2,
+  Download,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
@@ -776,6 +778,22 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
   const shippedOrders = orders.filter((o) => o.status === "shipped");
   const shippedCount = shippedOrders.length;
 
+  const availableMonths = useMemo(() => {
+    const set = new Set<string>();
+    orders.forEach((o) => {
+      if (o.created_at) {
+        set.add(o.created_at.slice(0, 7));
+      }
+    });
+    const now = new Date();
+    const curYear = now.getFullYear();
+    for (let m = 1; m <= 12; m++) {
+      set.add(`${curYear}-${String(m).padStart(2, "0")}`);
+      set.add(`${curYear - 1}-${String(m).padStart(2, "0")}`);
+    }
+    return Array.from(set).filter(Boolean).sort().reverse();
+  }, [orders]);
+
   const filtered = useMemo(() => {
     let result = orders.filter((o) => {
       const matchSearch = search === "" ||
@@ -790,21 +808,27 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
 
       let matchDate = true;
       if (dateFilter !== "all") {
-        const orderDate = new Date(o.created_at);
-        const now = new Date();
-        if (dateFilter === "today") {
-          matchDate = orderDate.toDateString() === now.toDateString();
-        } else if (dateFilter === "7days") {
-          const d = new Date(); d.setDate(d.getDate() - 7);
-          matchDate = orderDate >= d;
-        } else if (dateFilter === "30days") {
-          const d = new Date(); d.setDate(d.getDate() - 30);
-          matchDate = orderDate >= d;
-        } else if (dateFilter === "custom") {
-          if (dateFrom) matchDate = orderDate >= new Date(dateFrom);
-          if (dateTo && matchDate) {
-            const to = new Date(dateTo); to.setHours(23, 59, 59);
-            matchDate = orderDate <= to;
+        if (dateFilter.startsWith("month:")) {
+          const selectedMonthKey = dateFilter.replace("month:", "");
+          const orderMonth = o.created_at?.slice(0, 7);
+          matchDate = orderMonth === selectedMonthKey;
+        } else {
+          const orderDate = new Date(o.created_at);
+          const now = new Date();
+          if (dateFilter === "today") {
+            matchDate = orderDate.toDateString() === now.toDateString();
+          } else if (dateFilter === "7days") {
+            const d = new Date(); d.setDate(d.getDate() - 7);
+            matchDate = orderDate >= d;
+          } else if (dateFilter === "30days") {
+            const d = new Date(); d.setDate(d.getDate() - 30);
+            matchDate = orderDate >= d;
+          } else if (dateFilter === "custom") {
+            if (dateFrom) matchDate = orderDate >= new Date(dateFrom);
+            if (dateTo && matchDate) {
+              const to = new Date(dateTo); to.setHours(23, 59, 59);
+              matchDate = orderDate <= to;
+            }
           }
         }
       }
@@ -925,6 +949,17 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
               Ship Selected ({selectedForShip.size})
             </button>
 
+            {/* Export CSV Button */}
+            <button
+              onClick={() => exportOrdersToCsv(filtered, "command-center-orders")}
+              disabled={filtered.length === 0}
+              className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-emerald-600/20"
+              title="تصدير الأوردرات كملف CSV"
+            >
+              <Download size={13} />
+              Export CSV ({filtered.length})
+            </button>
+
             <button onClick={fetchOrders} className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-[10px] font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-wider">
               <RefreshCw size={13} /> Refresh
             </button>
@@ -971,11 +1006,23 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
             onChange={(e) => setDateFilter(e.target.value)}
             className="px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-xs font-bold text-zinc-400 uppercase tracking-wider focus:outline-none"
           >
-            <option value="all">All Time</option>
-            <option value="today">Today</option>
-            <option value="7days">Last 7 Days</option>
-            <option value="30days">Last 30 Days</option>
-            <option value="custom">Custom Range</option>
+            <option value="all">كل الأوقات (All Time)</option>
+            <option value="today">اليوم (Today)</option>
+            <option value="7days">آخر 7 أيام (Last 7 Days)</option>
+            <option value="30days">آخر 30 يوم (Last 30 Days)</option>
+            <optgroup label="فلترة بالشهور (By Month)">
+              {availableMonths.map((m) => {
+                const [year, month] = m.split("-");
+                const monthNum = parseInt(month, 10);
+                const monthNameEn = new Date(m + "-01").toLocaleDateString("en-US", { month: "short" });
+                return (
+                  <option key={m} value={`month:${m}`}>
+                    شهر {monthNum} ({monthNameEn} {year})
+                  </option>
+                );
+              })}
+            </optgroup>
+            <option value="custom">فترة مخصصة (Custom Range)</option>
           </select>
         </div>
 

@@ -13,10 +13,12 @@ import {
   ChevronRight,
   Megaphone,
   FileText,
+  TrendingUp,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/media-buyer/dashboard", label: "Dashboard", icon: BarChart3 },
+  { href: "/media-buyer/dashboard/analytics", label: "Analytics", icon: TrendingUp },
   { href: "/media-buyer/dashboard/orders", label: "Orders", icon: ShoppingCart },
   { href: "/media-buyer/dashboard/ad-spend", label: "Ad Spend", icon: Megaphone },
   { href: "/media-buyer/dashboard/report", label: "Weekly Report", icon: FileText },

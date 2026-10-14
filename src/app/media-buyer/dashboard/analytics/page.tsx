@@ -1,0 +1,543 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
+import { useEffect, useState, useMemo } from "react";
+import { supabase } from "@/lib/supabase";
+import { TrendingUp, BarChart3, MapPin, Package, RefreshCw, Clock, CheckCircle, Wallet } from "lucide-react";
+
+const EGYPT_GOVERNORATES = [
+  "القاهرة", "الجيزة", "الاسكندرية", "الدقهلية", "الشرقية", "المنوفية", "القليوبية",
+  "البحيرة", "الغربية", "بور سعيد", "دمياط", "الاسماعيلية", "السويس", "كفر الشيخ",
+  "الفيوم", "بني سويف", "مطروح", "شمال سيناء", "جنوب سيناء", "المنيا", "اسيوط",
+  "سوهاج", "قنا", "البحر الاحمر", "الاقصر", "اسوان", "الواحات", "الوادي الجديد"
+];
+
+function SimpleBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+  const pct = max > 0 ? (value / max) * 100 : 0;
+  return (
+    <div className="space-y-1">
+      <div className="flex justify-between text-[10px]">
+        <span className="text-zinc-400 truncate">{label}</span>
+        <span className="text-zinc-300 font-bold">{value.toLocaleString()}</span>
+      </div>
+      <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${Math.min(pct, 100)}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function MiniChart({ data, color, height = 60 }: { data: number[]; color: string; height?: number }) {
+  if (data.length < 2) return null;
+  const max = Math.max(...data, 1);
+  const min = Math.min(...data, 0);
+  const range = max - min || 1;
+  const w = 300;
+  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${height - ((v - min) / range) * (height - 4)}`).join(" ");
+
+  return (
+    <svg viewBox={`0 0 ${w} ${height}`} className="w-full" style={{ height }}>
+      <polyline fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" points={points} />
+    </svg>
+  );
+}
+
+export default function MediaBuyerAnalyticsPage() {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [adSpend, setAdSpend] = useState<any[]>([]);
+  const [batches, setBatches] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState<"7d" | "30d" | "90d" | "all" | "custom" | "month">("30d");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
+
+  useEffect(() => { fetchAll(); }, []);
+
+  const fetchAll = async () => {
+    setLoading(true);
+    const [oRes, eRes, aRes, bRes] = await Promise.all([
+      supabase.from("orders").select("*").order("created_at", { ascending: true }),
+      supabase.from("expenses").select("*"),
+      supabase.from("ad_spend").select("*"),
+      supabase.from("manufacturing_batches").select("*"),
+    ]);
+    setOrders(oRes.data || []);
+    setExpenses(eRes.data || []);
+    setAdSpend(aRes.data || []);
+    setBatches(bRes.data || []);
+    setLoading(false);
+  };
+
+  const getItemDate = (item: any): string => {
+    const d = item.date || item.created_at;
+    if (!d) return "";
+    return d.includes("T") ? d.split("T")[0] : d.slice(0, 10);
+  };
+
+  const availableMonths = useMemo(() => {
+    const set = new Set<string>();
+    orders.forEach((o: any) => {
+      const d = getItemDate(o);
+      if (d) set.add(d.substring(0, 7));
+    });
+    expenses.forEach((e: any) => {
+      const d = getItemDate(e);
+      if (d) set.add(d.substring(0, 7));
+    });
+    adSpend.forEach((a: any) => {
+      const d = getItemDate(a);
+      if (d) set.add(d.substring(0, 7));
+    });
+    return Array.from(set).filter(Boolean).sort().reverse();
+  }, [orders, expenses, adSpend]);
+
+  const isDateInFilter = (dStr: string): boolean => {
+    if (!dStr) return false;
+    if (period === "all") return true;
+
+    if (period === "month") {
+      return selectedMonth ? dStr.startsWith(selectedMonth) : true;
+    }
+
+    if (period === "custom") {
+      if (customStart && dStr < customStart) return false;
+      if (customEnd && dStr > customEnd) return false;
+      return true;
+    }
+
+    const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffStr = cutoff.toISOString().split("T")[0];
+    return dStr >= cutoffStr;
+  };
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter(o => isDateInFilter(getItemDate(o)));
+  }, [orders, period, selectedMonth, customStart, customEnd]);
+
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter(e => isDateInFilter(getItemDate(e)));
+  }, [expenses, period, selectedMonth, customStart, customEnd]);
+
+  const filteredAdSpend = useMemo(() => {
+    return adSpend.filter(a => isDateInFilter(getItemDate(a)));
+  }, [adSpend, period, selectedMonth, customStart, customEnd]);
+
+  const filteredBatches = useMemo(() => {
+    return batches.filter(b => isDateInFilter(getItemDate(b)));
+  }, [batches, period, selectedMonth, customStart, customEnd]);
+
+  const analytics = useMemo(() => {
+    const validOrders = filteredOrders.filter((o: any) => o.status !== "cancelled" && o.status !== "returned");
+    const revenue = validOrders.reduce((s: number, o: any) => s + Number(o.total || 0), 0);
+    const totalAdSpend = filteredAdSpend.reduce((s: number, a: any) => s + Number(a.amount || 0), 0);
+    const totalExpenses = filteredExpenses.reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
+    const totalManufacturing = filteredBatches.reduce((s: number, b: any) => s + Number(b.total_cost || 0), 0);
+    const totalCost = totalAdSpend + totalExpenses + totalManufacturing;
+    const profit = revenue - totalCost;
+
+    // Revenue & Cost by day (using strictly filtered period data)
+    const revenueByDay: Record<string, number> = {};
+    const costByDay: Record<string, number> = {};
+
+    validOrders.forEach((o: any) => {
+      const d = getItemDate(o);
+      if (d) revenueByDay[d] = (revenueByDay[d] || 0) + Number(o.total || 0);
+    });
+
+    filteredAdSpend.forEach((a: any) => {
+      const d = getItemDate(a);
+      if (d) costByDay[d] = (costByDay[d] || 0) + Number(a.amount || 0);
+    });
+
+    filteredExpenses.forEach((e: any) => {
+      const d = getItemDate(e);
+      if (d) costByDay[d] = (costByDay[d] || 0) + Number(e.amount || 0);
+    });
+
+    filteredBatches.forEach((b: any) => {
+      const d = getItemDate(b);
+      if (d) costByDay[d] = (costByDay[d] || 0) + Number(b.total_cost || 0);
+    });
+
+    const allDays = [...new Set([...Object.keys(revenueByDay), ...Object.keys(costByDay)])].sort();
+    const revenueSeries = allDays.map((d) => revenueByDay[d] || 0);
+    const costSeries = allDays.map((d) => costByDay[d] || 0);
+    const profitSeries = allDays.map((d) => (revenueByDay[d] || 0) - (costByDay[d] || 0));
+    const ordersSeries = allDays.map((d) => validOrders.filter((o: any) => getItemDate(o) === d).length);
+
+    // By product
+    const productMap: Record<string, { revenue: number; qty: number }> = {};
+    validOrders.forEach((o: any) => {
+      (o.items || []).forEach((item: any) => {
+        const t = item.title || "Unknown";
+        if (!productMap[t]) productMap[t] = { revenue: 0, qty: 0 };
+        productMap[t].revenue += (item.price || 0) * (item.quantity || 1);
+        productMap[t].qty += item.quantity || 1;
+      });
+    });
+    const topProducts = Object.entries(productMap)
+      .map(([name, d]) => ({ name, ...d }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+
+    // By Governorate
+    const govMap: Record<string, { orders: number; revenue: number }> = {};
+    validOrders.forEach((o: any) => {
+      let gov = "أخرى";
+      const addr = (o.customer_address || "").trim();
+      for (const g of EGYPT_GOVERNORATES) {
+        if (addr.includes(g) || addr.includes(g.replace("ال", ""))) {
+          gov = g;
+          break;
+        }
+      }
+      if (!govMap[gov]) govMap[gov] = { orders: 0, revenue: 0 };
+      govMap[gov].orders++;
+      govMap[gov].revenue += Number(o.total || 0);
+    });
+    const topGovs = Object.entries(govMap)
+      .map(([name, d]) => ({ name, ...d }))
+      .sort((a, b) => b.orders - a.orders)
+      .slice(0, 10);
+
+    // Peak Hours
+    const hourMap: Record<number, number> = {};
+    filteredOrders.forEach((o: any) => {
+      if (o.created_at) {
+        const h = new Date(o.created_at).getHours();
+        hourMap[h] = (hourMap[h] || 0) + 1;
+      }
+    });
+    const peakHours = Object.entries(hourMap)
+      .map(([h, count]) => ({ hour: parseInt(h), count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 6)
+      .map(h => {
+        const ampm = h.hour >= 12 ? 'PM' : 'AM';
+        const display = h.hour % 12 || 12;
+        return { label: `${display} ${ampm}`, count: h.count };
+      });
+
+    // By status
+    const statusMap: Record<string, number> = {};
+    filteredOrders.forEach((o: any) => {
+      statusMap[o.status] = (statusMap[o.status] || 0) + 1;
+    });
+
+    // Monthly Delivery Rate (across all orders to compare all months)
+    const monthlyDeliveryMap: Record<string, { total: number; delivered: number }> = {};
+    orders.forEach((o: any) => {
+      const dStr = getItemDate(o);
+      const monthKey = dStr.substring(0, 7);
+      if (monthKey) {
+        if (!monthlyDeliveryMap[monthKey]) monthlyDeliveryMap[monthKey] = { total: 0, delivered: 0 };
+        monthlyDeliveryMap[monthKey].total++;
+        if (o.status === "delivered") monthlyDeliveryMap[monthKey].delivered++;
+      }
+    });
+    const monthlyDeliveryRate = Object.entries(monthlyDeliveryMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, data]) => ({
+        month,
+        label: new Date(month + "-01").toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+        total: data.total,
+        delivered: data.delivered,
+        rate: data.total > 0 ? Math.round((data.delivered / data.total) * 100) : 0,
+      }));
+
+    // Monthly Expenses (across all expenses based on expense payment date)
+    const monthlyExpenseMap: Record<string, number> = {};
+    expenses.forEach((e: any) => {
+      const dStr = getItemDate(e);
+      const monthKey = dStr.substring(0, 7); // YYYY-MM
+      if (monthKey) {
+        monthlyExpenseMap[monthKey] = (monthlyExpenseMap[monthKey] || 0) + Number(e.amount || 0);
+      }
+    });
+    const monthlyExpenses = Object.entries(monthlyExpenseMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, amount]) => ({
+        month,
+        label: new Date(month + "-01").toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+        amount,
+      }));
+
+    return {
+      revenue, totalCost, profit, totalAdSpend, totalExpenses, totalManufacturing,
+      validOrders: validOrders.length, allOrders: filteredOrders.length,
+      revenueSeries, costSeries, profitSeries, ordersSeries, allDays,
+      topProducts, topGovs, peakHours, statusMap,
+      monthlyDeliveryRate, monthlyExpenses,
+    };
+  }, [filteredOrders, filteredAdSpend, filteredExpenses, filteredBatches, orders, expenses]);
+
+  const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="w-10 h-10 border-2 border-zinc-700 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  const maxProductRev = Math.max(...analytics.topProducts.map((p) => p.revenue), 1);
+  const maxGovOrders = Math.max(...analytics.topGovs.map((c) => c.orders), 1);
+  const maxPeakHour = Math.max(...analytics.peakHours.map(h => h.count), 1);
+
+  return (
+    <div className="space-y-6 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.3em] mb-1">Performance</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Analytics</h1>
+        </div>
+        <div className="flex flex-col sm:flex-row items-end gap-3">
+          {availableMonths.length > 0 && (
+            <select
+              value={period === "month" ? selectedMonth : ""}
+              onChange={(e) => {
+                if (e.target.value) {
+                  setPeriod("month");
+                  setSelectedMonth(e.target.value);
+                }
+              }}
+              className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all cursor-pointer bg-zinc-900 ${
+                period === "month" ? "text-blue-400 border-blue-500/30 bg-blue-500/10" : "text-zinc-500 border-zinc-800 hover:text-zinc-300"
+              }`}
+            >
+              <option value="" disabled>By Month</option>
+              {availableMonths.map((m) => (
+                <option key={m} value={m} className="bg-zinc-900 text-white">
+                  {new Date(m + "-01").toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {period === "custom" && (
+            <div className="flex gap-2">
+              <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)} className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] text-white focus:outline-none" />
+              <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)} className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-[10px] text-white focus:outline-none" />
+            </div>
+          )}
+          <div className="flex gap-2">
+            {(["7d", "30d", "90d", "all", "custom"] as const).map((p) => (
+              <button key={p} onClick={() => setPeriod(p)} className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all ${
+                period === p ? "text-blue-400 bg-blue-500/10 border-blue-500/20" : "text-zinc-600 border-zinc-800 hover:text-zinc-300"
+              }`}>{p === "all" ? "All" : p}</button>
+            ))}
+          </div>
+          <button
+            onClick={fetchAll}
+            className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border border-zinc-800 rounded-xl hover:text-white hover:border-zinc-700 transition-all"
+          >
+            <RefreshCw size={12} /> Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* Summary */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4">
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Revenue</p>
+          <p className="text-lg font-black text-emerald-400">{fmt(analytics.revenue)}</p>
+        </div>
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4">
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Total Cost</p>
+          <p className="text-lg font-black text-red-400">{fmt(analytics.totalCost)}</p>
+        </div>
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4">
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Profit</p>
+          <p className={`text-lg font-black ${analytics.profit >= 0 ? "text-emerald-400" : "text-red-400"}`}>{fmt(analytics.profit)}</p>
+        </div>
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4">
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Ad Spend</p>
+          <p className="text-lg font-black text-blue-400">{fmt(analytics.totalAdSpend)}</p>
+        </div>
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4">
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Orders</p>
+          <p className="text-lg font-black text-white">{analytics.validOrders}</p>
+        </div>
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4">
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Margin</p>
+          <p className={`text-lg font-black ${analytics.revenue > 0 && analytics.profit / analytics.revenue > 0.2 ? "text-emerald-400" : "text-amber-400"}`}>
+            {analytics.revenue > 0 ? ((analytics.profit / analytics.revenue) * 100).toFixed(1) : 0}%
+          </p>
+        </div>
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Revenue Trend */}
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={16} className="text-emerald-400" />
+            <h3 className="text-sm font-bold text-white">Revenue Trend</h3>
+          </div>
+          <MiniChart data={analytics.revenueSeries} color="#34d399" height={80} />
+          <p className="text-[10px] text-zinc-600">{analytics.allDays.length} days</p>
+        </div>
+
+        {/* Orders Trend */}
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <BarChart3 size={16} className="text-blue-400" />
+            <h3 className="text-sm font-bold text-white">Orders per Day</h3>
+          </div>
+          <MiniChart data={analytics.ordersSeries} color="#60a5fa" height={80} />
+          <p className="text-[10px] text-zinc-600">{analytics.allDays.length} days</p>
+        </div>
+
+        {/* Cost Trend */}
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={16} className="text-red-400" />
+            <h3 className="text-sm font-bold text-white">Cost Trend (Ad Spend + Ops)</h3>
+          </div>
+          <MiniChart data={analytics.costSeries} color="#f87171" height={80} />
+        </div>
+
+        {/* Profit Trend */}
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={16} className="text-amber-400" />
+            <h3 className="text-sm font-bold text-white">Profit Trend</h3>
+          </div>
+          <MiniChart data={analytics.profitSeries} color="#fbbf24" height={80} />
+        </div>
+      </div>
+
+      {/* Order Status Breakdown */}
+      <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-3">
+        <h3 className="text-sm font-bold text-white">Order Status Breakdown</h3>
+        <div className="flex flex-wrap gap-3">
+          {Object.entries(analytics.statusMap).map(([status, count]) => {
+            const colors: Record<string, string> = {
+              pending: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+              confirmed: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+              shipped: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+              delivered: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+              cancelled: "text-zinc-400 bg-zinc-500/10 border-zinc-500/20",
+              returned: "text-red-400 bg-red-500/10 border-red-500/20",
+            };
+            return (
+              <div key={status} className={`px-4 py-2.5 rounded-xl border ${colors[status] || colors.pending}`}>
+                <span className="text-lg font-black">{count}</span>
+                <span className="text-[10px] uppercase tracking-wider font-bold ml-2">{status}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Monthly Delivery Rate & Monthly Expenses */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Monthly Delivery Rate */}
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <CheckCircle size={16} className="text-emerald-400" />
+            <h3 className="text-sm font-bold text-white">Delivery Rate by Month</h3>
+          </div>
+          {analytics.monthlyDeliveryRate.length === 0 ? (
+            <p className="text-xs text-zinc-600">No data</p>
+          ) : (
+            <div className="space-y-3">
+              {analytics.monthlyDeliveryRate.map((m, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex justify-between text-[10px]">
+                    <span className="text-zinc-400">{m.label}</span>
+                    <span className="font-bold">
+                      <span className={m.rate >= 60 ? "text-emerald-400" : m.rate >= 30 ? "text-amber-400" : "text-red-400"}>
+                        {m.rate}%
+                      </span>
+                      <span className="text-zinc-600 ml-1.5">({m.delivered}/{m.total})</span>
+                    </span>
+                  </div>
+                  <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${
+                        m.rate >= 60 ? "bg-emerald-500" : m.rate >= 30 ? "bg-amber-500" : "bg-red-500"
+                      }`}
+                      style={{ width: `${Math.min(m.rate, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Monthly Expenses (Paid in Month) */}
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Wallet size={16} className="text-orange-400" />
+            <h3 className="text-sm font-bold text-white">Monthly Expenses (Paid)</h3>
+            <span className="text-[9px] text-zinc-600 ml-auto">Based on payment date</span>
+          </div>
+          {analytics.monthlyExpenses.length === 0 ? (
+            <p className="text-xs text-zinc-600">No expense data</p>
+          ) : (
+            <div className="space-y-3">
+              {analytics.monthlyExpenses.map((m, i) => (
+                <SimpleBar
+                  key={i}
+                  label={m.label}
+                  value={m.amount}
+                  max={Math.max(...analytics.monthlyExpenses.map(e => e.amount), 1)}
+                  color="bg-orange-500"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Product, Governorate & Time Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Package size={16} className="text-cyan-400" />
+            <h3 className="text-sm font-bold text-white">Top Products (Revenue)</h3>
+          </div>
+          <div className="space-y-3">
+            {analytics.topProducts.map((p, i) => (
+              <SimpleBar key={i} label={`${p.name} (×${p.qty})`} value={p.revenue} max={maxProductRev} color="bg-cyan-500" />
+            ))}
+            {analytics.topProducts.length === 0 && <p className="text-xs text-zinc-600">No product data</p>}
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <MapPin size={16} className="text-purple-400" />
+            <h3 className="text-sm font-bold text-white">Top Governorates</h3>
+          </div>
+          <div className="space-y-3">
+            {analytics.topGovs.map((c, i) => (
+              <SimpleBar key={i} label={`${c.name} (${fmt(c.revenue)} EGP)`} value={c.orders} max={maxGovOrders} color="bg-purple-500" />
+            ))}
+            {analytics.topGovs.length === 0 && <p className="text-xs text-zinc-600">No data</p>}
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Clock size={16} className="text-amber-400" />
+            <h3 className="text-sm font-bold text-white">Peak Order Hours</h3>
+          </div>
+          <div className="space-y-3">
+            {analytics.peakHours.map((h, i) => (
+              <SimpleBar key={i} label={h.label} value={h.count} max={maxPeakHour} color="bg-amber-500" />
+            ))}
+            {analytics.peakHours.length === 0 && <p className="text-xs text-zinc-600">No data</p>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

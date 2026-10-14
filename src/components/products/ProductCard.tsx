@@ -18,8 +18,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const timeLeft = useCountdown();
   const [imageLoaded, setImageLoaded] = useState(false);
   const hasImage = Boolean(product.image_url);
-  const originalPrice = product.price * 1.25;
-  const discountPercentage = Math.round(((originalPrice - product.price) / originalPrice) * 100);
+  const originalPrice = product.price === 480 ? 600 : Math.round(product.price * 1.25);
+  const discountPercentage = originalPrice > product.price ? Math.round(((originalPrice - product.price) / originalPrice) * 100) : 0;
   const isPromo = product.title.toUpperCase() === "LIMITED OFFER";
   
   const cardRef = useRef<HTMLDivElement>(null);
@@ -128,12 +128,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.title}
           </h3>
 
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-sm font-bold text-primary tracking-tight">
-              {formatPrice(product.price)}
-            </span>
-            <span className="text-[11px] text-muted line-through tracking-widest font-medium">
+          <div className="flex items-baseline justify-center gap-2.5">
+            <span className="text-lg sm:text-xl font-black text-red-500 line-through tracking-tight">
               {formatPrice(originalPrice)}
+            </span>
+            <span className="text-xs sm:text-sm font-semibold text-zinc-400 tracking-normal">
+              {formatPrice(product.price)}
             </span>
           </div>
         </div>

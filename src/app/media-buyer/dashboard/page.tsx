@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
   TrendingUp,
@@ -239,9 +240,17 @@ export default function MediaBuyerDashboard() {
           <h1 className="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
           <p className="text-[10px] text-zinc-600 mt-1">All time — Day {daysSinceLaunch}</p>
         </div>
-        <button onClick={fetchData} className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-zinc-400 border border-zinc-800 rounded-xl hover:text-white hover:border-zinc-600 transition-all">
-          <RefreshCw size={14} /> Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/media-buyer/dashboard/analytics"
+            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-xl hover:bg-blue-500/20 transition-all"
+          >
+            <TrendingUp size={14} /> Analytics
+          </Link>
+          <button onClick={fetchData} className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-zinc-400 border border-zinc-800 rounded-xl hover:text-white hover:border-zinc-600 transition-all">
+            <RefreshCw size={14} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Today vs Yesterday */}
