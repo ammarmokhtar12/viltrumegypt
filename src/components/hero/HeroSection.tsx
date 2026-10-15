@@ -3,8 +3,6 @@
 import Link from "next/link";
 import TextReveal from "@/components/ui/TextReveal";
 import MagneticButton from "@/components/ui/MagneticButton";
-import GothamAtmosphere from "@/components/hero/GothamAtmosphere";
-import BatLogo from "@/components/ui/BatLogo";
 
 export default function HeroSection() {
   return (
@@ -22,14 +20,10 @@ export default function HeroSection() {
           poster="/hero-bg.jpg"
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/videos/hero-purple.mov" type="video/mp4" />
-          <source src="/videos/hero-purple.mov" type="video/quicktime" />
+          <source src="/videos/batman.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/80" />
       </div>
-
-      {/* Gotham City Noir Atmosphere (Bat-Signal, Rain, Fog, Lightning) */}
-      <GothamAtmosphere />
 
       {/* Accent energy lines */}
       <div className="absolute top-0 left-0 right-0 h-1 accent-line z-20" />
@@ -38,12 +32,12 @@ export default function HeroSection() {
       <div className="relative z-10 w-full max-w-5xl mx-auto px-5 sm:px-8 flex flex-col items-center text-center pt-32 pb-20 sm:pt-40 sm:pb-24">
         {/* Badge */}
         <div
-          className="hero-fade-in flex items-center gap-2.5 mb-8 sm:mb-10 bg-black/60 backdrop-blur-md text-white px-4 py-2 sm:px-5 rounded-full border border-amber-500/25 shadow-[0_0_15px_rgba(245,180,50,0.15)] select-none"
+          className="hero-fade-in flex items-center gap-2 mb-8 sm:mb-10 bg-black/40 backdrop-blur-md text-white px-4 py-2 sm:px-5 rounded-full border border-white/10 shadow-sm select-none"
           style={{ animationDelay: "0.3s" }}
         >
-          <BatLogo className="w-3.5 h-3.5 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.9)]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse flex-shrink-0" />
           <span className="type-eyebrow !text-zinc-200 text-[9px] sm:text-[10px] tracking-[0.25em]">
-            THE DARK KNIGHT ARCHIVE • GOTHAM PROTOCOL
+            Forged for the Invincible
           </span>
         </div>
 
@@ -62,10 +56,10 @@ export default function HeroSection() {
 
         {/* Description */}
         <p
-          className="hero-fade-in text-sm sm:text-base md:text-lg text-zinc-300 font-sans max-w-xs sm:max-w-xl leading-relaxed mb-8 sm:mb-10 font-medium tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+          className="hero-fade-in text-sm sm:text-base md:text-lg text-zinc-300 font-sans max-w-xs sm:max-w-lg leading-relaxed mb-8 sm:mb-10 font-medium tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
           style={{ animationDelay: "1.2s" }}
         >
-          Tactical compression armor engineered for those who conquer the darkness.
+          Compression armor engineered for warriors who refuse to break.
         </p>
 
         {/* CTA Buttons */}

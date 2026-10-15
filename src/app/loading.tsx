@@ -1,31 +1,19 @@
+import BatLogo from "@/components/ui/BatLogo";
+
 export default function Loading() {
   return (
     <div className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-[#0a0a0a]">
-      {/* Logo */}
-      <div className="flex flex-col items-center gap-8">
-        <svg
-          width="52"
-          height="52"
-          viewBox="0 0 52 52"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="animate-[pulse_1.8s_ease-in-out_infinite]"
-        >
-          <rect width="52" height="52" rx="10" fill="#c41e3a" />
-          <text
-            x="50%"
-            y="54%"
-            dominantBaseline="middle"
-            textAnchor="middle"
-            fill="white"
-            fontSize="22"
-            fontWeight="700"
-            fontFamily="system-ui, sans-serif"
-            letterSpacing="2"
-          >
-            V
-          </text>
-        </svg>
+      {/* Batman Logo Loader */}
+      <div className="flex flex-col items-center gap-7">
+        <div className="relative flex items-center justify-center">
+          {/* Ambient glow */}
+          <div className="absolute inset-0 -m-5 rounded-full bg-amber-400/15 blur-2xl animate-pulse" />
+
+          {/* Bat symbol with glow & pulse animation */}
+          <div className="w-24 h-12 text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.7)] animate-[pulse_1.5s_ease-in-out_infinite]">
+            <BatLogo className="w-full h-full" />
+          </div>
+        </div>
 
         <div className="flex flex-col items-center gap-3">
           <span
@@ -41,10 +29,10 @@ export default function Loading() {
             VILTRUM EGYPT
           </span>
 
-          {/* Animated bar */}
+          {/* Animated loading bar */}
           <div className="w-32 h-[1.5px] bg-zinc-800 overflow-hidden rounded-full">
             <div
-              className="h-full bg-accent rounded-full"
+              className="h-full bg-amber-400 rounded-full"
               style={{
                 animation: "loading-bar 1.4s ease-in-out infinite",
                 width: "40%",

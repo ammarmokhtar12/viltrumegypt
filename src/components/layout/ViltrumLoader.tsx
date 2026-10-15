@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import BatLogo from "@/components/ui/BatLogo";
 
 export default function ViltrumLoader() {
   const [show, setShow] = useState(true);
@@ -36,14 +36,8 @@ export default function ViltrumLoader() {
           />
           <div className="absolute inset-6 rounded-full bg-accent/5 viltrum-pulse-ring" />
 
-          <div className="relative w-28 h-28 viltrum-logo-spin">
-            <Image
-              src="/viltrum-logo.png"
-              alt="Viltrum Egypt"
-              fill
-              className="object-contain"
-              priority
-            />
+          <div className="relative w-28 h-16 flex items-center justify-center text-amber-400 drop-shadow-[0_0_18px_rgba(251,191,36,0.7)] animate-pulse">
+            <BatLogo className="w-full h-full" />
           </div>
 
           <div

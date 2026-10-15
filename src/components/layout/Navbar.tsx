@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/cart";
 import BrandLogo from "@/components/layout/BrandLogo";
-import BatLogo from "@/components/ui/BatLogo";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
@@ -76,16 +75,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
               <span className="font-bold text-white/90 tracking-wider">Spend 1,000 EGP & get Free Delivery</span>
             </span>
 
-            {/* Divider */}
-            <span className="text-muted/30 text-lg font-thin">|</span>
 
-            {/* Gotham Edition */}
-            <span className="flex items-center gap-2.5">
-              <BatLogo className="w-3.5 h-3.5 text-amber-400" />
-              <span className="font-bold text-amber-300 tracking-[0.2em]">GOTHAM EDITION</span>
-              <span className="text-muted/50">·</span>
-              <span className="text-zinc-300 tracking-wider">WAYNE ENTERPRISES TACTICAL ARMOR</span>
-            </span>
 
             {/* Divider */}
             <span className="text-muted/30 text-lg font-thin">|</span>
