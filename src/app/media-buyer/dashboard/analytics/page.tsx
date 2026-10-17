@@ -4,6 +4,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { TrendingUp, BarChart3, MapPin, Package, RefreshCw, Clock, CheckCircle, Wallet } from "lucide-react";
+import WeeklyProductSizeAnalytics from "@/components/analytics/WeeklyProductSizeAnalytics";
 
 const EGYPT_GOVERNORATES = [
   "القاهرة", "الجيزة", "الاسكندرية", "الدقهلية", "الشرقية", "المنوفية", "القليوبية",
@@ -434,6 +435,13 @@ export default function MediaBuyerAnalyticsPage() {
           })}
         </div>
       </div>
+
+      {/* Weekly T-Shirt & Size Demand Analysis */}
+      <WeeklyProductSizeAnalytics
+        orders={filteredOrders}
+        allOrders={orders}
+        periodLabel={period === "month" ? selectedMonth : period}
+      />
 
       {/* Monthly Delivery Rate & Monthly Expenses */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
