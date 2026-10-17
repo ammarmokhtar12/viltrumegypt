@@ -25,6 +25,7 @@ import {
   Percent,
   Truck,
   ArrowLeftRight,
+  Layers,
 } from "lucide-react";
 
 const ANALYTICS_NAV = [
@@ -34,6 +35,7 @@ const ANALYTICS_NAV = [
   { href: "/command-center/returns",       label: "Returns",      icon: RotateCcw       },
   { href: "/command-center/replacements",  label: "Replacements", icon: ArrowLeftRight  },
   { href: "/command-center/manufacturing", label: "Manufacturing",icon: Factory         },
+  { href: "/command-center/printing-planner", label: "الباترونات والطباعة", icon: Layers },
   { href: "/command-center/ad-spend",      label: "Ad Spend",     icon: Megaphone       },
   { href: "/command-center/profit",        label: "Profit Calc",  icon: Calculator      },
   { href: "/command-center/reports",       label: "Reports",      icon: FileSpreadsheet },

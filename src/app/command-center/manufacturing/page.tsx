@@ -2,8 +2,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Factory, PlusCircle, Package, AlertTriangle, Trash2, Pencil, X, Check } from "lucide-react";
+import { Factory, PlusCircle, Package, AlertTriangle, Trash2, Pencil, X, Check, Layers } from "lucide-react";
 
 export default function ManufacturingPage() {
   const [batches, setBatches] = useState<any[]>([]);
@@ -173,9 +174,14 @@ export default function ManufacturingPage() {
           <p className="text-[10px] font-bold text-red-500 uppercase tracking-[0.3em] mb-1">Production & Inventory</p>
           <h1 className="text-3xl font-bold text-white tracking-tight">Manufacturing & Stock</h1>
         </div>
-        <button onClick={() => { resetForm(); setShowForm(!showForm); }} className="flex items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all">
-          <PlusCircle size={14} /> Add Batch
-        </button>
+        <div className="flex items-center gap-2.5">
+          <Link href="/command-center/printing-planner" className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white border border-zinc-700/80 rounded-xl text-xs font-bold transition-all shadow-sm">
+            <Layers size={14} className="text-red-400" /> خطة طباعة الباترونات الذكية
+          </Link>
+          <button onClick={() => { resetForm(); setShowForm(!showForm); }} className="flex items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all">
+            <PlusCircle size={14} /> Add Batch
+          </button>
+        </div>
       </div>
 
       {/* Summary Cards */}
