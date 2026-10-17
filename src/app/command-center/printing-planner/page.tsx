@@ -13,6 +13,7 @@ import {
   Search,
   CheckCircle2,
   Sparkles,
+  RotateCcw,
 } from "lucide-react";
 
 const SIZES = ["M", "L", "XL", "2XL"] as const;
@@ -80,6 +81,21 @@ export default function PrintingPlannerPage() {
     setDirtyStock((prev) => ({ ...prev, [key]: true }));
   };
 
+  const handleClearAllStock = () => {
+    if (!confirm("هل أنت متأكد من تصفير رصيد المخزن للبدء بجرد جديد؟")) return;
+    const cleared: Record<string, number> = {};
+    const dirty: Record<string, boolean> = {};
+    products.forEach((p) => {
+      SIZES.forEach((sz) => {
+        const k = `${p.id}_${sz}`;
+        cleared[k] = 0;
+        dirty[k] = true;
+      });
+    });
+    setLocalStock(cleared);
+    setDirtyStock(dirty);
+  };
+
   const handleSaveStock = async () => {
     setSavingStock(true);
     try {
@@ -113,7 +129,6 @@ export default function PrintingPlannerPage() {
 
   // Solver for patterns based on PENDING ORDERS ONLY - STOCK
   const planData = useMemo(() => {
-    // 1. Accumulate demand from pending orders only
     const pendingDemand: Record<string, Record<TargetSize, number>> = {};
     pendingOrders.forEach((o: any) => {
       const items = Array.isArray(o.items) ? o.items : [];
@@ -163,10 +178,6 @@ export default function PrintingPlannerPage() {
       const totalStock = stock.M + stock.L + stock.XL + stock["2XL"];
       const totalDeficit = deficit.M + deficit.L + deficit.XL + deficit["2XL"];
 
-      // Pattern optimization:
-      // Standard: 1M, 1L, 1XL, 1 2XL
-      // Special: 2M, 2L, 0, 0
-      // Super Special: 0, 0, 2XL, 2 2XL
       let standard = 0;
       let special = 0;
       let superSpecial = 0;
@@ -205,11 +216,11 @@ export default function PrintingPlannerPage() {
         superSpecial = chosen.ssp;
 
         if (special > 0 && superSpecial === 0 && standard === 0) {
-          note = "المخزن فيه مقاسات كبيرة كفاية، طبعنا سبيشيال (2M+2L) لتوفير القماش";
+          note = "المخزن فيه مقاسات كبيرة، طبعنا سبيشيال (2M+2L) لتوفير القماش";
         } else if (superSpecial > 0 && special === 0 && standard === 0) {
-          note = "المخزن فيه مقاسات صغيرة كفاية، طبعنا سوبر سبيشيال (2XL+2 2XL)";
+          note = "المخزن فيه مقاسات صغيرة، طبعنا سوبر سبيشيال (2XL+2 2XL)";
         } else if (special > 0 || superSpecial > 0) {
-          note = "دمجنا الباترونات لتفادي هدر المقاسات";
+          note = "دمجنا الباترونات لتحقيق أقل فائض قماش";
         } else {
           note = "طلب متوازن على المقاسات";
         }
@@ -279,13 +290,13 @@ export default function PrintingPlannerPage() {
     if (planData.summary.sumSpecial > 0) msg += `  • سبيشيال (2M,2L): ${planData.summary.sumSpecial} باترون\n`;
     if (planData.summary.sumSuperSpecial > 0) msg += `  • سوبر سبيشيال (2XL,2 2XL): ${planData.summary.sumSuperSpecial} باترون\n\n`;
 
-    msg += `📋 *تفصيل الموديلات المطلوبة:*\n`;
+    msg += `📋 *تفصيل المطلوب طباعته:*\n`;
     toPrint.forEach((r) => {
       msg += `\n👕 *${r.product.title}*:\n`;
       if (r.standard > 0) msg += `   - باترون عادي: *${r.standard}*\n`;
       if (r.special > 0) msg += `   - باترون سبيشيال (2M+2L): *${r.special}*\n`;
       if (r.superSpecial > 0) msg += `   - باترون سوبر سبيشيال (2XL+2 2XL): *${r.superSpecial}*\n`;
-      msg += `   (إجمالي: ${r.totalPatterns * 4} تيشرت)\n`;
+      msg += `   -> إجمالي التيشرتات: ${r.totalPatterns * 4} قطعة\n`;
     });
 
     if (navigator?.clipboard?.writeText) {
@@ -380,15 +391,19 @@ export default function PrintingPlannerPage() {
   const hasUnsavedStock = Object.keys(dirtyStock).length > 0;
 
   return (
-    <div className="space-y-5 pb-16">
+    <div className="space-y-6 pb-20">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-            <span>خطة طباعة الباترونات (بيندينج فقط)</span>
+          <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-2">
+            <span>خطة طباعة الباترونات</span>
+            <span className="text-xs bg-amber-500/20 text-amber-400 border border-amber-500/40 px-2.5 py-0.5 rounded-full font-bold">
+              بيندينج فقط
+            </span>
           </h1>
-          <p className="text-xs text-zinc-400 mt-0.5">
-            سجل أرقام المخزن في الخانات الزرقاء، والنظام هيخصمها من أوردرات البيندينج ويطلعلك الباترونات المطلوبة فوراً.
+          <p className="text-sm text-zinc-400 mt-1">
+            <span className="text-emerald-400 font-bold">الصف اللي فوق بالأخضر:</span> بضاعة المخزن اليدوي ·{" "}
+            <span className="text-amber-400 font-bold">الصف اللي تحت بالأصفر:</span> أوردرات البيندينج المطلوبة
           </p>
         </div>
 
@@ -396,81 +411,92 @@ export default function PrintingPlannerPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={fetchAll}
-            className="p-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl transition-colors"
+            className="p-2.5 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl transition-colors"
             title="تحديث البيانات"
           >
-            <RefreshCw size={14} />
+            <RefreshCw size={15} />
+          </button>
+
+          <button
+            onClick={handleClearAllStock}
+            className="flex items-center gap-1.5 px-3.5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 rounded-xl text-xs font-bold transition-all"
+            title="تصفير كل أرقام المخزن لجرد يدوي"
+          >
+            <RotateCcw size={13} />
+            <span>تصفير المخزن</span>
           </button>
 
           <button
             onClick={handleCopyWhatsApp}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
               copied
                 ? "bg-emerald-500 text-white"
                 : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30"
             }`}
           >
-            {copied ? <Check size={13} /> : <Copy size={13} />}
+            {copied ? <Check size={14} /> : <Copy size={14} />}
             <span>{copied ? "تم النسخ!" : "نسخ للواتساب"}</span>
           </button>
 
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-xl text-xs font-bold transition-all"
+            className="flex items-center gap-1.5 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 rounded-xl text-xs font-bold transition-all"
           >
-            <Printer size={13} />
+            <Printer size={14} />
             <span>طباعة</span>
           </button>
 
           <button
             onClick={handleSaveStock}
             disabled={savingStock || !hasUnsavedStock}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
               hasUnsavedStock
-                ? "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/20 cursor-pointer animate-pulse"
+                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 cursor-pointer animate-pulse"
                 : "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700/50"
             }`}
           >
-            <Save size={13} />
+            <Save size={14} />
             <span>{savingStock ? "جاري الحفظ..." : hasUnsavedStock ? "حفظ المخزن *" : "المخزن محفوظ"}</span>
           </button>
         </div>
       </div>
 
-      {/* Clean Summary Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3">
-          <span className="text-[10px] text-amber-400 font-bold block uppercase">أوردرات البيندينج</span>
-          <span className="text-xl font-black text-white">{planData.summary.sumPending}</span>
-          <span className="text-[10px] text-zinc-500 mr-1">تيشرت مطلوب</span>
+      {/* Summary KPI Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-2xl p-4">
+          <span className="text-xs text-emerald-400 font-bold block">🟢 المتاح في المخزن اليدوي</span>
+          <span className="text-3xl font-black text-white mt-1 block">{planData.summary.sumStock}</span>
+          <span className="text-xs text-zinc-400">تيشرت مسجل</span>
         </div>
 
-        <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3">
-          <span className="text-[10px] text-blue-400 font-bold block uppercase">المتاح في المخزن</span>
-          <span className="text-xl font-black text-white">{planData.summary.sumStock}</span>
-          <span className="text-[10px] text-zinc-500 mr-1">تيشرت</span>
+        <div className="bg-amber-950/20 border border-amber-500/30 rounded-2xl p-4">
+          <span className="text-xs text-amber-400 font-bold block">🟡 أوردرات البيندينج المطلوبة</span>
+          <span className="text-3xl font-black text-white mt-1 block">{planData.summary.sumPending}</span>
+          <span className="text-xs text-zinc-400">تيشرت مطلوب</span>
         </div>
 
-        <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3">
-          <span className="text-[10px] text-red-400 font-bold block uppercase">العجز الصافي للطباعة</span>
-          <span className="text-xl font-black text-red-400">{planData.summary.sumDeficit}</span>
-          <span className="text-[10px] text-zinc-500 mr-1">تيشرت ناقص</span>
+        <div className="bg-red-950/20 border border-red-500/30 rounded-2xl p-4">
+          <span className="text-xs text-red-400 font-bold block">🔴 العجز الصافي المطلوب طباعته</span>
+          <span className="text-3xl font-black text-red-400 mt-1 block">{planData.summary.sumDeficit}</span>
+          <span className="text-xs text-zinc-400">تيشرت ناقص</span>
         </div>
 
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3">
-          <span className="text-[10px] text-red-400 font-bold block uppercase">الباترونات المطلوبة</span>
-          <span className="text-2xl font-black text-white">{planData.summary.grandTotalPatterns}</span>
-          <span className="text-[11px] text-red-400 font-bold mr-1">باترون</span>
-          <span className="text-[10px] text-zinc-400 block mt-0.5">
+        <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-4">
+          <span className="text-xs text-zinc-300 font-bold block">📜 إجمالي الباترونات للطباعة</span>
+          <span className="text-3xl font-black text-white mt-1 block">
+            {planData.summary.grandTotalPatterns}{" "}
+            <span className="text-base text-red-400 font-bold">باترون</span>
+          </span>
+          <span className="text-xs text-zinc-400 block mt-0.5">
             ({planData.summary.sumStandard} عادي · {planData.summary.sumSpecial} سبيشيال · {planData.summary.sumSuperSpecial} سوبر)
           </span>
         </div>
       </div>
 
-      {/* Search & Pattern Legend */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-        <div className="flex items-center gap-2 text-[11px] text-zinc-400">
-          <span className="font-bold text-white">الباترونات:</span>
+      {/* Search & Pattern Info */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-zinc-400 flex-wrap">
+          <span className="font-bold text-white">الباترونات المتاحة:</span>
           <span>عادي (M,L,XL,2XL)</span>
           <span className="text-zinc-600">|</span>
           <span className="text-sky-400 font-bold">سبيشيال (2M+2L)</span>
@@ -479,161 +505,213 @@ export default function PrintingPlannerPage() {
         </div>
 
         <div className="relative">
-          <Search size={13} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <Search size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
             type="text"
-            placeholder="بحث في الموديلات..."
+            placeholder="بحث في أسماء الموديلات..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-zinc-900 border border-zinc-800 rounded-xl pr-8 pl-3 py-1 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500/50 w-44 sm:w-56"
+            className="bg-zinc-900 border border-zinc-800 rounded-xl pr-10 pl-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500/50 w-full sm:w-64"
           />
         </div>
       </div>
 
-      {/* Single Clean Master Table */}
-      <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-right text-xs">
-            <thead>
-              <tr className="bg-zinc-950/80 border-b border-zinc-800 text-[11px] text-zinc-400 font-bold">
-                <th className="py-3 px-4 text-white">الموديل</th>
-                <th className="py-3 px-3 text-center text-blue-400">
-                  📦 المخزن اليدوي
-                  <span className="block text-[9px] text-zinc-500 font-normal">M · L · XL · 2XL</span>
-                </th>
-                <th className="py-3 px-3 text-center text-amber-400">
-                  📋 بيندينج
-                  <span className="block text-[9px] text-zinc-500 font-normal">M · L · XL · 2XL</span>
-                </th>
-                <th className="py-3 px-3 text-center text-red-400">
-                  العجز الصافي
-                  <span className="block text-[9px] text-zinc-500 font-normal">M · L · XL · 2XL</span>
-                </th>
-                <th className="py-3 px-4 text-center text-white">
-                  الباترونات المقترح طباعتها
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800/50">
-              {filteredRows.map((r) => {
-                const isPrinting = r.totalPatterns > 0;
-                return (
-                  <tr
-                    key={r.product.id}
-                    className={`hover:bg-zinc-800/30 transition-colors ${
-                      isPrinting ? "bg-red-500/[0.02]" : ""
-                    }`}
-                  >
-                    {/* Model Name */}
-                    <td className="py-3.5 px-4 font-bold text-white max-w-[200px]">
-                      <div className="truncate" title={r.product.title}>
-                        {r.product.title}
-                      </div>
-                      <div className="text-[10px] text-zinc-500 font-normal mt-0.5">
-                        {r.hasSpecial && <span className="text-sky-400 mr-1.5">● سبيشيال متاح</span>}
-                        {r.hasSuperSpecial && <span className="text-violet-400 mr-1.5">● سوبر متاح</span>}
-                      </div>
-                    </td>
+      {/* Stacked Product Cards: Green on Top (Stock), Yellow on Bottom (Pending) */}
+      <div className="space-y-4">
+        {filteredRows.map((r) => {
+          const isPrinting = r.totalPatterns > 0;
 
-                    {/* Stock Inputs (Manual Edit) */}
-                    <td className="py-3.5 px-3">
-                      <div className="flex items-center justify-center gap-1">
-                        {SIZES.map((sz) => (
-                          <div key={sz} className="flex flex-col items-center">
-                            <span className="text-[8px] text-zinc-500 font-mono">{sz}</span>
-                            <input
-                              type="number"
-                              min="0"
-                              value={r.stock[sz]}
-                              onChange={(e) =>
-                                handleStockChange(r.product.id, sz, parseInt(e.target.value) || 0)
-                              }
-                              className="w-11 bg-zinc-950 border border-blue-500/40 rounded-md text-center text-white text-xs py-1 font-bold focus:outline-none focus:border-blue-400"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </td>
+          return (
+            <div
+              key={r.product.id}
+              className={`bg-zinc-950/80 border rounded-2xl p-5 sm:p-6 transition-all space-y-4 ${
+                isPrinting
+                  ? "border-zinc-800 hover:border-zinc-700 shadow-md"
+                  : "border-zinc-800/60 opacity-85 hover:opacity-100"
+              }`}
+            >
+              {/* Product Header */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+                <div>
+                  <h3 className="text-xl font-black text-white tracking-wide">
+                    {r.product.title}
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs text-zinc-400 mt-1">
+                    <span>الباترونات:</span>
+                    <span className="text-zinc-300 font-semibold">عادي (M, L, XL, 2XL)</span>
+                    {r.hasSpecial && (
+                      <span className="text-sky-400 font-bold bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">
+                        سبيشيال (2M+2L)
+                      </span>
+                    )}
+                    {r.hasSuperSpecial && (
+                      <span className="text-violet-400 font-bold bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/20">
+                        سوبر (2XL+2 2XL)
+                      </span>
+                    )}
+                  </div>
+                </div>
 
-                    {/* Pending Demand (Read-only badges) */}
-                    <td className="py-3.5 px-3">
-                      <div className="flex items-center justify-center gap-1">
-                        {SIZES.map((sz) => (
-                          <div key={sz} className="flex flex-col items-center">
-                            <span className="text-[8px] text-zinc-500 font-mono">{sz}</span>
-                            <span
-                              className={`w-11 py-1 text-center font-bold text-xs rounded-md border ${
-                                r.pending[sz] > 0
-                                  ? "bg-amber-500/10 text-amber-300 border-amber-500/30"
-                                  : "bg-zinc-950 text-zinc-600 border-zinc-800"
-                              }`}
-                            >
-                              {r.pending[sz]}
-                            </span>
-                          </div>
-                        ))}
+                {/* Pattern Recommendation Badge */}
+                <div>
+                  {isPrinting ? (
+                    <div className="flex flex-col sm:items-end gap-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-zinc-400 font-bold">المطلوب طباعته:</span>
+                        {r.standard > 0 && (
+                          <span className="px-3.5 py-1.5 rounded-xl bg-zinc-800 text-white font-black text-base border border-zinc-700 shadow-sm">
+                            {r.standard} باترون عادي
+                          </span>
+                        )}
+                        {r.special > 0 && (
+                          <span className="px-3.5 py-1.5 rounded-xl bg-sky-500/20 text-sky-400 font-black text-base border border-sky-500/40 shadow-sm">
+                            {r.special} باترون سبيشيال (2M+2L)
+                          </span>
+                        )}
+                        {r.superSpecial > 0 && (
+                          <span className="px-3.5 py-1.5 rounded-xl bg-violet-500/20 text-violet-400 font-black text-base border border-violet-500/40 shadow-sm">
+                            {r.superSpecial} باترون سوبر (2XL+2 2XL)
+                          </span>
+                        )}
                       </div>
-                    </td>
-
-                    {/* Net Deficit */}
-                    <td className="py-3.5 px-3">
-                      <div className="flex items-center justify-center gap-1">
-                        {SIZES.map((sz) => (
-                          <div key={sz} className="flex flex-col items-center">
-                            <span className="text-[8px] text-zinc-500 font-mono">{sz}</span>
-                            <span
-                              className={`w-11 py-1 text-center font-bold text-xs rounded-md ${
-                                r.deficit[sz] > 0
-                                  ? "bg-red-500/20 text-red-400 font-black border border-red-500/30"
-                                  : "text-zinc-600"
-                              }`}
-                            >
-                              {r.deficit[sz]}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-
-                    {/* Recommended Patterns & Decision */}
-                    <td className="py-3.5 px-4 text-center">
-                      {isPrinting ? (
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="flex items-center gap-1.5 flex-wrap justify-center">
-                            {r.standard > 0 && (
-                              <span className="px-2 py-0.5 rounded bg-zinc-800 text-white font-bold text-[11px] border border-zinc-700">
-                                {r.standard} عادي
-                              </span>
-                            )}
-                            {r.special > 0 && (
-                              <span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 font-bold text-[11px] border border-sky-500/30">
-                                {r.special} سبيشيال (2M+2L)
-                              </span>
-                            )}
-                            {r.superSpecial > 0 && (
-                              <span className="px-2 py-0.5 rounded bg-violet-500/20 text-violet-400 font-bold text-[11px] border border-violet-500/30">
-                                {r.superSpecial} سوبر (2XL+2 2XL)
-                              </span>
-                            )}
-                          </div>
-                          {r.note && (
-                            <span className="text-[9px] text-zinc-400 flex items-center gap-1">
-                              <Sparkles size={10} className="text-amber-400" /> {r.note}
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
-                          <CheckCircle2 size={12} /> المخزن مغطي
+                      {r.note && (
+                        <span className="text-xs text-amber-400/90 font-medium flex items-center gap-1 mt-0.5">
+                          <Sparkles size={12} /> {r.note}
                         </span>
                       )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-sm text-emerald-400 font-black bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/30">
+                      <CheckCircle2 size={16} /> المخزن مغطي الطلب بالكامل
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Stacked Layout: Stock on Top (Green), Pending on Bottom (Yellow), Deficit on Right */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                {/* The 2 Stacked Rows */}
+                <div className="lg:col-span-9 space-y-3">
+                  {/* 🟢 ROW 1: المخزن اليدوي (بالأخضر) */}
+                  <div className="bg-emerald-950/20 border-2 border-emerald-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-2.5 sm:w-48">
+                      <div className="w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-md shadow-emerald-500/50" />
+                      <div>
+                        <span className="text-base font-black text-emerald-400 block">
+                          المخزن اليدوي (أخضر)
+                        </span>
+                        <span className="text-[11px] text-emerald-500/80 block">
+                          اكتب بضاعتك المتاحة
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 sm:gap-4 justify-end flex-1 flex-wrap">
+                      {SIZES.map((sz) => (
+                        <div key={sz} className="flex flex-col items-center gap-1.5">
+                          <span className="text-xs font-black text-emerald-300 font-mono">
+                            مقاس {sz}
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            value={r.stock[sz]}
+                            onChange={(e) =>
+                              handleStockChange(r.product.id, sz, parseInt(e.target.value) || 0)
+                            }
+                            className="w-16 sm:w-20 h-12 bg-zinc-950 border-2 border-emerald-500/60 focus:border-emerald-400 text-center text-emerald-300 text-2xl font-black rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/30 shadow-inner transition-all"
+                          />
+                        </div>
+                      ))}
+
+                      <div className="flex flex-col items-center justify-center pl-2 border-r border-emerald-500/20 pr-4 min-w-[75px]">
+                        <span className="text-[10px] text-emerald-400 uppercase font-black">
+                          إجمالي المخزن
+                        </span>
+                        <span className="text-2xl font-black text-emerald-400">
+                          {r.totalStock}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 🟡 ROW 2: البيندينج (بالأصفر) */}
+                  <div className="bg-amber-950/20 border-2 border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-2.5 sm:w-48">
+                      <div className="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-md shadow-amber-400/50" />
+                      <div>
+                        <span className="text-base font-black text-amber-400 block">
+                          البيندينج (أصفر)
+                        </span>
+                        <span className="text-[11px] text-amber-500/80 block">
+                          المطلوب في الأوردرات
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 sm:gap-4 justify-end flex-1 flex-wrap">
+                      {SIZES.map((sz) => (
+                        <div key={sz} className="flex flex-col items-center gap-1.5">
+                          <span className="text-xs font-black text-amber-300 font-mono">
+                            مقاس {sz}
+                          </span>
+                          <div className="w-16 sm:w-20 h-12 bg-zinc-950 border-2 border-amber-500/60 flex items-center justify-center text-amber-300 text-2xl font-black rounded-xl shadow-inner">
+                            {r.pending[sz]}
+                          </div>
+                        </div>
+                      ))}
+
+                      <div className="flex flex-col items-center justify-center pl-2 border-r border-amber-500/20 pr-4 min-w-[75px]">
+                        <span className="text-[10px] text-amber-400 uppercase font-black">
+                          إجمالي المطلوب
+                        </span>
+                        <span className="text-2xl font-black text-amber-400">
+                          {r.totalPending}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 🔴 Deficit Column (العجز الصافي المطلوب طباعته) */}
+                <div className="lg:col-span-3 bg-red-950/20 border-2 border-red-500/30 rounded-2xl p-4 flex flex-col justify-between h-full min-h-[160px]">
+                  <div>
+                    <span className="text-xs font-black text-red-400 block uppercase tracking-wider mb-2.5">
+                      العجز المطلوب طباعته:
+                    </span>
+                    <div className="grid grid-cols-4 gap-1.5 text-center">
+                      {SIZES.map((sz) => (
+                        <div
+                          key={sz}
+                          className="p-2 rounded-xl bg-zinc-950 border border-red-500/20 flex flex-col items-center"
+                        >
+                          <span className="text-[10px] text-zinc-400 block font-mono font-bold">
+                            {sz}
+                          </span>
+                          <span
+                            className={`text-lg font-black ${
+                              r.deficit[sz] > 0 ? "text-red-400" : "text-zinc-600"
+                            }`}
+                          >
+                            {r.deficit[sz]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-red-500/20 flex items-baseline justify-between">
+                    <span className="text-xs text-zinc-400 font-bold">إجمالي العجز:</span>
+                    <span className="text-2xl font-black text-red-400">
+                      {r.totalDeficit}{" "}
+                      <span className="text-xs text-zinc-400 font-normal">تيشرت</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
