@@ -13,19 +13,15 @@ import {
   Package,
   ArrowLeftRight,
   Sparkles,
-  AlertTriangle,
   CheckCircle2,
   SlidersHorizontal,
   ChevronDown,
   ChevronUp,
   Search,
+  Trash2,
+  Edit3,
+  RotateCcw,
 } from "lucide-react";
-
-interface ExchangeItem {
-  title: string;
-  size: string;
-  quantity: number;
-}
 
 interface ProductPatternRule {
   productId: string;
@@ -62,6 +58,10 @@ export default function PrintingPlannerPage() {
   const [localStock, setLocalStock] = useState<Record<string, number>>({});
   const [dirtyStock, setDirtyStock] = useState<Record<string, boolean>>({});
 
+  // User-edited demand override cache: Record<productId_size, quantity>
+  const [customDemand, setCustomDemand] = useState<Record<string, number>>({});
+  const [demandMode, setDemandMode] = useState<"auto" | "manual">("auto");
+
   // Pattern capabilities customization per product
   const [customPatternRules, setCustomPatternRules] = useState<Record<string, ProductPatternRule>>({});
   const [showPatternSettings, setShowPatternSettings] = useState(false);
@@ -86,34 +86,62 @@ export default function PrintingPlannerPage() {
       ]);
 
       const prods = pRes.data || [];
+      const invs = iRes.data || [];
+      const orders = oRes.data || [];
+      const replacements = rRes.data || [];
+
       setProducts(prods);
-      setInventory(iRes.data || []);
-      setPendingOrders(oRes.data || []);
-      setPendingReplacements(rRes.data || []);
+      setInventory(invs);
+      setPendingOrders(orders);
+      setPendingReplacements(replacements);
 
       // Build local stock map
       const stockMap: Record<string, number> = {};
-      (iRes.data || []).forEach((inv: any) => {
+      invs.forEach((inv: any) => {
         const key = `${inv.product_id}_${inv.size?.toUpperCase()}`;
         stockMap[key] = Number(inv.quantity) || 0;
       });
       setLocalStock(stockMap);
       setDirtyStock({});
 
+      // Build initial auto demand
+      const autoDemandMap: Record<string, number> = {};
+      orders.forEach((o: any) => {
+        const items = Array.isArray(o.items) ? o.items : [];
+        items.forEach((it: any) => {
+          const prod = prods.find((p) => p.id === it.product_id || p.title === it.title);
+          if (!prod) return;
+          const size = normalizeSize(it.size);
+          if (!size) return;
+          const k = `${prod.id}_${size}`;
+          autoDemandMap[k] = (autoDemandMap[k] || 0) + (Number(it.quantity) || 1);
+        });
+      });
+
+      replacements.forEach((r: any) => {
+        const items = Array.isArray(r.new_items) ? r.new_items : [];
+        items.forEach((it: any) => {
+          const prod = prods.find((p) => p.id === it.product_id || p.title === it.title);
+          if (!prod) return;
+          const size = normalizeSize(it.size);
+          if (!size) return;
+          const k = `${prod.id}_${size}`;
+          autoDemandMap[k] = (autoDemandMap[k] || 0) + (Number(it.quantity) || 1);
+        });
+      });
+
+      setCustomDemand(autoDemandMap);
+
       // Initialize default pattern rules based on product titles
       const rules: Record<string, ProductPatternRule> = {};
       prods.forEach((p: any) => {
         const t = (p.title || "").toUpperCase();
 
-        // Special: 2x M + 2x L
-        // Available for: Night Wing short sleeve, Spider Long Sleeve, Red Hood
         const hasSpecialDefault =
           (t.includes("NIGHT WING") && !t.includes("LONG")) ||
           (t.includes("SPIDER") && t.includes("LONG")) ||
           t.includes("RED HOOD");
 
-        // Super Special: 2x XL + 2x 2XL
-        // Available for: Spider Long Sleeve, Conquest Short Sleeve, Red Hood, Superior Short Sleeve
         const hasSuperSpecialDefault =
           (t.includes("SPIDER") && t.includes("LONG")) ||
           (t.includes("CONQUEST") && !t.includes("LONG")) ||
@@ -134,11 +162,37 @@ export default function PrintingPlannerPage() {
     }
   };
 
+  // Stock Handlers
   const handleStockChange = (productId: string, size: string, value: number) => {
     const key = `${productId}_${size}`;
     const qty = Math.max(0, value);
     setLocalStock((prev) => ({ ...prev, [key]: qty }));
     setDirtyStock((prev) => ({ ...prev, [key]: true }));
+  };
+
+  const handleClearAllStock = () => {
+    if (!confirm("هل أنت متأكد من تصفير رصيد المخزن للبدء بجرد يدوي جديد من الصفر؟")) return;
+    const cleared: Record<string, number> = {};
+    const dirty: Record<string, boolean> = {};
+    products.forEach((p) => {
+      SIZES.forEach((sz) => {
+        const k = `${p.id}_${sz}`;
+        cleared[k] = 0;
+        dirty[k] = true;
+      });
+    });
+    setLocalStock(cleared);
+    setDirtyStock(dirty);
+  };
+
+  const handleResetStockFromDb = () => {
+    const stockMap: Record<string, number> = {};
+    inventory.forEach((inv: any) => {
+      const key = `${inv.product_id}_${inv.size?.toUpperCase()}`;
+      stockMap[key] = Number(inv.quantity) || 0;
+    });
+    setLocalStock(stockMap);
+    setDirtyStock({});
   };
 
   const handleSaveStock = async () => {
@@ -162,7 +216,7 @@ export default function PrintingPlannerPage() {
           alert(`خطأ أثناء حفظ المخزن: ${error.message}`);
         } else {
           setDirtyStock({});
-          alert("تم تحديث وحفظ بيانات المخزن بنجاح ✅");
+          alert("تم حفظ وتحديث رصيد المخزن في قاعدة البيانات بنجاح ✅");
         }
       }
     } catch (err: any) {
@@ -170,6 +224,54 @@ export default function PrintingPlannerPage() {
     } finally {
       setSavingStock(false);
     }
+  };
+
+  // Demand Handlers (Manual Demand Input)
+  const handleDemandChange = (productId: string, size: string, value: number) => {
+    const key = `${productId}_${size}`;
+    const qty = Math.max(0, value);
+    setCustomDemand((prev) => ({ ...prev, [key]: qty }));
+  };
+
+  const handleClearAllDemand = () => {
+    const cleared: Record<string, number> = {};
+    products.forEach((p) => {
+      SIZES.forEach((sz) => {
+        cleared[`${p.id}_${sz}`] = 0;
+      });
+    });
+    setCustomDemand(cleared);
+    setDemandMode("manual");
+  };
+
+  const handleResetDemandToOrders = () => {
+    const autoDemandMap: Record<string, number> = {};
+    pendingOrders.forEach((o: any) => {
+      const items = Array.isArray(o.items) ? o.items : [];
+      items.forEach((it: any) => {
+        const prod = products.find((p) => p.id === it.product_id || p.title === it.title);
+        if (!prod) return;
+        const size = normalizeSize(it.size);
+        if (!size) return;
+        const k = `${prod.id}_${size}`;
+        autoDemandMap[k] = (autoDemandMap[k] || 0) + (Number(it.quantity) || 1);
+      });
+    });
+
+    pendingReplacements.forEach((r: any) => {
+      const items = Array.isArray(r.new_items) ? r.new_items : [];
+      items.forEach((it: any) => {
+        const prod = products.find((p) => p.id === it.product_id || p.title === it.title);
+        if (!prod) return;
+        const size = normalizeSize(it.size);
+        if (!size) return;
+        const k = `${prod.id}_${size}`;
+        autoDemandMap[k] = (autoDemandMap[k] || 0) + (Number(it.quantity) || 1);
+      });
+    });
+
+    setCustomDemand(autoDemandMap);
+    setDemandMode("auto");
   };
 
   const togglePatternRule = (productId: string, type: "hasSpecial" | "hasSuperSpecial") => {
@@ -184,44 +286,12 @@ export default function PrintingPlannerPage() {
 
   // ─── Mathematical Solver for Pattern Optimization ──────────────────────────
   const planData = useMemo(() => {
-    // 1. Accumulate demand from pending orders
-    const ordersDemand: Record<string, Record<TargetSize, number>> = {};
-    pendingOrders.forEach((o: any) => {
-      const items = Array.isArray(o.items) ? o.items : [];
-      items.forEach((it: any) => {
-        const prod = products.find((p) => p.id === it.product_id || p.title === it.title);
-        if (!prod) return;
-        const size = normalizeSize(it.size);
-        if (!size) return;
-        if (!ordersDemand[prod.id]) ordersDemand[prod.id] = { M: 0, L: 0, XL: 0, "2XL": 0 };
-        ordersDemand[prod.id][size] += Number(it.quantity) || 1;
-      });
-    });
-
-    // 2. Accumulate demand from pending replacements
-    const replacementsDemand: Record<string, Record<TargetSize, number>> = {};
-    pendingReplacements.forEach((r: any) => {
-      const items = Array.isArray(r.new_items) ? r.new_items : [];
-      items.forEach((it: any) => {
-        const prod = products.find((p) => p.id === it.product_id || p.title === it.title);
-        if (!prod) return;
-        const size = normalizeSize(it.size);
-        if (!size) return;
-        if (!replacementsDemand[prod.id]) replacementsDemand[prod.id] = { M: 0, L: 0, XL: 0, "2XL": 0 };
-        replacementsDemand[prod.id][size] += Number(it.quantity) || 1;
-      });
-    });
-
-    // 3. Calculate per-product deficit and optimize pattern count
     const productPlans = products.map((prod) => {
-      const oDem = ordersDemand[prod.id] || { M: 0, L: 0, XL: 0, "2XL": 0 };
-      const rDem = replacementsDemand[prod.id] || { M: 0, L: 0, XL: 0, "2XL": 0 };
-
       const totalRequired: Record<TargetSize, number> = {
-        M: oDem.M + rDem.M,
-        L: oDem.L + rDem.L,
-        XL: oDem.XL + rDem.XL,
-        "2XL": oDem["2XL"] + rDem["2XL"],
+        M: customDemand[`${prod.id}_M`] || 0,
+        L: customDemand[`${prod.id}_L`] || 0,
+        XL: customDemand[`${prod.id}_XL`] || 0,
+        "2XL": customDemand[`${prod.id}_2XL`] || 0,
       };
 
       const currentStock: Record<TargetSize, number> = {
@@ -248,10 +318,6 @@ export default function PrintingPlannerPage() {
       };
 
       // Solver: Find optimal count of Standard (S), Special (SP), Super Special (SSP)
-      // Standard: 1 M, 1 L, 1 XL, 1 2XL
-      // Special: 2 M, 2 L, 0 XL, 0 2XL
-      // Super Special: 0 M, 0 L, 2 XL, 2 2XL
-
       let bestPlan = {
         standard: 0,
         special: 0,
@@ -263,7 +329,6 @@ export default function PrintingPlannerPage() {
       };
 
       if (totalDeficit > 0) {
-        // Upper bound search range
         const maxStandard = Math.max(deficit.M, deficit.L, deficit.XL, deficit["2XL"]) + 2;
         const maxSpecial = rule.hasSpecial ? Math.ceil(Math.max(deficit.M, deficit.L) / 2) + 2 : 0;
         const maxSuper = rule.hasSuperSpecial ? Math.ceil(Math.max(deficit.XL, deficit["2XL"]) / 2) + 2 : 0;
@@ -279,14 +344,12 @@ export default function PrintingPlannerPage() {
               const prodXL = s + ssp * 2;
               const prod2XL = s + ssp * 2;
 
-              // Check if all deficits are satisfied
               if (
                 prodM >= deficit.M &&
                 prodL >= deficit.L &&
                 prodXL >= deficit.XL &&
                 prod2XL >= deficit["2XL"]
               ) {
-                // Surplus produced above deficit
                 const surplusM = prodM - deficit.M;
                 const surplusL = prodL - deficit.L;
                 const surplusXL = prodXL - deficit.XL;
@@ -294,7 +357,6 @@ export default function PrintingPlannerPage() {
                 const totalSurplus = surplusM + surplusL + surplusXL + surplus2XL;
                 const totalPatterns = s + sp + ssp;
 
-                // Penalize total surplus heavily, and slightly penalize number of patterns
                 const penalty = totalSurplus * 10 + totalPatterns;
 
                 if (penalty < minPenalty) {
@@ -325,7 +387,6 @@ export default function PrintingPlannerPage() {
           Math.max(0, prodXL - deficit.XL) +
           Math.max(0, prod2XL - deficit["2XL"]);
 
-        // Generate intelligent Arabic reasoning
         let reasoning = "";
         const smallDeficit = deficit.M + deficit.L;
         const bigDeficit = deficit.XL + deficit["2XL"];
@@ -337,9 +398,9 @@ export default function PrintingPlannerPage() {
         } else if (chosen.sp > 0 || chosen.ssp > 0) {
           reasoning = `✨ تم دمج الباترونات (${chosen.s > 0 ? `${chosen.s} عادي + ` : ""}${chosen.sp > 0 ? `${chosen.sp} سبيشيال + ` : ""}${chosen.ssp > 0 ? `${chosen.ssp} سوبر سبيشيال` : ""}) لتحقيق أقل فائض قماش ممكن.`;
         } else if (smallDeficit > 0 && bigDeficit === 0 && !rule.hasSpecial) {
-          reasoning = `💡 ملاحظة: مطلوب مقاسات صغيرة فقط ولا يوجد باترون سبيشيال مفعل لهذا الموديل. تم استخدام ${chosen.s} باترون عادي (يمكنك تفعيل سبيشيال إذا كان الباترون متوفراً لديك).`;
+          reasoning = `💡 مطلوب مقاسات صغيرة فقط ولا يوجد باترون سبيشيال مفعل لهذا الموديل. تم استخدام ${chosen.s} باترون عادي (يمكنك تفعيل سبيشيال للموديل إذا كان متاحاً).`;
         } else if (bigDeficit > 0 && smallDeficit === 0 && !rule.hasSuperSpecial) {
-          reasoning = `💡 ملاحظة: مطلوب مقاسات كبيرة فقط ولا يوجد باترون سوبر سبيشيال لهذا الموديل. تم استخدام ${chosen.s} باترون عادي.`;
+          reasoning = `💡 مطلوب مقاسات كبيرة فقط ولا يوجد باترون سوبر سبيشيال لهذا الموديل. تم استخدام ${chosen.s} باترون عادي.`;
         } else {
           reasoning = `✅ طلب متوازن عبر كل المقاسات -> تم استخدام ${chosen.s} باترون عادي.`;
         }
@@ -357,8 +418,6 @@ export default function PrintingPlannerPage() {
 
       return {
         product: prod,
-        ordersDemand: oDem,
-        replacementsDemand: rDem,
         totalRequired,
         currentStock,
         deficit,
@@ -369,9 +428,6 @@ export default function PrintingPlannerPage() {
       };
     });
 
-    // Summary totals across all products
-    let totalPendingOrdersUnits = 0;
-    let totalReplacementsUnits = 0;
     let totalGrossRequired = 0;
     let totalCurrentStock = 0;
     let totalNetDeficit = 0;
@@ -380,8 +436,6 @@ export default function PrintingPlannerPage() {
     let totalSuperSpecialPatterns = 0;
 
     productPlans.forEach((p) => {
-      totalPendingOrdersUnits += p.ordersDemand.M + p.ordersDemand.L + p.ordersDemand.XL + p.ordersDemand["2XL"];
-      totalReplacementsUnits += p.replacementsDemand.M + p.replacementsDemand.L + p.replacementsDemand.XL + p.replacementsDemand["2XL"];
       totalGrossRequired += p.totalReqSum;
       totalCurrentStock += p.currentStock.M + p.currentStock.L + p.currentStock.XL + p.currentStock["2XL"];
       totalNetDeficit += p.totalDeficit;
@@ -393,8 +447,6 @@ export default function PrintingPlannerPage() {
     return {
       productPlans,
       summary: {
-        totalPendingOrdersUnits,
-        totalReplacementsUnits,
         totalGrossRequired,
         totalCurrentStock,
         totalNetDeficit,
@@ -404,7 +456,7 @@ export default function PrintingPlannerPage() {
         grandTotalPatterns: totalStandardPatterns + totalSpecialPatterns + totalSuperSpecialPatterns,
       },
     };
-  }, [products, pendingOrders, pendingReplacements, localStock, customPatternRules]);
+  }, [products, customDemand, localStock, customPatternRules]);
 
   // Filtered product plans
   const filteredProductPlans = useMemo(() => {
@@ -478,7 +530,7 @@ export default function PrintingPlannerPage() {
         <div class="header">
           <div>
             <h1>VILTRUM EGYPT — أمر طباعة الباترونات (Cutting & Printing Order)</h1>
-            <div>التاريخ: ${new Date().toLocaleDateString("ar-EG")} · مبني على الأوردرات المعلقة والاستبدالات بعد خصم المخزن</div>
+            <div>التاريخ: ${new Date().toLocaleDateString("ar-EG")} · مبني على الكميات المدخلة بعد خصم المخزن</div>
           </div>
           <div>
             <div>إجمالي الباترونات المطلوب طباعتها</div>
@@ -542,7 +594,7 @@ export default function PrintingPlannerPage() {
   const hasUnsavedStock = Object.keys(dirtyStock).length > 0;
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-6 pb-20">
       {/* Page Title & Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
@@ -551,32 +603,19 @@ export default function PrintingPlannerPage() {
               Production Intelligence
             </span>
             <span className="text-[9px] bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full font-bold">
-              حساب الباترونات الذكي
+              إدخال يدوي وحساب ذكي
             </span>
           </div>
           <h1 className="text-3xl font-bold text-white tracking-tight mt-1 flex items-center gap-2">
-            خطة طباعة الباترونات والمخزن
+            نظام جرد البضاعة وحساب الباترونات
           </h1>
           <p className="text-xs text-zinc-400 mt-1 max-w-2xl leading-relaxed">
-            النظام يحسب تلقائياً المطلوب طباعته بناءً على الأوردرات المعلقة والاستبدالات، ويخصم المخزون المتوفر، ثم يقترح الباترون الأنسب (عادي، سبيشيال، سوبر سبيشيال) لتوفير القماش وعدم تراكم مقاسات راكدة.
+            سجل بضاعة المخزن يدوياً أو عدلها مباشرة في الخانات الزرقاء، وسجل الكميات المطلوبة في الخانات الصفراء، وسيقوم النظام فوراً بحساب العجز والباترونات الأنسب (عادي، سبيشيال، سوبر سبيشيال) في لحظتها.
           </p>
         </div>
 
         {/* Global Toolbar */}
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Status scope toggle */}
-          <button
-            onClick={() => setIncludeConfirmed(!includeConfirmed)}
-            className={`px-3 py-2 rounded-xl text-[11px] font-bold border transition-all ${
-              includeConfirmed
-                ? "bg-blue-500/20 text-blue-400 border-blue-500/40"
-                : "bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-white"
-            }`}
-            title="التبديل بين احتساب البيندينج فقط، أو إضافة المؤكد"
-          >
-            {includeConfirmed ? "الأوردرات: المعلقة + المؤكدة" : "الأوردرات: المعلقة فقط (Pending)"}
-          </button>
-
           {/* Refresh */}
           <button
             onClick={fetchAll}
@@ -614,83 +653,121 @@ export default function PrintingPlannerPage() {
             disabled={savingStock || !hasUnsavedStock}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               hasUnsavedStock
-                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 animate-pulse"
+                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 animate-pulse cursor-pointer"
                 : "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-zinc-700/50"
             }`}
           >
             <Save size={14} />
-            <span>{savingStock ? "جاري الحفظ..." : hasUnsavedStock ? "حفظ تعديلات المخزن *" : "المخزن محفوظ"}</span>
+            <span>{savingStock ? "جاري الحفظ..." : hasUnsavedStock ? "حفظ البضاعة في المخزن *" : "المخزن محفوظ"}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Control Strip: Stock & Demand Mode Selectors */}
+      <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Demand Mode Switch */}
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-xs text-zinc-400 font-bold">مصدر الطلبات (المطلوب تصنيعه):</span>
+          <div className="flex items-center bg-zinc-950 border border-zinc-800 rounded-xl p-1 text-[11px]">
+            <button
+              onClick={handleResetDemandToOrders}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                demandMode === "auto"
+                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-sm"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              🤖 سحب آلي (أوردرات البيندينج + الاستبدالات)
+            </button>
+            <button
+              onClick={() => setDemandMode("manual")}
+              className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                demandMode === "manual"
+                  ? "bg-amber-500 text-black font-extrabold shadow-sm"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              ✍️ إدخال يدوي مخصص بالكامل
+            </button>
+          </div>
+
+          {demandMode === "manual" && (
+            <button
+              onClick={handleClearAllDemand}
+              className="text-[11px] text-zinc-500 hover:text-red-400 flex items-center gap-1 transition-colors"
+            >
+              <Trash2 size={12} />
+              <span>تصفير المطلوب</span>
+            </button>
+          )}
+        </div>
+
+        {/* Stock Quick Actions */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <span className="text-xs text-zinc-400 font-bold">إدارة بضاعة المخزن:</span>
+          <button
+            onClick={handleClearAllStock}
+            className="flex items-center gap-1 px-3 py-1.5 bg-zinc-950 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 border border-zinc-800 rounded-xl text-[11px] font-bold transition-all"
+            title="تصفير كل أرقام المخزن للبدء بجرد يدوي جديد"
+          >
+            <RotateCcw size={12} />
+            <span>تصفير المخزن لجرد يدوي</span>
+          </button>
+          <button
+            onClick={handleResetStockFromDb}
+            className="flex items-center gap-1 px-3 py-1.5 bg-zinc-950 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 rounded-xl text-[11px] font-bold transition-all"
+            title="استرجاع الأرقام المسجلة في قاعدة البيانات"
+          >
+            <RefreshCw size={12} />
+            <span>استرجاع رصيد السيستم</span>
           </button>
         </div>
       </div>
 
       {/* KPI Overview Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4 space-y-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="bg-zinc-950/50 border border-zinc-800/70 rounded-xl p-3.5 space-y-1">
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider flex items-center gap-1">
             <Package size={11} className="text-amber-400" />
-            أوردرات معلقة
+            إجمالي المطلوب تصنيعه
           </p>
           <p className="text-xl font-black text-amber-400">
-            {planData.summary.totalPendingOrdersUnits}{" "}
-            <span className="text-[11px] font-normal text-zinc-400">تيشرت</span>
-          </p>
-          <p className="text-[10px] text-zinc-500">
-            {pendingOrders.length} أوردر {includeConfirmed ? "(معلق ومؤكد)" : "Pending"}
-          </p>
-        </div>
-
-        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4 space-y-1">
-          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider flex items-center gap-1">
-            <ArrowLeftRight size={11} className="text-purple-400" />
-            استبدالات معلقة
-          </p>
-          <p className="text-xl font-black text-purple-400">
-            {planData.summary.totalReplacementsUnits}{" "}
-            <span className="text-[11px] font-normal text-zinc-400">تيشرت</span>
-          </p>
-          <p className="text-[10px] text-zinc-500">
-            {pendingReplacements.length} طلب استبدال
-          </p>
-        </div>
-
-        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4 space-y-1">
-          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider flex items-center gap-1">
-            <span>إجمالي المطلوب</span>
-          </p>
-          <p className="text-xl font-black text-white">
             {planData.summary.totalGrossRequired}{" "}
-            <span className="text-[11px] font-normal text-zinc-400">تيشرت</span>
+            <span className="text-xs text-zinc-500 font-normal">تيشرت</span>
           </p>
-          <p className="text-[10px] text-zinc-500">الطلب الكلي قبل خصم المخزن</p>
+          <p className="text-[10px] text-zinc-500">
+            {demandMode === "auto" ? "مسحوب من الأوردرات والاستبدالات" : "مدخل يدوياً من قبلك"}
+          </p>
         </div>
 
-        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4 space-y-1">
+        <div className="bg-zinc-950/50 border border-zinc-800/70 rounded-xl p-3.5 space-y-1">
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider flex items-center gap-1">
-            <span className="text-emerald-400">رصيد المخزن الفعلي</span>
+            <span className="text-blue-400">رصيد بضاعة المخزن (المتاح)</span>
           </p>
-          <p className="text-xl font-black text-emerald-400">
+          <p className="text-xl font-black text-blue-400">
             {planData.summary.totalCurrentStock}{" "}
-            <span className="text-[11px] font-normal text-zinc-400">تيشرت</span>
+            <span className="text-xs text-zinc-500 font-normal">تيشرت</span>
           </p>
-          <p className="text-[10px] text-zinc-500">متاح وجاهز للتسليم</p>
+          <p className="text-[10px] text-zinc-500">
+            {hasUnsavedStock ? "يوجد تعديلات غير محفوظة *" : "جاهز ومسجل"}
+          </p>
         </div>
 
-        <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-4 space-y-1">
+        <div className="bg-zinc-950/50 border border-zinc-800/70 rounded-xl p-3.5 space-y-1">
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider flex items-center gap-1">
-            <span className="text-red-400">العجز الفعلي للطباعة</span>
+            <span className="text-red-400">العجز المطلوب طباعته</span>
           </p>
           <p className="text-xl font-black text-red-400">
             {planData.summary.totalNetDeficit}{" "}
-            <span className="text-[11px] font-normal text-zinc-400">تيشرت</span>
+            <span className="text-xs text-zinc-500 font-normal">تيشرت ناقص</span>
           </p>
-          <p className="text-[10px] text-zinc-500">بعد خصم رصيد المخزن</p>
+          <p className="text-[10px] text-zinc-500">المطلوب ناقص المتاح بالمخزن</p>
         </div>
 
-        <div className="bg-zinc-900/60 border border-red-500/30 rounded-2xl p-4 space-y-1 bg-gradient-to-br from-red-950/30 to-zinc-900/60">
+        <div className="bg-gradient-to-br from-red-950/30 to-zinc-950/50 border border-red-500/30 rounded-xl p-3.5 space-y-1">
           <p className="text-[10px] text-red-400 font-bold uppercase tracking-wider flex items-center gap-1">
             <Layers size={11} />
-            إجمالي الباترونات المطلوبة
+            إجمالي الباترونات المقترح طباعتها
           </p>
           <p className="text-2xl font-black text-white">
             {planData.summary.grandTotalPatterns}{" "}
@@ -708,14 +785,14 @@ export default function PrintingPlannerPage() {
           <div className="flex items-center gap-2">
             <SlidersHorizontal size={15} className="text-red-400" />
             <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-              قواعد الباترونات المتاحة لكل موديل (Pattern Setup)
+              قواعد وتخصيص الباترونات للموديلات
             </h3>
           </div>
           <button
             onClick={() => setShowPatternSettings(!showPatternSettings)}
             className="text-xs text-red-400 hover:text-red-300 font-bold flex items-center gap-1"
           >
-            <span>{showPatternSettings ? "إخفاء الإعدادات" : "عرض وتعديل أنواع الباترونات لكل موديل"}</span>
+            <span>{showPatternSettings ? "إخفاء إعدادات الباترونات" : "تعديل الموديلات اللي ليها باترون سبيشيال / سوبر"}</span>
             {showPatternSettings ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
         </div>
@@ -738,7 +815,7 @@ export default function PrintingPlannerPage() {
         {showPatternSettings && (
           <div className="pt-3 border-t border-zinc-800 space-y-2">
             <p className="text-[11px] text-zinc-400">
-              يمكنك تخصيص أو تفعيل باترونات إضافية لأي موديل إذا قمت بتجهيزها:
+              يمكنك تخصيص وتفعيل أي باترون لأي موديل بسهولة:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {products.map((p) => {
@@ -778,34 +855,33 @@ export default function PrintingPlannerPage() {
         )}
       </div>
 
-      {/* Main Table: Inventory + Demand + Pattern Plan */}
-      <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl overflow-hidden space-y-4 p-5">
+      {/* Main Interactive Master Table */}
+      <div className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/60">
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Sparkles size={16} className="text-red-400" />
-              <span>جدول تسجيل المخزن وتحليل خطة الباترونات</span>
+              <Edit3 size={16} className="text-red-400" />
+              <span>شيت إدخال البضاعة والطلبات وحساب الباترونات الفوري</span>
             </h3>
             <p className="text-[11px] text-zinc-400 mt-0.5">
-              عدل كميات المخزن مباشرة في الخانات الزرقاء، والنظام سيعيد حساب العجز والباترونات فوراً.
+              <span className="text-blue-400 font-bold">الخانات الزرقاء:</span> بضاعة المخزن (أدخل بضاعتك يدوياً) ·{" "}
+              <span className="text-amber-400 font-bold">الخانات الصفراء:</span> المطلوب تصنيعه (مسحوب آلياً أو أدخله يدوياً)
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-              <input
-                type="text"
-                placeholder="بحث في الموديلات..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="bg-zinc-950 border border-zinc-800 rounded-xl pr-9 pl-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500/40 w-44 sm:w-56"
-              />
-            </div>
+          <div className="relative">
+            <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input
+              type="text"
+              placeholder="بحث في الموديلات..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-zinc-950 border border-zinc-800 rounded-xl pr-9 pl-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500/40 w-44 sm:w-56"
+            />
           </div>
         </div>
 
-        {/* Product Plans List */}
+        {/* Product Rows List */}
         <div className="space-y-4">
           {filteredProductPlans.map((item) => {
             const hasPrint =
@@ -816,20 +892,20 @@ export default function PrintingPlannerPage() {
                 key={item.product.id}
                 className={`border rounded-2xl p-4 sm:p-5 transition-all ${
                   hasPrint
-                    ? "bg-zinc-950/80 border-red-500/30 shadow-md shadow-red-500/5"
-                    : "bg-zinc-950/40 border-zinc-800/60 opacity-80 hover:opacity-100"
+                    ? "bg-zinc-950/90 border-red-500/30 shadow-md shadow-red-500/5"
+                    : "bg-zinc-950/40 border-zinc-800/60 opacity-85 hover:opacity-100"
                 }`}
               >
-                {/* Product Title Bar */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-zinc-800/60">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-zinc-800/60">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700/60 flex items-center justify-center text-red-400 font-bold">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-700/60 flex items-center justify-center font-bold text-red-400">
                       👕
                     </div>
                     <div>
                       <h4 className="text-sm font-bold text-white">{item.product.title}</h4>
                       <div className="flex items-center gap-2 text-[10px] text-zinc-400 mt-0.5">
-                        <span>الباترونات المتاحة:</span>
+                        <span>الباترونات:</span>
                         <span className="text-zinc-300">عادي (M,L,XL,2XL)</span>
                         {item.rule.hasSpecial && (
                           <span className="text-sky-400 font-bold">· سبيشيال (2M,2L)</span>
@@ -841,35 +917,39 @@ export default function PrintingPlannerPage() {
                     </div>
                   </div>
 
-                  {/* Deficit badge */}
+                  {/* Plan Summary Badge */}
                   <div className="flex items-center gap-3">
                     <div className="text-left sm:text-right">
                       <span className="text-[10px] text-zinc-500 block uppercase font-bold">
-                        العجز الفعلي للطباعة
+                        العجز المطلوب طباعته
                       </span>
                       <span className={`text-base font-black ${item.totalDeficit > 0 ? "text-red-400" : "text-emerald-400"}`}>
-                        {item.totalDeficit > 0 ? `${item.totalDeficit} تيشرت ناقص` : "المخزن يغطي الطلب"}
+                        {item.totalDeficit > 0 ? `${item.totalDeficit} تيشرت ناقص` : "مكتفي بالمخزن"}
                       </span>
                     </div>
 
-                    {/* Proposed Patterns Count */}
-                    {hasPrint && (
+                    {hasPrint ? (
                       <div className="bg-red-500/10 border border-red-500/30 px-3 py-1.5 rounded-xl text-center">
                         <span className="text-[10px] text-red-400 font-bold block">المقترح طباعته</span>
                         <span className="text-base font-black text-white">
                           {item.plan.standard + item.plan.special + item.plan.superSpecial} باترون
                         </span>
                       </div>
+                    ) : (
+                      <div className="bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl text-center">
+                        <span className="text-[10px] text-emerald-400 font-bold block">المخزن كافي</span>
+                        <span className="text-xs font-bold text-zinc-300">لا يحتاج طباعة</span>
+                      </div>
                     )}
                   </div>
                 </div>
 
-                {/* Sizing Matrix: Pending Orders + Replacements + Stock + Deficit */}
+                {/* Direct Editable Table for Stock and Demand */}
                 <div className="overflow-x-auto pt-3">
                   <table className="w-full text-xs text-right">
                     <thead>
                       <tr className="text-zinc-500 text-[10px] uppercase font-bold border-b border-zinc-800/40">
-                        <th className="py-2 pr-2">البيان / المقاس</th>
+                        <th className="py-2 pr-2">البيان</th>
                         <th className="py-2 px-3 text-center text-teal-400">مقاس M</th>
                         <th className="py-2 px-3 text-center text-sky-400">مقاس L</th>
                         <th className="py-2 px-3 text-center text-amber-400">مقاس XL</th>
@@ -878,52 +958,10 @@ export default function PrintingPlannerPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-800/30 text-xs">
-                      {/* 1. Pending Orders */}
-                      <tr className="hover:bg-zinc-900/20">
-                        <td className="py-2 pr-2 text-zinc-400 font-medium flex items-center gap-1.5">
-                          <Package size={12} className="text-amber-400" />
-                          <span>أوردرات معلقة (Pending)</span>
-                        </td>
-                        <td className="py-2 px-3 text-center font-bold text-white">{item.ordersDemand.M || 0}</td>
-                        <td className="py-2 px-3 text-center font-bold text-white">{item.ordersDemand.L || 0}</td>
-                        <td className="py-2 px-3 text-center font-bold text-white">{item.ordersDemand.XL || 0}</td>
-                        <td className="py-2 px-3 text-center font-bold text-white">{item.ordersDemand["2XL"] || 0}</td>
-                        <td className="py-2 pl-2 text-center font-black text-amber-400">
-                          {item.ordersDemand.M + item.ordersDemand.L + item.ordersDemand.XL + item.ordersDemand["2XL"]}
-                        </td>
-                      </tr>
-
-                      {/* 2. Replacements */}
-                      <tr className="hover:bg-zinc-900/20">
-                        <td className="py-2 pr-2 text-zinc-400 font-medium flex items-center gap-1.5">
-                          <ArrowLeftRight size={12} className="text-purple-400" />
-                          <span>استبدالات معلقة (Replacements)</span>
-                        </td>
-                        <td className="py-2 px-3 text-center font-bold text-purple-300">{item.replacementsDemand.M || 0}</td>
-                        <td className="py-2 px-3 text-center font-bold text-purple-300">{item.replacementsDemand.L || 0}</td>
-                        <td className="py-2 px-3 text-center font-bold text-purple-300">{item.replacementsDemand.XL || 0}</td>
-                        <td className="py-2 px-3 text-center font-bold text-purple-300">{item.replacementsDemand["2XL"] || 0}</td>
-                        <td className="py-2 pl-2 text-center font-black text-purple-400">
-                          {item.replacementsDemand.M + item.replacementsDemand.L + item.replacementsDemand.XL + item.replacementsDemand["2XL"]}
-                        </td>
-                      </tr>
-
-                      {/* 3. Total Required */}
-                      <tr className="bg-zinc-900/40 font-bold text-white">
-                        <td className="py-2 pr-2 text-zinc-300">
-                          = إجمالي المطلوب الفعلي
-                        </td>
-                        <td className="py-2 px-3 text-center text-teal-300">{item.totalRequired.M}</td>
-                        <td className="py-2 px-3 text-center text-sky-300">{item.totalRequired.L}</td>
-                        <td className="py-2 px-3 text-center text-amber-300">{item.totalRequired.XL}</td>
-                        <td className="py-2 px-3 text-center text-rose-300">{item.totalRequired["2XL"]}</td>
-                        <td className="py-2 pl-2 text-center text-white font-extrabold">{item.totalReqSum}</td>
-                      </tr>
-
-                      {/* 4. Current Stock (INLINE EDITABLE) */}
-                      <tr className="bg-blue-950/20 border-y border-blue-500/20">
+                      {/* Row 1: Warehouse Stock (EDITABLE) */}
+                      <tr className="bg-blue-950/20">
                         <td className="py-2 pr-2 font-bold text-blue-300 flex items-center gap-1.5">
-                          <span>📦 رصيد المخزن الحالي (قابل للتعديل)</span>
+                          <span>📦 بضاعة المخزن (أدخل رصيدك):</span>
                         </td>
                         {SIZES.map((sz) => {
                           const stockVal = item.currentStock[sz];
@@ -940,26 +978,56 @@ export default function PrintingPlannerPage() {
                                     parseInt(e.target.value) || 0
                                   )
                                 }
-                                className="w-14 bg-zinc-900 border border-blue-500/40 rounded-lg text-center font-black text-white text-xs py-1 focus:outline-none focus:border-blue-400 focus:bg-zinc-950"
+                                className="w-16 bg-zinc-900 border border-blue-500/50 rounded-lg text-center font-black text-white text-xs py-1.5 focus:outline-none focus:border-blue-400 focus:bg-zinc-950 shadow-inner"
                               />
                             </td>
                           );
                         })}
-                        <td className="py-2 pl-2 text-center font-black text-blue-400">
+                        <td className="py-2 pl-2 text-center font-black text-blue-400 text-sm">
                           {item.currentStock.M + item.currentStock.L + item.currentStock.XL + item.currentStock["2XL"]}
                         </td>
                       </tr>
 
-                      {/* 5. Deficit */}
-                      <tr className="bg-red-950/20 font-black">
-                        <td className="py-2 pr-2 text-red-400 font-bold">
-                          = العجز المطلوب طباعته (Deficit)
+                      {/* Row 2: Required Demand (EDITABLE) */}
+                      <tr className="bg-amber-950/20">
+                        <td className="py-2 pr-2 font-bold text-amber-300 flex items-center gap-1.5">
+                          <span>📋 المطلوب تصنيعه (أوردرات):</span>
                         </td>
-                        <td className="py-2 px-3 text-center text-teal-400">{item.deficit.M}</td>
-                        <td className="py-2 px-3 text-center text-sky-400">{item.deficit.L}</td>
-                        <td className="py-2 px-3 text-center text-amber-400">{item.deficit.XL}</td>
-                        <td className="py-2 px-3 text-center text-rose-400">{item.deficit["2XL"]}</td>
-                        <td className="py-2 pl-2 text-center text-red-400 text-sm font-black">
+                        {SIZES.map((sz) => {
+                          const reqVal = item.totalRequired[sz];
+                          return (
+                            <td key={sz} className="py-1.5 px-3 text-center">
+                              <input
+                                type="number"
+                                min="0"
+                                value={reqVal}
+                                onChange={(e) =>
+                                  handleDemandChange(
+                                    item.product.id,
+                                    sz,
+                                    parseInt(e.target.value) || 0
+                                  )
+                                }
+                                className="w-16 bg-zinc-900 border border-amber-500/50 rounded-lg text-center font-black text-amber-300 text-xs py-1.5 focus:outline-none focus:border-amber-400 focus:bg-zinc-950 shadow-inner"
+                              />
+                            </td>
+                          );
+                        })}
+                        <td className="py-2 pl-2 text-center font-black text-amber-400 text-sm">
+                          {item.totalReqSum}
+                        </td>
+                      </tr>
+
+                      {/* Row 3: Net Deficit */}
+                      <tr className="bg-red-950/30 font-black">
+                        <td className="py-2 pr-2 text-red-400 font-bold">
+                          = العجز المطلوب طباعته (Deficit):
+                        </td>
+                        <td className="py-2 px-3 text-center text-teal-400 text-sm">{item.deficit.M}</td>
+                        <td className="py-2 px-3 text-center text-sky-400 text-sm">{item.deficit.L}</td>
+                        <td className="py-2 px-3 text-center text-amber-400 text-sm">{item.deficit.XL}</td>
+                        <td className="py-2 px-3 text-center text-rose-400 text-sm">{item.deficit["2XL"]}</td>
+                        <td className="py-2 pl-2 text-center text-red-400 text-base font-black">
                           {item.totalDeficit}
                         </td>
                       </tr>
@@ -968,7 +1036,7 @@ export default function PrintingPlannerPage() {
                 </div>
 
                 {/* AI / Smart Decision Box */}
-                <div className="mt-4 p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl space-y-2">
+                <div className="mt-3.5 p-3.5 bg-zinc-900/60 border border-zinc-800/80 rounded-xl space-y-2">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-2">
                       <Sparkles size={14} className="text-amber-400" />
@@ -1005,7 +1073,7 @@ export default function PrintingPlannerPage() {
                   {hasPrint && (
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-zinc-800 text-[11px] text-zinc-400">
                       <div>
-                        <span>الإنتاج الناتج من الطباعة: </span>
+                        <span>الإنتاج المطبوع: </span>
                         <strong className="text-white">
                           M: {item.plan.produced.M} · L: {item.plan.produced.L} · XL: {item.plan.produced.XL} · 2XL: {item.plan.produced["2XL"]}
                         </strong>
@@ -1015,7 +1083,7 @@ export default function PrintingPlannerPage() {
                       </div>
 
                       <div>
-                        <span>المخزون المتوقع بعد تسليم الأوردرات: </span>
+                        <span>المخزون المتوقع بعد تسليم الطلبات: </span>
                         <strong className="text-emerald-400">
                           M: {item.plan.remainingStock.M} · L: {item.plan.remainingStock.L} · XL: {item.plan.remainingStock.XL} · 2XL: {item.plan.remainingStock["2XL"]}
                         </strong>
