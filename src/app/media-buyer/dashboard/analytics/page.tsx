@@ -4,7 +4,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { TrendingUp, BarChart3, MapPin, Package, RefreshCw, Clock, CheckCircle, Wallet } from "lucide-react";
-import WeeklyProductSizeAnalytics from "@/components/analytics/WeeklyProductSizeAnalytics";
 
 const EGYPT_GOVERNORATES = [
   "القاهرة", "الجيزة", "الاسكندرية", "الدقهلية", "الشرقية", "المنوفية", "القليوبية",
@@ -47,7 +46,7 @@ export default function MediaBuyerAnalyticsPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [expenses, setExpenses] = useState<any[]>([]);
   const [adSpend, setAdSpend] = useState<any[]>([]);
-  const [batches, setBatches] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<"7d" | "30d" | "90d" | "all" | "custom" | "month">("30d");
   const [selectedMonth, setSelectedMonth] = useState("");
@@ -58,16 +57,15 @@ export default function MediaBuyerAnalyticsPage() {
 
   const fetchAll = async () => {
     setLoading(true);
-    const [oRes, eRes, aRes, bRes] = await Promise.all([
+    const [oRes, eRes, aRes] = await Promise.all([
       supabase.from("orders").select("*").order("created_at", { ascending: true }),
       supabase.from("expenses").select("*"),
       supabase.from("ad_spend").select("*"),
-      supabase.from("manufacturing_batches").select("*"),
     ]);
     setOrders(oRes.data || []);
     setExpenses(eRes.data || []);
     setAdSpend(aRes.data || []);
-    setBatches(bRes.data || []);
+
     setLoading(false);
   };
 
@@ -127,17 +125,14 @@ export default function MediaBuyerAnalyticsPage() {
     return adSpend.filter(a => isDateInFilter(getItemDate(a)));
   }, [adSpend, period, selectedMonth, customStart, customEnd]);
 
-  const filteredBatches = useMemo(() => {
-    return batches.filter(b => isDateInFilter(getItemDate(b)));
-  }, [batches, period, selectedMonth, customStart, customEnd]);
+
 
   const analytics = useMemo(() => {
     const validOrders = filteredOrders.filter((o: any) => o.status !== "cancelled" && o.status !== "returned");
     const revenue = validOrders.reduce((s: number, o: any) => s + Number(o.total || 0), 0);
     const totalAdSpend = filteredAdSpend.reduce((s: number, a: any) => s + Number(a.amount || 0), 0);
     const totalExpenses = filteredExpenses.reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
-    const totalManufacturing = filteredBatches.reduce((s: number, b: any) => s + Number(b.total_cost || 0), 0);
-    const totalCost = totalAdSpend + totalExpenses + totalManufacturing;
+    const totalCost = totalAdSpend + totalExpenses;
     const profit = revenue - totalCost;
 
     // Revenue & Cost by day (using strictly filtered period data)
@@ -159,10 +154,6 @@ export default function MediaBuyerAnalyticsPage() {
       if (d) costByDay[d] = (costByDay[d] || 0) + Number(e.amount || 0);
     });
 
-    filteredBatches.forEach((b: any) => {
-      const d = getItemDate(b);
-      if (d) costByDay[d] = (costByDay[d] || 0) + Number(b.total_cost || 0);
-    });
 
     const allDays = [...new Set([...Object.keys(revenueByDay), ...Object.keys(costByDay)])].sort();
     const revenueSeries = allDays.map((d) => revenueByDay[d] || 0);
@@ -268,13 +259,13 @@ export default function MediaBuyerAnalyticsPage() {
       }));
 
     return {
-      revenue, totalCost, profit, totalAdSpend, totalExpenses, totalManufacturing,
+      revenue, totalCost, profit, totalAdSpend, totalExpenses,
       validOrders: validOrders.length, allOrders: filteredOrders.length,
       revenueSeries, costSeries, profitSeries, ordersSeries, allDays,
       topProducts, topGovs, peakHours, statusMap,
       monthlyDeliveryRate, monthlyExpenses,
     };
-  }, [filteredOrders, filteredAdSpend, filteredExpenses, filteredBatches, orders, expenses]);
+  }, [filteredOrders, filteredAdSpend, filteredExpenses, orders, expenses]);
 
   const fmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 
@@ -436,12 +427,7 @@ export default function MediaBuyerAnalyticsPage() {
         </div>
       </div>
 
-      {/* Weekly T-Shirt & Size Demand Analysis */}
-      <WeeklyProductSizeAnalytics
-        orders={filteredOrders}
-        allOrders={orders}
-        periodLabel={period === "month" ? selectedMonth : period}
-      />
+
 
       {/* Monthly Delivery Rate & Monthly Expenses */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

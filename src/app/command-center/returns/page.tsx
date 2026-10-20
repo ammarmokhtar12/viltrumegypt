@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
-import { RotateCcw, PlusCircle, Check, X, Search, RefreshCw, AlertTriangle } from "lucide-react";
+import { exportReturnsToExcel } from "@/lib/exportReturnsExcel";
+import { RotateCcw, PlusCircle, Check, X, Search, RefreshCw, AlertTriangle, Download, Calendar } from "lucide-react";
 
 const REASON_MAP: Record<string, string> = {
   defective: "عيب تصنيع (Defective)",
@@ -24,9 +25,12 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 
 export default function ReturnsPage() {
   const [returns, setReturns] = useState<any[]>([]);
+  const [allOrders, setAllOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dbError, setDbError] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [exportMonth, setExportMonth] = useState(""); // "" = all, "2026-10" = specific month
+  const [exporting, setExporting] = useState(false);
 
   // Form
   const [orderNumber, setOrderNumber] = useState("");
@@ -44,17 +48,76 @@ export default function ReturnsPage() {
     setLoading(true);
     setDbError(false);
     try {
-      const { data, error } = await supabase.from("returns").select("*").order("created_at", { ascending: false });
-      if (error) {
-        if (error.code === "PGRST205" || error.message?.includes("does not exist")) setDbError(true);
-        else console.error(error);
+      const [returnsRes, ordersRes] = await Promise.all([
+        supabase.from("returns").select("*").order("created_at", { ascending: false }),
+        supabase.from("orders").select("*").eq("status", "returned").order("created_at", { ascending: false }),
+      ]);
+      if (returnsRes.error) {
+        if (returnsRes.error.code === "PGRST205" || returnsRes.error.message?.includes("does not exist")) setDbError(true);
+        else console.error(returnsRes.error);
       } else {
-        setReturns(data || []);
+        setReturns(returnsRes.data || []);
+      }
+      if (!ordersRes.error) {
+        setAllOrders(ordersRes.data || []);
       }
     } catch {
       setDbError(true);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Get unique months from returns for filter dropdown
+  const availableMonths = useMemo(() => {
+    const months = new Map<string, string>();
+    returns.forEach((r) => {
+      if (r.created_at) {
+        const d = new Date(r.created_at);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        const label = d.toLocaleDateString("en-US", { year: "numeric", month: "long" });
+        months.set(key, label);
+      }
+    });
+    return Array.from(months.entries()).sort((a, b) => b[0].localeCompare(a[0]));
+  }, [returns]);
+
+  // Filter returns by selected month
+  const filteredReturns = useMemo(() => {
+    if (!exportMonth) return returns;
+    return returns.filter((r) => {
+      if (!r.created_at) return false;
+      const d = new Date(r.created_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      return key === exportMonth;
+    });
+  }, [returns, exportMonth]);
+
+  const handleExportExcel = async () => {
+    const toExport = filteredReturns;
+    if (toExport.length === 0) {
+      alert("لا توجد مرتجعات في الفترة المحددة");
+      return;
+    }
+    setExporting(true);
+    try {
+      // Fetch full order details for the returns being exported
+      const orderNumbers = [...new Set(toExport.map((r) => r.order_number).filter(Boolean))];
+      const { data: fullOrders } = await supabase
+        .from("orders")
+        .select("*")
+        .in("order_number", orderNumbers);
+
+      const monthLabel = exportMonth
+        ? availableMonths.find(([k]) => k === exportMonth)?.[1] || exportMonth
+        : "All";
+
+      exportReturnsToExcel(toExport, fullOrders || allOrders, monthLabel);
+    } catch (err) {
+      console.error(err);
+      alert("حصل خطأ أثناء التصدير");
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -135,7 +198,7 @@ export default function ReturnsPage() {
     );
   }
 
-  const totalRefunded = returns.filter((r) => r.refund_completed).reduce((s: number, r: any) => s + Number(r.refund_amount || 0), 0);
+  const totalRefunded = filteredReturns.filter((r) => r.refund_completed).reduce((s: number, r: any) => s + Number(r.refund_amount || 0), 0);
 
   return (
     <div className="space-y-6 pb-12">
@@ -144,14 +207,39 @@ export default function ReturnsPage() {
           <p className="text-[10px] font-bold text-red-500 uppercase tracking-[0.3em] mb-1">Return Management</p>
           <h1 className="text-3xl font-bold text-white tracking-tight">Returns</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <div className="px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-zinc-400">
-            <span className="font-bold text-red-400">{returns.length}</span> returns · <span className="font-bold text-emerald-400">{totalRefunded.toLocaleString()} EGP</span> refunded
+            <span className="font-bold text-red-400">{filteredReturns.length}</span> returns · <span className="font-bold text-emerald-400">{totalRefunded.toLocaleString()} EGP</span> refunded
           </div>
           <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold transition-all">
             <PlusCircle size={14} /> New Return
           </button>
         </div>
+      </div>
+
+      {/* Month Filter & Export */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div className="flex items-center gap-2">
+          <Calendar size={14} className="text-zinc-500" />
+          <select
+            value={exportMonth}
+            onChange={(e) => setExportMonth(e.target.value)}
+            className="px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-zinc-300 font-bold focus:outline-none focus:border-red-500/50 min-w-[180px]"
+          >
+            <option value="">كل الشهور (All Months)</option>
+            {availableMonths.map(([key, label]) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+        </div>
+        <button
+          onClick={handleExportExcel}
+          disabled={exporting || filteredReturns.length === 0}
+          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-all"
+        >
+          <Download size={14} />
+          {exporting ? "جاري التصدير..." : `تصدير Excel (${filteredReturns.length} مرتجع)`}
+        </button>
       </div>
 
       {/* New Return Form */}
@@ -202,7 +290,7 @@ export default function ReturnsPage() {
 
       {/* Returns List */}
       <div className="space-y-3">
-        {returns.map((ret) => {
+        {filteredReturns.map((ret) => {
           const sCfg = STATUS_MAP[ret.status] || STATUS_MAP.pending;
           return (
             <div key={ret.id} className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl p-5 space-y-4">
@@ -252,7 +340,7 @@ export default function ReturnsPage() {
           );
         })}
 
-        {returns.length === 0 && (
+        {filteredReturns.length === 0 && (
           <div className="text-center py-20">
             <RotateCcw size={40} className="mx-auto text-zinc-800 mb-4" />
             <p className="text-sm font-bold text-zinc-600">No returns yet</p>

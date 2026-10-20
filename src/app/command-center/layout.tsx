@@ -26,10 +26,12 @@ import {
   Truck,
   ArrowLeftRight,
   Layers,
+  Wallet,
 } from "lucide-react";
 
 const ANALYTICS_NAV = [
   { href: "/command-center",               label: "Dashboard",    icon: BarChart3       },
+  { href: "/command-center/how-much",      label: "How Much",     icon: Wallet          },
   { href: "/command-center/orders",        label: "Orders",       icon: ShoppingCart    },
   { href: "/command-center/safwa",         label: "Safwa",        icon: Truck           },
   { href: "/command-center/returns",       label: "Returns",      icon: RotateCcw       },
