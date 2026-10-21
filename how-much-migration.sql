@@ -42,6 +42,11 @@ ALTER TABLE how_much_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE how_much_transactions ENABLE ROW LEVEL SECURITY;
 
 -- Allow service role and anon access (App-level admin authentication)
+DROP POLICY IF EXISTS "Anon full access settings" ON how_much_settings;
+DROP POLICY IF EXISTS "Anon full access transactions" ON how_much_transactions;
+DROP POLICY IF EXISTS "Service full access settings" ON how_much_settings;
+DROP POLICY IF EXISTS "Service full access transactions" ON how_much_transactions;
+
 CREATE POLICY "Anon full access settings" ON how_much_settings FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "Anon full access transactions" ON how_much_transactions FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "Service full access settings" ON how_much_settings FOR ALL USING (true) WITH CHECK (true);

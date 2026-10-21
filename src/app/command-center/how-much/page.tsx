@@ -476,6 +476,8 @@ CREATE TABLE IF NOT EXISTS how_much_transactions (
 );
 ALTER TABLE how_much_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE how_much_transactions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Anon full access settings" ON how_much_settings;
+DROP POLICY IF EXISTS "Anon full access transactions" ON how_much_transactions;
 CREATE POLICY "Anon full access settings" ON how_much_settings FOR ALL TO anon USING (true) WITH CHECK (true);
 CREATE POLICY "Anon full access transactions" ON how_much_transactions FOR ALL TO anon USING (true) WITH CHECK (true);
 `;
