@@ -25,6 +25,7 @@ import {
   SlidersHorizontal,
   ChevronDown,
   ChevronUp,
+  RotateCcw,
 } from "lucide-react";
 
 interface Transaction {
@@ -49,8 +50,8 @@ interface Settings {
 const DEFAULT_SETTINGS: Settings = {
   ammar_initial_balance: 0,
   mohamed_initial_balance: 0,
-  auto_sync_orders: true,
-  auto_sync_expenses: true,
+  auto_sync_orders: false,
+  auto_sync_expenses: false,
 };
 
 const EXPENSE_CATEGORIES = [
@@ -131,14 +132,16 @@ export default function HowMuchPage() {
         .maybeSingle();
 
       if (!settsErr && settsData) {
-        setSettings({
+        const loadedSettings: Settings = {
           ammar_initial_balance: Number(settsData.ammar_initial_balance || 0),
           mohamed_initial_balance: Number(settsData.mohamed_initial_balance || 0),
-          auto_sync_orders: settsData.auto_sync_orders ?? true,
-          auto_sync_expenses: settsData.auto_sync_expenses ?? true,
-        });
-        setAmmarInitInput(String(settsData.ammar_initial_balance || 0));
-        setMohamedInitInput(String(settsData.mohamed_initial_balance || 0));
+          auto_sync_orders: Boolean(settsData.auto_sync_orders ?? false),
+          auto_sync_expenses: Boolean(settsData.auto_sync_expenses ?? false),
+        };
+        setSettings(loadedSettings);
+        setAmmarInitInput(String(loadedSettings.ammar_initial_balance));
+        setMohamedInitInput(String(loadedSettings.mohamed_initial_balance));
+        localStorage.setItem("how_much_settings", JSON.stringify(loadedSettings));
         isDbWorking = true;
       } else {
         // Fallback to localStorage for settings
@@ -146,7 +149,12 @@ export default function HowMuchPage() {
         if (localSetts) {
           try {
             const parsed = JSON.parse(localSetts);
-            setSettings(parsed);
+            setSettings({
+              ammar_initial_balance: Number(parsed.ammar_initial_balance || 0),
+              mohamed_initial_balance: Number(parsed.mohamed_initial_balance || 0),
+              auto_sync_orders: Boolean(parsed.auto_sync_orders ?? false),
+              auto_sync_expenses: Boolean(parsed.auto_sync_expenses ?? false),
+            });
             setAmmarInitInput(String(parsed.ammar_initial_balance || 0));
             setMohamedInitInput(String(parsed.mohamed_initial_balance || 0));
           } catch {}
@@ -158,7 +166,12 @@ export default function HowMuchPage() {
       if (localSetts) {
         try {
           const parsed = JSON.parse(localSetts);
-          setSettings(parsed);
+          setSettings({
+            ammar_initial_balance: Number(parsed.ammar_initial_balance || 0),
+            mohamed_initial_balance: Number(parsed.mohamed_initial_balance || 0),
+            auto_sync_orders: Boolean(parsed.auto_sync_orders ?? false),
+            auto_sync_expenses: Boolean(parsed.auto_sync_expenses ?? false),
+          });
           setAmmarInitInput(String(parsed.ammar_initial_balance || 0));
           setMohamedInitInput(String(parsed.mohamed_initial_balance || 0));
         } catch {}
@@ -314,6 +327,20 @@ export default function HowMuchPage() {
     setEditingMohamedInit(false);
   };
 
+  // Reset Balances to Zero
+  const handleResetToZero = async () => {
+    if (!confirm("هل تريد تأكيد تصفير رصيد عمار ورصيد محمد إلى 0 ج.م؟ (لن يتم حذف المعاملات المسجلة)")) return;
+    const newSettings: Settings = {
+      ammar_initial_balance: 0,
+      mohamed_initial_balance: 0,
+      auto_sync_orders: false,
+      auto_sync_expenses: false,
+    };
+    setAmmarInitInput("0");
+    setMohamedInitInput("0");
+    await saveSettings(newSettings);
+  };
+
   // Filtered transactions calculation
   const filteredTransactions = useMemo(() => {
     return transactions.filter((t) => {
@@ -352,9 +379,13 @@ export default function HowMuchPage() {
   }, [transactions, activeTab, searchQuery, dateFilter]);
 
   // Financial Calculations:
-  // 1. Ammar Calculations
+  // 1. Ammar Calculations (يبدأ من صفر + يضيف كل اللي جاله - التحويلات لمحمد)
   const ammarManualInflows = transactions
     .filter((t) => t.person === "ammar" && t.type === "income")
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+  const ammarManualExpenses = transactions
+    .filter((t) => t.person === "ammar" && t.type === "expense")
     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   const ammarDeliveredRevenue = settings.auto_sync_orders ? storeOrdersDeliveredTotal : 0;
@@ -365,21 +396,26 @@ export default function HowMuchPage() {
     .filter((t) => t.type === "transfer")
     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-  // Ammar Remaining Balance: Initial + All Inflows - Transferred to Mohamed
-  const ammarNetBalance = settings.ammar_initial_balance + ammarTotalInflows - transfersAmmarToMohamed;
+  // Ammar Remaining Balance: Initial (0) + All Inflows - Transferred to Mohamed - Ammar Expenses
+  const ammarNetBalance = settings.ammar_initial_balance + ammarTotalInflows - transfersAmmarToMohamed - ammarManualExpenses;
 
-  // 2. Mohamed Calculations
+  // 2. Mohamed Calculations (يبدأ من صفر + المستلم من عمار - ينقص منه كل ما يصرف)
   const mohamedManualExpenses = transactions
     .filter((t) => t.person === "mohamed" && t.type === "expense")
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+  const mohamedManualInflows = transactions
+    .filter((t) => t.person === "mohamed" && t.type === "income")
     .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
   const mohamedStoreExpenses = settings.auto_sync_expenses ? storeExpensesTotal : 0;
   const mohamedTotalSpent = mohamedManualExpenses + mohamedStoreExpenses;
 
-  // Mohamed Total Capital Received = Initial with Mohamed + Transfers from Ammar
-  const mohamedTotalReceived = settings.mohamed_initial_balance + transfersAmmarToMohamed;
+  // Mohamed Total Capital Received = Initial with Mohamed (0) + Transfers from Ammar + Mohamed direct income
+  const mohamedTotalReceived = settings.mohamed_initial_balance + transfersAmmarToMohamed + mohamedManualInflows;
 
   // Mohamed Remaining Balance: Total Received - Total Spent
+  // (لو صفر وصرف مبلغ، هيكون بالسالب - عجز عهدة أو منصرف من جيبه)
   const mohamedNetBalance = mohamedTotalReceived - mohamedTotalSpent;
 
   // Total Business Net Cash = Ammar remaining + Mohamed remaining
@@ -414,13 +450,18 @@ CREATE TABLE IF NOT EXISTS how_much_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
   ammar_initial_balance NUMERIC(12,2) NOT NULL DEFAULT 0,
   mohamed_initial_balance NUMERIC(12,2) NOT NULL DEFAULT 0,
-  auto_sync_orders BOOLEAN NOT NULL DEFAULT true,
-  auto_sync_expenses BOOLEAN NOT NULL DEFAULT true,
+  auto_sync_orders BOOLEAN NOT NULL DEFAULT false,
+  auto_sync_expenses BOOLEAN NOT NULL DEFAULT false,
   notes TEXT,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-INSERT INTO how_much_settings (id, ammar_initial_balance, mohamed_initial_balance)
-VALUES ('default', 0, 0) ON CONFLICT (id) DO NOTHING;
+INSERT INTO how_much_settings (id, ammar_initial_balance, mohamed_initial_balance, auto_sync_orders, auto_sync_expenses)
+VALUES ('default', 0, 0, false, false)
+ON CONFLICT (id) DO UPDATE SET
+  ammar_initial_balance = EXCLUDED.ammar_initial_balance,
+  mohamed_initial_balance = EXCLUDED.mohamed_initial_balance,
+  auto_sync_orders = EXCLUDED.auto_sync_orders,
+  auto_sync_expenses = EXCLUDED.auto_sync_expenses;
 
 CREATE TABLE IF NOT EXISTS how_much_transactions (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -495,6 +536,15 @@ CREATE POLICY "Anon full access transactions" ON how_much_transactions FOR ALL T
           >
             <Download className="w-3.5 h-3.5" />
             <span>تصدير Excel</span>
+          </button>
+
+          <button
+            onClick={handleResetToZero}
+            title="تصفير الأرصدة المبدئية لعمار ومحمد إلى 0 ج.م"
+            className="px-3 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700/60 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+            <span>تصفير للصفر (0)</span>
           </button>
 
           <button
@@ -582,7 +632,7 @@ CREATE POLICY "Anon full access transactions" ON how_much_transactions FOR ALL T
       <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2 text-zinc-300 font-semibold">
           <SlidersHorizontal className="w-4 h-4 text-amber-400" />
-          <span>المزامنة التلقائية مع بيانات المتجر:</span>
+          <span>المزامنة التلقائية مع بيانات المتجر (اختياري - افتراضياً مغلقة للبدء من 0):</span>
         </div>
         <div className="flex items-center gap-4 flex-wrap">
           <label className="flex items-center gap-2 cursor-pointer text-zinc-300 hover:text-white">
@@ -624,10 +674,10 @@ CREATE POLICY "Anon full access transactions" ON how_much_transactions FOR ALL T
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
                     خزينة عمار (Ammar)
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      بيجيله بس
+                      يبدأ من 0 + بيجيله بس
                     </span>
                   </h2>
-                  <p className="text-xs text-zinc-400">المبلغ في الأول + كل الفلوس اللي جاتله - التحويلات</p>
+                  <p className="text-xs text-zinc-400">يبدأ من 0 ج.م + يضيف كل المبالغ والتحصيلات اللي جاتله - التحويلات لمحمد</p>
                 </div>
               </div>
 
@@ -792,10 +842,10 @@ CREATE POLICY "Anon full access transactions" ON how_much_transactions FOR ALL T
                   <h2 className="text-lg font-bold text-white flex items-center gap-2">
                     خزينة محمد (Mohamed)
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                      بيصرف بس
+                      يبدأ من 0 - بينقص منه كل ما يصرف
                     </span>
                   </h2>
-                  <p className="text-xs text-zinc-400">المبلغ معاه + المستلم من عمار - كل اللي صرفه</p>
+                  <p className="text-xs text-zinc-400">يبدأ من 0 ج.م + المستلم كعهدة من عمار - ينقص منه كل حاجة صرفها</p>
                 </div>
               </div>
 
@@ -882,11 +932,11 @@ CREATE POLICY "Anon full access transactions" ON how_much_transactions FOR ALL T
               <div className="p-3.5 rounded-xl bg-zinc-950 border border-rose-500/40">
                 <div className="text-zinc-300 text-xs mb-1 font-semibold flex items-center justify-between">
                   <span>الصافي المتبقي مع محمد:</span>
-                  <span className={`text-xs font-bold ${mohamedNetBalance >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                    {mohamedNetBalance >= 0 ? "فائض عهدة" : "عجز عهدة"}
+                  <span className={`text-xs font-bold ${mohamedNetBalance > 0 ? "text-emerald-400" : mohamedNetBalance === 0 ? "text-zinc-400" : "text-rose-400"}`}>
+                    {mohamedNetBalance > 0 ? "متبقي معه من العهدة" : mohamedNetBalance === 0 ? "متزن (0 ج.م)" : "منصرف من جيبه / عجز عهدة"}
                   </span>
                 </div>
-                <div className={`text-xl font-black ${mohamedNetBalance >= 0 ? "text-rose-300" : "text-red-500"}`}>
+                <div className={`text-xl font-black ${mohamedNetBalance > 0 ? "text-emerald-400" : mohamedNetBalance === 0 ? "text-zinc-200" : "text-rose-400"}`}>
                   {mohamedNetBalance.toLocaleString("ar-EG")}{" "}
                   <span className="text-xs font-normal text-zinc-400">ج.م</span>
                 </div>
@@ -1313,8 +1363,8 @@ CREATE TABLE IF NOT EXISTS how_much_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
   ammar_initial_balance NUMERIC(12,2) DEFAULT 0,
   mohamed_initial_balance NUMERIC(12,2) DEFAULT 0,
-  auto_sync_orders BOOLEAN DEFAULT true,
-  auto_sync_expenses BOOLEAN DEFAULT true,
+  auto_sync_orders BOOLEAN DEFAULT false,
+  auto_sync_expenses BOOLEAN DEFAULT false,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 INSERT INTO how_much_settings (id) VALUES ('default') ON CONFLICT DO NOTHING;

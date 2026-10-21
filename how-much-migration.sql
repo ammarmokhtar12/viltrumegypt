@@ -8,16 +8,20 @@ CREATE TABLE IF NOT EXISTS how_much_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
   ammar_initial_balance NUMERIC(12,2) NOT NULL DEFAULT 0,
   mohamed_initial_balance NUMERIC(12,2) NOT NULL DEFAULT 0,
-  auto_sync_orders BOOLEAN NOT NULL DEFAULT true,
-  auto_sync_expenses BOOLEAN NOT NULL DEFAULT true,
+  auto_sync_orders BOOLEAN NOT NULL DEFAULT false,
+  auto_sync_expenses BOOLEAN NOT NULL DEFAULT false,
   notes TEXT,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Insert default row if not exists
+-- Insert default row if not exists (Both start at 0, manual additions)
 INSERT INTO how_much_settings (id, ammar_initial_balance, mohamed_initial_balance, auto_sync_orders, auto_sync_expenses)
-VALUES ('default', 0, 0, true, true)
-ON CONFLICT (id) DO NOTHING;
+VALUES ('default', 0, 0, false, false)
+ON CONFLICT (id) DO UPDATE SET
+  ammar_initial_balance = EXCLUDED.ammar_initial_balance,
+  mohamed_initial_balance = EXCLUDED.mohamed_initial_balance,
+  auto_sync_orders = EXCLUDED.auto_sync_orders,
+  auto_sync_expenses = EXCLUDED.auto_sync_expenses;
 
 -- 2. How Much Transactions (Ledger for Ammar & Mohamed)
 CREATE TABLE IF NOT EXISTS how_much_transactions (
