@@ -15,12 +15,7 @@ import {
   RefreshCw,
   Search,
   RotateCcw,
-  CheckCircle2,
-  DollarSign,
-  Edit2,
   Check,
-  X,
-  Clock,
   Layers,
 } from "lucide-react";
 
@@ -77,10 +72,14 @@ export default function HowMuchPage() {
 
   // Settings
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
-  const [editingAmmarInit, setEditingAmmarInit] = useState(false);
-  const [ammarInitInput, setAmmarInitInput] = useState("0");
-  const [editingMohamedInit, setEditingMohamedInit] = useState(false);
-  const [mohamedInitInput, setMohamedInitInput] = useState("0");
+
+  // Direct Editable Balances
+  const [ammarInput, setAmmarInput] = useState("0");
+  const [mohamedInput, setMohamedInput] = useState("0");
+  const [ammarSaved, setAmmarSaved] = useState(false);
+  const [mohamedSaved, setMohamedSaved] = useState(false);
+  const [isAmmarFocused, setIsAmmarFocused] = useState(false);
+  const [isMohamedFocused, setIsMohamedFocused] = useState(false);
 
   // Transactions
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -124,8 +123,6 @@ export default function HowMuchPage() {
           auto_sync_expenses: false,
         };
         setSettings(loaded);
-        setAmmarInitInput(String(loaded.ammar_initial_balance));
-        setMohamedInitInput(String(loaded.mohamed_initial_balance));
         localStorage.setItem("how_much_settings", JSON.stringify(loaded));
         isWorking = true;
       } else {
@@ -133,8 +130,6 @@ export default function HowMuchPage() {
         if (cached) {
           const parsed = JSON.parse(cached);
           setSettings(parsed);
-          setAmmarInitInput(String(parsed.ammar_initial_balance || 0));
-          setMohamedInitInput(String(parsed.mohamed_initial_balance || 0));
         }
       }
     } catch {
@@ -143,8 +138,6 @@ export default function HowMuchPage() {
         try {
           const parsed = JSON.parse(cached);
           setSettings(parsed);
-          setAmmarInitInput(String(parsed.ammar_initial_balance || 0));
-          setMohamedInitInput(String(parsed.mohamed_initial_balance || 0));
         } catch {}
       }
     }
@@ -193,31 +186,76 @@ export default function HowMuchPage() {
     } catch {}
   };
 
-  const handleSaveAmmarInit = () => {
-    const val = Number(ammarInitInput);
+  // Calculations
+  const ammarAdded = useMemo(() => {
+    return transactions
+      .filter((t) => t.person === "ammar" && t.type === "income")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  }, [transactions]);
+
+  const transfersToMohamed = useMemo(() => {
+    return transactions
+      .filter((t) => t.type === "transfer")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  }, [transactions]);
+
+  const ammarNet = settings.ammar_initial_balance + ammarAdded - transfersToMohamed;
+
+  const mohamedSpent = useMemo(() => {
+    return transactions
+      .filter((t) => t.person === "mohamed" && t.type === "expense")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  }, [transactions]);
+
+  const mohamedReceived = settings.mohamed_initial_balance + transfersToMohamed;
+  const mohamedNet = mohamedReceived - mohamedSpent;
+
+  // Sync inputs with net calculations when user is not typing
+  useEffect(() => {
+    if (!isAmmarFocused) {
+      setAmmarInput(String(ammarNet));
+    }
+  }, [ammarNet, isAmmarFocused]);
+
+  useEffect(() => {
+    if (!isMohamedFocused) {
+      setMohamedInput(String(mohamedNet));
+    }
+  }, [mohamedNet, isMohamedFocused]);
+
+  // Direct Balance Save Handlers
+  const saveAmmarDirect = async (customVal?: string) => {
+    const raw = customVal !== undefined ? customVal : ammarInput;
+    const val = Number(raw);
     if (isNaN(val)) return;
-    saveSettings({ ...settings, ammar_initial_balance: val });
-    setEditingAmmarInit(false);
+    const newInitial = val - (ammarAdded - transfersToMohamed);
+    await saveSettings({ ...settings, ammar_initial_balance: newInitial });
+    setAmmarSaved(true);
+    setTimeout(() => setAmmarSaved(false), 2000);
   };
 
-  const handleSaveMohamedInit = () => {
-    const val = Number(mohamedInitInput);
+  const saveMohamedDirect = async (customVal?: string) => {
+    const raw = customVal !== undefined ? customVal : mohamedInput;
+    const val = Number(raw);
     if (isNaN(val)) return;
-    saveSettings({ ...settings, mohamed_initial_balance: val });
-    setEditingMohamedInit(false);
+    const newInitial = val - (transfersToMohamed - mohamedSpent);
+    await saveSettings({ ...settings, mohamed_initial_balance: newInitial });
+    setMohamedSaved(true);
+    setTimeout(() => setMohamedSaved(false), 2000);
   };
 
   const handleResetToZero = async () => {
-    if (!confirm("Reset both Ammar and Mohamed balances to 0 EGP? (Past entries won't be deleted)")) return;
-    const newSettings: Settings = {
-      ammar_initial_balance: 0,
-      mohamed_initial_balance: 0,
+    if (!confirm("Reset both Ammar and Mohamed balances to 0 EGP?")) return;
+    setAmmarInput("0");
+    setMohamedInput("0");
+    const newInitialAmmar = 0 - (ammarAdded - transfersToMohamed);
+    const newInitialMohamed = 0 - (transfersToMohamed - mohamedSpent);
+    await saveSettings({
+      ammar_initial_balance: newInitialAmmar,
+      mohamed_initial_balance: newInitialMohamed,
       auto_sync_orders: false,
       auto_sync_expenses: false,
-    };
-    setAmmarInitInput("0");
-    setMohamedInitInput("0");
-    await saveSettings(newSettings);
+    });
   };
 
   const handleOpenAdd = (type: "income" | "expense" | "transfer") => {
@@ -283,31 +321,10 @@ export default function HowMuchPage() {
     } catch {}
   };
 
-  // Calculations
-  const ammarAdded = useMemo(() => {
-    return transactions
-      .filter((t) => t.person === "ammar" && t.type === "income")
-      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-  }, [transactions]);
-
-  const transfersToMohamed = useMemo(() => {
-    return transactions
-      .filter((t) => t.type === "transfer")
-      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-  }, [transactions]);
-
-  const ammarNet = settings.ammar_initial_balance + ammarAdded - transfersToMohamed;
-
-  const mohamedSpent = useMemo(() => {
-    return transactions
-      .filter((t) => t.person === "mohamed" && t.type === "expense")
-      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-  }, [transactions]);
-
-  const mohamedReceived = settings.mohamed_initial_balance + transfersToMohamed;
-  const mohamedNet = mohamedReceived - mohamedSpent;
-
-  const totalLiquidity = ammarNet + mohamedNet;
+  // Total Liquidity (reacts immediately to input changes)
+  const currentAmmarDisplay = isAmmarFocused ? Number(ammarInput || 0) : ammarNet;
+  const currentMohamedDisplay = isMohamedFocused ? Number(mohamedInput || 0) : mohamedNet;
+  const totalLiquidity = currentAmmarDisplay + currentMohamedDisplay;
 
   // Filtered transactions
   const filteredTransactions = useMemo(() => {
@@ -380,7 +397,7 @@ export default function HowMuchPage() {
                 How Much — Treasury
               </h1>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Simple partner cash management: Record what Ammar received & what Mohamed spent.
+                Directly editable partner cash balances. Change any balance anytime.
               </p>
             </div>
           </div>
@@ -409,7 +426,7 @@ export default function HowMuchPage() {
 
           <button
             onClick={handleResetToZero}
-            title="Reset starting balances to 0"
+            title="Reset balances to 0"
             className="px-3 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition"
           >
             <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
@@ -429,7 +446,7 @@ export default function HowMuchPage() {
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-950/50 transition"
           >
             <Plus className="w-4 h-4" />
-            <span>New Entry</span>
+            <span>Log Transaction</span>
           </button>
         </div>
       </div>
@@ -449,7 +466,7 @@ export default function HowMuchPage() {
                 Ammar + Mohamed
               </span>
             </div>
-            <div className="text-3xl font-black text-white tracking-tight font-mono">
+            <div className="text-3xl font-black text-white tracking-tight font-mono py-1">
               {totalLiquidity.toLocaleString()} <span className="text-sm font-normal text-zinc-400 font-sans">EGP</span>
             </div>
             <p className="text-xs text-zinc-400 mt-2">
@@ -458,16 +475,16 @@ export default function HowMuchPage() {
           </div>
 
           <div className="mt-5 pt-3.5 border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400 font-mono">
-            <span>Ammar: <strong className="text-emerald-400 font-bold">{ammarNet.toLocaleString()} EGP</strong></span>
-            <span>Mohamed: <strong className={mohamedNet >= 0 ? "text-rose-300 font-bold" : "text-red-400 font-bold"}>{mohamedNet.toLocaleString()} EGP</strong></span>
+            <span>Ammar: <strong className="text-emerald-400 font-bold">{currentAmmarDisplay.toLocaleString()} EGP</strong></span>
+            <span>Mohamed: <strong className={currentMohamedDisplay >= 0 ? "text-rose-300 font-bold" : "text-red-400 font-bold"}>{currentMohamedDisplay.toLocaleString()} EGP</strong></span>
           </div>
         </div>
 
-        {/* Card 2: Ammar's Treasury */}
+        {/* Card 2: Ammar's Treasury (Direct Editable) */}
         <div className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-950 border border-emerald-500/30 rounded-2xl p-6 relative overflow-hidden shadow-xl flex flex-col justify-between">
           <div className="absolute top-0 right-0 w-36 h-36 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none" />
           <div>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                 <TrendingUp className="w-4 h-4" />
                 Ammar&apos;s Balance
@@ -484,76 +501,67 @@ export default function HowMuchPage() {
                 <button
                   onClick={() => handleOpenAdd("income")}
                   className="text-[11px] px-2.5 py-0.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 font-semibold flex items-center gap-1 transition"
+                  title="Log incoming transaction"
                 >
                   <Plus className="w-3 h-3" />
-                  <span>Add Money</span>
+                  <span>+ Inflow</span>
                 </button>
               </div>
             </div>
 
-            <div className="text-3xl font-black text-emerald-300 tracking-tight font-mono">
-              {ammarNet.toLocaleString()} <span className="text-sm font-normal text-zinc-400 font-sans">EGP</span>
-            </div>
-
-            {/* Editable Starting Balance */}
-            <div className="mt-3.5 p-2.5 rounded-xl bg-zinc-950/70 border border-zinc-800 text-xs">
-              <div className="flex items-center justify-between text-zinc-400">
-                <span>Starting / Base Balance:</span>
-                {!editingAmmarInit && (
+            {/* DIRECT EDITABLE INPUT */}
+            <div className="my-2">
+              <div className="flex items-center gap-2 bg-zinc-950/90 border border-zinc-800 hover:border-emerald-500/50 focus-within:border-emerald-500 rounded-xl px-3.5 py-2 transition shadow-inner">
+                <input
+                  type="number"
+                  step="any"
+                  value={ammarInput}
+                  onFocus={() => setIsAmmarFocused(true)}
+                  onChange={(e) => setAmmarInput(e.target.value)}
+                  onBlur={() => {
+                    setIsAmmarFocused(false);
+                    saveAmmarDirect();
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      (e.target as HTMLElement).blur();
+                    }
+                  }}
+                  placeholder="0"
+                  className="w-full bg-transparent text-2xl md:text-3xl font-black text-emerald-300 font-mono tracking-tight focus:outline-none"
+                />
+                <span className="text-zinc-500 font-mono text-sm font-semibold">EGP</span>
+                {ammarSaved ? (
+                  <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-md flex items-center gap-1 whitespace-nowrap animate-in fade-in">
+                    <Check className="w-3 h-3" /> Saved
+                  </span>
+                ) : (
                   <button
-                    onClick={() => setEditingAmmarInit(true)}
-                    className="text-[11px] text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1"
-                  >
-                    <Edit2 className="w-3 h-3" />
-                    <span>Edit</span>
-                  </button>
-                )}
-              </div>
-              {editingAmmarInit ? (
-                <div className="flex items-center gap-1.5 mt-2">
-                  <input
-                    type="number"
-                    value={ammarInitInput}
-                    onChange={(e) => setAmmarInitInput(e.target.value)}
-                    className="w-full bg-zinc-900 border border-emerald-500/50 rounded px-2.5 py-1 text-sm text-white font-mono focus:outline-none"
-                    placeholder="0"
-                    autoFocus
-                  />
-                  <button
-                    onClick={handleSaveAmmarInit}
-                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-bold"
+                    onClick={() => saveAmmarDirect()}
+                    className="text-[11px] font-semibold text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded transition whitespace-nowrap"
                   >
                     Save
                   </button>
-                  <button
-                    onClick={() => {
-                      setAmmarInitInput(String(settings.ammar_initial_balance));
-                      setEditingAmmarInit(false);
-                    }}
-                    className="p-1 text-zinc-400 hover:text-white"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="text-sm font-bold text-zinc-200 mt-1 font-mono">
-                  {settings.ammar_initial_balance.toLocaleString()} EGP
-                </div>
-              )}
+                )}
+              </div>
+              <p className="text-[11px] text-zinc-500 mt-1.5 flex items-center justify-between px-1">
+                <span>Click & type to set your balance anytime</span>
+                <span className="text-zinc-400 font-mono">Current Cash</span>
+              </p>
             </div>
           </div>
 
           <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400 font-mono">
-            <span>Added (+): <strong className="text-emerald-400 font-semibold">+{ammarAdded.toLocaleString()}</strong></span>
-            <span>Transferred (-): <strong className="text-amber-400 font-semibold">-{transfersToMohamed.toLocaleString()}</strong></span>
+            <span>Logged Added: <strong className="text-emerald-400 font-semibold">+{ammarAdded.toLocaleString()}</strong></span>
+            <span>Transferred: <strong className="text-amber-400 font-semibold">-{transfersToMohamed.toLocaleString()}</strong></span>
           </div>
         </div>
 
-        {/* Card 3: Mohamed's Treasury */}
+        {/* Card 3: Mohamed's Treasury (Direct Editable) */}
         <div className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-950 border border-rose-500/30 rounded-2xl p-6 relative overflow-hidden shadow-xl flex flex-col justify-between">
           <div className="absolute top-0 right-0 w-36 h-36 bg-rose-500/5 rounded-full blur-2xl pointer-events-none" />
           <div>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
                 <TrendingDown className="w-4 h-4" />
                 Mohamed&apos;s Balance
@@ -561,80 +569,73 @@ export default function HowMuchPage() {
               <div className="flex items-center gap-1.5">
                 <span
                   className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
-                    mohamedNet > 0
+                    currentMohamedDisplay > 0
                       ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                      : mohamedNet === 0
+                      : currentMohamedDisplay === 0
                       ? "bg-zinc-800 text-zinc-300 border-zinc-700"
                       : "bg-rose-500/10 text-rose-300 border-rose-500/30"
                   }`}
                 >
-                  {mohamedNet > 0 ? "Custody Surplus" : mohamedNet === 0 ? "Balanced (0)" : "Spent from Pocket"}
+                  {currentMohamedDisplay > 0 ? "Surplus" : currentMohamedDisplay === 0 ? "Balanced (0)" : "Deficit"}
                 </span>
                 <button
                   onClick={() => handleOpenAdd("expense")}
                   className="text-[11px] px-2.5 py-0.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-semibold flex items-center gap-1 transition"
+                  title="Log spent expense"
                 >
                   <Minus className="w-3 h-3" />
-                  <span>Deduct Expense</span>
+                  <span>- Expense</span>
                 </button>
               </div>
             </div>
 
-            <div className={`text-3xl font-black tracking-tight font-mono ${mohamedNet >= 0 ? "text-rose-300" : "text-red-400"}`}>
-              {mohamedNet.toLocaleString()} <span className="text-sm font-normal text-zinc-400 font-sans">EGP</span>
-            </div>
-
-            {/* Editable Starting Balance */}
-            <div className="mt-3.5 p-2.5 rounded-xl bg-zinc-950/70 border border-zinc-800 text-xs">
-              <div className="flex items-center justify-between text-zinc-400">
-                <span>Starting / Base Balance:</span>
-                {!editingMohamedInit && (
+            {/* DIRECT EDITABLE INPUT */}
+            <div className="my-2">
+              <div className="flex items-center gap-2 bg-zinc-950/90 border border-zinc-800 hover:border-rose-500/50 focus-within:border-rose-500 rounded-xl px-3.5 py-2 transition shadow-inner">
+                <input
+                  type="number"
+                  step="any"
+                  value={mohamedInput}
+                  onFocus={() => setIsMohamedFocused(true)}
+                  onChange={(e) => setMohamedInput(e.target.value)}
+                  onBlur={() => {
+                    setIsMohamedFocused(false);
+                    saveMohamedDirect();
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      (e.target as HTMLElement).blur();
+                    }
+                  }}
+                  placeholder="0"
+                  className={`w-full bg-transparent text-2xl md:text-3xl font-black font-mono tracking-tight focus:outline-none ${
+                    Number(mohamedInput) >= 0 ? "text-rose-300" : "text-red-400"
+                  }`}
+                />
+                <span className="text-zinc-500 font-mono text-sm font-semibold">EGP</span>
+                {mohamedSaved ? (
+                  <span className="text-[11px] font-bold text-rose-400 bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 rounded-md flex items-center gap-1 whitespace-nowrap animate-in fade-in">
+                    <Check className="w-3 h-3" /> Saved
+                  </span>
+                ) : (
                   <button
-                    onClick={() => setEditingMohamedInit(true)}
-                    className="text-[11px] text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1"
-                  >
-                    <Edit2 className="w-3 h-3" />
-                    <span>Edit</span>
-                  </button>
-                )}
-              </div>
-              {editingMohamedInit ? (
-                <div className="flex items-center gap-1.5 mt-2">
-                  <input
-                    type="number"
-                    value={mohamedInitInput}
-                    onChange={(e) => setMohamedInitInput(e.target.value)}
-                    className="w-full bg-zinc-900 border border-rose-500/50 rounded px-2.5 py-1 text-sm text-white font-mono focus:outline-none"
-                    placeholder="0"
-                    autoFocus
-                  />
-                  <button
-                    onClick={handleSaveMohamedInit}
-                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-bold"
+                    onClick={() => saveMohamedDirect()}
+                    className="text-[11px] font-semibold text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded transition whitespace-nowrap"
                   >
                     Save
                   </button>
-                  <button
-                    onClick={() => {
-                      setMohamedInitInput(String(settings.mohamed_initial_balance));
-                      setEditingMohamedInit(false);
-                    }}
-                    className="p-1 text-zinc-400 hover:text-white"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div className="text-sm font-bold text-zinc-200 mt-1 font-mono">
-                  {settings.mohamed_initial_balance.toLocaleString()} EGP
-                </div>
-              )}
+                )}
+              </div>
+              <p className="text-[11px] text-zinc-500 mt-1.5 flex items-center justify-between px-1">
+                <span>Click & type to set Mohamed balance anytime</span>
+                <span className="text-zinc-400 font-mono">Current Cash</span>
+              </p>
             </div>
           </div>
 
           <div className="mt-4 pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs text-zinc-400 font-mono">
-            <span>From Ammar (+): <strong className="text-amber-400 font-semibold">+{transfersToMohamed.toLocaleString()}</strong></span>
-            <span>Deducted / Spent (-): <strong className="text-rose-400 font-semibold">-{mohamedSpent.toLocaleString()}</strong></span>
+            <span>From Ammar: <strong className="text-amber-400 font-semibold">+{transfersToMohamed.toLocaleString()}</strong></span>
+            <span>Logged Spent: <strong className="text-rose-400 font-semibold">-{mohamedSpent.toLocaleString()}</strong></span>
           </div>
         </div>
       </div>
@@ -646,7 +647,7 @@ export default function HowMuchPage() {
           <div className="flex items-center gap-3 flex-wrap">
             <span className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
               <Layers className="w-4 h-4 text-amber-400" />
-              Transactions Log
+              Optional Transactions History Log
             </span>
 
             {/* Filter Tabs */}
@@ -667,7 +668,7 @@ export default function HowMuchPage() {
                     : "text-zinc-400 hover:text-zinc-200"
                 }`}
               >
-                Ammar Added
+                Ammar Inflows
               </button>
               <button
                 onClick={() => setActiveTab("mohamed")}
@@ -677,7 +678,7 @@ export default function HowMuchPage() {
                     : "text-zinc-400 hover:text-zinc-200"
                 }`}
               >
-                Mohamed Spent
+                Mohamed Expenses
               </button>
               <button
                 onClick={() => setActiveTab("transfers")}
@@ -723,8 +724,8 @@ export default function HowMuchPage() {
           {filteredTransactions.length === 0 ? (
             <div className="text-center py-16 text-zinc-500">
               <Wallet className="w-10 h-10 mx-auto text-zinc-700 mb-2" />
-              <p className="text-sm font-semibold text-zinc-400">No recorded transactions match this filter.</p>
-              <p className="text-xs text-zinc-600 mt-1">Use the &quot;New Entry&quot; button to record an income or expense.</p>
+              <p className="text-sm font-semibold text-zinc-400">No logged transactions found.</p>
+              <p className="text-xs text-zinc-600 mt-1">You can set your balances directly above without logging entries.</p>
             </div>
           ) : (
             <table className="w-full text-left text-xs">
@@ -826,14 +827,14 @@ export default function HowMuchPage() {
         </div>
       </div>
 
-      {/* Modal: New Transaction */}
+      {/* Modal: New Transaction (Optional) */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
             <div className="p-5 border-b border-zinc-800 flex items-center justify-between">
               <h3 className="font-bold text-white text-base flex items-center gap-2">
                 <Wallet className="w-4 h-4 text-amber-400" />
-                Record Transaction
+                Log Transaction
               </h3>
               <button
                 onClick={() => setShowAddModal(false)}
