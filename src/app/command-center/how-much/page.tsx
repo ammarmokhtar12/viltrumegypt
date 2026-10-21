@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import * as XLSX from "xlsx";
 import { supabase } from "@/lib/supabase";
 import {
   Wallet,
@@ -396,12 +397,12 @@ export default function HowMuchPage() {
     });
   }, [transactions, activeTab, searchQuery, dateFilter]);
 
-  // Executive CSV Export
-  const handleExportCSV = () => {
-    const dateStr = new Date().toLocaleString("en-US", {
+  // Executive Excel (.xlsx) Export
+  const handleExportExcel = () => {
+    const dateStr = new Date().toLocaleString("en-GB", {
       year: "numeric",
-      month: "short",
-      day: "numeric",
+      month: "2-digit",
+      day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -442,15 +443,15 @@ export default function HowMuchPage() {
           : `${t.person === "ammar" ? "Ammar" : "Mohamed"} Inflow / Added`;
 
       return [
-        t.date,
+        t.date || "",
         t.person === "ammar" ? "Ammar" : "Mohamed",
         typeLabel,
-        `"${String(t.title || "").replace(/"/g, '""')}"`,
-        `"${String(t.category || "General").replace(/"/g, '""')}"`,
+        t.title || "",
+        t.category || "General",
         isOutflow || t.type === "transfer" ? "" : absAmt,
         isOutflow ? absAmt : t.type === "transfer" ? absAmt : "",
         amt,
-        `"${String(t.notes || "").replace(/"/g, '""')}"`,
+        t.notes || "",
       ];
     });
 
@@ -460,7 +461,7 @@ export default function HowMuchPage() {
       [`TOTAL BUSINESS BALANCE (LIQUIDITY): ${totalLiquidity.toLocaleString()} EGP`],
       [`Ammar Current Balance: ${currentAmmarDisplay.toLocaleString()} EGP`],
       [`Mohamed Current Balance: ${currentMohamedDisplay.toLocaleString()} EGP`],
-      [""],
+      [],
     ];
 
     const totalsRow = [
@@ -475,25 +476,28 @@ export default function HowMuchPage() {
       "",
     ];
 
-    const csvContent =
-      summaryBlock.map((r) => r.join(",")).join("\r\n") +
-      "\r\n" +
-      headers.map((h) => `"${h}"`).join(",") +
-      "\r\n" +
-      dataRows.map((r) => r.join(",")).join("\r\n") +
-      "\r\n" +
-      totalsRow.map((v) => `"${v}"`).join(",");
+    const allSheetData = [...summaryBlock, headers, ...dataRows, totalsRow];
+    const ws = XLSX.utils.aoa_to_sheet(allSheetData);
 
-    const BOM = "\uFEFF";
-    const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `viltrum_treasury_report_${new Date().toISOString().split("T")[0]}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // Auto column widths
+    const colWidths = headers.map((h, i) => {
+      let maxLen = h.length;
+      for (const r of dataRows) {
+        const val = r[i];
+        if (val !== undefined && val !== null) {
+          const len = String(val).length;
+          if (len > maxLen) maxLen = len;
+        }
+      }
+      return { wch: Math.min(Math.max(maxLen + 4, 14), 45) };
+    });
+    ws["!cols"] = colWidths;
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Treasury Statement");
+
+    const fileDate = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(wb, `viltrum_treasury_report_${fileDate}.xlsx`);
   };
 
   const handlePrint = () => {
@@ -559,9 +563,9 @@ export default function HowMuchPage() {
             <span>Statement (PDF)</span>
           </button>
 
-          {/* Excel CSV Download */}
+          {/* Excel .xlsx Download */}
           <button
-            onClick={handleExportCSV}
+            onClick={handleExportExcel}
             className="px-3 py-2 bg-zinc-900 hover:bg-zinc-800 text-emerald-300 hover:text-emerald-200 border border-emerald-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-sm"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
@@ -1227,11 +1231,11 @@ export default function HowMuchPage() {
                   <span>Print / Save as PDF</span>
                 </button>
                 <button
-                  onClick={handleExportCSV}
+                  onClick={handleExportExcel}
                   className="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold rounded-xl text-xs flex items-center gap-1.5 transition"
                 >
                   <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Excel CSV</span>
+                  <span>Excel (.xlsx)</span>
                 </button>
                 <button
                   onClick={() => setShowStatementModal(false)}
