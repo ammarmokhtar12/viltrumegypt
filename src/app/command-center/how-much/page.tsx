@@ -51,7 +51,9 @@ const AMMAR_CATEGORIES = [
   "Vodafone Cash",
   "Direct Cash Inflow",
   "Capital Injection",
-  "Other Income",
+  "Direct Expense / Spent by Ammar (-)",
+  "Partner Withdrawal (-)",
+  "Other Income / Adjustment",
 ];
 
 const MOHAMED_CATEGORIES = [
@@ -272,8 +274,8 @@ export default function HowMuchPage() {
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     const val = Number(formAmount);
-    if (!val || isNaN(val) || val <= 0) {
-      alert("Please enter a valid amount.");
+    if (isNaN(val) || val === 0) {
+      alert("Please enter a valid non-zero amount.");
       return;
     }
     if (!formTitle.trim()) {
@@ -772,9 +774,15 @@ export default function HowMuchPage() {
                         {isTransfer ? (
                           <span className="text-amber-400">Transfer</span>
                         ) : isIncome ? (
-                          <span className="text-emerald-400 flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3" /> Added
-                          </span>
+                          Number(tx.amount) < 0 ? (
+                            <span className="text-rose-400 flex items-center gap-1">
+                              <TrendingDown className="w-3 h-3" /> Ammar Spent
+                            </span>
+                          ) : (
+                            <span className="text-emerald-400 flex items-center gap-1">
+                              <TrendingUp className="w-3 h-3" /> Added
+                            </span>
+                          )
                         ) : (
                           <span className="text-rose-400 flex items-center gap-1">
                             <TrendingDown className="w-3 h-3" /> Deducted
@@ -799,12 +807,18 @@ export default function HowMuchPage() {
                             {Number(tx.amount).toLocaleString()} EGP
                           </span>
                         ) : isIncome ? (
-                          <span className="text-emerald-400">
-                            +{Number(tx.amount).toLocaleString()} EGP
-                          </span>
+                          Number(tx.amount) < 0 ? (
+                            <span className="text-rose-400">
+                              -{Math.abs(Number(tx.amount)).toLocaleString()} EGP
+                            </span>
+                          ) : (
+                            <span className="text-emerald-400">
+                              +{Number(tx.amount).toLocaleString()} EGP
+                            </span>
+                          )
                         ) : (
                           <span className="text-rose-400">
-                            -{Number(tx.amount).toLocaleString()} EGP
+                            -{Math.abs(Number(tx.amount)).toLocaleString()} EGP
                           </span>
                         )}
                       </td>
@@ -899,19 +913,57 @@ export default function HowMuchPage() {
               {/* Amount */}
               <div>
                 <label className="block text-zinc-400 mb-1.5 font-semibold">Amount (EGP):</label>
-                <div className="relative">
+                <div className="relative flex items-center">
+                  {formType === "income" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (formAmount.startsWith("-")) {
+                          setFormAmount(formAmount.replace("-", ""));
+                        } else if (formAmount) {
+                          setFormAmount("-" + formAmount);
+                        } else {
+                          setFormAmount("-");
+                        }
+                      }}
+                      className={`px-3 py-2.5 rounded-l-xl text-xs font-bold border transition font-mono ${
+                        formAmount.startsWith("-")
+                          ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                          : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                      }`}
+                      title="Click to toggle positive (+) or negative (-)"
+                    >
+                      {formAmount.startsWith("-") ? "-" : "+"}
+                    </button>
+                  )}
                   <input
                     type="number"
                     step="any"
                     required
-                    placeholder="e.g. 5000"
+                    placeholder={formType === "income" ? "e.g. 5000 or -1500" : "e.g. 5000"}
                     value={formAmount}
                     onChange={(e) => setFormAmount(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white font-mono text-sm focus:outline-none focus:border-amber-500"
+                    className={`w-full bg-zinc-950 border border-zinc-800 ${
+                      formType === "income" ? "rounded-r-xl border-l-0" : "rounded-xl"
+                    } px-3.5 py-2.5 text-white font-mono text-sm focus:outline-none focus:border-amber-500`}
                     autoFocus
                   />
-                  <span className="absolute right-3.5 top-3 text-zinc-500 font-semibold text-xs">EGP</span>
+                  <span className="absolute right-3.5 top-3 text-zinc-500 font-semibold text-xs pointer-events-none">
+                    EGP
+                  </span>
                 </div>
+                {formType === "income" && (
+                  <p className="text-[11px] text-zinc-400 mt-1 flex items-center justify-between">
+                    <span>
+                      Tip: Enter a negative amount (e.g. <strong className="text-rose-400">-1500</strong>) if you spent money.
+                    </span>
+                    {formAmount.startsWith("-") && (
+                      <span className="text-rose-400 font-bold bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
+                        Will be deducted (-)
+                      </span>
+                    )}
+                  </p>
+                )}
               </div>
 
               {/* Title / Description */}
