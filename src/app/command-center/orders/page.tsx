@@ -24,6 +24,7 @@ import {
   Plus,
   Trash2,
   Download,
+  StickyNote,
 } from "lucide-react";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
@@ -314,6 +315,7 @@ function EditOrderModal({
   const [address, setAddress] = useState(order.customer_address || "");
   const [items, setItems] = useState<any[]>(Array.isArray(order.items) ? [...order.items] : []);
   const [total, setTotal] = useState<number | string>(order.total || 0);
+  const [notes, setNotes] = useState(order.notes || "");
   const [saving, setSaving] = useState(false);
 
   const handleItemChange = (index: number, field: string, value: any) => {
@@ -340,6 +342,7 @@ function EditOrderModal({
       customer_address: address,
       items: items,
       total: finalTotal,
+      notes: notes || null,
       updated_at: new Date().toISOString()
     }).eq("id", order.id);
 
@@ -352,7 +355,8 @@ function EditOrderModal({
         customer_phone: phone, 
         customer_address: address, 
         items, 
-        total: finalTotal 
+        total: finalTotal,
+        notes: notes || null 
       });
     }
     setSaving(false);
@@ -441,6 +445,17 @@ function EditOrderModal({
               ))}
               {items.length === 0 && <p className="text-sm text-zinc-500">No items.</p>}
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">ملاحظات (Notes)</label>
+            <textarea 
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="أضف ملاحظة على الأوردر..."
+              rows={3}
+              className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500/50 resize-none"
+            />
           </div>
 
           <div className="flex items-center justify-between bg-zinc-800/30 p-4 rounded-xl border border-zinc-700/50 mt-4">
@@ -604,7 +619,7 @@ export default function OrdersPage() {
     setLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company, updated_at")
+      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company, updated_at, notes")
       .order("created_at", { ascending: false })
       .limit(5000);
     if (error) {
@@ -1115,7 +1130,10 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                         <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase tracking-wider text-red-400 bg-red-500/10 border border-red-500/20">Unpaid</span>
                       )}
                     </div>
-                    <p className="text-xs text-zinc-500 truncate">{order.customer_name} · {order.customer_phone}</p>
+                    <p className="text-xs text-zinc-500 truncate">
+                      {order.customer_name} · {order.customer_phone}
+                      {order.notes && <StickyNote size={12} className="inline-block ml-2 text-amber-400" />}
+                    </p>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-sm font-bold text-white">{fmt(order.total)} EGP</p>
@@ -1155,6 +1173,19 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                             {order.referral_source}
                           </span>
                         </div>
+                      )}
+                    </div>
+
+                    {/* Notes Section */}
+                    <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <StickyNote size={14} className="text-amber-400" />
+                        <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">ملاحظات (Notes)</p>
+                      </div>
+                      {order.notes ? (
+                        <p className="text-xs text-amber-200/80 leading-relaxed whitespace-pre-wrap">{order.notes}</p>
+                      ) : (
+                        <p className="text-xs text-zinc-600 italic">لا يوجد ملاحظات</p>
                       )}
                     </div>
 
