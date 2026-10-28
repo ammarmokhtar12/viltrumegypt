@@ -607,11 +607,10 @@ export default function ImportNotesModal({
                   <p className="text-xs font-bold text-zinc-300">طريقة كتابة الملاحظات:</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <label
-                      className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${
-                        importMode === "append"
+                      className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${importMode === "append"
                           ? "bg-amber-500/10 border-amber-500/40 text-amber-200"
                           : "bg-zinc-900 border-zinc-800 text-zinc-400"
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"
@@ -627,11 +626,10 @@ export default function ImportNotesModal({
                     </label>
 
                     <label
-                      className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${
-                        importMode === "overwrite"
+                      className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${importMode === "overwrite"
                           ? "bg-red-500/10 border-red-500/40 text-red-200"
                           : "bg-zinc-900 border-zinc-800 text-zinc-400"
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"
@@ -728,21 +726,18 @@ export default function ImportNotesModal({
 
               {/* Success Result Message */}
               {importResult && (
-                <div className={`p-6 rounded-2xl space-y-3 text-center animate-in zoom-in-95 border ${
-                  importResult.updated > 0
+                <div className={`p-6 rounded-2xl space-y-3 text-center animate-in zoom-in-95 border ${importResult.updated > 0
                     ? "bg-emerald-500/10 border-emerald-500/30"
                     : "bg-amber-500/10 border-amber-500/30"
-                }`}>
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
-                    importResult.updated > 0
+                  }`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${importResult.updated > 0
                       ? "bg-emerald-500/20 text-emerald-400"
                       : "bg-amber-500/20 text-amber-400"
-                  }`}>
+                    }`}>
                     {importResult.updated > 0 ? <CheckCircle2 size={28} /> : <AlertCircle size={28} />}
                   </div>
-                  <h4 className={`text-base font-bold ${
-                    importResult.updated > 0 ? "text-emerald-400" : "text-amber-400"
-                  }`}>
+                  <h4 className={`text-base font-bold ${importResult.updated > 0 ? "text-emerald-400" : "text-amber-400"
+                    }`}>
                     {importResult.updated > 0
                       ? "تم التحديث بنجاح في قاعدة البيانات! 🎉"
                       : "لم يتم تحديث أي أوردر"}
