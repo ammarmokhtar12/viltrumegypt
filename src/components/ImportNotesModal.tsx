@@ -23,9 +23,24 @@ interface ImportNotesModalProps {
   existingOrders?: any[];
 }
 
+function toAsciiDigits(str: any): string {
+  if (!str) return "";
+  return String(str)
+    .replace(/[٠۰]/g, "0")
+    .replace(/[١۱]/g, "1")
+    .replace(/[٢۲]/g, "2")
+    .replace(/[٣۳]/g, "3")
+    .replace(/[٤۴]/g, "4")
+    .replace(/[٥۵]/g, "5")
+    .replace(/[٦۶]/g, "6")
+    .replace(/[٧۷]/g, "7")
+    .replace(/[٨۸]/g, "8")
+    .replace(/[٩۹]/g, "9");
+}
+
 function normalizePhone(p: any): string {
   if (!p) return "";
-  const digits = String(p).replace(/[^0-9]/g, "");
+  const digits = toAsciiDigits(p).replace(/[^0-9]/g, "");
   if (digits.length >= 10) {
     return digits.slice(-10); // last 10 digits
   }
@@ -78,8 +93,11 @@ export default function ImportNotesModal({
     const nMap = new Map<string, any>();
 
     existingOrders.forEach((o) => {
-      const num = parseInt(String(o?.order_number || ""), 10);
-      if (!isNaN(num) && num > 0) oMap.set(num, o);
+      const rawNum = o?.order_number;
+      if (rawNum !== undefined && rawNum !== null) {
+        const num = parseInt(toAsciiDigits(rawNum).replace(/[^0-9]/g, ""), 10);
+        if (!isNaN(num) && num > 0) oMap.set(num, o);
+      }
 
       const normP = normalizePhone(o?.customer_phone);
       if (normP && normP.length >= 8) pMap.set(normP, o);
@@ -153,10 +171,10 @@ export default function ImportNotesModal({
       }
       const sampleVals = json.slice(0, 5).map((r) => r[col]);
       const validNumbers = sampleVals.filter((v) => {
-        const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10);
+        const n = parseInt(toAsciiDigits(v).replace(/[^0-9]/g, ""), 10);
         return !isNaN(n) && n >= 100;
       });
-      score += validNumbers.length * 10;
+      score += validNumbers.length * 15;
       if (score > maxOrderScore) {
         maxOrderScore = score;
         bestOrderCol = col;
@@ -175,10 +193,10 @@ export default function ImportNotesModal({
       }
       const sampleVals = json.slice(0, 5).map((r) => String(r[col] || ""));
       const isPhoneLike = sampleVals.filter((v) => {
-        const digits = v.replace(/[^0-9]/g, "");
+        const digits = toAsciiDigits(v).replace(/[^0-9]/g, "");
         return digits.length >= 10 && (digits.startsWith("01") || digits.startsWith("1") || digits.startsWith("201"));
       });
-      score += isPhoneLike.length * 15;
+      score += isPhoneLike.length * 20;
       if (score > maxPhoneScore) {
         maxPhoneScore = score;
         bestPhoneCol = col;
@@ -247,6 +265,7 @@ export default function ImportNotesModal({
     if (!notesCol || rawRows.length === 0) return [];
 
     const items: Array<{
+      orderId?: string;
       orderNumber?: number;
       phone?: string;
       customerName?: string;
@@ -264,7 +283,7 @@ export default function ImportNotesModal({
       // Extract Order Number
       let rawOrderNum: number | undefined = undefined;
       if (orderCol && row[orderCol] !== undefined && row[orderCol] !== null) {
-        const clean = parseInt(String(row[orderCol]).replace(/[^0-9]/g, ""), 10);
+        const clean = parseInt(toAsciiDigits(row[orderCol]).replace(/[^0-9]/g, ""), 10);
         if (!isNaN(clean) && clean > 0) rawOrderNum = clean;
       }
 
@@ -309,7 +328,6 @@ export default function ImportNotesModal({
             matchedOrder = nameMap.get(normN);
             matchedBy = "name";
           } else {
-            // Partial match
             matchedOrder = existingOrders.find((o) => {
               const oN = normalizeName(o?.customer_name);
               return oN.length >= 4 && (oN.includes(normN) || normN.includes(oN));
@@ -320,6 +338,7 @@ export default function ImportNotesModal({
       }
 
       items.push({
+        orderId: matchedOrder?.id,
         orderNumber: rawOrderNum,
         phone: rawPhone,
         customerName: rawName,
@@ -343,7 +362,8 @@ export default function ImportNotesModal({
     try {
       const payload = {
         updates: parsedItems.map((p) => ({
-          orderNumber: p.orderNumber,
+          orderId: p.orderId,
+          orderNumber: p.matchedOrderNum || p.orderNumber,
           phone: p.phone,
           customerName: p.customerName,
           note: p.newNote,
@@ -367,7 +387,9 @@ export default function ImportNotesModal({
         notFound: data.notFound || [],
       });
 
-      onSuccess();
+      if (data.updatedCount > 0) {
+        onSuccess();
+      }
     } catch (err: any) {
       setErrorMessage(err.message || "حدث خطأ أثناء حفظ الملاحظات.");
     } finally {
@@ -706,11 +728,25 @@ export default function ImportNotesModal({
 
               {/* Success Result Message */}
               {importResult && (
-                <div className="p-6 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-3 text-center animate-in zoom-in-95">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
-                    <CheckCircle2 size={28} />
+                <div className={`p-6 rounded-2xl space-y-3 text-center animate-in zoom-in-95 border ${
+                  importResult.updated > 0
+                    ? "bg-emerald-500/10 border-emerald-500/30"
+                    : "bg-amber-500/10 border-amber-500/30"
+                }`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
+                    importResult.updated > 0
+                      ? "bg-emerald-500/20 text-emerald-400"
+                      : "bg-amber-500/20 text-amber-400"
+                  }`}>
+                    {importResult.updated > 0 ? <CheckCircle2 size={28} /> : <AlertCircle size={28} />}
                   </div>
-                  <h4 className="text-base font-bold text-emerald-400">تم التحديث بنجاح في قاعدة البيانات! 🎉</h4>
+                  <h4 className={`text-base font-bold ${
+                    importResult.updated > 0 ? "text-emerald-400" : "text-amber-400"
+                  }`}>
+                    {importResult.updated > 0
+                      ? "تم التحديث بنجاح في قاعدة البيانات! 🎉"
+                      : "لم يتم تحديث أي أوردر"}
+                  </h4>
                   <p className="text-xs text-zinc-300 leading-relaxed max-w-md mx-auto">
                     تم تحديث ملاحظات <span className="font-bold text-white text-sm">({importResult.updated})</span> أوردر بنجاح.
                     {importResult.notFound.length > 0 && (
