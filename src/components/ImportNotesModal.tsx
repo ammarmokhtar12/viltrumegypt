@@ -1,23 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import * as XLSX from "xlsx";
-import { supabase } from "@/lib/supabase";
 import {
   X,
   Upload,
   FileSpreadsheet,
   CheckCircle2,
+  AlertCircle,
   Save,
+  Check,
+  Filter,
 } from "lucide-react";
-
-interface ParsedImportRow {
-  orderNumber: number;
-  newNote: string;
-  currentNote: string;
-  customerName: string;
-}
 
 interface ImportNotesModalProps {
   isOpen: boolean;
@@ -32,192 +27,274 @@ export default function ImportNotesModal({
   onSuccess,
   existingOrders = [],
 }: ImportNotesModalProps) {
-  const [importFile, setImportFile] = useState<File | null>(null);
-  const [parsedRows, setParsedRows] = useState<ParsedImportRow[]>([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [sheetNames, setSheetNames] = useState<string[]>([]);
+  const [selectedSheet, setSelectedSheet] = useState<string>("");
+  const [columns, setColumns] = useState<string[]>([]);
+  const [rawRows, setRawRows] = useState<any[]>([]);
+
+  // Selected column mapping
+  const [orderCol, setOrderCol] = useState<string>("");
+  const [notesCol, setNotesCol] = useState<string>("");
+
   const [importMode, setImportMode] = useState<"append" | "overwrite">("append");
   const [importing, setImporting] = useState(false);
-  const [importProgress, setImportProgress] = useState(0);
-  const [importResult, setImportResult] = useState<{ updated: number; failed: number } | null>(null);
+  const [importResult, setImportResult] = useState<{
+    updated: number;
+    notFound: number[];
+  } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!isOpen) return null;
+  // Fast map of existing orders by order_number
+  const ordersMap = useMemo(() => {
+    const map = new Map<number, any>();
+    existingOrders.forEach((o) => {
+      const num = parseInt(String(o?.order_number || ""), 10);
+      if (!isNaN(num) && num > 0) map.set(num, o);
+    });
+    return map;
+  }, [existingOrders]);
 
-  // Build quick map of existing orders by order_number
-  const ordersMap = new Map<number, any>();
-  existingOrders.forEach((o) => {
-    if (o?.order_number) ordersMap.set(o.order_number, o);
-  });
+  // Read file and parse sheets
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setImportFile(file);
+    setFile(selectedFile);
     setImportResult(null);
+    setErrorMessage("");
 
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
         const data = new Uint8Array(evt.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-
-        if (!json || json.length === 0) {
-          alert("الملف فارغ أو لا يحتوي على بيانات");
+        const sheets = workbook.SheetNames;
+        if (!sheets || sheets.length === 0) {
+          setErrorMessage("الملف لا يحتوي على صفحات بيانات (Sheets).");
           return;
         }
 
-        const sample = json[0];
-        const keys = Object.keys(sample);
-
-        // Find Order Number column
-        const orderKey = keys.find((k) => {
-          const s = k.toLowerCase().replace(/[\s_#-]/g, "");
-          return (
-            s.includes("order#") ||
-            s.includes("ordernumber") ||
-            s.includes("رقمأوردر") ||
-            s.includes("رقمطلب") ||
-            s.includes("رقم_الاوردر") ||
-            s.includes("رقم_الطلب") ||
-            s.includes("order") ||
-            s.includes("طلب") ||
-            s.includes("أوردر")
-          );
-        }) || keys[1] || keys[0];
-
-        // Find Notes column
-        const notesKey = keys.find((k) => {
-          const s = k.toLowerCase();
-          return (
-            (s.includes("admin") && s.includes("note")) ||
-            s.includes("ملاحظات الأدمن") ||
-            s.includes("ملاحظات الادمن") ||
-            s.includes("admin notes")
-          );
-        }) || keys.find((k) => {
-          const s = k.toLowerCase();
-          return (
-            s.includes("note") ||
-            s.includes("ملاحظ") ||
-            s.includes("نوت") ||
-            s.includes("تعليق") ||
-            s.includes("comment") ||
-            s.includes("company return reason") ||
-            s.includes("سبب المرتجع")
-          );
-        });
-
-        if (!notesKey) {
-          alert("لم يتم العثور على عمود للملاحظات (Admin Notes / ملاحظات) في الملف.");
-          return;
-        }
-
-        // Parse rows
-        const matched: ParsedImportRow[] = [];
-        json.forEach((row) => {
-          const rawOrder = row[orderKey];
-          if (rawOrder === undefined || rawOrder === null) return;
-          const cleanNumStr = String(rawOrder).replace(/[^0-9]/g, "");
-          const num = parseInt(cleanNumStr, 10);
-          if (isNaN(num) || num <= 0) return;
-
-          const rawNote = String(row[notesKey] || "").trim();
-          if (!rawNote) return; // Skip empty notes
-
-          const existingOrder = ordersMap.get(num);
-
-          matched.push({
-            orderNumber: num,
-            newNote: rawNote,
-            currentNote: existingOrder?.notes || "",
-            customerName:
-              existingOrder?.customer_name ||
-              String(
-                row["اسم العميل (Customer Name)"] ||
-                row["Customer Name"] ||
-                row["العميل"] ||
-                ""
-              ),
-          });
-        });
-
-        setParsedRows(matched);
+        setSheetNames(sheets);
+        // Default to first sheet or sheet containing "return" or "order"
+        const defaultSheet =
+          sheets.find((s) => /return|order|مرتجع|طلب/i.test(s)) || sheets[0];
+        setSelectedSheet(defaultSheet);
+        parseWorksheet(workbook.Sheets[defaultSheet]);
       } catch (err: any) {
-        console.error(err);
-        alert(`حدث خطأ أثناء قراءة الملف: ${err.message || ""}`);
+        setErrorMessage("حدث خطأ أثناء قراءة ملف الإكسيل: " + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(selectedFile);
+  };
+
+  const parseWorksheet = (worksheet: any) => {
+    if (!worksheet) return;
+    const json: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+    if (!json || json.length === 0) {
+      setColumns([]);
+      setRawRows([]);
+      setErrorMessage("هذه الصفحة فارغة.");
+      return;
+    }
+
+    setRawRows(json);
+    const keys = Object.keys(json[0] || {});
+    setColumns(keys);
+
+    // Heuristic detection for Order Column
+    let bestOrderCol = "";
+    let maxOrderScore = -999;
+
+    keys.forEach((col) => {
+      const clean = col.toLowerCase().trim();
+      let score = 0;
+
+      // Penalize sequence/row number columns
+      if (clean === "#" || clean === "م" || clean === "row" || clean === "index" || clean === "id") {
+        score -= 50;
+      }
+
+      // Strong indicators
+      if (clean.includes("order #") || clean.includes("order_number") || clean.includes("رقم الأوردر") || clean.includes("رقم الاوردر") || clean.includes("رقم الطلب")) {
+        score += 100;
+      } else if (clean.includes("order") || clean.includes("أوردر") || clean.includes("اوردر") || clean.includes("طلب")) {
+        score += 40;
+      }
+
+      // Check values in sample rows
+      const sampleVals = json.slice(0, 5).map((r) => r[col]);
+      const validNumbers = sampleVals.filter((v) => {
+        const n = parseInt(String(v).replace(/[^0-9]/g, ""), 10);
+        return !isNaN(n) && n >= 100; // order numbers are typically >= 100
+      });
+      score += validNumbers.length * 10;
+
+      if (score > maxOrderScore) {
+        maxOrderScore = score;
+        bestOrderCol = col;
+      }
+    });
+
+    setOrderCol(bestOrderCol || keys[0] || "");
+
+    // Heuristic detection for Notes Column
+    let bestNotesCol = "";
+    let maxNotesScore = -999;
+
+    keys.forEach((col) => {
+      const clean = col.toLowerCase().trim();
+      let score = 0;
+
+      if (clean.includes("admin notes") || clean.includes("ملاحظات الأدمن") || clean.includes("ملاحظات الادمن")) {
+        score += 100;
+      } else if (clean.includes("note") || clean.includes("ملاحظ") || clean.includes("نوت")) {
+        score += 60;
+      } else if (clean.includes("تعليق") || clean.includes("comment") || clean.includes("سبب المرتجع") || clean.includes("reason")) {
+        score += 30;
+      }
+
+      if (score > maxNotesScore) {
+        maxNotesScore = score;
+        bestNotesCol = col;
+      }
+    });
+
+    setNotesCol(bestNotesCol || keys[keys.length - 1] || "");
+  };
+
+  // Re-parse when user changes sheet
+  const handleSheetChange = (sheetName: string) => {
+    setSelectedSheet(sheetName);
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const data = new Uint8Array(evt.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        parseWorksheet(workbook.Sheets[sheetName]);
+      } catch (err: any) {
+        setErrorMessage("فشل قراءة الصفحة: " + err.message);
       }
     };
     reader.readAsArrayBuffer(file);
   };
 
-  const handleApplyImport = async () => {
-    if (parsedRows.length === 0) return;
+  // Build rows preview based on current orderCol and notesCol
+  const parsedItems = useMemo(() => {
+    if (!orderCol || !notesCol || rawRows.length === 0) return [];
+
+    const items: Array<{
+      orderNumber: number;
+      newNote: string;
+      currentNote: string;
+      customerName: string;
+      existsInDb: boolean;
+    }> = [];
+
+    rawRows.forEach((row) => {
+      const rawOrder = row[orderCol];
+      if (rawOrder === undefined || rawOrder === null) return;
+      const cleanNum = parseInt(String(rawOrder).replace(/[^0-9]/g, ""), 10);
+      if (isNaN(cleanNum) || cleanNum <= 0) return;
+
+      const rawNote = String(row[notesCol] || "").trim();
+      if (!rawNote) return; // Skip empty notes
+
+      const existingOrder = ordersMap.get(cleanNum);
+
+      items.push({
+        orderNumber: cleanNum,
+        newNote: rawNote,
+        currentNote: existingOrder?.notes || "",
+        customerName:
+          existingOrder?.customer_name ||
+          String(
+            row["اسم العميل (Customer Name)"] ||
+            row["Customer Name"] ||
+            row["العميل"] ||
+            row["اسم العميل"] ||
+            ""
+          ),
+        existsInDb: !!existingOrder,
+      });
+    });
+
+    return items;
+  }, [rawRows, orderCol, notesCol, ordersMap]);
+
+  // Apply updates via server API
+  const handleApply = async () => {
+    if (parsedItems.length === 0) return;
     setImporting(true);
-    setImportProgress(0);
+    setErrorMessage("");
 
-    let updatedCount = 0;
-    let failedCount = 0;
+    try {
+      const payload = {
+        updates: parsedItems.map((p) => ({
+          orderNumber: p.orderNumber,
+          note: p.newNote,
+        })),
+        mode: importMode,
+      };
 
-    for (let i = 0; i < parsedRows.length; i++) {
-      const item = parsedRows[i];
-      let finalNote = item.newNote;
+      const res = await fetch("/api/admin/orders/import-notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-      if (importMode === "append" && item.currentNote.trim()) {
-        const todayStr = new Date().toLocaleDateString("en-GB");
-        finalNote = `${item.currentNote.trim()}\n[${todayStr}]: ${item.newNote.trim()}`;
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "فشل التحديث من السيرفر");
       }
 
-      try {
-        const { error } = await supabase
-          .from("orders")
-          .update({
-            notes: finalNote,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("order_number", item.orderNumber);
+      setImportResult({
+        updated: data.updatedCount || 0,
+        notFound: data.notFound || [],
+      });
 
-        if (error) {
-          failedCount++;
-        } else {
-          updatedCount++;
-        }
-      } catch {
-        failedCount++;
-      }
-
-      setImportProgress(Math.round(((i + 1) / parsedRows.length) * 100));
+      onSuccess();
+    } catch (err: any) {
+      setErrorMessage(err.message || "حدث خطأ أثناء حفظ الملاحظات.");
+    } finally {
+      setImporting(false);
     }
-
-    setImporting(false);
-    setImportResult({ updated: updatedCount, failed: failedCount });
-    onSuccess();
   };
 
   const handleClose = () => {
-    setImportFile(null);
-    setParsedRows([]);
+    setFile(null);
+    setSheetNames([]);
+    setSelectedSheet("");
+    setColumns([]);
+    setRawRows([]);
+    setOrderCol("");
+    setNotesCol("");
     setImportResult(null);
-    setImportProgress(0);
+    setErrorMessage("");
     if (fileInputRef.current) fileInputRef.current.value = "";
     onClose();
   };
 
+  if (!isOpen) return null;
+
+  const validMatchCount = parsedItems.filter((i) => i.existsInDb).length;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-zinc-800">
+        <div className="flex items-center justify-between p-5 border-b border-zinc-800 bg-zinc-900/90">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-              <FileSpreadsheet size={18} />
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+              <FileSpreadsheet size={20} />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">استيراد ملاحظات الأوردرات من إكسيل</h3>
+              <h3 className="text-base font-bold text-white">استيراد ملاحظات الأوردرات (Import Notes)</h3>
               <p className="text-xs text-zinc-400">
-                ارفع شيت الإكسيل لوضع الملاحظات (Admin Notes) تلقائياً لكل أوردر
+                ارفع شيت الإكسيل وحدد الأعمدة لتحديث ملاحظات الأوردرات في السيستم
               </p>
             </div>
           </div>
@@ -231,65 +308,136 @@ export default function ImportNotesModal({
 
         {/* Body */}
         <div className="p-6 space-y-5 overflow-y-auto">
-          {!importFile ? (
+          {errorMessage && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-400 flex items-center gap-2">
+              <AlertCircle size={15} />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          {!file ? (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-zinc-700 hover:border-amber-500/60 rounded-2xl p-8 text-center cursor-pointer bg-zinc-950/40 hover:bg-zinc-950/80 transition-all space-y-3"
+              className="border-2 border-dashed border-zinc-700 hover:border-amber-500/60 rounded-2xl p-10 text-center cursor-pointer bg-zinc-950/40 hover:bg-zinc-950/80 transition-all space-y-3"
             >
               <input
                 ref={fileInputRef}
                 type="file"
                 accept=".xlsx, .xls, .csv"
-                onChange={handleFileUpload}
+                onChange={handleFileChange}
                 className="hidden"
               />
-              <div className="w-12 h-12 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                <Upload size={22} />
+              <div className="w-14 h-14 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                <Upload size={26} />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">اضغط لاختيار ملف الإكسيل أو اسحبه هنا</p>
-                <p className="text-xs text-zinc-500 mt-1">يدعم ملفات .xlsx و .xls و .csv</p>
+                <p className="text-base font-bold text-white">اضغط هنا لاختيار ملف الإكسيل أو اسحبه</p>
+                <p className="text-xs text-zinc-500 mt-1">يدعم ملفات .xlsx و .xls و .csv من Excel أو Google Sheets</p>
               </div>
-              <div className="inline-block px-3 py-1 bg-zinc-800 text-zinc-400 text-[11px] rounded-lg border border-zinc-700">
-                يقرأ عمود <span className="text-amber-400 font-bold">Admin Notes</span> ورقم الأوردر تلقائياً
+              <div className="inline-block px-3 py-1 bg-zinc-800 text-zinc-400 text-xs rounded-lg border border-zinc-700">
+                يمكنك مراجعة الأعمدة وتعديلها قبل تطبيق التحديث
               </div>
             </div>
           ) : (
             <div className="space-y-4">
-              {/* File info card */}
-              <div className="flex items-center justify-between p-3.5 bg-zinc-800/70 border border-zinc-700 rounded-xl">
+              {/* File Info & Sheet Selection */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 bg-zinc-800/60 border border-zinc-700 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <FileSpreadsheet size={20} className="text-emerald-400" />
+                  <FileSpreadsheet size={22} className="text-emerald-400 shrink-0" />
                   <div>
-                    <p className="text-xs font-bold text-white">{importFile.name}</p>
+                    <p className="text-xs font-bold text-white">{file.name}</p>
                     <p className="text-[11px] text-zinc-400">
-                      تم العثور على <span className="text-amber-400 font-bold">{parsedRows.length}</span> أوردر به ملاحظات
+                      إجمالي الصفوف: <span className="text-white font-bold">{rawRows.length}</span> · صفوف بها ملاحظات:{" "}
+                      <span className="text-amber-400 font-bold">{parsedItems.length}</span>
                     </p>
                   </div>
                 </div>
-                {!importing && !importResult && (
-                  <button
-                    onClick={() => {
-                      setImportFile(null);
-                      setParsedRows([]);
-                    }}
-                    className="text-xs text-zinc-400 hover:text-red-400 px-2 py-1 rounded hover:bg-zinc-700 transition-all"
-                  >
-                    تغيير الملف
-                  </button>
-                )}
+
+                <div className="flex items-center gap-2">
+                  {sheetNames.length > 1 && (
+                    <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+                      <span>الصفحة:</span>
+                      <select
+                        value={selectedSheet}
+                        onChange={(e) => handleSheetChange(e.target.value)}
+                        className="px-2.5 py-1.5 bg-zinc-900 border border-zinc-700 rounded-lg text-white font-bold text-xs"
+                      >
+                        {sheetNames.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {!importing && !importResult && (
+                    <button
+                      onClick={() => {
+                        setFile(null);
+                        setRawRows([]);
+                        setColumns([]);
+                      }}
+                      className="text-xs text-zinc-400 hover:text-red-400 px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-all"
+                    >
+                      تغيير الملف
+                    </button>
+                  )}
+                </div>
               </div>
 
+              {/* Column Mapping Selectors (Crucial to ensure it NEVER picks the wrong column!) */}
+              {!importResult && columns.length > 0 && (
+                <div className="bg-zinc-950/70 border border-zinc-800 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
+                    <Filter size={14} />
+                    <span>تأكيد تحديد الأعمدة من الشيت (تعديل إذا لزم الأمر):</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <label className="block text-zinc-400 font-bold mb-1.5">
+                        📌 عمود رقم الأوردر (Order # Column):
+                      </label>
+                      <select
+                        value={orderCol}
+                        onChange={(e) => setOrderCol(e.target.value)}
+                        className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-xl text-white font-bold focus:outline-none focus:border-amber-400"
+                      >
+                        {columns.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                      <p className="text-[10px] text-zinc-500 mt-1">تأكد أنه لا يشير لعمود التسلسل (#)</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-zinc-400 font-bold mb-1.5">
+                        📝 عمود الملاحظات (Notes Column):
+                      </label>
+                      <select
+                        value={notesCol}
+                        onChange={(e) => setNotesCol(e.target.value)}
+                        className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-xl text-white font-bold focus:outline-none focus:border-amber-400"
+                      >
+                        {columns.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                      <p className="text-[10px] text-zinc-500 mt-1">العمود الذي كتب فيه الأدمن الملاحظات</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Mode Selector */}
-              {!importResult && parsedRows.length > 0 && (
-                <div className="bg-zinc-950/60 border border-zinc-800 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-bold text-zinc-300">طريقة تحديث الملاحظات:</p>
+              {!importResult && parsedItems.length > 0 && (
+                <div className="bg-zinc-950/50 border border-zinc-800 rounded-xl p-3.5 space-y-2">
+                  <p className="text-xs font-bold text-zinc-300">طريقة كتابة الملاحظات:</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <label
                       className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${
                         importMode === "append"
                           ? "bg-amber-500/10 border-amber-500/40 text-amber-200"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700"
+                          : "bg-zinc-900 border-zinc-800 text-zinc-400"
                       }`}
                     >
                       <input
@@ -300,8 +448,8 @@ export default function ImportNotesModal({
                         className="mt-0.5 accent-amber-500"
                       />
                       <div>
-                        <span className="font-bold block text-white">إضافة على الملاحظات القديمة</span>
-                        <span className="text-[11px] text-zinc-500">يحافظ على أي نوت سابقة ويضيف النوت الجديدة تحتها مع التاريخ</span>
+                        <span className="font-bold block text-white">إضافة على الملاحظات القديمة (Append)</span>
+                        <span className="text-[11px] text-zinc-500">يحافظ على أي نوت مسجلة سابقاً ويضيف الجديدة أسفلها</span>
                       </div>
                     </label>
 
@@ -309,7 +457,7 @@ export default function ImportNotesModal({
                       className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${
                         importMode === "overwrite"
                           ? "bg-red-500/10 border-red-500/40 text-red-200"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700"
+                          : "bg-zinc-900 border-zinc-800 text-zinc-400"
                       }`}
                     >
                       <input
@@ -320,8 +468,8 @@ export default function ImportNotesModal({
                         className="mt-0.5 accent-red-500"
                       />
                       <div>
-                        <span className="font-bold block text-white">استبدال الملاحظات بالكامل</span>
-                        <span className="text-[11px] text-zinc-500">يكتب النوت الجديدة ويمسح ما قبلها</span>
+                        <span className="font-bold block text-white">استبدال الملاحظات (Overwrite)</span>
+                        <span className="text-[11px] text-zinc-500">يكتب النوت الجديدة من الشيت ويمسح ما قبلها</span>
                       </div>
                     </label>
                   </div>
@@ -329,30 +477,41 @@ export default function ImportNotesModal({
               )}
 
               {/* Preview Table */}
-              {!importResult && parsedRows.length > 0 && (
+              {!importResult && parsedItems.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-xs font-bold text-zinc-400">
-                    معاينة البيانات قبل التطبيق ({parsedRows.length} أوردر):
-                  </p>
-                  <div className="border border-zinc-800 rounded-xl overflow-hidden max-h-56 overflow-y-auto">
+                  <div className="flex items-center justify-between text-xs text-zinc-400 font-bold">
+                    <span>
+                      معاينة البيانات ({parsedItems.length} أوردر) ·{" "}
+                      <span className="text-emerald-400">{validMatchCount} متطابق في السيستم</span>
+                    </span>
+                  </div>
+
+                  <div className="border border-zinc-800 rounded-xl overflow-hidden max-h-60 overflow-y-auto">
                     <table className="w-full text-right text-xs">
-                      <thead className="bg-zinc-800/80 text-zinc-400 sticky top-0 font-bold border-b border-zinc-700">
+                      <thead className="bg-zinc-800/90 text-zinc-300 sticky top-0 font-bold border-b border-zinc-700">
                         <tr>
                           <th className="p-2.5">رقم الأوردر</th>
                           <th className="p-2.5">العميل</th>
-                          <th className="p-2.5">النوت الحالية</th>
-                          <th className="p-2.5 text-amber-400">النوت الجديدة من الإكسيل</th>
+                          <th className="p-2.5">الملاحظة الحالية في السيستم</th>
+                          <th className="p-2.5 text-amber-400">الملاحظة الجديدة من الإكسيل</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-800/60 bg-zinc-900/40">
-                        {parsedRows.map((r, i) => (
-                          <tr key={i} className="hover:bg-zinc-800/30">
-                            <td className="p-2.5 font-bold text-white whitespace-nowrap">#{r.orderNumber}</td>
-                            <td className="p-2.5 text-zinc-400 whitespace-nowrap">{r.customerName || "-"}</td>
-                            <td className="p-2.5 text-zinc-500 max-w-[120px] truncate" title={r.currentNote}>
+                        {parsedItems.map((r, i) => (
+                          <tr key={i} className={`hover:bg-zinc-800/30 ${!r.existsInDb ? "opacity-60 bg-zinc-950/40" : ""}`}>
+                            <td className="p-2.5 whitespace-nowrap">
+                              <span className="font-bold text-white">#{r.orderNumber}</span>
+                              {r.existsInDb ? (
+                                <span className="mr-1.5 inline-block text-[10px] text-emerald-400">✓ موجود</span>
+                              ) : (
+                                <span className="mr-1.5 inline-block text-[10px] text-amber-500/80">⚠️ غير موجود</span>
+                              )}
+                            </td>
+                            <td className="p-2.5 text-zinc-300 whitespace-nowrap">{r.customerName || "-"}</td>
+                            <td className="p-2.5 text-zinc-500 max-w-[140px] truncate" title={r.currentNote}>
                               {r.currentNote || <span className="italic text-zinc-600">فارغ</span>}
                             </td>
-                            <td className="p-2.5 text-amber-300 font-medium max-w-[180px] truncate" title={r.newNote}>
+                            <td className="p-2.5 text-amber-300 font-medium max-w-[200px] truncate" title={r.newNote}>
                               {r.newNote}
                             </td>
                           </tr>
@@ -363,31 +522,21 @@ export default function ImportNotesModal({
                 </div>
               )}
 
-              {/* Progress bar */}
-              {importing && (
-                <div className="space-y-2 bg-zinc-950 p-4 rounded-xl border border-zinc-800">
-                  <div className="flex justify-between text-xs text-zinc-400 font-bold">
-                    <span>جاري تحديث النوتس في قاعدة البيانات...</span>
-                    <span className="text-amber-400">{importProgress}%</span>
-                  </div>
-                  <div className="w-full bg-zinc-800 h-2.5 rounded-full overflow-hidden">
-                    <div
-                      className="bg-amber-500 h-full transition-all duration-200"
-                      style={{ width: `${importProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Result Message */}
+              {/* Success Result Message */}
               {importResult && (
-                <div className="p-5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl space-y-2 text-center">
-                  <CheckCircle2 size={32} className="mx-auto text-emerald-400" />
-                  <h4 className="text-sm font-bold text-emerald-400">تم التحديث بنجاح!</h4>
-                  <p className="text-xs text-zinc-300">
-                    تم تحديث ملاحظات <span className="font-bold text-white">{importResult.updated}</span> أوردر في السيستم.
-                    {importResult.failed > 0 && (
-                      <span className="text-red-400 block mt-1">({importResult.failed} أوردر فشل تحديثهم)</span>
+                <div className="p-6 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-3 text-center animate-in zoom-in-95">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
+                    <CheckCircle2 size={28} />
+                  </div>
+                  <h4 className="text-base font-bold text-emerald-400">تم التحديث بنجاح في قاعدة البيانات! 🎉</h4>
+                  <p className="text-xs text-zinc-300 leading-relaxed max-w-md mx-auto">
+                    تم تحديث ملاحظات <span className="font-bold text-white text-sm">({importResult.updated})</span> أوردر بنجاح.
+                    {importResult.notFound.length > 0 && (
+                      <span className="text-amber-400 block mt-1.5">
+                        ({importResult.notFound.length} أوردر لم يتم العثور عليهم برقم الأوردر في السيستم:{" "}
+                        {importResult.notFound.slice(0, 5).join(", ")}
+                        {importResult.notFound.length > 5 ? "..." : ""})
+                      </span>
                     )}
                   </p>
                 </div>
@@ -397,7 +546,7 @@ export default function ImportNotesModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-zinc-800 flex items-center justify-between bg-zinc-900/60">
+        <div className="p-4 border-t border-zinc-800 flex items-center justify-between bg-zinc-900/80">
           <button
             onClick={handleClose}
             className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-bold transition-all"
@@ -405,21 +554,21 @@ export default function ImportNotesModal({
             {importResult ? "إغلاق" : "إلغاء"}
           </button>
 
-          {importFile && !importResult && (
+          {file && !importResult && (
             <button
-              onClick={handleApplyImport}
-              disabled={importing || parsedRows.length === 0}
-              className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-black font-black rounded-xl text-xs transition-all shadow-lg shadow-amber-500/20"
+              onClick={handleApply}
+              disabled={importing || parsedItems.length === 0}
+              className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-black font-black rounded-xl text-xs transition-all shadow-lg shadow-amber-500/20"
             >
               {importing ? (
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                  جاري الحفظ...
+                  جاري التحديث في قاعدة البيانات...
                 </>
               ) : (
                 <>
                   <Save size={14} />
-                  تطبيق وتحديث ({parsedRows.length}) أوردر
+                  تطبيق وتحديث ({parsedItems.length}) أوردر الآن
                 </>
               )}
             </button>
