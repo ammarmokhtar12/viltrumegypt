@@ -37,6 +37,7 @@ CREATE TABLE orders (
   items JSONB NOT NULL,
   total DECIMAL(10, 2) NOT NULL,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'shipped', 'delivered')),
+  notes TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
