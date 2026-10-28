@@ -25,7 +25,9 @@ import {
   Trash2,
   Download,
   StickyNote,
+  Upload,
 } from "lucide-react";
+import ImportNotesModal from "@/components/ImportNotesModal";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
   pending: { label: "Pending", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20" },
@@ -522,6 +524,7 @@ export default function OrdersPage() {
   const [editingOrder, setEditingOrder] = useState<any>(null);
   const [orderToDelete, setOrderToDelete] = useState<any | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showImportNotesModal, setShowImportNotesModal] = useState(false);
 
   const confirmDeleteOrder = async () => {
     if (!orderToDelete) return;
@@ -969,10 +972,20 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
               onClick={() => exportOrdersToCsv(filtered, "command-center-orders")}
               disabled={filtered.length === 0}
               className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-emerald-600/20"
-              title="تصدير الأوردرات كملف CSV"
+              title="تصدير الأوردرات كملف CSV / Excel"
             >
               <Download size={13} />
-              Export CSV ({filtered.length})
+              Export Excel ({filtered.length})
+            </button>
+
+            {/* Import Notes Button */}
+            <button
+              onClick={() => setShowImportNotesModal(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 transition-all shadow-md shadow-amber-950/20"
+              title="استيراد نوتس من ملف إكسيل"
+            >
+              <Upload size={13} />
+              Import Notes
             </button>
 
             <button onClick={fetchOrders} className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-[10px] font-bold text-zinc-400 hover:text-white transition-all uppercase tracking-wider">
@@ -1438,6 +1451,16 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
           </div>
         </div>
       )}
+    
+      {/* Import Notes Modal */}
+      <ImportNotesModal
+        isOpen={showImportNotesModal}
+        onClose={() => setShowImportNotesModal(false)}
+        onSuccess={() => {
+          fetchOrders();
+        }}
+        existingOrders={orders}
+      />
     </>
   );
 }
