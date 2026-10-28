@@ -103,6 +103,7 @@ export function exportReturnsToExcel(
       "تم الاسترداد؟ (Refund Complete?)": ret.refund_completed
         ? "✅ نعم"
         : "❌ لا",
+      "ملاحظات الأدمن (Admin Notes)": order.notes || ret.admin_notes || ret.notes || "",
       "سبب المرتجع من الشركة (Company Return Reason)": "",
     };
   });

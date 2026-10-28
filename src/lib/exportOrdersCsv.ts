@@ -73,7 +73,7 @@ export function exportOrdersToCsv(orders: Order[] | any[], filenamePrefix = "vil
       o.tracking_number ? String(o.tracking_number).trim() : "",
       o.coupon_code || "",
       o.referral_source || "",
-      o.admin_comment || "",
+      o.notes || o.admin_comment || "",
     ];
   });
 

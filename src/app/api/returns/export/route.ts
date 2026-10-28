@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import * as XLSX from "xlsx";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ?? "";
@@ -15,17 +16,16 @@ export async function GET(request: Request) {
   }
 
   const month = searchParams.get("month"); // optional: "2026-10"
+  const format = (searchParams.get("format") || "xlsx").toLowerCase();
 
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Fetch returns
-    let returnsQuery = supabase
+    const { data: returns, error: returnsError } = await supabase
       .from("returns")
       .select("*")
       .order("created_at", { ascending: false });
-
-    const { data: returns, error: returnsError } = await returnsQuery;
 
     if (returnsError) {
       return NextResponse.json({ error: returnsError.message }, { status: 500 });
@@ -37,8 +37,8 @@ export async function GET(request: Request) {
       filteredReturns = filteredReturns.filter((r: any) => {
         if (!r.created_at) return false;
         const d = new Date(r.created_at);
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-        return key === month;
+        const mKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        return mKey === month;
       });
     }
 
@@ -61,12 +61,12 @@ export async function GET(request: Request) {
     });
 
     const REASON_MAP: Record<string, string> = {
-      defective: "عيب تصنيع",
-      wrong_size: "مقاس غلط",
-      wrong_item: "منتج غلط",
-      not_as_described: "مش زي الوصف",
-      changed_mind: "غير رأيه",
-      other: "سبب تاني",
+      defective: "عيب تصنيع (Defective)",
+      wrong_size: "مقاس غلط (Wrong Size)",
+      wrong_item: "منتج غلط (Wrong Item)",
+      not_as_described: "مش زي الوصف (Not as Described)",
+      changed_mind: "غير رأيه (Changed Mind)",
+      other: "سبب تاني (Other)",
     };
 
     const REFUND_METHOD_MAP: Record<string, string> = {
@@ -84,7 +84,7 @@ export async function GET(request: Request) {
       exchanged: "تم الاستبدال",
     };
 
-    // Build rows for the sheet
+    // Build structured data
     const rows = filteredReturns.map((ret: any, idx: number) => {
       const order = ordersMap.get(ret.order_number) || {};
       const items = Array.isArray(order.items) ? order.items : [];
@@ -92,6 +92,7 @@ export async function GET(request: Request) {
         .map((it: any) => `${it.title || "منتج"} (${it.size || "Free"}) x${it.quantity || 1}`)
         .join(" | ");
       const totalUnits = items.reduce((sum: number, it: any) => sum + (it.quantity || 1), 0);
+      const adminNotes = order.notes || ret.admin_notes || ret.notes || "";
 
       return {
         row_number: idx + 1,
@@ -99,7 +100,8 @@ export async function GET(request: Request) {
         order_date: order.created_at ? new Date(order.created_at).toLocaleDateString("en-GB") : "",
         return_date: ret.created_at ? new Date(ret.created_at).toLocaleDateString("en-GB") : "",
         customer_name: order.customer_name || "",
-        customer_phone: order.customer_phone || "",
+        customer_phone: order.customer_phone ? String(order.customer_phone).trim() : "",
+        governorate: order.customer_governorate || "",
         address: order.customer_address || "",
         items_summary: itemsSummary,
         total_units: totalUnits,
@@ -110,14 +112,13 @@ export async function GET(request: Request) {
         reason_details: ret.reason_details || "",
         return_status: RETURN_STATUS_MAP[ret.status] || ret.status || "",
         shipping_company: order.shipping_company || "",
-        tracking_number: order.tracking_number || "",
+        tracking_number: order.tracking_number ? String(order.tracking_number).trim() : "",
         refund_completed: ret.refund_completed ? "نعم" : "لا",
-        order_notes: order.notes || "",
+        admin_notes: adminNotes,
       };
     });
 
-    // Check format
-    const format = searchParams.get("format");
+    // 1. CSV Format
     if (format === "csv") {
       const headers = [
         "م",
@@ -126,8 +127,9 @@ export async function GET(request: Request) {
         "تاريخ طلب الإرجاع",
         "اسم العميل",
         "رقم الهاتف",
+        "المحافظة",
         "العنوان",
-        "المنتجات",
+        "المنتجات والمقاسات",
         "عدد القطع",
         "إجمالي الأوردر (ج.م)",
         "مبلغ الاسترداد (ج.م)",
@@ -138,7 +140,7 @@ export async function GET(request: Request) {
         "شركة الشحن",
         "رقم التتبع",
         "تم استرداد المبلغ؟",
-        "ملاحظات الأوردر",
+        "ملاحظات الأدمن (Admin Notes)",
       ];
 
       const csvEscape = (val: any) => {
@@ -157,6 +159,7 @@ export async function GET(request: Request) {
             csvEscape(r.return_date),
             csvEscape(r.customer_name),
             csvEscape(r.customer_phone),
+            csvEscape(r.governorate),
             csvEscape(r.address),
             csvEscape(r.items_summary),
             r.total_units,
@@ -169,12 +172,11 @@ export async function GET(request: Request) {
             csvEscape(r.shipping_company),
             csvEscape(r.tracking_number),
             csvEscape(r.refund_completed),
-            csvEscape(r.order_notes),
+            csvEscape(r.admin_notes),
           ].join(",")
         ),
       ];
 
-      // Add UTF-8 BOM so Excel and Google Sheets render Arabic correctly
       const csvContent = "\uFEFF" + csvRows.join("\r\n");
 
       return new NextResponse(csvContent, {
@@ -186,7 +188,7 @@ export async function GET(request: Request) {
       });
     }
 
-    // Summary
+    // Summary calculations
     const totalReturns = filteredReturns.length;
     const totalRefunded = filteredReturns
       .filter((r: any) => r.refund_completed)
@@ -196,18 +198,86 @@ export async function GET(request: Request) {
     const refundedCount = filteredReturns.filter((r: any) => r.status === "refunded").length;
     const rejectedCount = filteredReturns.filter((r: any) => r.status === "rejected").length;
 
-    return NextResponse.json({
-      success: true,
-      updated_at: new Date().toISOString(),
-      summary: {
-        total_returns: totalReturns,
-        total_refunded_egp: totalRefunded,
-        pending: pendingCount,
-        approved: approvedCount,
-        refunded: refundedCount,
-        rejected: rejectedCount,
+    // 2. JSON Format
+    if (format === "json") {
+      return NextResponse.json({
+        success: true,
+        updated_at: new Date().toISOString(),
+        summary: {
+          total_returns: totalReturns,
+          total_refunded_egp: totalRefunded,
+          pending: pendingCount,
+          approved: approvedCount,
+          refunded: refundedCount,
+          rejected: rejectedCount,
+        },
+        returns: rows,
+      });
+    }
+
+    // 3. Excel (.xlsx) Format (Default)
+    const excelRows = rows.map((r) => ({
+      "#": r.row_number,
+      "رقم الأوردر (Order #)": r.order_number,
+      "تاريخ الأوردر (Order Date)": r.order_date,
+      "تاريخ المرتجع (Return Date)": r.return_date,
+      "اسم العميل (Customer Name)": r.customer_name,
+      "رقم الهاتف (Phone)": r.customer_phone,
+      "المحافظة (Governorate)": r.governorate,
+      "العنوان (Address)": r.address,
+      "المنتجات والمقاسات (Items & Sizes)": r.items_summary,
+      "عدد القطع (Total Units)": r.total_units,
+      "إجمالي الأوردر (Order Total EGP)": r.order_total,
+      "مبلغ الاسترداد (Refund Amount EGP)": r.refund_amount,
+      "طريقة الاسترداد (Refund Method)": r.refund_method,
+      "سبب المرتجع (Return Reason)": r.return_reason,
+      "تفاصيل السبب (Reason Details)": r.reason_details,
+      "حالة المرتجع (Return Status)": r.return_status,
+      "شركة الشحن (Shipping Company)": r.shipping_company,
+      "رقم البوليصة (Tracking #)": r.tracking_number,
+      "تم الاسترداد؟ (Refund Complete?)": r.refund_completed,
+      "ملاحظات الأدمن (Admin Notes)": r.admin_notes,
+      "سبب المرتجع من الشركة (Company Return Reason)": "",
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(excelRows);
+
+    // Auto-size columns
+    const colKeys = Object.keys(excelRows[0] || {});
+    ws["!cols"] = colKeys.map((k) => {
+      const headerLen = k.length;
+      const maxDataLen = excelRows.reduce(
+        (max, row) => Math.max(max, String((row as any)[k] ?? "").length),
+        0
+      );
+      return { wch: Math.min(Math.max(headerLen, maxDataLen) + 4, 60) };
+    });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Returns");
+
+    // Summary sheet
+    const summaryData = [
+      { "ملخص المرتجعات": "الفترة", القيمة: month || "All Time" },
+      { "ملخص المرتجعات": "إجمالي المرتجعات", القيمة: totalReturns },
+      { "ملخص المرتجعات": "إجمالي المبالغ المستردة (ج.م)", القيمة: totalRefunded },
+      { "ملخص المرتجعات": "قيد الانتظار (Pending)", القيمة: pendingCount },
+      { "ملخص المرتجعات": "تمت الموافقة (Approved)", القيمة: approvedCount },
+      { "ملخص المرتجعات": "تم الاسترداد (Refunded)", القيمة: refundedCount },
+      { "ملخص المرتجعات": "مرفوض (Rejected)", القيمة: rejectedCount },
+    ];
+    const wsSummary = XLSX.utils.json_to_sheet(summaryData);
+    wsSummary["!cols"] = [{ wch: 35 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
+
+    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
+    return new NextResponse(buf, {
+      headers: {
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": `attachment; filename="viltrum_returns_${month || "all"}.xlsx"`,
+        "Cache-Control": "no-store, max-age=0",
       },
-      returns: rows,
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Server error" }, { status: 500 });
