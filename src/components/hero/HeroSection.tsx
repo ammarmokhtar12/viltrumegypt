@@ -3,6 +3,7 @@
 import Link from "next/link";
 import TextReveal from "@/components/ui/TextReveal";
 import MagneticButton from "@/components/ui/MagneticButton";
+import HeroStats from "@/components/hero/HeroStats";
 
 export default function HeroSection() {
   return (
@@ -84,6 +85,9 @@ export default function HeroSection() {
             </a>
           </MagneticButton>
         </div>
+
+        {/* Social Proof Stats */}
+        <HeroStats />
       </div>
     </section>
   );
