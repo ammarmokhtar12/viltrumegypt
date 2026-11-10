@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, ShoppingBag, ArrowRight, Trash2, Sparkles, Zap, Gift } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
@@ -18,11 +18,11 @@ interface CartDrawerProps {
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { items, totalPrice, totalItems, removeBundle } = useCartStore();
   const drawerRef = useRef<HTMLDivElement>(null);
-  const isHydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -35,7 +35,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     };
   }, [isOpen]);
 
-  if (!isHydrated) return null;
+  if (!mounted) return null;
 
   const cartItems = items;
   const cartTotal = totalPrice();
@@ -104,8 +104,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       {/* Drawer */}
       <div
         ref={drawerRef}
-        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] z-[70] bg-background border-l border-border-light transform transition-transform duration-400 ease-out ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 h-full w-full sm:w-[420px] z-[70] bg-background border-l border-border-light transform transition-transform duration-300 ease-out ${
+          isOpen ? "translate-x-0" : "translate-x-full pointer-events-none"
         }`}
       >
         <div className="flex flex-col h-full">

@@ -207,8 +207,8 @@ export default function CommandCenterLayout({ children }: { children: React.Reac
       )}
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0">
-        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto min-h-full">
+      <main className="flex-1 min-h-0 overflow-y-auto overscroll-contain pt-14 lg:pt-0">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto min-h-full pb-[max(6rem,env(safe-area-inset-bottom))]">
           {children}
         </div>
       </main>

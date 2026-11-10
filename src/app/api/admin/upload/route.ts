@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 
 function verifySession(sessionValue: string): boolean {
   try {
@@ -89,6 +90,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Supabase credentials missing" }, { status: 500 });
     }
 
+    // Convert file to buffer and compress aggressively using sharp to WebP
+    const arrayBuffer = await file.arrayBuffer();
+    const inputBuffer = Buffer.from(arrayBuffer);
+
+    let uploadBuffer: Buffer = inputBuffer;
+    let finalExt = ext;
+    let finalContentType = mimeFromExt[ext] || file.type || "image/jpeg";
+
+    try {
+      uploadBuffer = await sharp(inputBuffer)
+        .rotate() // auto-orient based on EXIF from phones
+        .resize({
+          width: 1400,
+          height: 1400,
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .webp({ quality: 82, effort: 4 })
+        .toBuffer();
+
+      finalExt = "webp";
+      finalContentType = "image/webp";
+    } catch (sharpError) {
+      console.warn("Sharp image compression fallback to original:", sharpError);
+    }
+
     // Create a server-side client with the service role key
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
@@ -97,12 +124,12 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    const filePath = `${crypto.randomUUID()}.${ext}`;
+    const filePath = `${crypto.randomUUID()}.${finalExt}`;
 
     const { error } = await supabase.storage
       .from("product-images")
-      .upload(filePath, file, {
-        contentType: mimeFromExt[ext] || file.type || "image/jpeg",
+      .upload(filePath, uploadBuffer, {
+        contentType: finalContentType,
         cacheControl: "31536000",
         upsert: false,
       });

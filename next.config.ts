@@ -34,6 +34,17 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: supabaseRemotePatterns(),
   },
+  headers: async () => [
+    {
+      source: "/:all*(svg|jpg|jpeg|png|webp|avif|ico|mp4|webm|woff2)",
+      headers: [
+        {
+          key: "Cache-Control",
+          value: "public, max-age=31536000, immutable",
+        },
+      ],
+    },
+  ],
 };
 
 export default nextConfig;

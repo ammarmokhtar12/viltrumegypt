@@ -8,29 +8,22 @@ import HeroStats from "@/components/hero/HeroStats";
 export default function HeroSection() {
   return (
     <section
-      className="relative w-full min-h-screen flex items-center justify-center overflow-hidden font-sans"
-      style={{ minHeight: "100svh" }}
+      className="relative w-full min-h-[100svh] flex items-center justify-center overflow-x-hidden font-sans"
     >
-      {/* Background video */}
-      <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/hero-bg.jpg"
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src="/videos/batman.mp4" type="video/mp4" />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/80" />
+      {/* Background image & gradient overlay */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 scale-105"
+          style={{ backgroundImage: "url('/hero-bg.jpg')" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/90" />
       </div>
 
       {/* Accent energy lines */}
       <div className="absolute top-0 left-0 right-0 h-1 accent-line z-20" />
       <div className="absolute bottom-0 left-0 right-0 h-1 accent-line z-20" />
 
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-5 sm:px-8 flex flex-col items-center text-center pt-32 pb-20 sm:pt-40 sm:pb-24">
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-5 sm:px-8 flex flex-col items-center text-center pt-28 pb-10 sm:pt-36 sm:pb-16">
         {/* Badge */}
         <div
           className="hero-fade-in flex items-center gap-2 mb-8 sm:mb-10 bg-black/40 backdrop-blur-md text-white px-4 py-2 sm:px-5 rounded-full border border-white/10 shadow-sm select-none"

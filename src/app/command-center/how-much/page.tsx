@@ -505,7 +505,7 @@ export default function HowMuchPage() {
   };
 
   return (
-    <div className="space-y-6 pb-20 text-zinc-100 font-sans" dir="ltr">
+    <div className="space-y-6 pb-32 text-zinc-100 font-sans" dir="ltr">
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/80 pb-5 print:hidden">
         <div>
@@ -647,7 +647,11 @@ export default function HowMuchPage() {
                   type="number"
                   step="any"
                   value={ammarInput}
-                  onFocus={() => setIsAmmarFocused(true)}
+                  onFocus={(e) => {
+                    setIsAmmarFocused(true);
+                    setTimeout(() => e.target.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
+                  }}
+                  enterKeyHint="done"
                   onChange={(e) => setAmmarInput(e.target.value)}
                   onBlur={() => {
                     setIsAmmarFocused(false);
@@ -727,7 +731,11 @@ export default function HowMuchPage() {
                   type="number"
                   step="any"
                   value={mohamedInput}
-                  onFocus={() => setIsMohamedFocused(true)}
+                  onFocus={(e) => {
+                    setIsMohamedFocused(true);
+                    setTimeout(() => e.target.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
+                  }}
+                  enterKeyHint="done"
                   onChange={(e) => setMohamedInput(e.target.value)}
                   onBlur={() => {
                     setIsMohamedFocused(false);
@@ -973,9 +981,10 @@ export default function HowMuchPage() {
 
       {/* Modal: New Transaction */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-5 border-b border-zinc-800 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm">
+          <div className="min-h-[100dvh] flex items-start sm:items-center justify-center p-4 pb-[max(6rem,env(safe-area-inset-bottom))]">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-150 my-4 flex flex-col max-h-[min(92dvh,920px)]">
+            <div className="p-5 border-b border-zinc-800 flex items-center justify-between shrink-0">
               <h3 className="font-bold text-white text-base flex items-center gap-2">
                 <Wallet className="w-4 h-4 text-amber-400" />
                 Record Transaction
@@ -988,7 +997,8 @@ export default function HowMuchPage() {
               </button>
             </div>
 
-            <form onSubmit={handleAddTransaction} className="p-5 space-y-4 text-xs">
+            <form onSubmit={handleAddTransaction} className="flex flex-col min-h-0 flex-1 text-xs">
+            <div className="p-5 space-y-4 overflow-y-auto min-h-0 flex-1">
               {/* Action Switcher: 4 Quick Actions */}
               <div>
                 <label className="block text-zinc-400 mb-1.5 font-semibold">Select Action:</label>
@@ -1098,9 +1108,14 @@ export default function HowMuchPage() {
                     type="number"
                     step="any"
                     required
+                    inputMode="decimal"
+                    enterKeyHint="next"
                     placeholder={formType === "income" ? "e.g. 5000 or -1500" : "e.g. 5000"}
                     value={formAmount}
                     onChange={(e) => setFormAmount(e.target.value)}
+                    onFocus={(e) => {
+                      setTimeout(() => e.target.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
+                    }}
                     className={`w-full bg-zinc-950 border border-zinc-800 ${
                       formType === "income" ? "rounded-r-xl border-l-0" : "rounded-xl"
                     } px-3.5 py-2.5 text-white font-mono text-sm focus:outline-none focus:border-amber-500`}
@@ -1141,6 +1156,10 @@ export default function HowMuchPage() {
                   }
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
+                  enterKeyHint="done"
+                  onFocus={(e) => {
+                    setTimeout(() => e.target.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
+                  }}
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-amber-500"
                 />
               </div>
@@ -1191,7 +1210,8 @@ export default function HowMuchPage() {
                 />
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-2.5">
+            </div>
+              <div className="p-4 border-t border-zinc-800 flex items-center justify-end gap-2.5 shrink-0 bg-zinc-900 pb-[max(1rem,env(safe-area-inset-bottom))]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
@@ -1208,6 +1228,7 @@ export default function HowMuchPage() {
                 </button>
               </div>
             </form>
+          </div>
           </div>
         </div>
       )}

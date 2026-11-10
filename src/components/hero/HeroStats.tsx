@@ -1,163 +1,112 @@
 "use client";
 
-import { useRef } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import { useEffect, useState, useRef } from "react";
+import { Users, Star, ShieldCheck } from "lucide-react";
 
 interface StatItem {
   value: number;
   prefix?: string;
   suffix?: string;
   label: string;
-  icon: React.ReactNode;
+  icon: typeof Users;
+  decimal?: boolean;
 }
 
-const stats: StatItem[] = [
+const statsConfig: StatItem[] = [
   {
     value: 1200,
     prefix: "+",
     label: "Happy Customers",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
+    icon: Users,
   },
   {
     value: 4.9,
     suffix: "★",
     label: "Average Rating",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-      </svg>
-    ),
+    icon: Star,
+    decimal: true,
   },
   {
     value: 98,
     suffix: "%",
     label: "Satisfaction Rate",
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-        <polyline points="22 4 12 14.01 9 11.01" />
-      </svg>
-    ),
+    icon: ShieldCheck,
   },
-
 ];
 
 export default function HeroStats() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [counts, setCounts] = useState<number[]>([0, 0, 0]);
+  const hasAnimated = useRef(false);
 
-  useGSAP(
-    () => {
-      if (!containerRef.current) return;
+  useEffect(() => {
+    if (hasAnimated.current) return;
+    hasAnimated.current = true;
 
-      // Animate the container in
-      gsap.fromTo(
-        containerRef.current,
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-          delay: 1.8,
-        }
-      );
+    const duration = 1600; // 1.6s
+    const startTime = performance.now();
 
-      // Animate each stat number counting up
-      const statNumbers = containerRef.current.querySelectorAll<HTMLElement>("[data-count]");
-      statNumbers.forEach((el, i) => {
-        const target = parseFloat(el.dataset.count || "0");
-        const isDecimal = target % 1 !== 0;
-        const obj = { val: 0 };
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
 
-        gsap.to(obj, {
-          val: target,
-          duration: 2,
-          delay: 2 + i * 0.15,
-          ease: "power2.out",
-          onUpdate: () => {
-            el.textContent = isDecimal
-              ? obj.val.toFixed(1)
-              : Math.floor(obj.val).toLocaleString();
-          },
-        });
-      });
+      setCounts([
+        Math.floor(statsConfig[0].value * easeProgress),
+        parseFloat((statsConfig[1].value * easeProgress).toFixed(1)),
+        Math.floor(statsConfig[2].value * easeProgress),
+      ]);
 
-      // Stagger the individual stat items
-      const items = containerRef.current.querySelectorAll(".hero-stat-item");
-      gsap.fromTo(
-        items,
-        { opacity: 0, y: 20, scale: 0.95 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.7,
-          ease: "power3.out",
-          stagger: 0.12,
-          delay: 1.9,
-        }
-      );
-    },
-    { scope: containerRef }
-  );
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setCounts([statsConfig[0].value, statsConfig[1].value, statsConfig[2].value]);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      requestAnimationFrame(animate);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full max-w-3xl mx-auto mt-8 sm:mt-12 opacity-0"
-    >
-      <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        {stats.map((stat, i) => (
-          <div
-            key={i}
-            className="hero-stat-item group relative flex flex-col items-center gap-1.5 sm:gap-2 px-3 py-4 sm:py-5 rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/[0.08] transition-all duration-300 hover:bg-white/[0.08] hover:border-white/[0.15] hover:scale-[1.03]"
-          >
-            {/* Glow effect on hover */}
-            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-              style={{
-                background: "radial-gradient(circle at 50% 50%, rgba(196, 30, 58, 0.08), transparent 70%)",
-              }}
-            />
+    <div className="w-full max-w-2xl mx-auto mt-8 sm:mt-12 select-none">
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+        {statsConfig.map((stat, i) => {
+          const Icon = stat.icon;
+          const displayVal = stat.decimal
+            ? counts[i].toFixed(1)
+            : counts[i].toLocaleString();
 
-            {/* Icon */}
-            <div className="text-accent/80 group-hover:text-accent transition-colors duration-300">
-              {stat.icon}
-            </div>
+          return (
+            <div
+              key={stat.label}
+              className="group relative flex flex-col items-center gap-1.5 sm:gap-2 px-2.5 py-3.5 sm:py-4 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 shadow-lg transition-all duration-300 hover:border-accent/40 hover:bg-black/60 hover:scale-[1.02]"
+            >
+              {/* Subtle hover glow */}
+              <div className="absolute inset-0 rounded-2xl bg-radial from-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-            {/* Value */}
-            <div className="flex items-baseline gap-0.5">
-              {stat.prefix && (
-                <span className="text-accent text-sm sm:text-base font-bold font-sans">
-                  {stat.prefix}
-                </span>
-              )}
-              <span
-                data-count={stat.value}
-                className="text-xl sm:text-2xl font-extrabold text-white font-sans tabular-nums tracking-tight"
-              >
-                0
+              {/* Icon */}
+              <div className="p-1.5 rounded-lg bg-white/5 text-accent group-hover:text-red-400 group-hover:bg-accent/10 transition-colors">
+                <Icon size={16} className="sm:w-4 sm:h-4" />
+              </div>
+
+              {/* Value */}
+              <div className="flex items-baseline font-sans text-base sm:text-xl font-extrabold text-white tracking-tight tabular-nums">
+                {stat.prefix && <span className="text-accent mr-0.5 text-xs sm:text-sm">{stat.prefix}</span>}
+                <span>{displayVal}</span>
+                {stat.suffix && <span className="text-accent ml-0.5 text-xs sm:text-sm">{stat.suffix}</span>}
+              </div>
+
+              {/* Label */}
+              <span className="text-[8px] sm:text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-400 text-center leading-tight">
+                {stat.label}
               </span>
-              {stat.suffix && (
-                <span className="text-accent text-sm sm:text-base font-bold font-sans ml-0.5">
-                  {stat.suffix}
-                </span>
-              )}
             </div>
-
-            {/* Label */}
-            <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-400 group-hover:text-zinc-300 transition-colors duration-300 text-center leading-tight">
-              {stat.label}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
