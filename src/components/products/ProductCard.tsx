@@ -56,7 +56,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <div className="group relative font-sans will-change-transform" style={{ perspective: "1000px" }}>
-      <Link href={`/products/${product.id}`} className="block">
+      <Link href={`/products/${product.id}`} prefetch={false} className="block">
         <div ref={cardRef} className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface border border-border-light shadow-sm transition-all duration-500 group-hover:shadow-lg group-hover:shadow-black/20 card-glow">
           {/* Skeleton Loader */}
           {hasImage && !imageLoaded && (
