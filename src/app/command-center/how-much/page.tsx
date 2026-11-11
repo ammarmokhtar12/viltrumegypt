@@ -981,254 +981,261 @@ export default function HowMuchPage() {
 
       {/* Modal: New Transaction */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm">
-          <div className="min-h-[100dvh] flex items-start sm:items-center justify-center p-4 pb-[max(6rem,env(safe-area-inset-bottom))]">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-150 my-4 flex flex-col max-h-[min(92dvh,920px)]">
-            <div className="p-5 border-b border-zinc-800 flex items-center justify-between shrink-0">
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2.5 sm:p-4 overflow-hidden"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAddModal(false);
+          }}
+        >
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-150 flex flex-col h-[90dvh] max-h-[820px] overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-zinc-800 flex items-center justify-between shrink-0 bg-zinc-900">
               <h3 className="font-bold text-white text-base flex items-center gap-2">
                 <Wallet className="w-4 h-4 text-amber-400" />
                 Record Transaction
               </h3>
               <button
+                type="button"
                 onClick={() => setShowAddModal(false)}
-                className="text-zinc-400 hover:text-white text-lg p-1"
+                className="w-8 h-8 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-white flex items-center justify-center transition text-sm"
+                aria-label="Close"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleAddTransaction} className="flex flex-col min-h-0 flex-1 text-xs">
-            <div className="p-5 space-y-4 overflow-y-auto min-h-0 flex-1">
-              {/* Action Switcher: 4 Quick Actions */}
-              <div>
-                <label className="block text-zinc-400 mb-1.5 font-semibold">Select Action:</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Ammar Inflow */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormPerson("ammar");
-                      setFormType("income");
-                      setFormCategory(AMMAR_CATEGORIES[0]);
-                    }}
-                    className={`py-2.5 px-2 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
-                      formPerson === "ammar" && formType === "income"
-                        ? "bg-emerald-600/30 border-emerald-500 text-emerald-300"
-                        : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <Plus className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Ammar Inflow</span>
-                  </button>
-
-                  {/* Mohamed Inflow (+) */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormPerson("mohamed");
-                      setFormType("income");
-                      setFormCategory(MOHAMED_INCOME_CATEGORIES[0]);
-                    }}
-                    className={`py-2.5 px-2 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
-                      formPerson === "mohamed" && formType === "income"
-                        ? "bg-emerald-600/30 border-emerald-500 text-emerald-300"
-                        : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <Plus className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Mohamed Inflow (+)</span>
-                  </button>
-
-                  {/* Mohamed Expense (-) */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormPerson("mohamed");
-                      setFormType("expense");
-                      setFormCategory(MOHAMED_EXPENSE_CATEGORIES[0]);
-                    }}
-                    className={`py-2.5 px-2 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
-                      formPerson === "mohamed" && formType === "expense"
-                        ? "bg-rose-600/30 border-rose-500 text-rose-300"
-                        : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <Minus className="w-3.5 h-3.5 text-rose-400" />
-                    <span>Mohamed Expense (-)</span>
-                  </button>
-
-                  {/* Transfer Ammar -> Mohamed */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormPerson("ammar");
-                      setFormType("transfer");
-                      setFormCategory("Treasury Transfer");
-                    }}
-                    className={`py-2.5 px-2 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
-                      formType === "transfer"
-                        ? "bg-amber-600/30 border-amber-500 text-amber-300"
-                        : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <ArrowRightLeft className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Transfer to Mohamed</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Amount */}
-              <div>
-                <label className="block text-zinc-400 mb-1.5 font-semibold">Amount (EGP):</label>
-                <div className="relative flex items-center">
-                  {/* +/- toggle for inflows */}
-                  {formType === "income" && (
+            {/* Form */}
+            <form onSubmit={handleAddTransaction} className="flex flex-col min-h-0 flex-1 overflow-hidden text-xs">
+              <div
+                className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 overscroll-contain touch-pan-y"
+                style={{ WebkitOverflowScrolling: "touch" }}
+              >
+                {/* Action Switcher: 4 Quick Actions */}
+                <div>
+                  <label className="block text-zinc-400 mb-1.5 font-semibold">Select Action:</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Ammar Inflow */}
                     <button
                       type="button"
                       onClick={() => {
-                        if (formAmount.startsWith("-")) {
-                          setFormAmount(formAmount.replace("-", ""));
-                        } else if (formAmount) {
-                          setFormAmount("-" + formAmount);
-                        } else {
-                          setFormAmount("-");
-                        }
+                        setFormPerson("ammar");
+                        setFormType("income");
+                        setFormCategory(AMMAR_CATEGORIES[0]);
                       }}
-                      className={`px-3 py-2.5 rounded-l-xl text-xs font-bold border transition font-mono ${
-                        formAmount.startsWith("-")
-                          ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                          : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                      className={`py-2.5 px-2 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
+                        formPerson === "ammar" && formType === "income"
+                          ? "bg-emerald-600/30 border-emerald-500 text-emerald-300"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200"
                       }`}
-                      title="Click to toggle positive (+) or negative (-)"
                     >
-                      {formAmount.startsWith("-") ? "-" : "+"}
+                      <Plus className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Ammar Inflow</span>
                     </button>
-                  )}
-                  <input
-                    type="number"
-                    step="any"
-                    required
-                    inputMode="decimal"
-                    enterKeyHint="next"
-                    placeholder={formType === "income" ? "e.g. 5000 or -1500" : "e.g. 5000"}
-                    value={formAmount}
-                    onChange={(e) => setFormAmount(e.target.value)}
-                    onFocus={(e) => {
-                      setTimeout(() => e.target.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
-                    }}
-                    className={`w-full bg-zinc-950 border border-zinc-800 ${
-                      formType === "income" ? "rounded-r-xl border-l-0" : "rounded-xl"
-                    } px-3.5 py-2.5 text-white font-mono text-sm focus:outline-none focus:border-amber-500`}
-                    autoFocus
-                  />
-                  <span className="absolute right-3.5 top-3 text-zinc-500 font-semibold text-xs pointer-events-none">
-                    EGP
-                  </span>
+
+                    {/* Mohamed Inflow (+) */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormPerson("mohamed");
+                        setFormType("income");
+                        setFormCategory(MOHAMED_INCOME_CATEGORIES[0]);
+                      }}
+                      className={`py-2.5 px-2 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
+                        formPerson === "mohamed" && formType === "income"
+                          ? "bg-emerald-600/30 border-emerald-500 text-emerald-300"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <Plus className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Mohamed Inflow (+)</span>
+                    </button>
+
+                    {/* Mohamed Expense (-) */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormPerson("mohamed");
+                        setFormType("expense");
+                        setFormCategory(MOHAMED_EXPENSE_CATEGORIES[0]);
+                      }}
+                      className={`py-2.5 px-2 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
+                        formPerson === "mohamed" && formType === "expense"
+                          ? "bg-rose-600/30 border-rose-500 text-rose-300"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <Minus className="w-3.5 h-3.5 text-rose-400" />
+                      <span>Mohamed Expense (-)</span>
+                    </button>
+
+                    {/* Transfer Ammar -> Mohamed */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormPerson("ammar");
+                        setFormType("transfer");
+                        setFormCategory("Treasury Transfer");
+                      }}
+                      className={`py-2.5 px-2 rounded-xl font-bold border transition text-center flex items-center justify-center gap-1.5 ${
+                        formType === "transfer"
+                          ? "bg-amber-600/30 border-amber-500 text-amber-300"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                      }`}
+                    >
+                      <ArrowRightLeft className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Transfer to Mohamed</span>
+                    </button>
+                  </div>
                 </div>
-                {formType === "income" && (
-                  <p className="text-[11px] text-zinc-400 mt-1 flex items-center justify-between">
-                    <span>
-                      Tip: Enter a negative amount (e.g. <strong className="text-rose-400">-1500</strong>) to deduct directly.
-                    </span>
-                    {formAmount.startsWith("-") && (
-                      <span className="text-rose-400 font-bold bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
-                        Will be deducted (-)
-                      </span>
-                    )}
-                  </p>
-                )}
-              </div>
 
-              {/* Title / Description */}
-              <div>
-                <label className="block text-zinc-400 mb-1.5 font-semibold">Description / Reason:</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={
-                    formType === "transfer"
-                      ? "e.g. Custody transferred to Mohamed"
-                      : formPerson === "ammar"
-                      ? "e.g. Courier cash collection"
-                      : formType === "income"
-                      ? "e.g. Client deposit directly to Mohamed"
-                      : "e.g. Fabric purchase deposit"
-                  }
-                  value={formTitle}
-                  onChange={(e) => setFormTitle(e.target.value)}
-                  enterKeyHint="done"
-                  onFocus={(e) => {
-                    setTimeout(() => e.target.scrollIntoView({ block: "center", behavior: "smooth" }), 300);
-                  }}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-amber-500"
-                />
-              </div>
-
-              {/* Category */}
-              {formType !== "transfer" && (
+                {/* Amount */}
                 <div>
-                  <label className="block text-zinc-400 mb-1.5 font-semibold">Category:</label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-amber-500"
-                  >
-                    {(formPerson === "ammar"
-                      ? AMMAR_CATEGORIES
-                      : formType === "income"
-                      ? MOHAMED_INCOME_CATEGORIES
-                      : MOHAMED_EXPENSE_CATEGORIES
-                    ).map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
+                  <label className="block text-zinc-400 mb-1.5 font-semibold">Amount (EGP):</label>
+                  <div className="relative flex items-center">
+                    {/* +/- toggle for inflows */}
+                    {formType === "income" && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (formAmount.startsWith("-")) {
+                            setFormAmount(formAmount.replace("-", ""));
+                          } else if (formAmount) {
+                            setFormAmount("-" + formAmount);
+                          } else {
+                            setFormAmount("-");
+                          }
+                        }}
+                        className={`px-3 py-2.5 rounded-l-xl text-xs font-bold border transition font-mono ${
+                          formAmount.startsWith("-")
+                            ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                            : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                        }`}
+                        title="Click to toggle positive (+) or negative (-)"
+                      >
+                        {formAmount.startsWith("-") ? "-" : "+"}
+                      </button>
+                    )}
+                    <input
+                      type="number"
+                      step="any"
+                      required
+                      inputMode="decimal"
+                      enterKeyHint="next"
+                      placeholder={formType === "income" ? "e.g. 5000 or -1500" : "e.g. 5000"}
+                      value={formAmount}
+                      onChange={(e) => setFormAmount(e.target.value)}
+                      className={`w-full bg-zinc-950 border border-zinc-800 ${
+                        formType === "income" ? "rounded-r-xl border-l-0" : "rounded-xl"
+                      } px-3.5 py-2.5 text-white font-mono text-sm focus:outline-none focus:border-amber-500`}
+                    />
+                    <span className="absolute right-3.5 top-3 text-zinc-500 font-semibold text-xs pointer-events-none">
+                      EGP
+                    </span>
+                  </div>
+                  {formType === "income" && (
+                    <p className="text-[11px] text-zinc-400 mt-1 flex items-center justify-between">
+                      <span>
+                        Tip: Enter a negative amount (e.g. <strong className="text-rose-400">-1500</strong>) to deduct directly.
+                      </span>
+                      {formAmount.startsWith("-") && (
+                        <span className="text-rose-400 font-bold bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">
+                          Will be deducted (-)
+                        </span>
+                      )}
+                    </p>
+                  )}
                 </div>
-              )}
 
-              {/* Date */}
-              <div>
-                <label className="block text-zinc-400 mb-1.5 font-semibold">Date:</label>
-                <input
-                  type="date"
-                  value={formDate}
-                  onChange={(e) => setFormDate(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-amber-500 font-mono"
-                />
+                {/* Title / Description */}
+                <div>
+                  <label className="block text-zinc-400 mb-1.5 font-semibold">Description / Reason:</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder={
+                      formType === "transfer"
+                        ? "e.g. Custody transferred to Mohamed"
+                        : formPerson === "ammar"
+                        ? "e.g. Courier cash collection"
+                        : formType === "income"
+                        ? "e.g. Client deposit directly to Mohamed"
+                        : "e.g. Fabric purchase deposit"
+                    }
+                    value={formTitle}
+                    onChange={(e) => setFormTitle(e.target.value)}
+                    enterKeyHint="done"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+
+                {/* Category */}
+                {formType !== "transfer" && (
+                  <div>
+                    <label className="block text-zinc-400 mb-1.5 font-semibold">Category:</label>
+                    <select
+                      value={formCategory}
+                      onChange={(e) => setFormCategory(e.target.value)}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                    >
+                      {(formPerson === "ammar"
+                        ? AMMAR_CATEGORIES
+                        : formType === "income"
+                        ? MOHAMED_INCOME_CATEGORIES
+                        : MOHAMED_EXPENSE_CATEGORIES
+                      ).map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Date */}
+                <div>
+                  <label className="block text-zinc-400 mb-1.5 font-semibold">Date:</label>
+                  <input
+                    type="date"
+                    value={formDate}
+                    onChange={(e) => setFormDate(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-amber-500 font-mono"
+                  />
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label className="block text-zinc-400 mb-1.5 font-semibold">Notes (Optional):</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Additional reference, invoice #, receipt details..."
+                    value={formNotes}
+                    onChange={(e) => setFormNotes(e.target.value)}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-amber-500 resize-none"
+                  />
+                </div>
+
+                {/* Extra spacer for comfortable scrolling */}
+                <div className="h-2" />
               </div>
 
-              {/* Notes */}
-              <div>
-                <label className="block text-zinc-400 mb-1.5 font-semibold">Notes (Optional):</label>
-                <textarea
-                  rows={2}
-                  placeholder="Additional reference, invoice #, receipt details..."
-                  value={formNotes}
-                  onChange={(e) => setFormNotes(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-amber-500 resize-none"
-                />
-              </div>
-
-            </div>
-              <div className="p-4 border-t border-zinc-800 flex items-center justify-end gap-2.5 shrink-0 bg-zinc-900 pb-[max(1rem,env(safe-area-inset-bottom))]">
+              {/* Modal Footer (Pinned Actions) */}
+              <div className="p-3.5 sm:p-4 border-t border-zinc-800 flex items-center justify-end gap-2.5 shrink-0 bg-zinc-900/95 pb-[max(0.9rem,env(safe-area-inset-bottom))]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl font-semibold transition"
+                  className="px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl font-semibold transition text-xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold shadow-lg shadow-amber-900/30 transition disabled:opacity-50"
+                  className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold shadow-lg shadow-amber-900/30 transition disabled:opacity-50 text-xs flex items-center gap-1.5"
                 >
                   {isSubmitting ? "Saving..." : "Save Entry"}
                 </button>
               </div>
             </form>
-          </div>
           </div>
         </div>
       )}

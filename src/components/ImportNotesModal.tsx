@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 interface ImportNotesModalProps {
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
   onSuccess: () => void;
   existingOrders?: any[];
@@ -608,8 +608,8 @@ export default function ImportNotesModal({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <label
                       className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${importMode === "append"
-                          ? "bg-amber-500/10 border-amber-500/40 text-amber-200"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400"
+                        ? "bg-amber-500/10 border-amber-500/40 text-amber-200"
+                        : "bg-zinc-900 border-zinc-800 text-zinc-400"
                         }`}
                     >
                       <input
@@ -627,8 +627,8 @@ export default function ImportNotesModal({
 
                     <label
                       className={`flex items-start gap-2.5 p-3 rounded-lg border cursor-pointer transition-all ${importMode === "overwrite"
-                          ? "bg-red-500/10 border-red-500/40 text-red-200"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400"
+                        ? "bg-red-500/10 border-red-500/40 text-red-200"
+                        : "bg-zinc-900 border-zinc-800 text-zinc-400"
                         }`}
                     >
                       <input
@@ -727,12 +727,12 @@ export default function ImportNotesModal({
               {/* Success Result Message */}
               {importResult && (
                 <div className={`p-6 rounded-2xl space-y-3 text-center animate-in zoom-in-95 border ${importResult.updated > 0
-                    ? "bg-emerald-500/10 border-emerald-500/30"
-                    : "bg-amber-500/10 border-amber-500/30"
+                  ? "bg-emerald-500/10 border-emerald-500/30"
+                  : "bg-amber-500/10 border-amber-500/30"
                   }`}>
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${importResult.updated > 0
-                      ? "bg-emerald-500/20 text-emerald-400"
-                      : "bg-amber-500/20 text-amber-400"
+                    ? "bg-emerald-500/20 text-emerald-400"
+                    : "bg-amber-500/20 text-amber-400"
                     }`}>
                     {importResult.updated > 0 ? <CheckCircle2 size={28} /> : <AlertCircle size={28} />}
                   </div>

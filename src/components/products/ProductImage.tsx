@@ -11,7 +11,7 @@ export default function ProductImage({
   src,
   alt,
   onError,
-  unoptimized = true,
+  unoptimized = false,
   ...props
 }: ProductImageProps) {
   const [failed, setFailed] = useState(false);
