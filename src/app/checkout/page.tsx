@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Check, Lock, ChevronRight, Sparkles, Copy, Clock, Package, Mail, Star } from "lucide-react";
+import { ArrowLeft, Check, Lock, ChevronRight, ChevronDown, Sparkles, Copy, Clock, Package, Mail, Star, ShoppingBag, Tag } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { supabase } from "@/lib/supabase";
 import { formatPrice } from "@/lib/utils";
@@ -34,6 +34,7 @@ export default function CheckoutPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | number | null>(null);
   const [customerEmail, setCustomerEmail] = useState<string>("");
+  const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false);
 
   // Affiliate / Coupon system state
   const [couponCode, setCouponCode] = useState("");
@@ -554,9 +555,209 @@ export default function CheckoutPage() {
       </header>
 
       <div className="max-w-6xl mx-auto px-6 md:px-12 pt-8 md:pt-16">
+         {/* Mobile Order Summary Accordion (Shopify Style) */}
+         <div className="lg:hidden mb-6 -mx-6 sm:mx-0">
+           <button
+             type="button"
+             onClick={() => setMobileSummaryOpen((prev) => !prev)}
+             className="w-full bg-surface border-y sm:border sm:rounded-xl border-border-light px-6 py-4 flex items-center justify-between transition-colors hover:bg-surface/80"
+             aria-expanded={mobileSummaryOpen}
+           >
+             <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+               <ShoppingBag size={18} className="text-accent" />
+               <span>{mobileSummaryOpen ? "Hide order summary" : "Show order summary"}</span>
+               <ChevronDown
+                 size={16}
+                 className={`text-muted transition-transform duration-300 ${
+                   mobileSummaryOpen ? "rotate-180" : ""
+                 }`}
+               />
+             </div>
+             <div className="text-base font-bold text-primary tracking-tight">
+               {formatPrice(finalTotal + shippingFee)}
+             </div>
+           </button>
+
+           <div
+             className={`transition-all duration-300 ease-in-out overflow-hidden bg-surface/50 border-b border-border-light sm:border-x sm:rounded-b-xl ${
+               mobileSummaryOpen ? "max-h-[2000px] opacity-100 p-6" : "max-h-0 opacity-0 p-0 pointer-events-none"
+             }`}
+           >
+             {/* Mobile Items List */}
+             <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1 custom-scrollbar">
+               {(() => {
+                  const groupedCheckoutItems: Array<
+                    | { type: "single"; item: typeof cartItems[0] }
+                    | { type: "bundle"; bundleId: string; bundleLabel: string; items: typeof cartItems; price: number }
+                  > = [];
+                  const checkoutBundlesMap: Record<string, { bundleLabel: string; items: typeof cartItems; price: number }> = {};
+
+                  cartItems.forEach((item) => {
+                    if (item.bundle_id) {
+                      if (!checkoutBundlesMap[item.bundle_id]) {
+                        checkoutBundlesMap[item.bundle_id] = {
+                          bundleLabel: item.bundle_label || "Bundle Offer",
+                          items: [],
+                          price: 0,
+                        };
+                      }
+                      checkoutBundlesMap[item.bundle_id].items.push(item);
+                      checkoutBundlesMap[item.bundle_id].price += item.price * item.quantity;
+                    } else {
+                      groupedCheckoutItems.push({ type: "single", item });
+                    }
+                  });
+
+                  Object.entries(checkoutBundlesMap).forEach(([bundleId, data]) => {
+                    groupedCheckoutItems.push({
+                      type: "bundle",
+                      bundleId,
+                      bundleLabel: data.bundleLabel,
+                      items: data.items,
+                      price: data.price,
+                    });
+                  });
+
+                  return groupedCheckoutItems.map((grouped) => {
+                     if (grouped.type === "single") {
+                        const item = grouped.item;
+                        return (
+                           <div key={`m-${item.product_id}-${item.size}`} className="flex items-center gap-3">
+                              <div className="relative w-14 h-14 rounded-lg bg-surface border border-border-light overflow-hidden flex-shrink-0">
+                                 <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full z-10 font-bold border-2 border-surface">
+                                    {item.quantity}
+                                 </span>
+                                 {item.image_url ? (
+                                    <ProductImage src={item.image_url} alt={item.title} fill className="object-cover" />
+                                 ) : (
+                                    <div className="w-full h-full bg-surface" />
+                                 )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                 <p className="text-xs font-semibold text-primary truncate">{item.title}</p>
+                                 <p className="text-[11px] text-muted mt-0.5">Size: {item.size}</p>
+                              </div>
+                              <div className="font-semibold text-primary text-xs">
+                                 {formatPrice(item.price * item.quantity)}
+                              </div>
+                           </div>
+                        );
+                     } else {
+                        return (
+                           <div key={`m-${grouped.bundleId}`} className="p-3 rounded-xl bg-surface border border-border-light space-y-3 relative overflow-hidden">
+                              <div className="flex justify-between items-center">
+                                 <div className="flex items-center gap-1.5">
+                                    <Sparkles size={12} className="text-accent animate-pulse" />
+                                    <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-accent">
+                                       {grouped.bundleLabel}
+                                    </span>
+                                 </div>
+                                 <span className="font-bold text-primary text-xs">
+                                    {formatPrice(grouped.price)}
+                                 </span>
+                              </div>
+                              <div className="space-y-2 pl-2 border-l-2 border-accent/20">
+                                 {grouped.items.map((subItem, index) => (
+                                    <div key={`m-${subItem.product_id}-${subItem.size}-${index}`} className="flex items-center gap-2.5">
+                                       <div className="relative w-8 h-8 rounded bg-surface border border-border-light overflow-hidden flex-shrink-0">
+                                          {subItem.image_url ? (
+                                             <ProductImage src={subItem.image_url} alt={subItem.title} fill className="object-cover" />
+                                          ) : (
+                                             <div className="w-full h-full bg-surface" />
+                                          )}
+                                       </div>
+                                       <div className="flex-1 min-w-0">
+                                          <p className="text-[11px] font-semibold text-primary truncate">{subItem.title}</p>
+                                          <p className="text-[9px] text-muted">Size: {subItem.size}</p>
+                                       </div>
+                                    </div>
+                                 ))}
+                              </div>
+                           </div>
+                        );
+                     }
+                  });
+               })()}
+             </div>
+
+             {/* Mobile Coupon Code Input */}
+             <div className="mt-6 pt-4 border-t border-border-light space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted block flex items-center gap-1">
+                   <Tag size={12} /> Discount Coupon
+                </label>
+                <div className="flex gap-2">
+                   <input
+                      type="text"
+                      placeholder="COUPON CODE"
+                      value={couponCode}
+                      onChange={(e) => {
+                         setCouponCode(e.target.value);
+                         setCouponError(null);
+                      }}
+                      disabled={!!appliedCoupon || validatingCoupon}
+                      className="viltrum-input flex-1 uppercase h-10 text-xs"
+                   />
+                   {appliedCoupon ? (
+                      <button
+                         onClick={() => {
+                            setAppliedCoupon(null);
+                            setCouponCode("");
+                            document.cookie = "viltrum_ref=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                            localStorage.removeItem("viltrum_ref");
+                            toast.info("Coupon removed.");
+                         }}
+                         className="px-3 h-10 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all"
+                      >
+                         Remove
+                      </button>
+                   ) : (
+                      <button
+                         onClick={() => handleApplyCoupon(couponCode)}
+                         disabled={validatingCoupon || !couponCode.trim()}
+                         className="btn-primary px-4 h-10 text-[10px] font-bold uppercase tracking-wider"
+                      >
+                         {validatingCoupon ? "..." : "Apply"}
+                      </button>
+                   )}
+                </div>
+                {couponError && (
+                   <p className="text-xs text-red-500 font-medium">{couponError}</p>
+                )}
+                {appliedCoupon && (
+                   <div className="flex items-center gap-2 p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs">
+                      <Check size={14} strokeWidth={3} />
+                      <span>Code &ldquo;{appliedCoupon.coupon_code}&rdquo; applied!</span>
+                   </div>
+                )}
+             </div>
+
+             {/* Mobile Cost Breakdown */}
+             <div className="mt-4 space-y-2.5 pt-4 border-t border-border-light text-xs">
+                <div className="flex justify-between text-secondary">
+                   <span>Subtotal</span>
+                   <span className="font-medium text-primary">{formatPrice(cartTotal)}</span>
+                </div>
+                {appliedCoupon && discountAmount > 0 && (
+                   <div className="flex justify-between text-emerald-500 font-semibold">
+                      <span>Coupon Discount</span>
+                      <span>-{formatPrice(discountAmount)}</span>
+                   </div>
+                )}
+                <div className="flex justify-between text-secondary">
+                   <span>Shipping</span>
+                   <span className="font-semibold text-primary">{formatPrice(shippingFee)}</span>
+                </div>
+                <div className="pt-2 border-t border-border-light flex justify-between items-baseline text-sm font-bold text-primary">
+                   <span>Total</span>
+                   <span className="text-xl text-primary">{formatPrice(finalTotal + shippingFee)}</span>
+                </div>
+             </div>
+           </div>
+         </div>
+
          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 relative">
 
-            <div className="order-2 lg:order-1 max-w-xl">
+            <div className="max-w-xl">
 
                <div className="text-xs text-muted flex items-center gap-2 mb-10">
                   <span className="font-semibold text-primary px-2 py-1 bg-primary/5 rounded-md">1. Shipping</span>
@@ -612,7 +813,7 @@ export default function CheckoutPage() {
                </div>
             </div>
 
-            <div className="order-1 lg:order-2">
+            <div className="hidden lg:block lg:order-2">
                <div className="lg:sticky lg:top-10 bg-surface p-8 md:p-10 rounded-2xl border border-border-light">
                   <h3 className="font-semibold text-primary mb-6">Order Summary</h3>
 
@@ -831,21 +1032,21 @@ export default function CheckoutPage() {
                            <div className="flex items-center justify-between">
                               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted">What customers say</p>
                               <div className="flex items-center gap-1">
-                                 <div className="flex">{[1,2,3,4,5].map(i => <Star key={i} size={10} className="text-amber-400 fill-amber-400" />)}</div>
+                                 <div className="flex">{[1,2,3,4,5].map(i => <Star key={i} size={10} className="text-primary fill-primary" />)}</div>
                                  <span className="text-[10px] font-bold text-primary ml-1">4.9</span>
                                  <span className="text-[10px] text-muted ml-1">({allReviews.length})</span>
                               </div>
                            </div>
                            <div className="space-y-4">
                               {shown.map((review, i) => (
-                                 <div key={i} className="flex gap-4 items-start bg-white p-4 rounded-2xl border border-border-light shadow-sm hover:border-primary/20 transition-colors">
-                                    <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center flex-shrink-0">
+                                 <div key={i} className="flex gap-4 items-start bg-background p-4 rounded-2xl border border-border-light shadow-sm hover:border-primary/20 transition-colors">
+                                    <div className="w-10 h-10 rounded-full bg-surface border border-border-light flex items-center justify-center flex-shrink-0">
                                        <span className="text-sm font-bold text-primary">{review.name[0]}</span>
                                     </div>
                                     <div className="flex-1 min-w-0">
                                        <div className="flex items-center justify-between gap-2 mb-1">
                                           <span className="text-sm font-bold text-primary">{review.name}</span>
-                                          <div className="flex gap-0.5">{Array.from({length: review.rating}).map((_, j) => <Star key={j} size={12} className="text-amber-400 fill-amber-400" />)}</div>
+                                          <div className="flex gap-0.5">{Array.from({length: review.rating}).map((_, j) => <Star key={j} size={12} className="text-primary fill-primary" />)}</div>
                                        </div>
                                        <p className="text-sm text-secondary leading-relaxed" dir="auto">{review.text}</p>
                                     </div>
