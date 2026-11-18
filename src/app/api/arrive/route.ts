@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-const PANTHER_BASE = "https://panther-express.top/api/shipment.php";
-const PANTHER_USER = process.env.PANTHER_API_USER || "";
-const PANTHER_PASS = process.env.PANTHER_API_PASS || "";
+const ARRIVE_BASE = "https://arrive-shipping.com/api/shipment.php";
+const ARRIVE_USER = process.env.ARRIVE_API_USER || process.env.PANTHER_API_USER || "";
+const ARRIVE_PASS = process.env.ARRIVE_API_PASS || process.env.PANTHER_API_PASS || "";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,9 +34,13 @@ export async function POST(req: NextRequest) {
       return handleGetStatus(body.waybills);
     }
 
+    if (action === "getStatusHistory") {
+      return handleGetStatusHistory(body.waybill);
+    }
+
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error: unknown) {
-    console.error("Panther API Error:", error);
+    console.error("Arrive API Error:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
@@ -80,12 +84,12 @@ async function handleShipOrders(orderIds: string[]) {
     };
   });
 
-  const res = await fetch(`${PANTHER_BASE}?action=addBulkShipments`, {
+  const res = await fetch(`${ARRIVE_BASE}?action=addBulkShipments`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      user: PANTHER_USER,
-      password: PANTHER_PASS,
+      user: ARRIVE_USER,
+      password: ARRIVE_PASS,
       shipments,
     }),
   });
@@ -100,7 +104,7 @@ async function handleShipOrders(orderIds: string[]) {
           .update({
             status: "shipped",
             tracking_number: item.waybill,
-            shipping_company: "Panther Express",
+            shipping_company: "Arrive",
             updated_at: new Date().toISOString(),
           })
           .eq("order_number", Number(item.order_id));
@@ -112,10 +116,10 @@ async function handleShipOrders(orderIds: string[]) {
 }
 
 async function handleGetSectors() {
-  const res = await fetch(`${PANTHER_BASE}?action=getAllSectors`, {
+  const res = await fetch(`${ARRIVE_BASE}?action=getAllSectors`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user: PANTHER_USER, password: PANTHER_PASS }),
+    body: JSON.stringify({ user: ARRIVE_USER, password: ARRIVE_PASS }),
   });
   const data = await res.json();
   return NextResponse.json(data);
@@ -126,13 +130,31 @@ async function handleGetStatus(waybills: string[]) {
     return NextResponse.json({ error: "No waybills" }, { status: 400 });
   }
 
-  const res = await fetch(`${PANTHER_BASE}?action=getCurrentStatus`, {
+  const res = await fetch(`${ARRIVE_BASE}?action=getCurrentStatus`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      user: PANTHER_USER,
-      password: PANTHER_PASS,
+      user: ARRIVE_USER,
+      password: ARRIVE_PASS,
       waybill: waybills,
+    }),
+  });
+  const data = await res.json();
+  return NextResponse.json(data);
+}
+
+async function handleGetStatusHistory(waybill: string) {
+  if (!waybill) {
+    return NextResponse.json({ error: "No waybill provided" }, { status: 400 });
+  }
+
+  const res = await fetch(`${ARRIVE_BASE}?action=statusHistory`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user: ARRIVE_USER,
+      password: ARRIVE_PASS,
+      waybill,
     }),
   });
   const data = await res.json();

@@ -581,10 +581,10 @@ export default function OrdersPage() {
     });
   };
 
-  const shipToPanther = async (orderIds: string[]) => {
+  const shipToArrive = async (orderIds: string[]) => {
     setShippingIds(new Set(orderIds));
     try {
-      const res = await fetch("/api/panther", {
+      const res = await fetch("/api/arrive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "ship", orderIds }),
@@ -592,12 +592,12 @@ export default function OrdersPage() {
       const data = await res.json();
       if (data.success) {
         await fetchOrders();
-        alert(`تم شحن ${orderIds.length} أوردر بنجاح لـ Panther Express`);
+        alert(`تم شحن ${orderIds.length} أوردر بنجاح لـ Arrive`);
       } else {
         alert("حصل مشكلة: " + (data.error || "Unknown error"));
       }
     } catch {
-      alert("فشل الاتصال بـ Panther Express");
+      alert("فشل الاتصال بـ Arrive");
     }
     setShippingIds(new Set());
   };
@@ -697,8 +697,8 @@ ${itemLines}
     setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, payment_collected: !current } : o));
   };
 
-  const toggleAddedToPanther = async (orderId: string, current: boolean) => {
-    const newCompany = current ? null : "Panther Express";
+  const toggleAddedToArrive = async (orderId: string, current: boolean) => {
+    const newCompany = current ? null : "Arrive";
     const updates: Record<string, unknown> = { shipping_company: newCompany };
     if (current) updates.tracking_number = null;
     await supabase.from("orders").update(updates).eq("id", orderId);
@@ -957,9 +957,9 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
               Print ({shippedCount})
             </button>
 
-            {/* Ship Selected to Panther */}
+            {/* Ship Selected to Arrive */}
             <button
-              onClick={() => { shipToPanther(Array.from(selectedForShip)); setSelectedForShip(new Set()); }}
+              onClick={() => { shipToArrive(Array.from(selectedForShip)); setSelectedForShip(new Set()); }}
               disabled={selectedForShip.size === 0 || shippingIds.size > 0}
               className="flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-wider rounded-xl bg-purple-600 text-white hover:bg-purple-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-purple-600/20"
             >
@@ -1271,12 +1271,12 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
 
                       {!order.shipping_company && (
                         <button
-                          onClick={() => shipToPanther([order.id])}
+                          onClick={() => shipToArrive([order.id])}
                           disabled={shippingIds.has(order.id)}
                           className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 text-purple-400 border-purple-500/20 bg-purple-500/10 hover:bg-purple-500/20 disabled:opacity-50"
                         >
                           {shippingIds.has(order.id) ? <Loader2 size={12} className="animate-spin" /> : <Truck size={12} />}
-                          Ship to Panther
+                          Ship to Arrive
                         </button>
                       )}
 
@@ -1293,7 +1293,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                       </button>
 
                       <button
-                        onClick={() => toggleAddedToPanther(order.id, !!order.shipping_company)}
+                        onClick={() => toggleAddedToArrive(order.id, !!order.shipping_company)}
                         className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all flex items-center gap-1.5 ${
                           order.shipping_company
                             ? "text-purple-400 bg-purple-500/10 border-purple-500/20"
@@ -1301,7 +1301,7 @@ ${waybill ? `📦 *رقم البوليصة:* ${waybill}\n` : ""}📍 *العنو
                         }`}
                       >
                         {order.shipping_company ? <Check size={12} /> : <Truck size={12} />}
-                        {order.shipping_company ? "Added to Panther" : "Mark as Added to Panther"}
+                        {order.shipping_company ? "Added to Arrive" : "Mark as Added to Arrive"}
                       </button>
 
                       <button
