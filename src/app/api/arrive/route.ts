@@ -112,7 +112,12 @@ async function handleShipOrders(orderIds: string[]) {
     }
   }
 
-  return NextResponse.json({ success: true, data: data.response || data });
+  if (data.response && Array.isArray(data.response)) {
+    return NextResponse.json({ success: true, data: data.response });
+  }
+
+  const errMsg = typeof data === 'string' ? data : (data.error || data.message || JSON.stringify(data));
+  return NextResponse.json({ success: false, error: errMsg }, { status: 400 });
 }
 
 async function handleGetSectors() {
