@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 const ARRIVE_BASE = "https://arrive-shipping.com/api/shipment.php";
-const ARRIVE_USER = process.env.ARRIVE_API_USER || process.env.PANTHER_API_USER || "";
-const ARRIVE_PASS = process.env.ARRIVE_API_PASS || process.env.PANTHER_API_PASS || "";
+const ARRIVE_USER = process.env.ARRIVE_API_USER || "01031429229";
+const ARRIVE_PASS = process.env.ARRIVE_API_PASS || "123456";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
