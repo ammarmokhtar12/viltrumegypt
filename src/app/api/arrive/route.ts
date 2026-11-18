@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import sectorsData from "@/lib/arrive-sectors.json";
 
 const ARRIVE_BASE = "https://arrive-shipping.com/api/shipment.php";
 const ARRIVE_USER = process.env.ARRIVE_API_USER || "622030109";
@@ -10,12 +11,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const SENDER = {
-  sender_name: "Viltrum Egypt",
-  sender_phone: "01012108929",
-  sender_address: "الدار الملكية ابراج الخير شارع الفرماوي شبرا الخيمة",
-  sender_sector: "36078",
-};
+interface SectorItem {
+  id: number;
+  name: string;
+  keywords: string[];
+  gov: string;
+}
+
+const sectors: SectorItem[] = sectorsData as SectorItem[];
 
 export async function POST(req: NextRequest) {
   try {
@@ -66,21 +69,22 @@ async function handleShipOrders(orderIds: string[]) {
     const items = (order.items || []) as { title: string; size: string; quantity: number }[];
     const productDesc = items.map((i) => `${i.title} (${i.size}) x${i.quantity}`).join(", ");
     const phone = (order.customer_phone || "").replace(/\D/g, "").replace(/^20/, "0");
+    const matchedSector = findSectorForAddress(order.customer_address || "");
 
     return {
-      keyword: extractCity(order.customer_address),
+      sector_id: String(matchedSector.id),
+      keyword: matchedSector.name,
       product_name: "Viltrum Tshirt",
-      product_desc: productDesc,
+      product_desc: productDesc || "Viltrum Tshirt",
       phone_1: phone,
-      service_type: 1,
+      service_type: 1, // تسليم و تحصيل
       price: Number(order.total),
       weight: "0.5 kg",
       address: order.customer_address,
       notes: `Order #${order.order_number}`,
       client_name: order.customer_name,
       order_id: String(order.order_number),
-      quantity: String(items.reduce((sum, i) => sum + (i.quantity || 1), 0)),
-      ...SENDER,
+      quantity: String(items.reduce((sum, i) => sum + (i.quantity || 1), 0) || 1),
     };
   });
 
@@ -95,28 +99,52 @@ async function handleShipOrders(orderIds: string[]) {
   });
 
   const data = await res.json();
+  const rawList: Record<string, unknown>[] = Array.isArray(data)
+    ? data
+    : data.response && Array.isArray(data.response)
+    ? data.response
+    : [];
 
-  if (data.response && Array.isArray(data.response)) {
-    for (const item of data.response) {
-      if (item.waybill && item.order_id) {
+  if (rawList.length > 0) {
+    const errors: string[] = [];
+    const successful: Record<string, unknown>[] = [];
+
+    for (const item of rawList) {
+      const waybill = (item.waybill as string) || null;
+      const orderId = (item.order_id as string) || null;
+      const itemError = (item.error as string) || null;
+
+      if (waybill && orderId) {
         await supabase
           .from("orders")
           .update({
             status: "shipped",
-            tracking_number: item.waybill,
+            tracking_number: waybill,
             shipping_company: "Arrive",
             updated_at: new Date().toISOString(),
           })
-          .eq("order_number", Number(item.order_id));
+          .eq("order_number", Number(orderId));
+        successful.push(item);
+      } else if (itemError) {
+        errors.push(`Order #${orderId || "unknown"}: ${itemError}`);
       }
     }
+
+    if (successful.length > 0) {
+      return NextResponse.json({
+        success: true,
+        data: successful,
+        warnings: errors.length > 0 ? errors : undefined,
+      });
+    }
+
+    return NextResponse.json(
+      { success: false, error: errors.join(", ") || "Failed to create shipments" },
+      { status: 400 }
+    );
   }
 
-  if (data.response && Array.isArray(data.response)) {
-    return NextResponse.json({ success: true, data: data.response });
-  }
-
-  const errMsg = typeof data === 'string' ? data : (data.error || data.message || JSON.stringify(data));
+  const errMsg = typeof data === "string" ? data : (data.error || data.message || JSON.stringify(data));
   return NextResponse.json({ success: false, error: errMsg }, { status: 400 });
 }
 
@@ -166,16 +194,48 @@ async function handleGetStatusHistory(waybill: string) {
   return NextResponse.json(data);
 }
 
-function extractCity(address: string): string {
-  const cities = [
-    "القاهرة", "الجيزة", "الاسكندرية", "الدقهلية", "المنصورة", "الغربية", "المحلة",
-    "الشرقية", "المنوفية", "البحيرة", "كفر الشيخ", "الفيوم", "بني سويف", "المنيا",
-    "أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "دمياط", "بورسعيد", "السويس",
-    "الإسماعيلية", "شبرا الخيمة", "مدينة نصر", "المعادي", "حلوان", "6 أكتوبر",
-    "الرحاب", "التجمع", "العبور", "الشروق", "طنطا", "دمنهور", "كفر الدوار",
-  ];
-  for (const city of cities) {
-    if (address.includes(city)) return city;
+function normalizeArabic(text: string): string {
+  return text
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .replace(/[\u064B-\u065F]/g, "") // remove tashkeel
+    .toLowerCase();
+}
+
+function findSectorForAddress(address: string): SectorItem {
+  if (!address) return { id: 105, name: "القاهرة", keywords: [], gov: "القاهرة" };
+
+  const normAddr = normalizeArabic(address);
+
+  // 1. Direct match on sector name
+  for (const s of sectors) {
+    const normName = normalizeArabic(s.name);
+    if (normAddr.includes(normName)) {
+      return s;
+    }
   }
-  return address.split(",")[0]?.trim() || address.substring(0, 30);
+
+  // 2. Match on keywords
+  for (const s of sectors) {
+    if (s.keywords && s.keywords.length > 0) {
+      for (const kw of s.keywords) {
+        const normKw = normalizeArabic(kw);
+        if (normKw && normKw.length >= 3 && normAddr.includes(normKw)) {
+          return s;
+        }
+      }
+    }
+  }
+
+  // 3. Fallback match by governorate
+  for (const s of sectors) {
+    const normGov = normalizeArabic(s.gov);
+    if (normGov && normGov.length >= 4 && normAddr.includes(normGov)) {
+      return s;
+    }
+  }
+
+  // Default fallback (وسط البلد / الأزبكية)
+  return { id: 105, name: "الأزبكية", keywords: [], gov: "القاهرة" };
 }
