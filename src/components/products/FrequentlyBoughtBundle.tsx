@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { trackTikTokEvent } from "@/lib/tiktok";
 import { trackMetaEvent } from "@/lib/meta";
 import { sortProductsWithBestSellers } from "@/lib/productSorting";
-import { Plus, Check, Sparkles, ShoppingBag } from "lucide-react";
+import { Plus, Check, ShoppingBag } from "lucide-react";
 
 interface FrequentlyBoughtBundleProps {
   currentProduct: Product;
@@ -129,28 +129,19 @@ export default function FrequentlyBoughtBundle({
   };
 
   return (
-    <div className="relative mt-8 rounded-3xl p-5 sm:p-6 bg-gradient-to-br from-zinc-900/95 via-zinc-900 to-black border-2 border-amber-500/40 shadow-2xl overflow-hidden">
-      {/* Glow highlight */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-red-500/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+    <div className="relative mt-8 rounded-2xl p-5 sm:p-6 bg-zinc-900 border border-zinc-800 overflow-hidden">
 
       {/* Top Banner Tag */}
       <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
-        <div className="flex items-center gap-2">
-          <span className="flex h-2.5 w-2.5 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-          </span>
-          <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-black font-black text-[10px] sm:text-xs uppercase px-3 py-1 rounded-full shadow-md tracking-wider">
-            🔥 عرض خاص: 2 بـ 850 ج
-          </span>
-        </div>
-        <span className="text-xs font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-xl">
-          وفر {savings} EGP فوري
+        <span className="text-[10px] sm:text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+          عرض خاص — 2 بـ 850 ج
+        </span>
+        <span className="text-[10px] sm:text-xs font-medium text-emerald-400">
+          وفر {savings} ج.م
         </span>
       </div>
 
-      <h3 className="text-base sm:text-lg font-black text-white tracking-tight mb-1">
+      <h3 className="text-base sm:text-lg font-bold text-white mb-1">
         اشترِ هذا التيشرت مع تيشرت آخر بـ 850 ج بدلاً من {formatPrice(regularTotal)}!
       </h3>
       <p className="text-xs text-zinc-400 mb-5 leading-relaxed">
@@ -196,7 +187,7 @@ export default function FrequentlyBoughtBundle({
 
         {/* Plus Divider */}
         <div className="col-span-1 flex items-center justify-center">
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-black shadow-md">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 flex items-center justify-center">
             <Plus size={16} strokeWidth={3} />
           </div>
         </div>
@@ -258,7 +249,7 @@ export default function FrequentlyBoughtBundle({
         <div className="text-center sm:text-left">
           <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">سعر العرض للقطعتين</p>
           <div className="flex items-baseline justify-center sm:justify-start gap-2.5 mt-0.5">
-            <span className="text-2xl sm:text-3xl font-black text-amber-400">850 EGP</span>
+            <span className="text-2xl sm:text-3xl font-bold text-white">850 EGP</span>
             <span className="text-sm font-bold text-zinc-500 line-through">{formatPrice(regularTotal)}</span>
           </div>
         </div>
@@ -266,9 +257,9 @@ export default function FrequentlyBoughtBundle({
         <button
           onClick={handleAddBundle}
           disabled={isAdding}
-          className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-red-600 via-red-500 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-xl shadow-xl shadow-red-500/25 flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
+          className="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-zinc-100 text-zinc-900 font-semibold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
         >
-          <Sparkles size={16} className="text-yellow-200" />
+          <ShoppingBag size={16} />
           <span>أضف العرض للكارت (2 بـ 850 ج)</span>
         </button>
       </div>

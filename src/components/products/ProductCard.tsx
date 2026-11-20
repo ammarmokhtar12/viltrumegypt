@@ -92,12 +92,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           ) : (
             <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex flex-col gap-1.5 sm:gap-2 z-10">
               {bestSeller && (
-                <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black font-black text-[9px] sm:text-[10px] uppercase px-2.5 sm:px-3 py-1 rounded-full border border-yellow-200 shadow-md tracking-wider font-sans flex items-center gap-1 w-fit">
-                  <span className="text-xs">🔥</span>
-                  <span>BEST SELLER</span>
+                <div className="bg-white/90 backdrop-blur-sm text-zinc-900 text-[9px] sm:text-[10px] font-semibold px-2.5 sm:px-3 py-1 rounded-md shadow-sm font-sans w-fit">
+                  Best Seller
                 </div>
               )}
-              <div className="bg-red-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-red-400/30 shadow-sm w-fit">
+              <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] font-medium px-2 py-0.5 rounded-md w-fit">
                 -{discountPercentage}%
               </div>
             </div>

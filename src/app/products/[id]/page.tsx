@@ -405,8 +405,8 @@ export default function ProductDetailPage() {
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 flex-wrap">
                           {isBestSeller(product.title) && (
-                            <span className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black font-black text-[10px] uppercase px-3 py-1 rounded-full border border-yellow-200 shadow-md tracking-wider flex items-center gap-1 w-fit">
-                              🔥 BEST SELLER
+                            <span className="bg-zinc-800 text-zinc-300 text-[10px] font-medium px-2.5 py-1 rounded-md w-fit">
+                              Best Seller
                             </span>
                           )}
                           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted opacity-60">Specifications</span>
@@ -452,13 +452,10 @@ export default function ProductDetailPage() {
                     <div className="h-px bg-border-light w-24"></div>
 
                     {/* 2 for 850 EGP Deal Callout Banner */}
-                    <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-red-500/15 to-amber-500/15 border-2 border-amber-500/40 flex items-center justify-between gap-3 shadow-lg">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-2xl animate-bounce">🔥</span>
-                        <div>
-                          <p className="text-xs sm:text-sm font-black text-white">عرض خاص: اشتري 2 تيشرت بـ 850 ج فقط!</p>
-                          <p className="text-[10px] sm:text-xs text-amber-300 font-bold">وفر 110 جنيه مصري عند إضافة تيشرت آخر</p>
-                        </div>
+                    <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs sm:text-sm font-semibold text-white">اشتري 2 تيشرت بـ 850 ج فقط</p>
+                        <p className="text-[10px] sm:text-xs text-zinc-400 mt-0.5">وفر 110 جنيه عند إضافة تيشرت آخر</p>
                       </div>
                       <button
                         type="button"
@@ -466,7 +463,7 @@ export default function ProductDetailPage() {
                           const el = document.getElementById("bundle-offer-section");
                           if (el) el.scrollIntoView({ behavior: "smooth" });
                         }}
-                        className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-black text-[10px] sm:text-xs rounded-xl shadow-md transition-all shrink-0 cursor-pointer"
+                        className="px-3 py-1.5 bg-white hover:bg-zinc-100 text-zinc-900 font-medium text-[10px] sm:text-xs rounded-lg transition-colors shrink-0 cursor-pointer"
                       >
                         شاهد العرض &darr;
                       </button>

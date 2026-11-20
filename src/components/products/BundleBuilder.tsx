@@ -406,8 +406,8 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                         )}
 
                         {isBestSeller(p.title) && (
-                          <div className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black font-black text-[8px] uppercase px-2 py-0.5 rounded-full shadow-md z-10">
-                            🔥 BEST SELLER
+                          <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-zinc-900 text-[8px] font-medium px-2 py-0.5 rounded z-10">
+                            Best Seller
                           </div>
                         )}
                         {/* Selected checkmark */}
