@@ -61,7 +61,7 @@ export default function Navbar({ onCartOpen }: NavbarProps) {
               <span className="text-muted/50">·</span>
               <span className="font-bold text-white/90 tracking-wider">2 T-Shirts for only 850 EGP</span>
               <span className="text-muted/50">·</span>
-              <span className="text-emerald-400 font-bold">Save 150 EGP</span>
+              <span className="text-emerald-400 font-bold">Save 110 EGP (وفر 110 ج)</span>
             </span>
 
             {/* Divider */}

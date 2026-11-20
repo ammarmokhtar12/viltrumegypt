@@ -96,6 +96,9 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <span>BEST SELLER</span>
                 </div>
               )}
+              <div className="bg-gradient-to-r from-red-600 to-rose-600 text-white font-black text-[8px] sm:text-[9px] uppercase px-2 sm:px-2.5 py-0.5 rounded-full border border-red-400/40 shadow-md tracking-wider font-sans flex items-center gap-1 w-fit">
+                <span>🏷️ 2 بـ 850 ج</span>
+              </div>
               <div
                 className={`backdrop-blur-md text-[9px] uppercase font-semibold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans inline-flex w-fit ${
                   product.title === "Thragg Edition"

@@ -1,3 +1,4 @@
+import FrequentlyBoughtBundle from "@/components/products/FrequentlyBoughtBundle";
 import { isBestSeller } from "@/lib/productSorting";
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
@@ -41,6 +42,7 @@ export default function ProductDetailPage() {
   const [added, setAdded] = useState(false);
   const [wishlistAdded, setWishlistAdded] = useState(false);
   const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
 
   const addItem = useCartStore((s) => s.addItem);
 
@@ -83,6 +85,17 @@ export default function ProductDetailPage() {
             }
           } catch (e) {
             console.warn("Failed to fetch inventory:", e);
+          }
+
+          // Fetch all active products for the bundle offer
+          try {
+            const { data: allProds } = await supabase
+              .from("products")
+              .select("*")
+              .eq("is_active", true);
+            if (allProds) setAllProducts(allProds as Product[]);
+          } catch (e) {
+            console.warn("Failed to fetch all products:", e);
           }
 
           // Track ViewContent event
@@ -437,6 +450,27 @@ export default function ProductDetailPage() {
 
                     <div className="h-px bg-border-light w-24"></div>
 
+                    {/* 2 for 850 EGP Deal Callout Banner */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-red-500/15 to-amber-500/15 border-2 border-amber-500/40 flex items-center justify-between gap-3 shadow-lg">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-2xl animate-bounce">🔥</span>
+                        <div>
+                          <p className="text-xs sm:text-sm font-black text-white">عرض خاص: اشتري 2 تيشرت بـ 850 ج فقط!</p>
+                          <p className="text-[10px] sm:text-xs text-amber-300 font-bold">وفر 110 جنيه مصري عند إضافة تيشرت آخر</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const el = document.getElementById("bundle-offer-section");
+                          if (el) el.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-black font-black text-[10px] sm:text-xs rounded-xl shadow-md transition-all shrink-0 cursor-pointer"
+                      >
+                        شاهد العرض &darr;
+                      </button>
+                    </div>
+
                     {/* Configuration: Size */}
                     <div className="space-y-5">
                        <div className="flex justify-between items-center">
@@ -569,6 +603,16 @@ export default function ProductDetailPage() {
                       >
                         <Heart size={20} className={wishlistAdded ? "fill-rose-600 text-rose-600" : ""} />
                       </button>
+                    </div>
+
+                    {/* Frequently Bought Together Bundle Deal (2 for 850 EGP) */}
+                    <div id="bundle-offer-section">
+                      <FrequentlyBoughtBundle
+                        currentProduct={product}
+                        allProducts={allProducts}
+                        currentSelectedSize={selectedSize}
+                        onCartOpen={() => setCartOpen(true)}
+                      />
                     </div>
 
                     {/* Service Highlights */}
