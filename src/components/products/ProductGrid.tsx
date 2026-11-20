@@ -1,3 +1,4 @@
+import { sortProductsWithBestSellers } from "@/lib/productSorting";
 "use client";
 
 import ProductCard from "./ProductCard";
@@ -47,7 +48,7 @@ export default function ProductGrid({ products, fetchError }: ProductGridProps) 
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-x-10 md:gap-y-16">
-          {products
+          {sortProductsWithBestSellers(products)
             .filter((p) => p.title.toUpperCase() !== "LIMITED OFFER")
             .map((product, i) => (
             <div key={product.id} className="fade-in-up" style={{ animationDelay: `${i * 0.1}s` }}>

@@ -1,3 +1,4 @@
+import { sortProductsWithBestSellers } from "@/lib/productSorting";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Product } from "@/types";
 
@@ -34,7 +35,7 @@ export async function fetchActiveProducts(): Promise<ProductsFetchResult> {
       };
     }
 
-    return { ok: true, products: data ?? [] };
+    return { ok: true, products: sortProductsWithBestSellers((data ?? []) as Product[]) };
   } catch (err) {
     return {
       ok: false,

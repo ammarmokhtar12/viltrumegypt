@@ -1,3 +1,4 @@
+import { sortProductsWithBestSellers } from "@/lib/productSorting";
 "use client";
 
 import { useState } from "react";
@@ -33,7 +34,7 @@ export default function ProductsPageClient({ initial }: ProductsPageClientProps)
     }
   };
 
-  const filteredProducts = products.filter(
+  const filteredProducts = sortProductsWithBestSellers(products).filter(
     (p) =>
       p.title.toUpperCase() !== "LIMITED OFFER" &&
       (p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

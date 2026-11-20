@@ -1,3 +1,4 @@
+import { sortProductsWithBestSellers } from "@/lib/productSorting";
 import { unstable_cache } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { ProductsFetchResult } from "@/lib/products";
@@ -32,7 +33,7 @@ async function loadActiveProducts(): Promise<ProductsFetchResult> {
       return { ok: false, error: "fetch_failed", message: error.message };
     }
 
-    return { ok: true, products: (data ?? []) as Product[] };
+    return { ok: true, products: sortProductsWithBestSellers((data ?? []) as Product[]) };
   } catch (err) {
     return {
       ok: false,

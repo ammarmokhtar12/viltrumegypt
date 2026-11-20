@@ -1,3 +1,4 @@
+import { isBestSeller } from "@/lib/productSorting";
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -388,7 +389,14 @@ export default function ProductDetailPage() {
                     {/* Title & Price */}
                     <div className="space-y-6">
                       <div className="space-y-4">
-                        <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted opacity-60">Specifications</span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {isBestSeller(product.title) && (
+                            <span className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black font-black text-[10px] uppercase px-3 py-1 rounded-full border border-yellow-200 shadow-md tracking-wider flex items-center gap-1 w-fit">
+                              🔥 BEST SELLER
+                            </span>
+                          )}
+                          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted opacity-60">Specifications</span>
+                        </div>
                         <h1 className="text-4xl font-bold leading-[1.1] text-foreground sm:text-5xl lg:text-6xl tracking-tight">
                           {product.title}
                         </h1>

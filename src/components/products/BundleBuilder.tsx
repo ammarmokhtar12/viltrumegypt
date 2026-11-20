@@ -1,3 +1,4 @@
+import { sortProductsWithBestSellers, isBestSeller } from "@/lib/productSorting";
 "use client";
 
 // --- VILTRUM BUNDLE BUILDER V2 ---
@@ -57,7 +58,7 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
         const filteredProducts = (prodData || []).filter(
           (p: Product) => p.title.toUpperCase() !== "LIMITED OFFER"
         );
-        setProducts(filteredProducts);
+        setProducts(sortProductsWithBestSellers(filteredProducts));
 
         const { data: invData, error: invError } = await supabase
           .from("inventory")
@@ -403,6 +404,11 @@ export default function BundleBuilder({ limitedOfferProduct, onCartOpen }: Bundl
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         )}
 
+                        {isBestSeller(p.title) && (
+                          <div className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black font-black text-[8px] uppercase px-2 py-0.5 rounded-full shadow-md z-10">
+                            🔥 BEST SELLER
+                          </div>
+                        )}
                         {/* Selected checkmark */}
                         {isCurrentlySelected && (
                           <div className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-lg">

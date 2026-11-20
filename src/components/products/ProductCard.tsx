@@ -1,3 +1,4 @@
+import { isBestSeller } from "@/lib/productSorting";
 "use client";
 
 import Link from "next/link";
@@ -21,6 +22,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const originalPrice = product.price === 480 ? 600 : Math.round(product.price * 1.25);
   const discountPercentage = originalPrice > product.price ? Math.round(((originalPrice - product.price) / originalPrice) * 100) : 0;
   const isPromo = product.title.toUpperCase() === "LIMITED OFFER";
+  const bestSeller = isBestSeller(product.title);
   
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -87,7 +89,13 @@ export default function ProductCard({ product }: ProductCardProps) {
               <span>Ends in {timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes.toString().padStart(2, '0')}:{timeLeft.seconds.toString().padStart(2, '0')}</span>
             </div>
           ) : (
-            <div className="absolute top-6 left-6 flex flex-col gap-2 z-10">
+            <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex flex-col gap-1.5 sm:gap-2 z-10">
+              {bestSeller && (
+                <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-black font-black text-[9px] sm:text-[10px] uppercase px-2.5 sm:px-3 py-1 rounded-full border border-yellow-200 shadow-md tracking-wider font-sans flex items-center gap-1 w-fit">
+                  <span className="text-xs">🔥</span>
+                  <span>BEST SELLER</span>
+                </div>
+              )}
               <div
                 className={`backdrop-blur-md text-[9px] uppercase font-semibold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans inline-flex w-fit ${
                   product.title === "Thragg Edition"
