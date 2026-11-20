@@ -61,6 +61,40 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (!order) {
+        // Check replacements table
+        let repMatch = null;
+        try {
+          const { data: rep } = await supabase
+            .from("replacements")
+            .select("id, status")
+            .eq("tracking_number", waybill)
+            .maybeSingle();
+          repMatch = rep;
+        } catch {
+          // Column might not exist yet
+        }
+
+        if (!repMatch) {
+          const { data: repByNotes } = await supabase
+            .from("replacements")
+            .select("id, status")
+            .ilike("notes", `%${waybill}%`)
+            .maybeSingle();
+          repMatch = repByNotes;
+        }
+
+        if (repMatch) {
+          await supabase
+            .from("replacements")
+            .update({
+              status: newStatus === "delivered" ? "delivered" : newStatus === "cancelled" ? "cancelled" : "shipped",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", repMatch.id);
+          results.push({ waybill, status: newStatus, updated: true });
+          continue;
+        }
+
         results.push({ waybill, status: newStatus, updated: false });
         continue;
       }

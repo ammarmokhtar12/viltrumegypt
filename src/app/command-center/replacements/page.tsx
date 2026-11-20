@@ -67,6 +67,8 @@ interface Replacement {
   total: number;
   status: string;
   notes: string | null;
+  tracking_number?: string | null;
+  shipping_company?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -159,6 +161,8 @@ export default function ReplacementsPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selectedForShip, setSelectedForShip] = useState<Set<string>>(new Set());
+  const [shippingIds, setShippingIds] = useState<Set<string>>(new Set());
 
   // ─── Form State ─────────────────────────────────────────────────────────────
   const [orderNumber, setOrderNumber]     = useState("");
@@ -277,6 +281,55 @@ export default function ReplacementsPage() {
     setCustomerName(""); setCustomerPhone(""); setCustomerAddress("");
     setReturnedItems([emptyItem()]); setNewItems([emptyItem()]);
     setExchangeType("same_type"); setNotes("");
+  };
+
+  // ─── Arrive Waybill & Shipping ───────────────────────────────────────────────
+  const getWaybill = (r: Replacement) => {
+    if (r.tracking_number) return r.tracking_number;
+    const match = r.notes?.match(/\[Arrive Waybill:\s*([^\]]+)\]/);
+    return match ? match[1].trim() : null;
+  };
+
+  const toggleSelectForShip = (id: string) => {
+    setSelectedForShip((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedForShip.size > 0) {
+      setSelectedForShip(new Set());
+    } else {
+      setSelectedForShip(new Set(filtered.map((r) => r.id)));
+    }
+  };
+
+  const shipReplacementsToArrive = async (ids: string[]) => {
+    if (!ids.length) return;
+    setShippingIds(new Set(ids));
+    try {
+      const res = await fetch("/api/arrive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "shipReplacements", replacementIds: ids }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchReplacements();
+        const waybills = (data.data || []).map((d: any) => d.waybill).filter(Boolean).join(", ");
+        alert(`✅ تم إرسال ${ids.length} استبدال لـ Arrive كـ (شحنة استبدال) بنجاح!\n${waybills ? `البوالص: ${waybills}` : ""}`);
+        setSelectedForShip(new Set());
+      } else {
+        alert("❌ حدث خطأ: " + (data.error || "Unknown error"));
+      }
+    } catch {
+      alert("❌ فشل الاتصال بسيرفر Arrive");
+    } finally {
+      setShippingIds(new Set());
+    }
   };
 
   // ─── Update Status ────────────────────────────────────────────────────────────
@@ -603,6 +656,46 @@ export default function ReplacementsPage() {
         </div>
       </div>
 
+      {/* Bulk Arrive Action Bar */}
+      {filtered.length > 0 && (
+        <div className="flex items-center justify-between bg-zinc-900/80 border border-zinc-800 rounded-2xl px-5 py-3 flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleSelectAll}
+              className="flex items-center gap-2 text-xs font-bold text-zinc-400 hover:text-white transition-colors"
+            >
+              <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                selectedForShip.size > 0 && selectedForShip.size === filtered.length
+                  ? "bg-purple-600 border-purple-500 text-white"
+                  : selectedForShip.size > 0
+                  ? "bg-purple-600/50 border-purple-500 text-white"
+                  : "border-zinc-700 bg-zinc-800"
+              }`}>
+                {selectedForShip.size > 0 && <Check size={10} strokeWidth={3} />}
+              </div>
+              <span>{selectedForShip.size > 0 ? `محدد (${selectedForShip.size})` : "تحديد الكل"}</span>
+            </button>
+            {selectedForShip.size > 0 && (
+              <button
+                onClick={() => setSelectedForShip(new Set())}
+                className="text-[11px] text-zinc-500 hover:text-red-400 transition-colors"
+              >
+                إلغاء التحديد
+              </button>
+            )}
+          </div>
+
+          <button
+            onClick={() => shipReplacementsToArrive(Array.from(selectedForShip))}
+            disabled={selectedForShip.size === 0 || shippingIds.size > 0}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-purple-600/20 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {shippingIds.size > 0 ? <Loader2 size={13} className="animate-spin" /> : <Truck size={13} />}
+            شحن المحدد إلى Arrive (استبدال) {selectedForShip.size > 0 ? `(${selectedForShip.size})` : ""}
+          </button>
+        </div>
+      )}
+
       {/* List */}
       <div className="space-y-3">
         {filtered.length === 0 && (
@@ -617,11 +710,14 @@ export default function ReplacementsPage() {
           const sCfg = STATUS_CONFIG[r.status] || STATUS_CONFIG.pending;
           const eCfg = EXCHANGE_TYPE_CONFIG[r.exchange_type] || EXCHANGE_TYPE_CONFIG.same_type;
           const isExpanded = expandedId === r.id;
+          const waybill = getWaybill(r);
 
           return (
             <div
               key={r.id}
-              className="bg-zinc-900/60 border border-zinc-800/60 rounded-2xl overflow-hidden transition-all"
+              className={`bg-zinc-900/60 border rounded-2xl overflow-hidden transition-all ${
+                selectedForShip.has(r.id) ? "border-purple-500/50 bg-zinc-900/80" : "border-zinc-800/60"
+              }`}
             >
               {/* Row header */}
               <div
@@ -629,6 +725,19 @@ export default function ReplacementsPage() {
                 onClick={() => setExpandedId(isExpanded ? null : r.id)}
               >
                 <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSelectForShip(r.id);
+                    }}
+                    className={`w-5 h-5 rounded-lg border flex items-center justify-center cursor-pointer transition-colors shrink-0 ${
+                      selectedForShip.has(r.id)
+                        ? "bg-purple-600 border-purple-500 text-white"
+                        : "border-zinc-700 bg-zinc-800 hover:border-zinc-500"
+                    }`}
+                  >
+                    {selectedForShip.has(r.id) && <Check size={12} strokeWidth={3} className="text-white" />}
+                  </div>
                   <div className="w-8 h-8 bg-zinc-800 rounded-xl flex items-center justify-center shrink-0">
                     <ArrowLeftRight size={15} className="text-red-400" />
                   </div>
@@ -644,6 +753,11 @@ export default function ReplacementsPage() {
                       <span className={`px-2 py-0.5 rounded-lg text-[9px] font-bold border ${eCfg.color} ${eCfg.bg} ${eCfg.border}`}>
                         {eCfg.label} · {r.shipping_fees} EGP شحن
                       </span>
+                      {waybill && (
+                        <span className="px-2 py-0.5 rounded-lg text-[9px] font-bold tracking-wider border text-purple-400 bg-purple-500/10 border-purple-500/20">
+                          وصل Arrive ✓ (استبدال)
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-zinc-400 mt-0.5 truncate">{r.customer_name} — {r.customer_phone}</p>
                   </div>
@@ -751,11 +865,34 @@ export default function ReplacementsPage() {
                     </div>
                   )}
 
-                  {/* WhatsApp */}
-                  <div className="flex gap-2 flex-wrap">
+                  {/* Arrive Shipping & WhatsApp Actions */}
+                  <div className="flex gap-2 flex-wrap items-center">
+                    <button
+                      onClick={() => shipReplacementsToArrive([r.id])}
+                      disabled={shippingIds.has(r.id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                        waybill
+                          ? "bg-purple-500/10 border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
+                          : "bg-purple-600 hover:bg-purple-700 text-white border-purple-500 shadow-lg shadow-purple-600/20"
+                      } disabled:opacity-50`}
+                    >
+                      {shippingIds.has(r.id) ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : (
+                        <Truck size={13} />
+                      )}
+                      {waybill ? "إعادة إرسال لـ Arrive (استبدال)" : "شحن مع Arrive (استبدال)"}
+                    </button>
+
+                    {waybill && (
+                      <span className="text-xs font-mono font-bold text-purple-400 bg-zinc-800 px-3 py-2 rounded-xl border border-zinc-700">
+                        📦 بوليصة: {waybill}
+                      </span>
+                    )}
+
                     <a
                       href={`https://wa.me/2${r.customer_phone}?text=${encodeURIComponent(
-                        `مرحباً ${r.customer_name}،\nتم تسجيل طلب الاستبدال #${r.replacement_number} بنجاح ✅\nرسوم الشحن: ${r.shipping_fees} EGP\nسيتم التواصل معك قريباً.`
+                        `مرحباً ${r.customer_name}،\nتم تسجيل طلب الاستبدال #${r.replacement_number} بنجاح ✅\n${waybill ? `رقم بوليصة الشحن مع Arrive: ${waybill}\n` : ""}رسوم الشحن: ${r.shipping_fees} EGP\nسيتم التواصل معك قريباً.`
                       )}`}
                       target="_blank"
                       rel="noreferrer"

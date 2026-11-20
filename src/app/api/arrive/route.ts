@@ -29,6 +29,10 @@ export async function POST(req: NextRequest) {
       return handleShipOrders(body.orderIds);
     }
 
+    if (action === "shipReplacements") {
+      return handleShipReplacements(body.replacementIds);
+    }
+
     if (action === "getSectors") {
       return handleGetSectors();
     }
@@ -140,6 +144,149 @@ async function handleShipOrders(orderIds: string[]) {
 
     return NextResponse.json(
       { success: false, error: errors.join(", ") || "Failed to create shipments" },
+      { status: 400 }
+    );
+  }
+
+  const errMsg = typeof data === "string" ? data : (data.error || data.message || JSON.stringify(data));
+  return NextResponse.json({ success: false, error: errMsg }, { status: 400 });
+}
+
+async function handleShipReplacements(replacementIds: string[]) {
+  if (!replacementIds?.length) {
+    return NextResponse.json({ error: "No replacement IDs provided" }, { status: 400 });
+  }
+
+  const { data: replacements, error } = await supabase
+    .from("replacements")
+    .select("*")
+    .in("id", replacementIds);
+
+  if (error || !replacements?.length) {
+    return NextResponse.json({ error: "Replacements not found" }, { status: 404 });
+  }
+
+  const shipments = replacements.map((rep) => {
+    const newItems = (rep.new_items || []) as { title?: string; size?: string; quantity?: number }[];
+    const returnedItems = (rep.returned_items || []) as { title?: string; size?: string; quantity?: number }[];
+
+    const newDesc = newItems.map((i) => `${i.title || "Tshirt"} (${i.size || "-"}) x${i.quantity || 1}`).join(", ");
+    const retDesc = returnedItems.map((i) => `${i.title || "Tshirt"} (${i.size || "-"}) x${i.quantity || 1}`).join(", ");
+
+    let desc = "";
+    if (newDesc && retDesc) {
+      desc = `استبدال: تسليم [${newDesc}] واستلام من العميل [${retDesc}]`;
+    } else if (newDesc) {
+      desc = `استبدال: تسليم [${newDesc}]`;
+    } else {
+      desc = "استبدال تيشرتات";
+    }
+
+    const phone = (rep.customer_phone || "").replace(/\D/g, "").replace(/^20/, "0");
+    const matchedSector = findSectorForAddress(rep.customer_address || "");
+    const codPrice = Math.max(0, Math.round(Number(rep.total || 0)));
+
+    return {
+      sector_id: String(matchedSector.id),
+      keyword: matchedSector.name,
+      product_name: "Viltrum - استبدال",
+      product_desc: desc.slice(0, 240),
+      phone_1: phone,
+      service_type: 2, // 2: شحنة استبدال في سيستم Arrive
+      price: codPrice,
+      weight: "0.5 kg",
+      address: rep.customer_address || "العنوان غير محدد",
+      notes: `استبدال #${rep.replacement_number}${rep.notes ? ` - ${rep.notes}` : ""}`,
+      client_name: rep.customer_name || "عميل",
+      order_id: `R${rep.replacement_number}`,
+      quantity: String(newItems.reduce((sum, i) => sum + (i.quantity || 1), 0) || 1),
+    };
+  });
+
+  const res = await fetch(`${ARRIVE_BASE}?action=addBulkShipments`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user: ARRIVE_USER,
+      password: ARRIVE_PASS,
+      shipments,
+    }),
+  });
+
+  const data = await res.json();
+  const rawList: Record<string, unknown>[] = Array.isArray(data)
+    ? data
+    : data.response && Array.isArray(data.response)
+    ? data.response
+    : [];
+
+  if (rawList.length > 0) {
+    const errors: string[] = [];
+    const successful: Record<string, unknown>[] = [];
+
+    for (const item of rawList) {
+      const waybill = (item.waybill as string) || null;
+      const orderIdStr = (item.order_id as string) || null;
+      const itemError = (item.error as string) || null;
+
+      if (waybill && orderIdStr) {
+        const repNum = parseInt(orderIdStr.replace(/\D/g, ""), 10);
+        const matchingRep = replacements.find((r) => r.replacement_number === repNum);
+
+        if (matchingRep) {
+          let updatedWithCol = false;
+          try {
+            const { error: colErr } = await supabase
+              .from("replacements")
+              .update({
+                status: "shipped",
+                tracking_number: waybill,
+                shipping_company: "Arrive",
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", matchingRep.id);
+
+            if (!colErr) {
+              updatedWithCol = true;
+            }
+          } catch {
+            updatedWithCol = false;
+          }
+
+          if (!updatedWithCol) {
+            const existingNotes = matchingRep.notes || "";
+            const waybillNote = `[Arrive Waybill: ${waybill}]`;
+            const newNotes = existingNotes.includes(waybill)
+              ? existingNotes
+              : existingNotes ? `${existingNotes}\n${waybillNote}` : waybillNote;
+
+            await supabase
+              .from("replacements")
+              .update({
+                status: "shipped",
+                notes: newNotes,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", matchingRep.id);
+          }
+
+          successful.push({ ...item, replacement_id: matchingRep.id, replacement_number: repNum });
+        }
+      } else if (itemError) {
+        errors.push(`استبدال #${orderIdStr || "unknown"}: ${itemError}`);
+      }
+    }
+
+    if (successful.length > 0) {
+      return NextResponse.json({
+        success: true,
+        data: successful,
+        warnings: errors.length > 0 ? errors : undefined,
+      });
+    }
+
+    return NextResponse.json(
+      { success: false, error: errors.join(", ") || "Failed to create exchange shipments" },
       { status: 400 }
     );
   }
