@@ -6,11 +6,11 @@ import Link from "next/link";
 import ProductImage from "@/components/products/ProductImage";
 import { formatPrice } from "@/lib/utils";
 import { Product } from "@/types";
-import { ArrowUpRight } from "lucide-react";
+
 import { useCountdown } from "@/lib/useCountdown";
 import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
-import { Star, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -127,12 +127,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.title}
           </h3>
 
-          <div className="flex items-baseline justify-center gap-2.5">
-            <span className="text-lg sm:text-xl font-black text-red-500 line-through tracking-tight">
-              {formatPrice(originalPrice)}
-            </span>
-            <span className="text-xs sm:text-sm font-semibold text-zinc-400 tracking-normal">
+          <div className="flex items-baseline justify-center gap-2">
+            <span className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
               {formatPrice(product.price)}
+            </span>
+            <span className="text-xs text-muted line-through">
+              {formatPrice(originalPrice)}
             </span>
           </div>
         </div>

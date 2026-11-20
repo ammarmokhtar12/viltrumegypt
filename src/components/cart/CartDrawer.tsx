@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X, ShoppingBag, ArrowRight, Trash2, Sparkles, Zap, Gift } from "lucide-react";
+import { X, ShoppingBag, ArrowRight, Trash2, Gift } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 import CartItem from "./CartItem";
@@ -166,7 +166,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       {/* Header */}
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
-                          <Sparkles size={12} className="text-primary animate-pulse" />
+<span className="w-1.5 h-1.5 rounded-full bg-primary" />
                           <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-primary">
                             {grouped.bundleLabel}
                           </span>
@@ -241,76 +241,49 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                   {/* Bundle Upsell — orange-to-red gradient card */}
                   {showBundleUpsell && (
-                    <div className="relative overflow-hidden rounded-2xl shadow-md" style={{ background: "linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)" }}>
-                      {/* Shimmer sweep on hover */}
-                      <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-                      
-                      <div className="flex items-center gap-4 px-4 pt-4 pb-3">
-                        {/* Big counter */}
-                        <span className="text-4xl font-black text-white/90 leading-none select-none flex-shrink-0" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.2)" }}>
+                    <div className="rounded-xl border border-border-light bg-surface p-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl font-bold text-foreground leading-none select-none flex-shrink-0">
                           1/2
                         </span>
-                        {/* Text */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-extrabold text-white leading-tight">Add a 2nd T-shirt</p>
-                          <p className="text-[11px] text-white/80 mt-0.5 font-medium">
-                            2 T-shirts for {formatPrice(BUNDLE_PRICE)} · Save {formatPrice(BUNDLE_SAVE)}
+                          <p className="text-xs font-semibold text-foreground">Add a 2nd T-shirt</p>
+                          <p className="text-[11px] text-muted mt-0.5">
+                            2 for {formatPrice(BUNDLE_PRICE)} · Save {formatPrice(BUNDLE_SAVE)}
                           </p>
                         </div>
                       </div>
-
-                      {/* Full-width progress bar at bottom */}
-                      <div className="mx-4 mb-4 h-2 rounded-full bg-white/25 overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-700"
-                          style={{ width: "50%", background: "rgba(255,255,255,0.85)" }}
-                        />
+                      <div className="mt-3 h-1 rounded-full bg-border-light overflow-hidden">
+                        <div className="h-full w-1/2 rounded-full bg-accent/60" />
                       </div>
                     </div>
                   )}
 
-                  {/* Free Shipping — teal-to-blue gradient card */}
-                  <div
-                    className="relative overflow-hidden rounded-2xl shadow-md transition-all duration-500"
-                    style={{
-                      background: hasReachedFreeShipping
-                        ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
-                        : "linear-gradient(135deg, #99f6e4 0%, #bfdbfe 100%)",
-                    }}
-                  >
-                    <div className="flex items-center gap-4 px-4 pt-4 pb-3">
-                      {/* Truck icon circle */}
-                      <div className="w-10 h-10 rounded-full bg-white/30 flex items-center justify-center flex-shrink-0">
-                        <Gift size={18} className={hasReachedFreeShipping ? "text-white" : "text-teal-700"} />
+                  {/* Free Shipping */}
+                  <div className="rounded-xl border border-border-light bg-surface p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-surface border border-border-light flex items-center justify-center flex-shrink-0">
+                        <Gift size={14} className="text-muted" />
                       </div>
-                      {/* Text */}
                       <div className="flex-1 min-w-0">
                         {hasReachedFreeShipping ? (
                           <>
-                            <p className="text-[13px] font-extrabold text-white leading-tight">🎉 Free Shipping Unlocked!</p>
-                            <p className="text-[11px] text-white/85 mt-0.5 font-medium">Applied to your order</p>
+                            <p className="text-xs font-semibold text-emerald-400">Free Shipping Unlocked</p>
+                            <p className="text-[11px] text-muted mt-0.5">Applied to your order</p>
                           </>
                         ) : (
                           <>
-                            <p className="text-[13px] font-extrabold text-teal-900 leading-tight">
-                              Spend <span className="text-teal-700">{formatPrice(amountToFreeShipping)}</span> more
+                            <p className="text-xs font-semibold text-foreground">
+                              Spend {formatPrice(amountToFreeShipping)} more for free shipping
                             </p>
-                            <p className="text-[11px] text-teal-800/80 mt-0.5 font-medium">for Free Shipping on your order</p>
                           </>
                         )}
                       </div>
                     </div>
-
-                    {/* Full-width progress bar at bottom */}
-                    <div className="mx-4 mb-4 h-2 rounded-full overflow-hidden" style={{ background: hasReachedFreeShipping ? "rgba(255,255,255,0.25)" : "rgba(15,118,110,0.2)" }}>
+                    <div className="mt-3 h-1 rounded-full bg-border-light overflow-hidden">
                       <div
-                        className="h-full rounded-full transition-all duration-700 ease-out"
-                        style={{
-                          width: `${freeShippingProgress}%`,
-                          background: hasReachedFreeShipping
-                            ? "rgba(255,255,255,0.85)"
-                            : "linear-gradient(90deg, #0d9488, #3b82f6)",
-                        }}
+                        className="h-full rounded-full transition-all duration-700 ease-out bg-emerald-500/60"
+                        style={{ width: `${freeShippingProgress}%` }}
                       />
                     </div>
                   </div>

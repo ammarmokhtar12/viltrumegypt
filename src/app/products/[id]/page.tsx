@@ -416,11 +416,11 @@ export default function ProductDetailPage() {
                         </h1>
                       </div>
                       <div className="flex items-baseline gap-3">
-                        <span className="text-3xl sm:text-4xl font-black text-red-500 line-through tracking-tight">
-                          {formatPrice(originalPrice)}
-                        </span>
-                        <span className="text-lg sm:text-xl font-bold text-zinc-400">
+                        <span className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
                           {formatPrice(product.price)}
+                        </span>
+                        <span className="text-base sm:text-lg text-muted line-through">
+                          {formatPrice(originalPrice)}
                         </span>
                       </div>
                     </div>
@@ -481,7 +481,7 @@ export default function ProductDetailPage() {
                               <div className="text-[10px] font-bold uppercase tracking-wider">
                                 {inventory[selectedSize] > 0 ? (
                                   inventory[selectedSize] <= 3 ? (
-                                    <span className="text-amber-600 animate-pulse">🔥 Only {inventory[selectedSize]} left in stock!</span>
+                                    <span className="text-amber-600">Only {inventory[selectedSize]} left in stock</span>
                                   ) : (
                                     <span className="text-emerald-600">✓ In Stock ({inventory[selectedSize]} available)</span>
                                   )
@@ -492,7 +492,7 @@ export default function ProductDetailPage() {
                             )}
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-accent animate-pulse">لو عايز تعرف مقاسك بالظبط دوس هنا &rarr;</span>
+                            <span className="text-xs font-medium text-accent">لو عايز تعرف مقاسك بالظبط دوس هنا &rarr;</span>
                             <button 
                               onClick={() => setSizeGuideOpen(true)}
                               className="text-[10px] font-bold text-primary uppercase tracking-widest underline underline-offset-4 hover:opacity-70 transition-opacity"

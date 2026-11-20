@@ -248,7 +248,7 @@ export default function CheckoutPage() {
 
             <div className="pt-3 border-t border-dashed border-neutral-200 text-left">
               <p className="text-xs text-neutral-600 leading-relaxed flex items-start gap-2.5">
-                <span className="text-neutral-800 text-base leading-none">⚠️</span>
+                <span className="text-neutral-800 text-xs font-bold leading-none">!</span>
                 <span>
                   Please <strong className="text-neutral-950 font-bold">save this order number</strong>. You will need it to track your order status or request updates.
                 </span>
@@ -299,7 +299,7 @@ export default function CheckoutPage() {
           <div className="pt-2 space-y-3">
             <Link
               href="/products"
-              className="w-full h-14 bg-neutral-950 text-white rounded-xl text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-neutral-800 active:scale-[0.98] transition-all flex items-center justify-center shadow-lg shadow-neutral-900/5 cursor-pointer animate-pulse"
+              className="w-full h-14 bg-neutral-950 text-white rounded-xl text-[11px] font-semibold uppercase tracking-[0.2em] hover:bg-neutral-800 active:scale-[0.98] transition-all flex items-center justify-center shadow-lg shadow-neutral-900/5 cursor-pointer"
             >
               Continue Shopping
             </Link>
@@ -647,7 +647,7 @@ export default function CheckoutPage() {
                            <div key={`m-${grouped.bundleId}`} className="p-3 rounded-xl bg-surface border border-border-light space-y-3 relative overflow-hidden">
                               <div className="flex justify-between items-center">
                                  <div className="flex items-center gap-1.5">
-                                    <Sparkles size={12} className="text-accent animate-pulse" />
+<span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
                                     <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-accent">
                                        {grouped.bundleLabel}
                                     </span>

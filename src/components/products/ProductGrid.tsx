@@ -39,10 +39,8 @@ export default function ProductGrid({ products, fetchError }: ProductGridProps) 
             <div className="flex-1 fade-in-section">
               <p className="type-eyebrow mb-3 !text-accent-blue">Heroes Collection</p>
               <h2 className="text-4xl md:text-6xl type-headline">The Armory</h2>
-              <p className="mt-4 max-w-lg leading-relaxed">
-                <span className="invincible-text text-2xl md:text-3xl font-display font-bold uppercase tracking-wide">
-                  Every hero needs a suit.
-                </span>
+              <p className="mt-4 max-w-lg text-secondary text-base md:text-lg leading-relaxed font-medium">
+                Every hero needs a suit.
               </p>
             </div>
           </div>
