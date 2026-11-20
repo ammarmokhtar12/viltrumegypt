@@ -97,19 +97,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <span>BEST SELLER</span>
                 </div>
               )}
-              <div className="bg-gradient-to-r from-red-600 to-rose-600 text-white font-black text-[8px] sm:text-[9px] uppercase px-2 sm:px-2.5 py-0.5 rounded-full border border-red-400/40 shadow-md tracking-wider font-sans flex items-center gap-1 w-fit">
-                <span>🏷️ 2 بـ 850 ج</span>
-              </div>
-              <div
-                className={`backdrop-blur-md text-[9px] uppercase font-semibold px-3 py-1.5 rounded-full border shadow-sm tracking-widest font-sans inline-flex w-fit ${
-                  product.title === "Thragg Edition"
-                    ? "bg-accent text-white border-accent/30"
-                    : "bg-black/60 text-white border-white/10"
-                }`}
-              >
-                {product.title === "Thragg Edition" ? "Coming Soon" : "Hero Edition"}
-              </div>
-              <div className="bg-red-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full border border-red-400/30 shadow-sm w-fit">
+              <div className="bg-red-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-red-400/30 shadow-sm w-fit">
                 -{discountPercentage}%
               </div>
             </div>
