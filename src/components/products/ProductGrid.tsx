@@ -1,5 +1,6 @@
-import { sortProductsWithBestSellers } from "@/lib/productSorting";
 "use client";
+
+import { sortProductsWithBestSellers } from "@/lib/productSorting";
 
 import ProductCard from "./ProductCard";
 import { Product } from "@/types";

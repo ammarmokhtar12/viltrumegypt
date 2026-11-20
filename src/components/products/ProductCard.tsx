@@ -1,5 +1,6 @@
-import { isBestSeller } from "@/lib/productSorting";
 "use client";
+
+import { isBestSeller } from "@/lib/productSorting";
 
 import Link from "next/link";
 import ProductImage from "@/components/products/ProductImage";

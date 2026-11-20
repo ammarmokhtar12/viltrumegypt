@@ -1,5 +1,6 @@
-import { sortProductsWithBestSellers, isBestSeller } from "@/lib/productSorting";
 "use client";
+
+import { sortProductsWithBestSellers, isBestSeller } from "@/lib/productSorting";
 
 // --- VILTRUM BUNDLE BUILDER V2 ---
 
