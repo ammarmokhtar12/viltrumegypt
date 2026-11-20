@@ -142,10 +142,10 @@ export default function FrequentlyBoughtBundle({
       </div>
 
       <h3 className="text-base sm:text-lg font-bold text-white mb-1">
-        اشترِ هذا التيشرت مع تيشرت آخر بـ 850 ج بدلاً من {formatPrice(regularTotal)}!
+        اشتري 2 تيشرت بـ 850 ج فقط
       </h3>
       <p className="text-xs text-zinc-400 mb-5 leading-relaxed">
-        اختار أي تيشرت تاني ومقاساتك، وهيضافوا سوا كباندل بخصم 110 جنيه تلقائياً:
+        وفر 110 جنيه عند إضافة تيشرت آخر — اختار أي تيشرت تاني ومقاسك وهيضافوا كباندل بـ 850 ج بدلاً من {formatPrice(regularTotal)}:
       </p>
 
       {/* Product Pair Cards */}

@@ -451,24 +451,6 @@ export default function ProductDetailPage() {
 
                     <div className="h-px bg-border-light w-24"></div>
 
-                    {/* 2 for 850 EGP Deal Callout Banner */}
-                    <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-xs sm:text-sm font-semibold text-white">اشتري 2 تيشرت بـ 850 ج فقط</p>
-                        <p className="text-[10px] sm:text-xs text-zinc-400 mt-0.5">وفر 110 جنيه عند إضافة تيشرت آخر</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const el = document.getElementById("bundle-offer-section");
-                          if (el) el.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className="px-3 py-1.5 bg-white hover:bg-zinc-100 text-zinc-900 font-medium text-[10px] sm:text-xs rounded-lg transition-colors shrink-0 cursor-pointer"
-                      >
-                        شاهد العرض &darr;
-                      </button>
-                    </div>
-
                     {/* Configuration: Size */}
                     <div className="space-y-5">
                        <div className="flex justify-between items-center">
