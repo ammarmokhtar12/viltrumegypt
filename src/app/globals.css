@@ -276,7 +276,7 @@
 }
 
 .viltrum-input {
-  @apply w-full px-4 py-3 rounded-xl border border-border-light bg-background font-sans text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent/30 transition-all;
+  @apply w-full px-4 py-3 rounded-xl border border-border-light bg-background font-sans text-base sm:text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent/30 transition-all;
 }
 
 .btn-outline {

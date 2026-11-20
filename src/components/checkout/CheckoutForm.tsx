@@ -258,9 +258,14 @@ export default function CheckoutForm({
                 onChange={() => onPaymentMethodChange("vodafone_cash")}
                 className="w-4 h-4 text-primary focus:ring-primary accent-primary"
               />
-              <span className="font-medium text-sm text-foreground">
-                Cash on Delivery
-              </span>
+              <div className="flex flex-col text-left">
+                <span className="font-bold text-sm text-foreground">
+                  الدفع عند الاستلام (Cash on Delivery)
+                </span>
+                <span className="text-[11px] text-emerald-400 font-medium">
+                  ✓ معاينة وقياس التيشرت مع المندوب قبل الدفع
+                </span>
+              </div>
             </div>
           </label>
 
@@ -276,9 +281,14 @@ export default function CheckoutForm({
                 onChange={() => onPaymentMethodChange("instapay")}
                 className="w-4 h-4 text-primary focus:ring-primary accent-primary"
               />
-              <span className="font-medium text-sm text-foreground">
-                InstaPay / Vodafone Cash Transfer
-              </span>
+              <div className="flex flex-col text-left">
+                <span className="font-bold text-sm text-foreground">
+                  تحويل فودافون كاش / انستاباي (InstaPay)
+                </span>
+                <span className="text-[11px] text-zinc-400 font-normal">
+                  دفع إلكتروني فوري وسريع
+                </span>
+              </div>
             </div>
 
             {paymentMethod === "instapay" && (

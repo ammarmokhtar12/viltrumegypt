@@ -5,10 +5,10 @@ import { isBestSeller } from "@/lib/productSorting";
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import ProductImage from "@/components/products/ProductImage";
-import { ShoppingBag, Check, Minus, Plus, ArrowLeft, Truck, ShieldCheck, Heart } from "lucide-react";
+import { ShoppingBag, Check, Minus, Plus, ArrowLeft, Truck, ShieldCheck, Heart, Zap, RefreshCw } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Product } from "@/types";
 import { formatPrice } from "@/lib/utils";
@@ -30,8 +30,10 @@ import BundleBuilder from "@/components/products/BundleBuilder";
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const timeLeft = useCountdown();
   const productId = params.id as string;
+  const [showStickyBar, setShowStickyBar] = useState(false);
 
   const [cartOpen, setCartOpen] = useState(false);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
@@ -46,6 +48,17 @@ export default function ProductDetailPage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
 
   const addItem = useCartStore((s) => s.addItem);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = document.getElementById("main-buy-buttons");
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      setShowStickyBar(rect.bottom < 0);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -134,17 +147,63 @@ export default function ProductDetailPage() {
     fetchProduct();
   }, [productId]);
 
+  const handleBuyNow = () => {
+    if (!product) return;
+    if (!selectedSize) {
+      toast.error("يرجى اختيار المقاس أولاً", {
+        description: "اضغط على مقاسك المناسب لإتمام الطلب فوراً",
+      });
+      const el = document.getElementById("size-selector-target");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    const stock = inventory[selectedSize];
+    if (stock !== undefined && stock <= 0) {
+      toast.error("المقاس المحدد نفذت كميته");
+      return;
+    }
+    addItem({
+      product_id: product.id,
+      title: product.title,
+      price: product.price,
+      size: selectedSize,
+      quantity,
+      image_url: product.image_url,
+    });
+    trackTikTokEvent("InitiateCheckout", {
+      content_type: "product",
+      contents: [{
+        content_id: product.id,
+        content_type: "product",
+        content_name: product.title,
+        quantity,
+        price: product.price,
+      }],
+      value: product.price * quantity,
+      currency: "EGP",
+    });
+    router.push("/checkout");
+  };
+
   const handleAddToCart = () => {
-    if (!product || !selectedSize) return;
+    if (!product) return;
+    if (!selectedSize) {
+      toast.error("يرجى اختيار المقاس أولاً", {
+        description: "اضغط على المقاس المناسب لك للإضافة للسلة",
+      });
+      const el = document.getElementById("size-selector-target");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
 
     // Validate stock quantity before adding
     const stock = inventory[selectedSize];
     if (stock !== undefined && stock <= 0) {
-      toast.error("Size is currently out of stock.");
+      toast.error("المقاس المحدد نفذت كميته");
       return;
     }
     if (stock !== undefined && quantity > stock) {
-      toast.error(`Only ${stock} units available. Please reduce quantity.`);
+      toast.error(`المتاح فقط ${stock} قطع، يرجى تقليل الكمية.`);
       return;
     }
     addItem({
@@ -452,7 +511,7 @@ export default function ProductDetailPage() {
                     <div className="h-px bg-border-light w-24"></div>
 
                     {/* Configuration: Size */}
-                    <div className="space-y-5">
+                    <div id="size-selector-target" className="space-y-5 scroll-mt-24">
                        <div className="flex justify-between items-center">
                           <div className="space-y-1">
                             <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted block">
@@ -539,50 +598,73 @@ export default function ProductDetailPage() {
                       </div>
                     </div>
 
-                    {/* Main Action */}
-                    <div className="pt-4 flex gap-3">
-                      <button
-                        onClick={handleAddToCart}
-                        disabled={!selectedSize || added || (selectedSize && inventory[selectedSize] !== undefined ? inventory[selectedSize] <= 0 : false)}
-                        className={`flex-1 flex items-center justify-center gap-3 rounded-2xl text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 group ${
-                          added
-                            ? "bg-emerald-600 text-white"
-                            : (!selectedSize || (selectedSize && inventory[selectedSize] !== undefined ? inventory[selectedSize] <= 0 : false))
-                            ? "cursor-not-allowed bg-surface border border-border-light text-muted opacity-50"
-                            : "bg-accent text-white hover:opacity-90 shadow-2xl shadow-accent/10"
-                        }`}
-                        style={{ minHeight: "4rem" }}
-                      >
-                        {added ? (
-                          <>
-                            <Check size={18} />
-                            Successfully Added
-                          </>
-                        ) : selectedSize && inventory[selectedSize] !== undefined && inventory[selectedSize] <= 0 ? (
-                          <>
-                            Out of Stock (نفذت الكمية)
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingBag size={18} className="group-hover:scale-110 transition-transform" />
-                            {selectedSize ? `Add to Cart — ${formatPrice(product.price * quantity)}` : "Identify Your Size"}
-                          </>
-                        )}
-                      </button>
+                    {/* Main Action Buttons */}
+                    <div id="main-buy-buttons" className="pt-4 space-y-3">
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        {/* Direct Buy Now Button */}
+                        <button
+                          onClick={handleBuyNow}
+                          className="flex-1 flex items-center justify-center gap-2.5 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider bg-white hover:bg-zinc-100 text-zinc-950 shadow-xl active:scale-[0.98] transition-all cursor-pointer h-14"
+                        >
+                          <Zap size={18} className="fill-zinc-950 text-zinc-950" />
+                          <span>اشتري الآن (دفع فوري)</span>
+                        </button>
 
-                      <button
-                        onClick={handleAddToWishlist}
-                        disabled={wishlistAdded}
-                        className={`w-16 flex items-center justify-center rounded-2xl border transition-all duration-500 ${
-                          wishlistAdded
-                            ? "bg-rose-50 border-rose-200 text-rose-600"
-                            : "bg-surface border-border-light text-secondary hover:text-rose-600 hover:border-rose-300"
-                        }`}
-                        style={{ minHeight: "4rem" }}
-                        title="Add to Wishlist"
-                      >
-                        <Heart size={20} className={wishlistAdded ? "fill-rose-600 text-rose-600" : ""} />
-                      </button>
+                        {/* Add to Cart Button */}
+                        <button
+                          onClick={handleAddToCart}
+                          className={`flex-1 flex items-center justify-center gap-2.5 rounded-2xl text-xs sm:text-sm font-bold uppercase tracking-wider transition-all h-14 cursor-pointer ${
+                            added
+                              ? "bg-emerald-600 text-white"
+                              : "bg-surface border border-border-light text-foreground hover:border-secondary active:scale-[0.98]"
+                          }`}
+                        >
+                          {added ? (
+                            <>
+                              <Check size={18} />
+                              <span>تمت الإضافة للسلة</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag size={18} />
+                              <span>أضف للسلة</span>
+                            </>
+                          )}
+                        </button>
+
+                        {/* Wishlist */}
+                        <button
+                          onClick={handleAddToWishlist}
+                          disabled={wishlistAdded}
+                          className={`w-full sm:w-14 h-12 sm:h-14 flex items-center justify-center rounded-2xl border transition-all ${
+                            wishlistAdded
+                              ? "bg-rose-50 border-rose-200 text-rose-600"
+                              : "bg-surface border-border-light text-secondary hover:text-rose-600 hover:border-rose-300"
+                          }`}
+                          title="Add to Wishlist"
+                        >
+                          <Heart size={20} className={wishlistAdded ? "fill-rose-600 text-rose-600" : ""} />
+                        </button>
+                      </div>
+
+                      {/* Micro-Trust Badges for Mobile */}
+                      <div className="grid grid-cols-3 gap-2 pt-2">
+                        <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-surface border border-border-light">
+                          <Truck size={16} className="text-zinc-400 mb-1" />
+                          <span className="text-[10px] font-bold text-foreground">شحن سريع</span>
+                          <span className="text-[9px] text-muted">3-5 أيام لبيتك</span>
+                        </div>
+                        <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-surface border border-border-light">
+                          <ShieldCheck size={16} className="text-zinc-400 mb-1" />
+                          <span className="text-[10px] font-bold text-foreground">معاينة قبل الدفع</span>
+                          <span className="text-[9px] text-muted">استلم وأنت متطمن</span>
+                        </div>
+                        <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-surface border border-border-light">
+                          <RefreshCw size={16} className="text-zinc-400 mb-1" />
+                          <span className="text-[10px] font-bold text-foreground">استبدال سهل</span>
+                          <span className="text-[9px] text-muted">خدمة عملاء فورية</span>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Frequently Bought Together Bundle Deal (2 for 850 EGP) */}
@@ -620,6 +702,55 @@ export default function ProductDetailPage() {
             </>
           )}
         </div>
+      
+      {/* Sticky Mobile Bar on Product Page */}
+      {showStickyBar && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800 p-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-2xl animate-in slide-in-from-bottom duration-300">
+          <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
+            {/* Info + Quick Size */}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="relative w-11 h-11 rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 flex-shrink-0">
+                {product.image_url ? (
+                  <ProductImage src={product.image_url} alt={product.title} fill className="object-cover" sizes="44px" />
+                ) : (
+                  <div className="w-full h-full bg-zinc-800" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-white truncate leading-tight">{product.title}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-xs font-bold text-white">{formatPrice(product.price)}</span>
+                  {selectedSize ? (
+                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+                      {selectedSize}
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        const el = document.getElementById("size-selector-target");
+                        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                      }}
+                      className="text-[10px] font-semibold text-accent underline"
+                    >
+                      اختر المقاس
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Buy Button */}
+            <button
+              onClick={handleBuyNow}
+              className="bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-xs uppercase px-5 py-3 rounded-xl shadow-lg flex items-center gap-1.5 active:scale-95 transition-all flex-shrink-0 cursor-pointer"
+            >
+              <Zap size={14} className="fill-zinc-950 text-zinc-950" />
+              <span>اشتري الآن</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       </main>
 
       <Footer />

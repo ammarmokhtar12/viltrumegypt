@@ -90,7 +90,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <span>Ends in {timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes.toString().padStart(2, '0')}:{timeLeft.seconds.toString().padStart(2, '0')}</span>
             </div>
           ) : (
-            <div className="absolute top-4 sm:top-6 left-4 sm:left-6 flex flex-col gap-1.5 sm:gap-2 z-10">
+            <div className="absolute top-2.5 sm:top-5 left-2.5 sm:left-5 flex flex-col gap-1 sm:gap-2 z-10">
               {bestSeller && (
                 <div className="bg-white/90 backdrop-blur-sm text-zinc-900 text-[9px] sm:text-[10px] font-semibold px-2.5 sm:px-3 py-1 rounded-md shadow-sm font-sans w-fit">
                   Best Seller
@@ -122,16 +122,16 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        <div className="mt-6 text-center px-4 space-y-2.5">
-          <h3 className="text-[14px] font-display font-medium text-foreground uppercase tracking-[0.1em] group-hover:text-accent transition-colors line-clamp-1">
+        <div className="mt-3 sm:mt-6 text-center px-2 sm:px-4 space-y-1 sm:space-y-2">
+          <h3 className="text-xs sm:text-[14px] font-display font-medium text-foreground uppercase tracking-[0.08em] group-hover:text-accent transition-colors line-clamp-1">
             {product.title}
           </h3>
 
-          <div className="flex items-baseline justify-center gap-2">
-            <span className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
+          <div className="flex items-baseline justify-center gap-1.5 sm:gap-2">
+            <span className="text-base sm:text-xl font-bold text-foreground tracking-tight">
               {formatPrice(product.price)}
             </span>
-            <span className="text-xs text-muted line-through">
+            <span className="text-[10px] sm:text-xs text-muted line-through">
               {formatPrice(originalPrice)}
             </span>
           </div>
