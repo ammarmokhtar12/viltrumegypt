@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAllRows } from "@/lib/supabase-helpers";
 import {
   DollarSign,
   TrendingUp,
@@ -56,8 +57,8 @@ export default function CommandCenterDashboard() {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [ordersRes, expensesRes, adSpendRes, batchesRes, invRes, returnsRes, budgetRes] = await Promise.all([
-        supabase.from("orders").select("status, total, payment_collected, created_at"),
+      const [allOrders, expensesRes, adSpendRes, batchesRes, invRes, returnsRes, budgetRes] = await Promise.all([
+        fetchAllRows("orders", "status, total, payment_collected, created_at"),
         supabase.from("expenses").select("amount"),
         supabase.from("ad_spend").select("amount, impressions, clicks"),
         supabase.from("manufacturing_batches").select("total_cost, cost_per_unit"),
@@ -66,7 +67,7 @@ export default function CommandCenterDashboard() {
         supabase.from("budget_settings").select("id, total_budget, ad_budget").order("created_at", { ascending: false }).limit(1),
       ]);
 
-      setOrders(ordersRes.data || []);
+      setOrders(allOrders || []);
       setExpenses(expensesRes.data || []);
       setAdSpend(adSpendRes.data || []);
       setBatches(batchesRes.data || []);

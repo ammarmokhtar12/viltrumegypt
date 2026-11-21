@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAllRows } from "@/lib/supabase-helpers";
 import {
   FileSpreadsheet,
   Download,
@@ -31,12 +32,12 @@ export default function ReportsPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [ordersRes, adRes, batchRes] = await Promise.all([
-      supabase.from("orders").select("*").order("created_at", { ascending: false }),
+    const [allOrders, adRes, batchRes] = await Promise.all([
+      fetchAllRows("orders", "*", "created_at", false),
       supabase.from("ad_spend").select("*"),
       supabase.from("manufacturing_batches").select("*"),
     ]);
-    setOrders(ordersRes.data || []);
+    setOrders(allOrders || []);
     setAdSpend(adRes.data || []);
     setBatches(batchRes.data || []);
     setLoading(false);

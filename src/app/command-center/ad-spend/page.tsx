@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAllRows } from "@/lib/supabase-helpers";
 import { Megaphone, PlusCircle, Trash2, AlertTriangle, TrendingUp, DollarSign } from "lucide-react";
 
 export default function AdSpendPage() {
@@ -28,16 +29,16 @@ export default function AdSpendPage() {
     setLoading(true);
     setDbError(false);
     try {
-      const [aRes, oRes] = await Promise.all([
+      const [aRes, allOrders] = await Promise.all([
         supabase.from("ad_spend").select("*").order("date", { ascending: false }),
-        supabase.from("orders").select("total, status"),
+        fetchAllRows("orders", "total, status"),
       ]);
       if (aRes.error && (aRes.error.code === "PGRST205" || aRes.error.message?.includes("does not exist"))) {
         setDbError(true);
       } else {
         setEntries(aRes.data || []);
       }
-      setOrders(oRes.data || []);
+      setOrders(allOrders || []);
     } catch {
       setDbError(true);
     } finally {

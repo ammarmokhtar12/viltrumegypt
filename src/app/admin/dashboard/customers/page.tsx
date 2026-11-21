@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAllRows } from "@/lib/supabase-helpers";
 import { Users, Phone, MapPin, DollarSign, Search, ExternalLink, Trophy, Package, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
@@ -25,12 +26,14 @@ export default function AdminCustomersPage() {
     async function fetchCustomers() {
       setLoading(true);
       try {
-        const { data: orders, error } = await supabase
-          .from("orders")
-          .select("customer_name, customer_phone, customer_address, total, created_at, status")
-          .order("created_at", { ascending: false });
+        const orders = await fetchAllRows(
+          "orders",
+          "customer_name, customer_phone, customer_address, total, created_at, status",
+          "created_at",
+          false
+        );
 
-        if (!error && orders) {
+        if (orders) {
           const customerMap = new Map<string, Customer>();
 
           orders.forEach((order) => {

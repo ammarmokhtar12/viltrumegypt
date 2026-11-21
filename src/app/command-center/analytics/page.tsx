@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAllRows } from "@/lib/supabase-helpers";
 import { TrendingUp, BarChart3, MapPin, Package, RefreshCw, Clock, CheckCircle, Wallet } from "lucide-react";
 
 const EGYPT_GOVERNORATES = [
@@ -57,13 +58,13 @@ export default function AnalyticsPage() {
 
   const fetchAll = async () => {
     setLoading(true);
-    const [oRes, eRes, aRes, bRes] = await Promise.all([
-      supabase.from("orders").select("*").order("created_at", { ascending: true }),
+    const [allOrders, eRes, aRes, bRes] = await Promise.all([
+      fetchAllRows("orders", "*", "created_at", true),
       supabase.from("expenses").select("*"),
       supabase.from("ad_spend").select("*"),
       supabase.from("manufacturing_batches").select("*"),
     ]);
-    setOrders(oRes.data || []);
+    setOrders(allOrders || []);
     setExpenses(eRes.data || []);
     setAdSpend(aRes.data || []);
     setBatches(bRes.data || []);

@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAllRows } from "@/lib/supabase-helpers";
 import { exportOrdersToCsv } from "@/lib/exportOrdersCsv";
 import {
   Search,
@@ -618,17 +619,20 @@ export default function OrdersPage() {
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("orders")
-      .select("id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company, updated_at, notes")
-      .order("created_at", { ascending: false })
-      .limit(5000);
-    if (error) {
+    try {
+      const allOrders = await fetchAllRows(
+        "orders",
+        "id, order_number, customer_name, customer_phone, customer_address, payment_method, payment_collected, status, total, items, created_at, referral_source, tracking_number, shipping_company, updated_at, notes",
+        "created_at",
+        false
+      );
+      setOrders(allOrders);
+    } catch (error: any) {
       console.error("Orders fetch error:", error);
-      alert("Error loading orders: " + error.message);
+      alert("Error loading orders: " + (error?.message || "Unknown error"));
+    } finally {
+      setLoading(false);
     }
-    setOrders(data || []);
-    setLoading(false);
   }, []);
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
