@@ -7,6 +7,7 @@ import {
   BarChart3,
   ShoppingCart,
   Megaphone,
+  Upload,
   TrendingUp,
   LogOut,
   Menu,
@@ -30,6 +31,7 @@ const ANALYTICS_NAV = [
   { href: "/command-center/replacements",  label: "Replacements", icon: ArrowLeftRight  },
   { href: "/command-center/ad-spend",      label: "Ad Spend",     icon: Megaphone       },
   { href: "/command-center/reports",       label: "Reports",      icon: FileSpreadsheet },
+  { href: "/command-center/upload",        label: "Upload Sheet", icon: Upload          },
   { href: "/command-center/analytics",     label: "Analytics",    icon: TrendingUp      },
 ];
 
